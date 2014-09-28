@@ -11,11 +11,14 @@ From the victim's perspective, the attack makes use in three phases:
 2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled on the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will start connecting to the rogue access point. After this phase, the victim is MiTMed.
 3. **Victim is being served a realistic router config-looking page**. wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for WPA password confirmation due to a router firmware upgrade.
 
-<p align="center"><img src="https://sophron.github.io/wifiphisher/diagram.jpg" /></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
 ## Usage
 
-## Making the attacks more successful
+## Screenshots
+
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss1.png" /><br /><i>Targeting an access point</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
 
 
 ## Requirements
