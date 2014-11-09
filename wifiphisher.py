@@ -685,11 +685,21 @@ def sniff_dot11(mon_iface):
     """
     sniff(iface=mon_iface, store=0, prn=cb)
 
+def get_hostapd():
+    if not os.path.isfile('/usr/sbin/hostapd'):
+        install = raw_input('['+T+'*'+W+'] isc-dhcp-server not found in /usr/sbin/hostapd, install now? [y/n] ')
+        if install == 'y':
+            os.system('apt-get -y install hostapd')
+        else:
+            sys.exit('['+R+'-'+W+'] hostapd not found in /usr/sbin/hostapd')
+
 if __name__ == "__main__":
 
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
+    # Get hostapd if needed
+    get_hostapd()
     # Parse args
     args = parse_args()
 
