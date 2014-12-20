@@ -766,7 +766,7 @@ if __name__ == "__main__":
 
     # Start AP
     dhcpconf = dhcp_conf(ap_iface)
-    dhcp(dhcpconf, mon_iface)
+    dhcp(dhcpconf, ap_iface)
     start_ap(ap_iface, channel, essid, args)
     os.system('clear')
     print '[' + T + '*' + W + '] ' + T + \
