@@ -15,8 +15,6 @@ import cgi
 import string
 import argparse
 import fcntl
-#import lib.fakeAP as fap
-#import lib.wifijammer as wj
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
@@ -29,7 +27,7 @@ PORT = 8081
 SSL_PORT = 444
 PEM = 'cert/server.pem'
 CONFIG = "config/config.ini"
-PHISING_PAGES = "access-point-pages"
+PHISING_PAGE = "access-point-pages/dlink/"
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -152,7 +150,6 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         if not os.path.isfile(CONFIG):
             shutdown()
-        d = config_section_map("Router")
 
         if self.path == "/":
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
@@ -161,20 +158,18 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                )
                 log_file.close()
             self.path = "index.html"
-        self.path = "%s/%s/%s" % (PHISING_PAGES, d['router'], self.path)
+        self.path = "%s/%s/%s" % (PHISING_PAGE, self.path)
 
         if self.path.endswith(".html"):
             if not os.path.isfile(self.path):
                 self.send_response(404)
                 return
             f = open(self.path)
-            s = string.Template(f.read())
-            s = s.substitute(d)
             self.send_response(200)
             self.send_header('Content-type', 'text-html')
             self.end_headers()
             # Send file content to client
-            self.wfile.write(s)
+            self.wfile.write(f.read())
             f.close()
             return
         # Leave binary and other data to default handler.
@@ -218,22 +213,6 @@ def stop_server(port=PORT, ssl_port=SSL_PORT):
     conn = httplib.HTTPSConnection("localhost:%d" % ssl_port)
     conn.request("QUIT", "/")
     conn.getresponse()
-
-def config_section_map(section):
-    """
-    Maps the values of a config file to a dictionary.
-    """
-    config = ConfigParser.ConfigParser()
-    config.read(CONFIG)
-    dict1 = {}
-    options = config.options(section)
-    for option in options:
-        try:
-            dict1[option] = config.get(section, option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
 
 def shutdown():
     """
