@@ -27,6 +27,7 @@ From the victim's perspective, the attack makes use in three phases:
 
 <p align="center"><img src="https://sophron.github.io/wifiphisher/ss1.png" /><br /><i>Targeting an access point</i></p>
 <p align="center"><img src="https://sophron.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss3.png" /><br /><i>Fake router configuration page</i></p>
 
 
 ## Requirements
