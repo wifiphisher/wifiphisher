@@ -26,8 +26,7 @@ conf.verb = 0
 PORT = 8081
 SSL_PORT = 444
 PEM = 'cert/server.pem'
-CONFIG = "config/config.ini"
-PHISING_PAGE = "access-point-pages/dlink/"
+PHISING_PAGE = "access-point-pages/dlink"
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -148,9 +147,6 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
 
-        if not os.path.isfile(CONFIG):
-            shutdown()
-
         if self.path == "/":
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
                 log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
@@ -158,7 +154,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                )
                 log_file.close()
             self.path = "index.html"
-        self.path = "%s/%s/%s" % (PHISING_PAGE, self.path)
+        self.path = "%s/%s" % (PHISING_PAGE, self.path)
 
         if self.path.endswith(".html"):
             if not os.path.isfile(self.path):
