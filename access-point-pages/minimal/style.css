@@ -1,6 +1,7 @@
 body {
     background-image: url(bg.jpg);
     font-family: Arial, sans-serif;
+    font-size: 12px;
     background-color: #8EB9DB;
     background-repeat: repeat-x;
     background-position: center top;
@@ -14,9 +15,40 @@ strong {
 }
 
 #header {
-    background-color: white;
-    border-top: 7px black solid;
     width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#header-left {
+    background-color: white;
+    float: left;
+}
+
+#header-right {
+    float: right;
+    font-size: 30px;
+    padding-right: 400px;
+    padding-top: 30px; 
+}
+
+#bottom {
+    background-color: #1F2120;
+    padding-top: 5px;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+#top-header {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #1F2120;
+    color: white;
+    width: 800px;
+    font-size: 12px;
+    font-weight: bold;
     margin-left: auto;
     margin-right: auto;
 }
@@ -28,6 +60,10 @@ strong {
     background-color: white;
     margin-left: auto;
     margin-right: auto;
+}
+
+.top-right {
+    float: right;
 }
 
 
@@ -45,7 +81,7 @@ img {
 }
 
 #content table {
-    border: 0.5px black solid;
+    border: 1px black solid;
     width: 700px;
     margin-top: 10px;
     margin-bottom: 20px;
