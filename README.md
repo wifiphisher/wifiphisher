@@ -32,11 +32,14 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## Requirements
 * Kali Linux.
-* Two network interfaces, one wireless.
-* A wireless card capable of injection.
+* Two wireless network interfaces, one capable of injection.
 
 ## Credits
-The idea belongs to <a href="https://github.com/DanMcInerney">Dan McInerney</a> who also authored two essential modules of this script, <a href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
+The script is based on an idea from <a
+href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
+jamming and selecting an AP have also been taken from his scripts <a
+href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
+href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 ## License
 Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
