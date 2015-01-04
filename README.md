@@ -15,13 +15,15 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## Usage
 | Short form | Long form | Explanation |
-| ---------- | --------- | ----------- |
-| -m | --maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
-| -n | --noupdate | Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n |
-| -t | --timeinterval | Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001 |
-| -p | --packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
-| -d | --directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
-| -a | --accesspoint | Enter the MAC address of a specific access point to target |
+| :----------: | :---------: | :-----------: |
+| -m | maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
+| -n | noupdate | Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n |
+| -t | timeinterval | Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001 |
+| -p | packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
+| -d | directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
+| -a | accesspoint | Enter the MAC address of a specific access point to target |
+| -jI | jamminginterface | Choose the interface for jamming |
+| -aI | apinterface | Choose the interface for the fake AP |
 
 ## Screenshots
 
