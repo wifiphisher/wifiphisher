@@ -22,8 +22,8 @@ From the victim's perspective, the attack makes use in three phases:
 | -p | packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
 | -d | directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
 | -a | accesspoint | Enter the MAC address of a specific access point to target |
-| -jI | jamminginterface | Choose the interface for jamming |
-| -aI | apinterface | Choose the interface for the fake AP |
+| -jI | jamminginterface | Choose the interface for jamming. By default script will find the most powerful interface and starts monitor mode on it. |
+| -aI | apinterface | Choose the interface for the fake AP.  By default script will find the second most powerful interface and starts monitor mode on it. |
 
 ## Screenshots
 
@@ -45,3 +45,7 @@ href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 ## License
 Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
+
+[![alt text][1.1]][1]
+[1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
+[1]: http://www.twitter.com/_sophron
