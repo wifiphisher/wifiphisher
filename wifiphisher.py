@@ -23,10 +23,10 @@ from scapy.all import *
 conf.verb = 0
 
 # Basic configuration
-PORT = 8081
-SSL_PORT = 444
+PORT = 8080
+SSL_PORT = 443
 PEM = 'cert/server.pem'
-PHISING_PAGE = "access-point-pages/dlink"
+PHISING_PAGE = "access-point-pages/minimal"
 DN = open(os.devnull, 'w')
 
 # Console colors
