@@ -36,6 +36,9 @@ From the victim's perspective, the attack makes use in three phases:
 * Kali Linux.
 * Two wireless network interfaces, one capable of injection.
 
+## Help needed
+If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the bug tracker for some tasks to do.
+
 ## Credits
 The script is based on an idea from <a
 href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
