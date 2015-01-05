@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 import os
@@ -42,7 +42,7 @@ T = '\033[93m'   # tan
 
 count = 0 # for channel hopping Thread
 APs = {} # for listing APs
-hop_daemon_running = True 
+hop_daemon_running = True
 
 def parse_args():
     #Create the arguments
@@ -380,7 +380,7 @@ def start_ap(mon_iface, channel, essid, args):
         cleanup(None, None)
 
 def dhcp_conf(interface):
-    
+
     config = ( # disables dnsmasq reading any other files like /etc/resolv.conf for nameservers
               'no-resolv\n'
               # Interface to bind to
@@ -404,6 +404,7 @@ def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     ipprefix = get_internet_ip_prefix()
+    mon_iface = str(mon_iface)
     Popen(['ifconfig', mon_iface, 'mtu', '1400'], stdout=DN, stderr=DN)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
         Popen(['ifconfig', mon_iface, 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
@@ -418,7 +419,7 @@ def get_strongest_iface(exceptions=[]):
     scanned_aps = []
     for i in interfaces:
         if i in exceptions:
-            continue        
+            continue
         count = 0
         proc = Popen(['iwlist', i, 'scan'], stdout=PIPE, stderr=DN)
         for line in proc.communicate()[0].split('\n'):
@@ -533,7 +534,7 @@ def output(monchannel):
             for ca in clients_APs:
                 if len(ca) > 3:
                     log_file.write('['+T+'*'+W+'] '+O+ca[0]+W+' - '+O+ca[1]+W+' - '+ca[2].ljust(2)+' - '+T+ca[3]+W + '\n')
-                else: 
+                else:
                     log_file.write('['+T+'*'+W+'] '+O+ca[0]+W+' - '+O+ca[1]+W+' - '+ca[2])
         with lock:
             for ap in APs:
@@ -700,7 +701,7 @@ if __name__ == "__main__":
     # Get interfaces
     reset_interfaces()
     if not args.jamminginterface:
-        inet_iface = get_internet_interface() 
+        inet_iface = get_internet_interface()
         mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
         iface_to_monitor = False
     else:
@@ -746,7 +747,7 @@ if __name__ == "__main__":
     print '[' + T + '*' + W + '] ' + T + \
           essid + W + ' set up on channel ' + \
           T + channel + W + ' via ' + T + mon_iface \
-          + W + ' on ' + T + ap_iface + W
+          + W + ' on ' + T + str(ap_iface) + W
 
 
     clients_APs = []
