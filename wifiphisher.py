@@ -404,12 +404,12 @@ def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     ipprefix = get_internet_ip_prefix()
-    Popen(['ifconfig', mon_iface, 'mtu', '1400'], stdout=DN, stderr=DN)
+    Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
-        Popen(['ifconfig', mon_iface, 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
+        Popen(['ifconfig', str(mon_iface), 'up', '10.0.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
         os.system('route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1')
     else:
-        Popen(['ifconfig', mon_iface, 'up', '172.16.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
+        Popen(['ifconfig', str(mon_iface), 'up', '172.16.0.1', 'netmask', '255.255.255.0'], stdout=DN, stderr=DN)
         os.system('route add -net 172.16.0.0 netmask 255.255.255.0 gw 172.16.0.1')
 
 
@@ -731,6 +731,7 @@ if __name__ == "__main__":
 
     # Copy AP
     time.sleep(3)
+    lock = Lock()
     hop = Thread(target=channel_hop, args=(mon_iface,))
     hop.daemon = True
     hop.start()
@@ -746,13 +747,12 @@ if __name__ == "__main__":
     print '[' + T + '*' + W + '] ' + T + \
           essid + W + ' set up on channel ' + \
           T + channel + W + ' via ' + T + mon_iface \
-          + W + ' on ' + T + ap_iface + W
+          + W + ' on ' + T + str(ap_iface) + W
 
 
     clients_APs = []
     APs = []
     DN = open(os.devnull, 'w')
-    lock = Lock()
     args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
