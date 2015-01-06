@@ -728,7 +728,10 @@ if __name__ == "__main__":
     Popen(['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'], stdout=DN, stderr=PIPE)
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
-
+    
+    # Innitialize the lock
+    lock = Lock()
+    
     # Copy AP
     time.sleep(3)
     hop = Thread(target=channel_hop, args=(mon_iface,))
@@ -752,7 +755,6 @@ if __name__ == "__main__":
     clients_APs = []
     APs = []
     DN = open(os.devnull, 'w')
-    lock = Lock()
     args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
