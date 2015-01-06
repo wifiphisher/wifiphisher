@@ -15,13 +15,15 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## Usage
 | Short form | Long form | Explanation |
-| ---------- | --------- | ----------- |
-| -m | --maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
-| -n | --noupdate | Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n |
-| -t | --timeinterval | Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001 |
-| -p | --packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
-| -d | --directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
-| -a | --accesspoint | Enter the MAC address of a specific access point to target |
+| :----------: | :---------: | :-----------: |
+| -m | maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
+| -n | noupdate | Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n |
+| -t | timeinterval | Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001 |
+| -p | packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
+| -d | directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
+| -a | accesspoint | Enter the MAC address of a specific access point to target |
+| -jI | jamminginterface | Choose the interface for jamming. By default script will find the most powerful interface and starts monitor mode on it. |
+| -aI | apinterface | Choose the interface for the fake AP.  By default script will find the second most powerful interface and starts monitor mode on it. |
 
 ## Screenshots
 
@@ -34,6 +36,9 @@ From the victim's perspective, the attack makes use in three phases:
 * Kali Linux.
 * Two wireless network interfaces, one capable of injection.
 
+## Help needed
+If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the bug tracker for some tasks to do.
+
 ## Credits
 The script is based on an idea from <a
 href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
@@ -43,3 +48,7 @@ href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 ## License
 Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
+
+[![alt text][1.1]][1]
+[1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
+[1]: http://www.twitter.com/_sophron
