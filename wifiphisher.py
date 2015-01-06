@@ -730,9 +730,6 @@ if __name__ == "__main__":
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
     
-    # Innitialize the lock
-    lock = Lock()
-    
     # Copy AP
     time.sleep(3)
     hop = Thread(target=channel_hop, args=(mon_iface,))
