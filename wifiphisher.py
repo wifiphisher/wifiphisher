@@ -732,7 +732,6 @@ if __name__ == "__main__":
     
     # Copy AP
     time.sleep(3)
-    lock = Lock()
     hop = Thread(target=channel_hop, args=(mon_iface,))
     hop.daemon = True
     hop.start()
