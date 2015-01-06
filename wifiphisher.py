@@ -43,6 +43,7 @@ T = '\033[93m'   # tan
 count = 0 # for channel hopping Thread
 APs = {} # for listing APs
 hop_daemon_running = True 
+lock = Lock()
 
 def parse_args():
     #Create the arguments
