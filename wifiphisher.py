@@ -43,6 +43,7 @@ T = '\033[93m'   # tan
 count = 0 # for channel hopping Thread
 APs = {} # for listing APs
 hop_daemon_running = True 
+lock = Lock()
 
 def parse_args():
     #Create the arguments
@@ -752,7 +753,6 @@ if __name__ == "__main__":
     clients_APs = []
     APs = []
     DN = open(os.devnull, 'w')
-    lock = Lock()
     args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
