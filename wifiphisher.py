@@ -283,7 +283,6 @@ def get_internet_ip_prefix():
     for line in def_route:
         if 'wlan' in line and 'default via' in line:
             line = line.split()
-            inet_iface = line[4]
             ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
             return ipprefix
     return False
