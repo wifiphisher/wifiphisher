@@ -747,7 +747,6 @@ if __name__ == "__main__":
 
     clients_APs = []
     APs = []
-    DN = open(os.devnull, 'w')
     args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
