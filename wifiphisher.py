@@ -602,7 +602,7 @@ def APs_add(clients_APs, APs, pkt, chan_arg):
             if ap_channel != chan_arg:
                 return
 
-    except Exception as e:
+    except Exception:
         return
 
     if len(APs) == 0:
