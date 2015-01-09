@@ -72,11 +72,10 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
     def __init__(self, server_address, HandlerClass):
         SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
-        fpem = PEM
         self.socket = ssl.SSLSocket(
             socket.socket(self.address_family, self.socket_type),
-            keyfile=fpem,
-            certfile=fpem
+            keyfile=PEM,
+            certfile=PEM
         )
 
         self.server_bind()
