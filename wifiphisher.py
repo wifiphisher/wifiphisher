@@ -8,7 +8,6 @@ import time
 import sys
 import SimpleHTTPServer
 import BaseHTTPServer
-import ConfigParser
 import httplib
 import SocketServer
 import cgi
