@@ -12,7 +12,6 @@ import ConfigParser
 import httplib
 import SocketServer
 import cgi
-import string
 import argparse
 import fcntl
 from threading import Thread, Lock
