@@ -383,7 +383,8 @@ def copy_AP():
     return channel, essid, mac
 
 def start_ap(mon_iface, channel, essid, args):
-    print '['+T+'*'+W+'] Starting the fake access point...'
+    print '['+T+'*'+W+'] Starting the fake access point on ' + mon_iface + '...'
+    time.sleep(2)
     config = ('interface=%s\n'
               'driver=nl80211\n'
               'ssid=%s\n'
@@ -796,6 +797,7 @@ if __name__ == "__main__":
     # Main loop.
     try:
         while 1:
+            time.sleep(5)
             os.system("clear")
             print "Jamming devices: "
             if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
