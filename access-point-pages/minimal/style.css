@@ -7,6 +7,7 @@ body {
     background-position: center top;
     margin: 0px;
     background-attachment: fixed;
+
 }
 
 strong {
@@ -15,21 +16,30 @@ strong {
 }
 
 #header {
+    position:relative;
     width: 800px;
     margin-left: auto;
     margin-right: auto;
 }
 
 #header-left {
-    background-color: white;
+    position: absolute;
+    top:0px;
+    left:5px;
     float: left;
 }
 
 #header-right {
+    position: absolute;
+    top: 0px;
+    right:0px;
     float: right;
-    font-size: 30px;
-    padding-right: 400px;
-    padding-top: 30px; 
+    font-size: 32px;
+    padding-right: 370px;
+    padding-top: 33px; 
+    color: #f1eff0;
+    font-weight: bold;
+    
 }
 
 #bottom {
@@ -40,6 +50,13 @@ strong {
     margin-right: auto;
 }
 
+#copyright {
+    font-size: 11px;
+    color: #FFFFFF;
+    text-align: center;
+    margin: 0 auto;
+    padding: 10px 0 10px 0;
+}
 
 #top-header {
     padding-top: 5px;
@@ -82,11 +99,11 @@ img {
 
 #content table {
     border: 1px black solid;
-    width: 700px;
+    width: 750px;
     margin-top: 10px;
     margin-bottom: 20px;
-    margin-left: 15px;
-    margin-right: 15px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #warning th {
