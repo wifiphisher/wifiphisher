@@ -674,13 +674,13 @@ def get_hostapd():
 
 if __name__ == "__main__":
 
+    # Parse args
+    args = parse_args()
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
     # Get hostapd if needed
     get_hostapd()
-    # Parse args
-    args = parse_args()
 
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
