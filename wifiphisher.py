@@ -266,7 +266,7 @@ def get_internet_interface():
     '''return the wifi internet connected iface'''
     inet_iface = None
     proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-    def_route = proc.communicate()[0].split('\n')#[0].split()
+    def_route = proc.communicate()[0].split('\n')
     for line in def_route:
         if 'wlan' in line and 'default via' in line:
             line = line.split()
