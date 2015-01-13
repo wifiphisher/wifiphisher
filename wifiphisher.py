@@ -398,6 +398,7 @@ def dhcp_conf(interface):
 
 def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
+    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     ipprefix = get_internet_ip_prefix()
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
