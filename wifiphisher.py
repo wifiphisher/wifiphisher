@@ -268,27 +268,48 @@ def reset_interfaces():
 def get_internet_interface():
     '''return the wifi internet connected iface'''
     inet_iface = None
-    proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-    def_route = proc.communicate()[0].split('\n')#[0].split()
-    for line in def_route:
-        if 'wlan' in line and 'default via' in line:
-            line = line.split()
-            inet_iface = line[4]
-            ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
-            return inet_iface
+
+    if os.path.isfile("/sbin/ip") == True:
+        proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
+        def_route = proc.communicate()[0].split('\n')#[0].split()
+        for line in def_route:
+            if 'wlan' in line and 'default via' in line:
+                line = line.split()
+                inet_iface = line[4]
+                ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
+                return inet_iface
+    else:
+        proc = open('/proc/net/route', 'r')
+        default = proc.readlines()[1]
+        if "wlan" in default:
+            def_route = default.split()[0]
+        x = iter(default.split()[2])
+        res = [ ''.join(i) for i in zip(x, x) ]
+        d = [ str(int(i, 16)) for i in res ]
+        return inet_iface
     return False
 
 def get_internet_ip_prefix():
     '''return the wifi internet connected IP prefix'''
     ipprefix = None
-    proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-    def_route = proc.communicate()[0].split('\n')#[0].split()
-    for line in def_route:
-        if 'wlan' in line and 'default via' in line:
-            line = line.split()
-            inet_iface = line[4]
-            ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
-            return ipprefix
+    if os.path.isfile("/sbin/ip") == True:
+        proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
+        def_route = proc.communicate()[0].split('\n')#[0].split()
+        for line in def_route:
+            if 'wlan' in line and 'default via' in line:
+                line = line.split()
+                inet_iface = line[4]
+                ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
+                return inet_iface
+    else:
+        proc = open('/proc/net/route', 'r')
+        default = proc.readlines()[1]
+        if "wlan" in default:
+            def_route = default.split()[0]
+        x = iter(default.split()[2])
+        res = [ ''.join(i) for i in zip(x, x) ]
+        d = [ str(int(i, 16)) for i in res ]
+        return ipprefix
     return False
 
 def channel_hop(mon_iface):
@@ -362,7 +383,8 @@ def copy_AP():
     return channel, essid, mac
 
 def start_ap(mon_iface, channel, essid, args):
-    print '['+T+'*'+W+'] Starting the fake access point...'
+    print '['+T+'*'+W+'] Starting the fake access point on ' + mon_iface + '...'
+    time.sleep(2)
     config = ('interface=%s\n'
               'driver=nl80211\n'
               'ssid=%s\n'
@@ -775,6 +797,7 @@ if __name__ == "__main__":
     # Main loop.
     try:
         while 1:
+            time.sleep(5)
             os.system("clear")
             print "Jamming devices: "
             if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
