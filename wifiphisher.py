@@ -26,6 +26,7 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
+PHISING_PAGES_DIR = 'access-point-pages/'
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -682,7 +683,7 @@ if __name__ == "__main__":
     args = parse_args()
     
     # Verify the specified theme exists
-    page_path = 'access-point-pages/' + str(args.theme) + '/index.html'
+    page_path = PHISING_PAGES_DIR + str(args.theme) + '/index.html'
     if not os.path.isfile(page_path):
         sys.exit('['+R+'-'+W+'] html file not found in /access-point-pages/' + str(args.theme) + '/')
 
