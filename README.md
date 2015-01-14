@@ -37,12 +37,14 @@ From the victim's perspective, the attack makes use in three phases:
 * Two wireless network interfaces, one capable of injection.
 
 ## setup using vagrant
-this will require at least vagrant 1.7, <a 
-href="https://www.vagrantup.com/downloads.html">download from  here</a>        
+* this will require at least vagrant 1.7, <a 
+href="https://www.vagrantup.com/downloads.html">download from  here</a> 
+* clone this repository and change into its directory     
+* then execute the following commands from your terminal          
 `vagrant up`            
 `vagrant ssh`          
 `cd /vagrant`           
-fix some path issues:        
+* fix some path issues, from inside the virtual machine:        
 `echo 'export PATH=$PATH:/usr/local/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/sbin' >> ~/.bashrc`                   
