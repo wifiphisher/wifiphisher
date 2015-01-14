@@ -1,0 +1,65 @@
+body {
+background-color: rgb(240, 240, 240);
+font-family: 'Segoe UI';
+color: rgb(66, 78, 90);
+}
+
+#center {
+width: 658px;
+height: 280px;
+min-height: 280px;
+position: absolute;
+top: 0px;
+bottom: 0px;
+left: 0px;
+right: 0px;
+margin: auto;
+padding: 40px 35px 30px 47px;
+}
+#title {
+font-size: 30px;
+}
+
+#center-left {
+width: 128px;
+float: left;
+padding-right: 10px;
+}
+
+#center-right {
+width: 570px;
+}
+#content {
+font-size: 18px;
+}
+
+
+#center-below {
+width: 460px;
+margin-left: auto;
+margin-right: auto;
+padding-top: 40px;
+}
+#btnSubmit {
+font-size: 1em;
+width: 150px;
+height: 30px;
+padding: 4px;
+color: #333333;
+border: 1px solid rgba(23,50,77,.4);
+border-radius: 5px;
+background-color: #f1f1f1;
+background-image: linear-gradient(#fff, rgba(255,255,255,.1));
+box-shadow: 0 1px 1px 0 #fff, inset 0 2px 2px 0 #fff;
+}
+
+#helpbutton {
+color: rgb(142, 142, 142);
+font-size: 14px;
+}
+#help {
+padding-top: 30px;
+display: none;
+color: rgb(142, 142, 142);
+font-size: 14px;
+}
