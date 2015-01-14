@@ -34,7 +34,7 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## Requirements
 * Kali Linux.
-* Two wireless network adapters; one capable of injection. This allows you to connect and confirm the state of the target AP.
+* Two wireless network adapters; one capable of injection.
 
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the bug tracker for some tasks to do.
