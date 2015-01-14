@@ -36,14 +36,26 @@ From the victim's perspective, the attack makes use in three phases:
 * Kali Linux.
 * Two wireless network interfaces, one capable of injection.
 
+## setup using vagrant
+this will require at least vagrant 1.7, <a 
+href="https://www.vagrantup.com/downloads.html">download from  here</a>        
+`vagrant up`            
+`vagrant ssh`          
+`cd /vagrant`           
+fix some path issues:        
+`echo 'export PATH=$PATH:/usr/local/sbin' >> ~/.bashrc`            
+`echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc`            
+`echo 'export PATH=$PATH:/sbin' >> ~/.bashrc`                   
+`source ~/.bashrc`                   
+`sudo python wifiphisher.py`  # you should execute script as root
+
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the bug tracker for some tasks to do.
 
 ## Credits
 The script is based on an idea from <a
 href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
-jamming and selecting an AP have also been taken from his scripts <a
-href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
+jamming and selecting an AP have also been taken from his scripts <ahref="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
 href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 ## License
