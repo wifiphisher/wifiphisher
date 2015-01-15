@@ -674,13 +674,13 @@ def get_hostapd():
 
 if __name__ == "__main__":
 
+    # Parse args
+    args = parse_args()
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
     # Get hostapd if needed
     get_hostapd()
-    # Parse args
-    args = parse_args()
     
     # Verify the specified theme exists
     page_path = PHISING_PAGES_DIR + str(args.theme) + '/index.html'
