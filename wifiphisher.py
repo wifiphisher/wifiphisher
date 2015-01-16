@@ -8,11 +8,9 @@ import time
 import sys
 import SimpleHTTPServer
 import BaseHTTPServer
-import ConfigParser
 import httplib
 import SocketServer
 import cgi
-import string
 import argparse
 import fcntl
 from threading import Thread, Lock
@@ -74,11 +72,10 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
     def __init__(self, server_address, HandlerClass):
         SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
-        fpem = PEM
         self.socket = ssl.SSLSocket(
             socket.socket(self.address_family, self.socket_type),
-            keyfile=fpem,
-            certfile=fpem
+            keyfile=PEM,
+            certfile=PEM
         )
 
         self.server_bind()
@@ -269,12 +266,11 @@ def get_internet_interface():
     '''return the wifi internet connected iface'''
     inet_iface = None
     proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-    def_route = proc.communicate()[0].split('\n')#[0].split()
+    def_route = proc.communicate()[0].split('\n')
     for line in def_route:
         if 'wlan' in line and 'default via' in line:
             line = line.split()
             inet_iface = line[4]
-            ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
             return inet_iface
     return False
 
@@ -286,7 +282,6 @@ def get_internet_ip_prefix():
     for line in def_route:
         if 'wlan' in line and 'default via' in line:
             line = line.split()
-            inet_iface = line[4]
             ipprefix = line[2][:2] # Just checking if it's 192, 172, or 10
             return ipprefix
     return False
@@ -607,7 +602,7 @@ def APs_add(clients_APs, APs, pkt, chan_arg):
             if ap_channel != chan_arg:
                 return
 
-    except Exception as e:
+    except Exception:
         return
 
     if len(APs) == 0:
@@ -752,7 +747,6 @@ if __name__ == "__main__":
 
     clients_APs = []
     APs = []
-    DN = open(os.devnull, 'w')
     args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
