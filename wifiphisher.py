@@ -24,7 +24,7 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
-PHISING_PAGE = "access-point-pages/minimal"
+PHISING_PAGES_DIR = 'access-point-pages/'
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -52,10 +52,11 @@ def parse_args():
     parser.add_argument("-aI", "--apinterface", help="Choose monitor mode interface. By default script will find the second most powerful interface and starts monitor mode on it. Example: -aI mon5")
     parser.add_argument("-m", "--maximum", help="Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5")
     parser.add_argument("-n", "--noupdate", help="Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n", action='store_true')
-    parser.add_argument("-t", "--timeinterval", help="Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001")
+    parser.add_argument("-tI", "--timeinterval", help="Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001")
     parser.add_argument("-p", "--packets", help="Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2")
     parser.add_argument("-d", "--directedonly", help="Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs", action='store_true')
     parser.add_argument("-a", "--accesspoint", help="Enter the MAC address of a specific access point to target")
+    parser.add_argument("-t", "--theme", help="Specify a fake page to show the target. Options are: minimal, connection-reset", default="minimal")
 
     return parser.parse_args()
 
@@ -151,8 +152,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                self.client_address[0] + W + "\n"
                                )
                 log_file.close()
-            self.path = "index.html"
-        self.path = "%s/%s" % (PHISING_PAGE, self.path)
+            self.path = page_path
 
         if self.path.endswith(".html"):
             if not os.path.isfile(self.path):
@@ -699,6 +699,11 @@ if __name__ == "__main__":
         sys.exit('[' + R + '-' + W + '] Please run as root')
     # Get hostapd if needed
     get_hostapd()
+    
+    # Verify the specified theme exists
+    page_path = PHISING_PAGES_DIR + str(args.theme) + '/index.html'
+    if not os.path.isfile(page_path):
+        sys.exit('['+R+'-'+W+'] html file not found in /access-point-pages/' + str(args.theme) + '/')
 
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
