@@ -45,7 +45,7 @@ href="https://www.vagrantup.com/downloads.html">download from  here</a> and virt
 `vagrant up`            
 `vagrant ssh`          
 `cd /vagrant`           
-* fix some path issues, from inside the virtual machine:        
+* fix some path issues, ie, from inside the virtual machine:        
 `echo 'export PATH=$PATH:/usr/local/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/sbin' >> ~/.bashrc`                   
