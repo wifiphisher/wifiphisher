@@ -3,7 +3,7 @@
 # Set-up/Provision a Vagrant Kali linux box
 
 echo ".."
-echo "setting up and provisioning a kali linux vm...."
+echo "setting up and provisioning a kali linux vm..."
 echo ".."
 
 # install some commaon packages
@@ -23,7 +23,7 @@ sudo pip install virtualenv virtualenvwrapper && \
 
 # install packages crucial for wifiphiser. iwconfig is found in the wireless-tools package
 sudo apt-get -y install python-scapy \
-wireless-tools && \
+wireless-tools
 
 # TODO 
 # * enable the ansible provisioning
