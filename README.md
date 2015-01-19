@@ -38,7 +38,7 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## setup using vagrant
 * this will require at least vagrant 1.7, <a 
-href="https://www.vagrantup.com/downloads.html">download from  here</a> and virtualbox.
+href="https://www.vagrantup.com/downloads.html">download from  here</a> and virtualbox <a href="https://www.virtualbox.org/wiki/Downloads">download from here</a>.
 * also make sure you have enabled wireless support on virtualbox, the top answer on <a href="http://askubuntu.com/questions/282018/wifi-card-on-an-virtualboxs-ubuntu"> this thread</a> is very good on how to do that.
 * clone this repository and change into its directory     
 * then execute the following commands from your terminal          
@@ -49,7 +49,8 @@ href="https://www.vagrantup.com/downloads.html">download from  here</a> and virt
 `echo 'export PATH=$PATH:/usr/local/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc`            
 `echo 'export PATH=$PATH:/sbin' >> ~/.bashrc`                   
-`source ~/.bashrc`                   
+`source ~/.bashrc`  
+* start wifiphiser:                         
 `sudo python wifiphisher.py`  # you should execute script as root
 
 ## Help needed
