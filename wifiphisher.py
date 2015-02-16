@@ -337,33 +337,13 @@ def reset_interfaces():
             Popen(['ifconfig', m, 'up'], stdout=DN, stderr=DN)
 
 
-def get_internet_interface():
-    '''return the wifi internet connected iface'''
+def interface_or_ip_prefix(iface=None, prefix=None):
+    '''
+    return the wifi internet connected iface
+    or
+    return the wifi internet connected IP prefix
+    '''
     inet_iface = None
-
-    if os.path.isfile("/sbin/ip") == True:
-        proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-        def_route = proc.communicate()[0].split('\n')  # [0].split()
-        for line in def_route:
-            if 'wlan' in line and 'default via' in line:
-                line = line.split()
-                inet_iface = line[4]
-                ipprefix = line[2][:2]  # Just checking if it's 192, 172, or 10
-                return inet_iface
-    else:
-        proc = open('/proc/net/route', 'r')
-        default = proc.readlines()[1]
-        if "wlan" in default:
-            def_route = default.split()[0]
-        x = iter(default.split()[2])
-        res = [''.join(i) for i in zip(x, x)]
-        d = [str(int(i, 16)) for i in res]
-        return inet_iface
-    return False
-
-
-def get_internet_ip_prefix():
-    '''return the wifi internet connected IP prefix'''
     ipprefix = None
     if os.path.isfile("/sbin/ip") == True:
         proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
@@ -382,6 +362,9 @@ def get_internet_ip_prefix():
         x = iter(default.split()[2])
         res = [''.join(i) for i in zip(x, x)]
         d = [str(int(i, 16)) for i in res]
+        if internet_iface:
+            # This enhancement prevents writing the same function for ipprefix.
+            return inet_iface
         return ipprefix
     return False
 
@@ -511,7 +494,7 @@ def dhcp_conf(interface):
         'address=/#/10.0.0.1'
     )
 
-    ipprefix = get_internet_ip_prefix()
+    ipprefix = interface_or_ip_prefix(prefix=True)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
         with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
             # subnet, range, router, dns
@@ -525,7 +508,7 @@ def dhcp_conf(interface):
 def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
-    ipprefix = get_internet_ip_prefix()
+    ipprefix = interface_or_ip_prefix(prefix=True)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     if ipprefix == '19' or ipprefix == '17' or not ipprefix:
         Popen(
@@ -900,7 +883,7 @@ if __name__ == "__main__":
     # Get interfaces
     reset_interfaces()
     if not args.jamminginterface:
-        inet_iface = get_internet_interface()
+        inet_iface = interface_or_ip_prefix(iface=True)
         mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
         iface_to_monitor = False
     else:
