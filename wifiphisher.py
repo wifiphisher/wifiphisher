@@ -869,6 +869,14 @@ def get_hostapd():
         else:
             sys.exit(('[' + R + '-' + W + '] hostapd' +
                      'not found in /usr/sbin/hostapd'))
+    if not os.path.isfile('/usr/sbin/hostapd'):
+        sys.exit((
+            '\n\033[91mUnable to install hostapd from the source!\033[0m\n' +
+            "Please follow the link below to configure your sources.list\n" +
+            "\033[94mhttp://docs.kali.org/general-use/kali-linux-sources-list-repositories\033[0m\n" +
+            "\nThen run apt-get update for changes to take effect!"
+        ))
+
 
 if __name__ == "__main__":
 
