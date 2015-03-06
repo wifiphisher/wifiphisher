@@ -872,11 +872,11 @@ def get_hostapd():
     if not os.path.isfile('/usr/sbin/hostapd'):
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to install the \'hostapd\' package!\n' +
-            '[' + T + '*' + W + '] This process requires a persistent internet connexion!\n' +
+            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
             'Please follow the link below to configure your sources.list\n' +
             B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
-            '[' + G + ' + ' + W + '] Run apt-get update for changes to take effect.\n' +
-            '[' + G + ' + ' + W + '] Rerun the script again to install hostapd.\n' +
+            '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
+            '[' + G + '+' + W + '] Rerun the script again to install hostapd.\n' +
             '[' + R + '!' + W + '] Closing'
          ))
 
