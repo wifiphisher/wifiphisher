@@ -534,6 +534,7 @@ def dhcp(dhcpconf, mon_iface):
             stdout=DN,
             stderr=DN
         )
+        time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
         os.system(
             ('route add -net 10.0.0.0 netmask ' +
              '255.255.255.0 gw 10.0.0.1')
@@ -546,6 +547,7 @@ def dhcp(dhcpconf, mon_iface):
             stdout=DN,
             stderr=DN
         )
+        time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
         os.system(
             ('route add -net 172.16.0.0 netmask ' +
              '255.255.255.0 gw 172.16.0.1')
