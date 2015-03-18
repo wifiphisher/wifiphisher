@@ -574,16 +574,16 @@ def get_strongest_iface(exceptions=[]):
     return False
 
 
-def start_mon_mode(interface):
-    print ('[' + G + '+' + W + '] Starting monitor mode off '
+def start_mode(interface, mode="monitor"):
+    print ('[' + G + '+' + W + '] Starting ' + mode + ' mode off '
            + G + interface + W)
     try:
         os.system('ifconfig %s down' % interface)
-        os.system('iwconfig %s mode monitor' % interface)
+        os.system('iwconfig %s mode %s' % (interface, mode))
         os.system('ifconfig %s up' % interface)
         return interface
     except Exception:
-        sys.exit('[' + R + '-' + W + '] Could not start monitor mode')
+        sys.exit('[' + R + '-' + W + '] Could not start %s mode' % mode)
 
 
 # Wifi Jammer stuff
@@ -928,7 +928,7 @@ if __name__ == "__main__":
                  '] No wireless interfaces found, bring one up and try again'
                  )
             )
-        mon_iface = start_mon_mode(iface_to_monitor)
+        mon_iface = start_mode(iface_to_monitor, "monitor")
     wj_iface = mon_iface
     if not args.apinterface:
         ap_iface = get_iface(mode="managed", exceptions=[iface_to_monitor])
@@ -966,9 +966,9 @@ if __name__ == "__main__":
     hop_daemon_running = False
 
     # Start AP
-    dhcpconf = dhcp_conf(ap_iface)
-    dhcp(dhcpconf, ap_iface)
     start_ap(ap_iface, channel, essid, args)
+    dhcpconf = dhcp_conf(ap_iface)
+    dhcp(dhcpconf, ap_iface) 
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
