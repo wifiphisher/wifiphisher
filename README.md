@@ -49,6 +49,9 @@ href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 ## License
 Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
 
+## Version
+Current version is **1.1**.
+
 [![alt text][1.1]][1]
 [1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
 [1]: http://www.twitter.com/_sophron
