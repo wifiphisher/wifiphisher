@@ -443,7 +443,7 @@ def targeting_cb(pkt):
 def target_APs():
     global APs, count
     os.system('clear')
-    print ('[' + G + ' + ' + W + '] Ctrl-C at any time to copy an access' +
+    print ('[' + G + '+' + W + '] Ctrl-C at any time to copy an access' +
            ' point from below')
     print 'num  ch   ESSID'
     print '---------------'
@@ -458,7 +458,7 @@ def copy_AP():
     while not copy:
         try:
             copy = raw_input(
-                ('\n[' + G + ' + ' + W + '] Choose the [' + G + 'num' + W +
+                ('\n[' + G + '+' + W + '] Choose the [' + G + 'num' + W +
                  '] of the AP you wish to copy: ')
             )
             copy = int(copy)
@@ -564,7 +564,7 @@ def get_strongest_iface(exceptions=[]):
             if ' - Address:' in line:  # first line in iwlist scan for a new AP
                 count += 1
         scanned_aps.append((count, i))
-        print ('[' + G + ' + ' + W + '] Networks discovered by '
+        print ('[' + G + '+' + W + '] Networks discovered by '
                + G + i + W + ': ' + T + str(count) + W)
     if len(scanned_aps) > 0:
         interface = max(scanned_aps)[1]
@@ -573,7 +573,7 @@ def get_strongest_iface(exceptions=[]):
 
 
 def start_mon_mode(interface):
-    print ('[' + G + ' + ' + W + '] Starting monitor mode off '
+    print ('[' + G + '+' + W + '] Starting monitor mode off '
            + G + interface + W)
     try:
         os.system('ifconfig %s down' % interface)
