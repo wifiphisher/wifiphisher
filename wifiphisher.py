@@ -16,10 +16,9 @@ import fcntl
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 
-
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 conf.verb = 0
 
 # Basic configuration
@@ -693,7 +692,7 @@ def deauth(monchannel):
 
 def output(monchannel):
     wifi_jammer_tmp = "/tmp/wifiphisher-jammer.tmp"
-    with open(wifi_jammer_tmp, "a + ") as log_file:
+    with open(wifi_jammer_tmp, "a+") as log_file:
         log_file.truncate()
         with lock:
             for ca in clients_APs:
