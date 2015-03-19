@@ -910,8 +910,8 @@ if __name__ == "__main__":
 
     # Get interfaces
     reset_interfaces()
+    inet_iface = get_internet_interface()
     if not args.jamminginterface:
-        inet_iface = get_internet_interface()
         mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
         iface_to_monitor = False
     else:
@@ -934,6 +934,16 @@ if __name__ == "__main__":
         ap_iface = get_iface(mode="managed", exceptions=[iface_to_monitor])
     else:
         ap_iface = args.apinterface
+
+    if inet_iface in [ap_iface, iface_to_monitor]:
+        sys.exit(
+            ('[' + G + '+' + W + 
+            '] Interface %s is connected to the Internet. ' % inet_iface +
+            'Please disconnect and rerun the script.\n' +
+            '[' + R + '!' + W + '] Closing'
+            )
+        )
+
 
     '''
     We got the interfaces correctly at this point. Monitor mon_iface & for
