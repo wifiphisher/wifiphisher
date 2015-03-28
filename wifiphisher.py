@@ -934,7 +934,7 @@ if __name__ == "__main__":
     else:
         ap_iface = args.apinterface
 
-    if inet_iface in [ap_iface, iface_to_monitor]:
+    if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
         sys.exit(
             ('[' + G + '+' + W + 
             '] Interface %s is connected to the Internet. ' % inet_iface +
