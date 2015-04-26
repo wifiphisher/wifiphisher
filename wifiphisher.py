@@ -897,7 +897,14 @@ if __name__ == "__main__":
 
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
-    httpd = HTTPServer(("", PORT), Handler)
+    try:
+        httpd = HTTPServer(("", PORT), Handler)
+    except socket.error:
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to start HTTP server!\n' +
+            '[' + R + '-' + W + '] Another process is running on port ' + str(PORT) + '.\n' +
+            '[' + R + '!' + W + '] Closing'
+        ))
     print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
     webserver = Thread(target=httpd.serve_forever)
     webserver.daemon = True
@@ -905,7 +912,14 @@ if __name__ == "__main__":
 
     # Start HTTPS server in a background thread
     Handler = SecureHTTPRequestHandler
-    httpd = SecureHTTPServer(("", SSL_PORT), Handler)
+    try:
+        httpd = SecureHTTPServer(("", SSL_PORT), Handler)
+    except socket.error:
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
+            '[' + R + '-' + W + '] Another process is running on port ' + str(SSL_PORT) + '.\n' +
+            '[' + R + '!' + W + '] Closing'
+        ))
     print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
            str(SSL_PORT))
     secure_webserver = Thread(target=httpd.serve_forever)
