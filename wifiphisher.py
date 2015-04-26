@@ -866,7 +866,7 @@ def sniff_dot11(mon_iface):
 def get_hostapd():
     if not os.path.isfile('/usr/sbin/hostapd'):
         install = raw_input(
-            ('[' + T + '*' + W + '] isc-dhcp-server not found ' +
+            ('[' + T + '*' + W + '] hostapd not found ' +
              'in /usr/sbin/hostapd, install now? [y/n] ')
         )
         if install == 'y':
