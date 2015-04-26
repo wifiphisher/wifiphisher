@@ -248,8 +248,10 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             fp=self.rfile,
             headers=self.headers,
             environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-Type'],
+                     'CONTENT_TYPE': self.headers['Content-type'],
                      })
+        if not form.list:
+            return
         for item in form.list:
             if item.name and item.value and POST_VALUE_PREFIX in item.name:
                 self.redirect("/upgrading.html")
