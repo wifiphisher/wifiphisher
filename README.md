@@ -1,15 +1,21 @@
 <p align="center"><img src="https://sophron.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-Wifiphisher is a security tool that mounts fast automated phishing attacks against WiFi networks in order to obtain secret passphrases and other credentials. It is a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 secret passphrases.
+Wifiphisher is a security tool that mounts automated phishing attacks against WiFi networks in order to obtain secret passphrases or other credentials. It is a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 secret passphrases.
 
 Wifiphisher works on Kali Linux and is licensed under the MIT license.
 
+## How it works
+After achieving a man-in-the-middle position using the Evil Twin attack, wifiphisher redirects all HTTP requests to an attacker-controlled look-alike web site.
+
 From the victim's perspective, the attack makes use in three phases:
 
-1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by sending deauth packets to the client from the access point, to the access point from the client, and to the broadcast address as well. 
-2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled on the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will start connecting to the rogue access point. After this phase, the victim is MiTMed.
-3. **Victim is being served a realistic router config-looking page**. wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials, for example one that asks WPA password confirmation due to a router firmware upgrade.
+1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations.
+2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will start connecting to the rogue access point. After this phase, the victim is MiTMed.
+3. **Victim is being served a realistic router config-looking page**. wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials. The tool supports community-built templates for different phishing scenarios, such as:
+  * Router configuration pages that ask for the WPA/WPA2 passphrase due to a router firmware upgrade.
+  * 3rd party login pages (for example, login pages similar to those of popular social networking or e-mail access sites and products)
+  * Captive portals, like the ones that are being used by hotels and airports.
 
 <p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
@@ -49,8 +55,12 @@ href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 ## License
 Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
 
-## Version
-Current version is **1.1**.
+## Project Status
+Wifiphisher's current version is **1.1**. 
+
+## Other resources
+* Slides from “Introducing wifiphisher“ talk at BsidesLondon: https://sophron.latthi.com/talks/bsideslondon15-wifiphisher.pdf
+* HowTo video by JackkTutorials: https://www.youtube.com/watch?v=tCwclyurB8I
 
 [![alt text][1.1]][1]
 [1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
