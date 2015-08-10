@@ -521,6 +521,7 @@ def dhcp_conf(interface):
         with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
             # subnet, range, router, dns
             dhcpconf.write(config % (interface, '10.0.0.2,10.0.0.100,12h'))
+    # TODO: We should handle this case in the rest of the script.
     elif ipprefix == '10':
         with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
             dhcpconf.write(config % (interface, '172.16.0.2,172.16.0.100,12h'))
@@ -593,6 +594,7 @@ def start_mode(interface, mode="monitor"):
 
 
 # Wifi Jammer stuff
+# TODO: Merge this with the other channel_hop method.
 def channel_hop2(mon_iface):
     '''
     First time it runs through the channels it stays on each channel for
@@ -897,6 +899,9 @@ if __name__ == "__main__":
     # Get hostapd if needed
     get_hostapd()
 
+    # TODO: We should have more checks here:
+    # Is anything binded to our HTTP(S) ports?
+
     # Get interfaces
     reset_interfaces()
     inet_iface = get_internet_interface()
@@ -967,7 +972,9 @@ if __name__ == "__main__":
     # Start AP
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
-    dhcp(dhcpconf, ap_iface) 
+    dhcp(dhcpconf, ap_iface)
+
+    # TODO: Check if IP addressing was set correctly.
 
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
