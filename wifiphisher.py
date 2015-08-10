@@ -897,37 +897,6 @@ if __name__ == "__main__":
     # Get hostapd if needed
     get_hostapd()
 
-    # Start HTTP server in a background thread
-    Handler = HTTPRequestHandler
-    try:
-        httpd = HTTPServer(("", PORT), Handler)
-    except socket.error:
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTP server!\n' +
-            '[' + R + '-' + W + '] Another process is running on port ' + str(PORT) + '.\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
-    webserver = Thread(target=httpd.serve_forever)
-    webserver.daemon = True
-    webserver.start()
-
-    # Start HTTPS server in a background thread
-    Handler = SecureHTTPRequestHandler
-    try:
-        httpd = SecureHTTPServer(("", SSL_PORT), Handler)
-    except socket.error:
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
-            '[' + R + '-' + W + '] Another process is running on port ' + str(SSL_PORT) + '.\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
-           str(SSL_PORT))
-    secure_webserver = Thread(target=httpd.serve_forever)
-    secure_webserver.daemon = True
-    secure_webserver.start()
-
     # Get interfaces
     reset_interfaces()
     inet_iface = get_internet_interface()
@@ -999,11 +968,45 @@ if __name__ == "__main__":
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
     dhcp(dhcpconf, ap_iface) 
+
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
            T + channel + W + ' via ' + T + mon_iface +
            W + ' on ' + T + str(ap_iface) + W)
+
+    # With configured DHCP, we may now start the web server
+    # Start HTTP server in a background thread
+    Handler = HTTPRequestHandler
+    try:
+        httpd = HTTPServer(("10.0.0.1", PORT), Handler)
+    except socket.error:
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to start HTTP server!\n' +
+            '[' + R + '-' + W + '] Another process is running on port ' + str(PORT) + '.\n' +
+            '[' + R + '!' + W + '] Closing'
+        ))
+    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
+    webserver = Thread(target=httpd.serve_forever)
+    webserver.daemon = True
+    webserver.start()
+    # Start HTTPS server in a background thread
+    Handler = SecureHTTPRequestHandler
+    try:
+        httpd = SecureHTTPServer(("10.0.0.1", SSL_PORT), Handler)
+    except socket.error:
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
+            '[' + R + '-' + W + '] Another process is running on port ' + str(SSL_PORT) + '.\n' +
+            '[' + R + '!' + W + '] Closing'
+        ))
+    print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
+           str(SSL_PORT))
+    secure_webserver = Thread(target=httpd.serve_forever)
+    secure_webserver.daemon = True
+    secure_webserver.start()
+
+    time.sleep(3)
 
     clients_APs = []
     APs = []
