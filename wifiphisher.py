@@ -25,7 +25,7 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
-PHISING_PAGE = "access-point-pages/minimal"
+PHISING_PAGE = "phishing-scenarios/minimal"
 POST_VALUE_PREFIX = "wfphshr"
 DN = open(os.devnull, 'w')
 
