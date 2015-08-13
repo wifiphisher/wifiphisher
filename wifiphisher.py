@@ -526,6 +526,8 @@ def dhcp(dhcpconf, mon_iface):
         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
 
+    # TODO: Check that we have set network properly.
+
 
 def get_strongest_iface(exceptions=[]):
     interfaces = get_interfaces()["managed"]
@@ -867,6 +869,7 @@ if __name__ == "__main__":
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
+    # Maybe we should save current iptables rules somewhere
 
     # Get interfaces
     reset_interfaces()
