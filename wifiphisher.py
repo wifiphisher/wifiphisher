@@ -27,6 +27,11 @@ SSL_PORT = 443
 PEM = 'cert/server.pem'
 PHISING_PAGE = "phishing-scenarios/minimal"
 POST_VALUE_PREFIX = "wfphshr"
+NETWORK_IP = "10.0.0.0"
+NETWORK_MASK = "255.255.255.0"
+NETWORK_GW_IP = "10.0.0.1"
+DHCP_LEASE = "10.0.0.2,10.0.0.100,12h"
+
 DN = open(os.devnull, 'w')
 
 # Console colors
@@ -178,7 +183,7 @@ class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(301)
-        self.send_header('Location', 'http://10.0.0.1:' + str(PORT))
+        self.send_header('Location', 'http://' + NETWORK_GW_IP + ':' + str(PORT))
         self.end_headers()
 
     def log_message(self, format, *args):
@@ -519,18 +524,13 @@ def dhcp_conf(interface):
         'interface=%s\n'
         # Specify starting_range,end_range,lease_time
         'dhcp-range=%s\n'
-        'address=/#/10.0.0.1'
+        'address=/#/%s'
     )
 
     ipprefix = get_internet_ip_prefix()
-    if ipprefix == '19' or ipprefix == '17' or not ipprefix:
-        with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
-            # subnet, range, router, dns
-            dhcpconf.write(config % (interface, '10.0.0.2,10.0.0.100,12h'))
-    # TODO: We should handle this case in the rest of the script.
-    elif ipprefix == '10':
-        with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
-            dhcpconf.write(config % (interface, '172.16.0.2,172.16.0.100,12h'))
+    with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
+        # subnet, range, router
+        dhcpconf.write(config % (interface, DHCP_LEASE, NETWORK_GW_IP))
     return '/tmp/dhcpd.conf'
 
 
@@ -539,32 +539,18 @@ def dhcp(dhcpconf, mon_iface):
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     ipprefix = get_internet_ip_prefix()
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
-    if ipprefix == '19' or ipprefix == '17' or not ipprefix:
-        Popen(
-            ['ifconfig', str(mon_iface), 'up', '10.0.0.1',
-             'netmask', '255.255.255.0'
-             ],
-            stdout=DN,
-            stderr=DN
-        )
-        time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
-        os.system(
-            ('route add -net 10.0.0.0 netmask ' +
-             '255.255.255.0 gw 10.0.0.1')
-        )
-    else:
-        Popen(
-            ['ifconfig', str(mon_iface), 'up', '172.16.0.1',
-             'netmask', '255.255.255.0'
-             ],
-            stdout=DN,
-            stderr=DN
-        )
-        time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
-        os.system(
-            ('route add -net 172.16.0.0 netmask ' +
-             '255.255.255.0 gw 172.16.0.1')
-        )
+    Popen(
+        ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
+         'netmask', NETWORK_MASK
+         ],
+        stdout=DN,
+        stderr=DN
+    )
+    time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
+    os.system(
+        ('route add -net %s netmask %s gw %s' % 
+        (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
+    )
 
 
 def get_strongest_iface(exceptions=[]):
@@ -951,12 +937,12 @@ if __name__ == "__main__":
     '''
     # Set iptable rules and kernel variables.
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT ' +
-         '--to-destination 10.0.0.1:%s' % PORT)
+        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s' 
+        % (NETWORK_GW_IP, PORT))
     )
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT ' +
-         '--to-destination 10.0.0.1:%s' % SSL_PORT)
+        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s' 
+        % (NETWORK_GW_IP, SSL_PORT))
     )
     Popen(
         ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
@@ -992,7 +978,7 @@ if __name__ == "__main__":
     # Start HTTP server in a background thread
     Handler = HTTPRequestHandler
     try:
-        httpd = HTTPServer(("10.0.0.1", PORT), Handler)
+        httpd = HTTPServer((NETWORK_GW_IP, PORT), Handler)
     except socket.error, v:
         errno = v[0]
         sys.exit((
@@ -1007,7 +993,7 @@ if __name__ == "__main__":
     # Start HTTPS server in a background thread
     Handler = SecureHTTPRequestHandler
     try:
-        httpd = SecureHTTPServer(("10.0.0.1", SSL_PORT), Handler)
+        httpd = SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
     except socket.error:
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
