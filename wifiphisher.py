@@ -983,7 +983,7 @@ if __name__ == "__main__":
         errno = v[0]
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to start HTTP server (socket errno ' + str(errno) + ')!\n' +
-            '[' + R + '-' + W + '] Another process is running on port ' + str(PORT) + '.\n' +
+            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(PORT) + '?\n' +
             '[' + R + '!' + W + '] Closing'
         ))
     print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
@@ -997,7 +997,7 @@ if __name__ == "__main__":
     except socket.error:
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
-            '[' + R + '-' + W + '] Another process is running on port ' + str(SSL_PORT) + '.\n' +
+            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(SSL_PORT) + '?\n' +
             '[' + R + '!' + W + '] Closing'
         ))
     print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
