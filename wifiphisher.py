@@ -378,30 +378,6 @@ def get_internet_interface():
     return False
 
 
-def get_internet_ip_prefix():
-    '''return the wifi internet connected IP prefix'''
-    ipprefix = None
-    if os.path.isfile("/sbin/ip") == True:
-        proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-        def_route = proc.communicate()[0].split('\n')  # [0].split()
-        for line in def_route:
-            if 'wlan' in line and 'default via' in line:
-                line = line.split()
-                inet_iface = line[4]
-                ipprefix = line[2][:2]  # Just checking if it's 192, 172, or 10
-                return ipprefix
-    else:
-        proc = open('/proc/net/route', 'r')
-        default = proc.readlines()[1]
-        if "wlan" in default:
-            def_route = default.split()[0]
-        x = iter(default.split()[2])
-        res = [''.join(i) for i in zip(x, x)]
-        d = [str(int(i, 16)) for i in res]
-        return ipprefix
-    return False
-
-
 def channel_hop(mon_iface):
     chan = 0
     err = None
@@ -527,7 +503,6 @@ def dhcp_conf(interface):
         'address=/#/%s'
     )
 
-    ipprefix = get_internet_ip_prefix()
     with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
         # subnet, range, router
         dhcpconf.write(config % (interface, DHCP_LEASE, NETWORK_GW_IP))
@@ -537,7 +512,6 @@ def dhcp_conf(interface):
 def dhcp(dhcpconf, mon_iface):
     os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
-    ipprefix = get_internet_ip_prefix()
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
         ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
