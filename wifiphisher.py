@@ -993,9 +993,10 @@ if __name__ == "__main__":
     Handler = HTTPRequestHandler
     try:
         httpd = HTTPServer(("10.0.0.1", PORT), Handler)
-    except socket.error:
+    except socket.error, v:
+        errno = v[0]
         sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTP server!\n' +
+            '\n[' + R + '-' + W + '] Unable to start HTTP server (socket errno ' + str(errno) + ')!\n' +
             '[' + R + '-' + W + '] Another process is running on port ' + str(PORT) + '.\n' +
             '[' + R + '!' + W + '] Closing'
         ))
