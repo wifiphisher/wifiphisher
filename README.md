@@ -64,7 +64,7 @@ Wifiphisher's current version is **1.1**. You can download the latest release fr
 
 ## Other resources
 * Official wiki: https://github.com/sophron/wifiphisher/wiki
-* “Introducing wifiphisher“ talk at BsidesLondon: https://www.youtube.com/watch?v=pRtxFWJTS4k
+* “Introducing wifiphisher“ talk at BSidesLondon: https://www.youtube.com/watch?v=pRtxFWJTS4k
 * HowTo video by JackkTutorials: https://www.youtube.com/watch?v=tCwclyurB8I
 
 [![alt text][1.1]][1]
