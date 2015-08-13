@@ -994,9 +994,10 @@ if __name__ == "__main__":
     Handler = SecureHTTPRequestHandler
     try:
         httpd = SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
-    except socket.error:
+    except socket.error, v:
+        errno = v[0]
         sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTPS server!\n' +
+            '\n[' + R + '-' + W + '] Unable to start HTTPS server (socket errno ' + str(errno) + ')!\n' +
             '[' + R + '-' + W + '] Maybe another process is running on port ' + str(SSL_PORT) + '?\n' +
             '[' + R + '!' + W + '] Closing'
         ))
