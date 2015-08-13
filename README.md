@@ -53,13 +53,13 @@ href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
 href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 ## License
-Wifiphisher is licensed under the MIT license. See [LICENSE](LICENSE) for more information.
+Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more information.
 
 ## Project Status
 Wifiphisher's current version is **1.1**. 
 
 ## Other resources
-* Slides from “Introducing wifiphisher“ talk at BsidesLondon: https://sophron.latthi.com/talks/bsideslondon15-wifiphisher.pdf
+* “Introducing wifiphisher“ talk at BsidesLondon: https://www.youtube.com/watch?v=pRtxFWJTS4k
 * HowTo video by JackkTutorials: https://www.youtube.com/watch?v=tCwclyurB8I
 
 [![alt text][1.1]][1]
