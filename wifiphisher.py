@@ -487,7 +487,7 @@ def start_ap(mon_iface, channel, essid, args):
     try:
         time.sleep(6)  # Copied from Pwnstar which said it was necessary?
     except KeyboardInterrupt:
-        cleanup(None, None)
+        shutdown()
 
 
 def dhcp_conf(interface):
