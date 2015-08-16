@@ -986,7 +986,6 @@ if __name__ == "__main__":
 
     clients_APs = []
     APs = []
-    args = parse_args()
     args.accesspoint = ap_mac
     args.channel = channel
     monitor_on = None
