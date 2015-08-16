@@ -493,18 +493,13 @@ def start_ap(mon_iface, channel, essid, args):
 def dhcp_conf(interface):
 
     config = (
-        # disables dnsmasq reading any other files like
-        # /etc/resolv.conf for nameservers
         'no-resolv\n'
-        # Interface to bind to
         'interface=%s\n'
-        # Specify starting_range,end_range,lease_time
         'dhcp-range=%s\n'
         'address=/#/%s'
     )
 
     with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
-        # subnet, range, router
         dhcpconf.write(config % (interface, DHCP_LEASE, NETWORK_GW_IP))
     return '/tmp/dhcpd.conf'
 
@@ -520,13 +515,16 @@ def dhcp(dhcpconf, mon_iface):
         stdout=DN,
         stderr=DN
     )
+    # Make sure that we have set the network properly.
+    proc = check_output(['ifconfig', str(mon_iface)])
+    if "skasdfasdfdsaf" not in proc:
+        return False
     time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
     os.system(
         ('route add -net %s netmask %s gw %s' % 
         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
-
-    # TODO: Check that we have set network properly.
+    return True
 
 
 def get_strongest_iface(exceptions=[]):
@@ -941,10 +939,10 @@ if __name__ == "__main__":
     # Start AP
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
-    dhcp(dhcpconf, ap_iface)
-
-    # TODO: Check if IP addressing was set correctly.
-
+    if not dhcp(dhcpconf, ap_iface):
+        print('[' + G + '+' + W + 
+            '] Could not set IP address on %s!' % ap_iface)
+        shutdown()
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
