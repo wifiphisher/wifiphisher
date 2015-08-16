@@ -517,7 +517,7 @@ def dhcp(dhcpconf, mon_iface):
     )
     # Make sure that we have set the network properly.
     proc = check_output(['ifconfig', str(mon_iface)])
-    if "skasdfasdfdsaf" not in proc:
+    if NETWORK_GW_IP not in proc:
         return False
     time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
     os.system(
