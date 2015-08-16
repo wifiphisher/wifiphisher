@@ -857,6 +857,16 @@ def get_hostapd():
 
 if __name__ == "__main__":
 
+    print "               _  __ _       _     _     _               "
+    print "              (_)/ _(_)     | |   (_)   | |              "
+    print "     __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ "
+    print "     \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|"
+    print "      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   "
+    print "       \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|   "
+    print "                      | |                                "
+    print "                      |_|                                "
+    print "                                                         "
+
     # Parse args
     args = parse_args()
     # Are you root?
