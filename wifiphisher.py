@@ -77,9 +77,9 @@ def parse_args():
     parser.add_argument(
         "-aI",
         "--apinterface",
-        help=("Choose monitor mode interface. " +
+        help=("Choose access point interface. " +
               "By default script will find the most powerful interface and " +
-              "starts monitor mode on it. Example: -jI mon5"
+              "starts an access point interface on it. Example: -aI wlan0"
               )
     )
     parser.add_argument(
