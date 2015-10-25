@@ -380,10 +380,8 @@ def get_internet_interface():
 
 def channel_hop(mon_iface):
     chan = 0
-    err = None
     while hop_daemon_running:
         try:
-            err = None
             if chan > 11:
                 chan = 0
             chan = chan + 1
@@ -571,7 +569,6 @@ def channel_hop2(mon_iface):
     global monchannel, first_pass
 
     channelNum = 0
-    err = None
 
     while 1:
         if args.channel:
