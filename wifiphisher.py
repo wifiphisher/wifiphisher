@@ -403,6 +403,7 @@ def channel_hop(mon_iface):
                             'interface (e.g. wlan0)\n'
                             'from the network if you have not already\n'
                         )
+                        sys.exit(err)
                     break
             time.sleep(1)
         except KeyboardInterrupt:
@@ -596,6 +597,7 @@ def channel_hop2(mon_iface):
                     # iw dev shouldnt display output unless there's an error
                     err = ('[' + R + '-' + W + '] Channel hopping failed: '
                            + R + line + W)
+                    sys.exit(err)
 
         output(monchannel)
         if args.channel:
