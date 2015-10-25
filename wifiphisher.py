@@ -271,7 +271,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
-        if redirect == True:
+        if redirect:
             self.redirect("/upgrading.html")
             terminate = True
             return
