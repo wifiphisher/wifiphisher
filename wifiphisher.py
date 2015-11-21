@@ -345,7 +345,7 @@ def get_iface(mode="all", exceptions=["_wifi"]):
 def reset_interfaces():
     monitors = get_interfaces()["monitor"]
     for m in monitors:
-        if 'mon' in m:
+        if 'mon' in m and os.path.isfile('/usr/sbin/airmon-ng'):
             Popen(['airmon-ng', 'stop', m], stdout=DN, stderr=DN)
         else:
             Popen(['ifconfig', m, 'down'], stdout=DN, stderr=DN)
@@ -872,6 +872,11 @@ if __name__ == "__main__":
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
+    # Kill any possible programs that may interfere with the wireless card
+    # Only for systems with airmon-ng installed
+    if os.path.isfile('/usr/sbin/airmon-ng'):
+        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
+        
     # Get hostapd if needed
     get_hostapd()
 
