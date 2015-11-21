@@ -878,9 +878,15 @@ if __name__ == "__main__":
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
-
-    # Get interfaces
     reset_interfaces()
+    # Exit if less than two wireless interfaces exist in the system
+    if len(get_interfaces()['all']) <= 0:
+        sys.exit('[' + R + '-' + W + '] No wireless interfaces ' \
+               + 'found. Closing... ')
+    elif len(get_interfaces()['all']) == 1:
+        sys.exit('[' + R + '-' + W + '] Only one wireless interface ' \
+               + 'found. Closing... ')
+    # Get the right interfaces
     inet_iface = get_internet_interface()
     if not args.jamminginterface:
         mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
@@ -893,12 +899,6 @@ if __name__ == "__main__":
             iface_to_monitor = args.jamminginterface
         else:
             iface_to_monitor = get_strongest_iface()
-        if not iface_to_monitor and not inet_iface:
-            sys.exit(
-                ('[' + R + '-' + W +
-                 '] No wireless interfaces found, bring one up and try again'
-                 )
-            )
         mon_iface = start_mode(iface_to_monitor, "monitor")
     wj_iface = mon_iface
     if not args.apinterface:
