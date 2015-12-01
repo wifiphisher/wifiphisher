@@ -271,7 +271,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
-        if redirect == True:
+        if redirect:
             self.redirect("/upgrading.html")
             terminate = True
             return
@@ -380,10 +380,8 @@ def get_internet_interface():
 
 def channel_hop(mon_iface):
     chan = 0
-    err = None
     while hop_daemon_running:
         try:
-            err = None
             if chan > 11:
                 chan = 0
             chan = chan + 1
@@ -403,6 +401,7 @@ def channel_hop(mon_iface):
                             'interface (e.g. wlan0)\n'
                             'from the network if you have not already\n'
                         )
+                        sys.exit(err)
                     break
             time.sleep(1)
         except KeyboardInterrupt:
@@ -519,10 +518,10 @@ def dhcp(dhcpconf, mon_iface):
     proc = check_output(['ifconfig', str(mon_iface)])
     if NETWORK_GW_IP not in proc:
         return False
-    time.sleep(.5) # Give it some time to avoid "SIOCADDRT: Network is unreachable"
+    time.sleep(.5)  # Give it some time to avoid "SIOCADDRT: Network is unreachable"
     os.system(
-        ('route add -net %s netmask %s gw %s' % 
-        (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
+        ('route add -net %s netmask %s gw %s' %
+         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
     return True
 
@@ -570,7 +569,6 @@ def channel_hop2(mon_iface):
     global monchannel, first_pass
 
     channelNum = 0
-    err = None
 
     while 1:
         if args.channel:
@@ -596,6 +594,7 @@ def channel_hop2(mon_iface):
                     # iw dev shouldnt display output unless there's an error
                     err = ('[' + R + '-' + W + '] Channel hopping failed: '
                            + R + line + W)
+                    sys.exit(err)
 
         output(monchannel)
         if args.channel:
@@ -913,13 +912,12 @@ if __name__ == "__main__":
 
     if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
         sys.exit(
-            ('[' + G + '+' + W + 
-            '] Interface %s is connected to the Internet. ' % inet_iface +
-            'Please disconnect and rerun the script.\n' +
-            '[' + R + '!' + W + '] Closing'
-            )
+            ('[' + G + '+' + W +
+             '] Interface %s is connected to the Internet. ' % inet_iface +
+             'Please disconnect and rerun the script.\n' +
+             '[' + R + '!' + W + '] Closing'
+             )
         )
-
 
     '''
     We got the interfaces correctly at this point. Monitor mon_iface & for
@@ -927,12 +925,12 @@ if __name__ == "__main__":
     '''
     # Set iptable rules and kernel variables.
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s' 
-        % (NETWORK_GW_IP, PORT))
+        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, PORT))
     )
     os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s' 
-        % (NETWORK_GW_IP, SSL_PORT))
+        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, SSL_PORT))
     )
     Popen(
         ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
@@ -955,8 +953,9 @@ if __name__ == "__main__":
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
     if not dhcp(dhcpconf, ap_iface):
-        print('[' + G + '+' + W + 
-            '] Could not set IP address on %s!' % ap_iface)
+        print('[' + G + '+' + W +
+              '] Could not set IP address on %s!' % ap_iface
+              )
         shutdown()
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
