@@ -79,7 +79,7 @@ def parse_args():
         "--apinterface",
         help=("Choose access point interface. " +
               "By default script will find the most powerful interface and " +
-              "starts an access point interface on it. Example: -aI wlan0"
+              "starts an access point on it. Example: -aI wlan0"
               )
     )
     parser.add_argument(
