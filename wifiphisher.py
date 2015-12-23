@@ -33,6 +33,7 @@ NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
 NETWORK_GW_IP = "10.0.0.1"
 DHCP_LEASE = "10.0.0.2,10.0.0.100,12h"
+LINES_OUTPUT = 3
 
 DN = open(os.devnull, 'w')
 
@@ -506,7 +507,6 @@ def dhcp_conf(interface):
 
 
 def dhcp(dhcpconf, mon_iface):
-    os.system('echo > /var/lib/misc/dnsmasq.leases')
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
@@ -681,7 +681,7 @@ def output(monchannel):
                 else:
                     log_file.write(
                         '[' + T + '*' + W + '] ' + O + ca[0] + W +
-                        ' - ' + O + ca[1] + W + ' - ' + ca[2]
+                        ' - ' + O + ca[1] + W + ' - ' + ca[2] + W + '\n'
                     )
         with lock:
             for ap in APs:
@@ -1054,32 +1054,24 @@ if __name__ == "__main__":
             print "Jamming devices: "
             if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
                 proc = check_output(['cat', '/tmp/wifiphisher-jammer.tmp'])
-                lines = proc.split('\n')
-                lines += ["\n"] * (5 - len(lines))
+                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
             else:
-                lines = ["\n"] * 5
-            for l in lines:
-                print l
+                lines = "\n" * LINES_OUTPUT
+            print lines
             print "DHCP Leases: "
             if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                 proc = check_output(['cat', '/var/lib/misc/dnsmasq.leases'])
-                lines = proc.split('\n')
-                lines += ["\n"] * (5 - len(lines))
+                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
             else:
-                lines = ["\n"] * 5
-            for l in lines:
-                print l
+                lines = "\n" * LINES_OUTPUT
+            print lines
             print "HTTP requests: "
             if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-                proc = check_output(
-                    ['tail', '-5', '/tmp/wifiphisher-webserver.tmp']
-                )
-                lines = proc.split('\n')
-                lines += ["\n"] * (5 - len(lines))
+                proc = check_output(['cat', '/tmp/wifiphisher-webserver.tmp'])
+                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
             else:
-                lines = ["\n"] * 5
-            for l in lines:
-                print l
+                lines = "\n" * LINES_OUTPUT
+            print lines
             if terminate:
                 time.sleep(3)
                 shutdown()
