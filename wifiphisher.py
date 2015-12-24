@@ -885,8 +885,8 @@ if __name__ == "__main__":
     template_database = phishingpage.get_template_database()
 
     # check to see if the template is local
-    if (phishingpage.exists(TEMPLATE_NAME) and
-            (not template_database[TEMPLATE_NAME] is None)):
+    if not template_database[TEMPLATE_NAME] is None:
+
         # if template is incomplete locally, delete and ask for a download
         if not phishingpage.check_template(TEMPLATE_NAME):
 
@@ -894,8 +894,8 @@ if __name__ == "__main__":
             phishingpage.clean_template(TEMPLATE_NAME)
 
             # get user's response
-            response = raw_input("Template is available online. Do you want to "\
-            "download it now? [y/n] ")
+            response = raw_input("Template is available online. Do you want"\
+            " to download it now? [y/n] ")
 
             # in case the user agrees to download
             if response == "Y" or response == "y":
