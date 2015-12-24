@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE, check_output
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
+import phishingpage
 
 conf.verb = 0
 
@@ -25,7 +26,8 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
-PHISING_PAGE = "phishing-scenarios/minimal"
+TEMPLATE_NAME = "minimal"
+TEMPLATE_PATH = ""
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
@@ -232,7 +234,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                )
                 log_file.close()
             self.path = "index.html"
-        self.path = "%s/%s" % (PHISING_PAGE, self.path)
+        self.path = "%s/%s" % (TEMPLATE_PATH, self.path)
 
         if self.path.endswith(".html"):
             if not os.path.isfile(self.path):
@@ -875,9 +877,36 @@ if __name__ == "__main__":
     # Only for systems with airmon-ng installed
     if os.path.isfile('/usr/sbin/airmon-ng'):
         proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
-        
+
     # Get hostapd if needed
     get_hostapd()
+
+    # get template_database
+    template_database = phishingpage.get_template_database()
+
+    # check to see if the template is local
+    if not template_database[TEMPLATE_NAME] is None:
+
+        # if template is incomplete locally, delete and ask for a download
+        if not phishingpage.check_template(TEMPLATE_NAME):
+
+            # clean up the previous download
+            phishingpage.clean_template(TEMPLATE_NAME)
+
+            # get user's response
+            response = raw_input("Template is available online. Do you want"\
+            " to download it now? [y/n] ")
+
+            # in case the user agrees to download
+            if response == "Y" or response == "y":
+                # display download info to the user
+                print "[" + G + "+" + W + "] Downloading the template..."
+
+                # download the content
+                phishingpage.grab_online(TEMPLATE_NAME)
+
+    # set the path for the template
+    TEMPLATE_PATH = phishingpage.get_path(TEMPLATE_NAME)
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
