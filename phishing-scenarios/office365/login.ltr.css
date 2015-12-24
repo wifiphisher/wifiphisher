@@ -254,12 +254,15 @@ div#background_page_overlay {
   overflow-x: hidden;
 }
 
+.login_panel_layout {
+    margin: 0 auto;
+    text-align: left;
+}
+
 .login_inner_container {
-  min-height: 100%;
-  height: auto;
-  max-height: 100%;
-  width: 100%;
-  margin-top: -10px;
+    min-height: 100%;
+    width: 100%;
+    margin-bottom: -50px;
 }
 
 .login_footer_container {
@@ -406,7 +409,6 @@ span.placeholder {
   padding: 5px 20px 5px 20px;
   color: #FFFFFF;
   width: auto;
-  margin-bottom: 34px;
   cursor: pointer;
 
   transition: opacity 1s;
