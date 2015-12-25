@@ -135,6 +135,9 @@ def get_path(template):
     # check to see if template name is a string
     is_type_string(template)
 
+    # get phishing pages directory
+    phishing_pages_dir = get_phishing_pages_dir()
+
     # get template_database
     template_database = get_template_database()
 
@@ -142,7 +145,7 @@ def get_path(template):
     if template not in template_database:
         raise TemplateNotAvailable
 
-    return PHISHING_PAGES_DIR + template
+    return phishing_pages_dir + template
 
 
 def url_check(url):
@@ -284,6 +287,7 @@ def is_type_string(info):
     else:
         raise ArgumentIsNotAString()
 
+
 def get_template_database():
     """
     Return a copy of the TEMPLATE_DATABASE.
@@ -298,3 +302,70 @@ def get_template_database():
     template_database = copy.deepcopy(TEMPLATE_DATABASE)
 
     return template_database
+
+
+def get_phishing_pages_dir():
+    """
+    Return a copy of PHISHING_PAGES_DIR.
+
+    Args:
+        None
+
+    Returns:
+        (str): A copy of the phishing_pages_dir.
+    """
+    return copy.copy(PHISHING_PAGES_DIR)
+
+
+def get_local_templates():
+    """
+    Return all the local templates available.
+
+    Args:
+        None
+
+    Returns:
+        (list): A list of all the local templates available.
+    """
+    # a list to store file names in
+    local_templates = []
+
+    # get template_database
+    template_database = get_template_database()
+
+    # get phishing pages directory
+    phishing_pages_dir = get_phishing_pages_dir()
+
+    # loop through the directory content
+    for name in os.listdir(phishing_pages_dir):
+
+        # check to see if it is a directory and not in the database
+        if (os.path.isdir(os.path.join(phishing_pages_dir, name)) and
+                name not in template_database):
+
+            # add it to the list
+            local_templates.append(name)
+
+    return local_templates
+
+
+def add_template(template):
+    """
+    Add the template to TEMPLATE_DATABASE.
+
+    Args:
+        template(str): The name of the template to be added.
+
+    Returns:
+        True (bool): If addition is successful.
+
+    Raises:
+        ArgumentIsNotAString: if the given info is not a string.
+    """
+    # check if template is a string
+    is_type_string(template)
+
+    # add the template to the database
+    TEMPLATE_DATABASE[template] = None
+
+    return True

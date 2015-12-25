@@ -26,7 +26,6 @@ conf.verb = 0
 PORT = 8080
 SSL_PORT = 443
 PEM = 'cert/server.pem'
-TEMPLATE_NAME = "minimal"
 TEMPLATE_PATH = ""
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
@@ -881,17 +880,64 @@ if __name__ == "__main__":
     # Get hostapd if needed
     get_hostapd()
 
+    # get all the local templates
+    local_templates = phishingpage.get_local_templates()
+
+    # loop through the local templates
+    for name in local_templates:
+
+        # add the template to the database
+        phishingpage.add_template(name)
+
     # get template_database
     template_database = phishingpage.get_template_database()
 
+    # get all the templtes names for display
+    template_names = list(template_database.keys())
+
+    # display start of template names
+    print "List Of All Templates: \n"
+
+    # display the templates
+    for number in range(len(template_names)):
+        print "[" + G + str(number + 1) + W + "] " + template_names[number]
+
+    # loop until a valid choice is inputed
+    while True:
+
+        # get user's choice
+        choosen_template = raw_input("Please Select One Of The Above "
+                                     "Templates: ")
+
+        # try to convert the input to integer
+        try:
+
+            template_number = int(choosen_template)
+
+        except ValueError:
+
+            print "Please Input An Integer!"
+
+        if (type(template_number) is int and
+            template_number in range(1, len(template_names) + 1)):
+            break
+        else:
+            print "Wrong Input! Please Try Again."
+
+    # remove 1 from template number which was added for display reasons
+    template_number -= 1
+
+    # set the template name
+    template_name = template_names[template_number]
+
     # check to see if the template is local
-    if not template_database[TEMPLATE_NAME] is None:
+    if not template_database[template_name] is None:
 
         # if template is incomplete locally, delete and ask for a download
-        if not phishingpage.check_template(TEMPLATE_NAME):
+        if not phishingpage.check_template(template_name):
 
             # clean up the previous download
-            phishingpage.clean_template(TEMPLATE_NAME)
+            phishingpage.clean_template(template_name)
 
             # get user's response
             response = raw_input("Template is available online. Do you want"\
@@ -903,10 +949,10 @@ if __name__ == "__main__":
                 print "[" + G + "+" + W + "] Downloading the template..."
 
                 # download the content
-                phishingpage.grab_online(TEMPLATE_NAME)
+                phishingpage.grab_online(template_name)
 
     # set the path for the template
-    TEMPLATE_PATH = phishingpage.get_path(TEMPLATE_NAME)
+    TEMPLATE_PATH = phishingpage.get_path(template_name)
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
