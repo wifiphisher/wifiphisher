@@ -33,13 +33,14 @@ class TestGrabOnline(unittest.TestCase):
         """ Tests grab_online given a valid template name as an input. """
 
         template = "linksys"
-        directory = phishingpage.PHISHING_PAGES_DIR
         path = phishingpage.get_path(template)
 
         phishingpage.grab_online(template)
 
-        if template not in os.listdir(directory):
-            self.fail("Failed to create the template folder!")
+        check = phishingpage.check_template(template)
+
+        self.assertEqual(check, True,
+                         "Failed to download all the files properly!")
 
         shutil.rmtree(path)
 
@@ -493,6 +494,7 @@ class TestGetTemplateDatabase(unittest.TestCase):
         Tests get_template_database contents with the original
         TEMPLATE_DATABASE.
         """
+
         original = phishingpage.TEMPLATE_DATABASE
         copy = phishingpage.get_template_database()
 
@@ -505,6 +507,7 @@ def test_compare_changed(self):
     Tests get_template_database contents with the original
     TEMPLATE_DATABASE when the original is changed.
     """
+
     original = phishingpage.TEMPLATE_DATABASE
     copy = phishingpage.get_template_database()
 
@@ -514,6 +517,109 @@ def test_compare_changed(self):
     self.assertDictEqual(original, copy,
                          "Failed to copy original TEMPLATE_DATABASE when"
                          " changed!")
+
+
+class TestGetPhishingPagesDir(unittest.TestCase):
+    """ Tests get_phishing_pages_dir function. """
+
+    def test_get_dir(self):
+        """
+        Tests get_phishing_pages_dir contents with the original
+        PHISHING_PAGES_DIR.
+        """
+
+        original = phishingpage.PHISHING_PAGES_DIR
+        copy = phishingpage.get_phishing_pages_dir()
+
+        self.assertEqual(original, copy,
+                         "Failed to get the original PHISHING_PAGES_DIR!")
+
+
+class TestGetLocalTemplates(unittest.TestCase):
+    """ Tests get_local_templates function. """
+
+    def test_get_local_templates_with_one_addition(self):
+        """ Test get_local_templates when created one local directory. """
+
+        path = phishingpage.get_phishing_pages_dir()
+        dir_path = path + "test"
+
+        os.makedirs(dir_path)
+
+        local_templates = phishingpage.get_local_templates()
+
+        expected = ["test"]
+
+        self.assertItemsEqual(expected, local_templates,
+                              "Failed to get 'test' as a local template!")
+
+        shutil.rmtree(dir_path)
+
+    def test_get_local_templates_with_multiple_addition(self):
+        """ Tests get_local_templates when created multiple directory. """
+
+        # names of the test directories
+        dir0 = "test_0"
+        dir1 = "test_1"
+        dir2 = "test_2"
+
+        # get the path for all three directories
+        path = phishingpage.get_phishing_pages_dir()
+        dir_path0 = path + dir0
+        dir_path1 = path + dir1
+        dir_path2 = path + dir2
+
+        # create the directories
+        os.makedirs(dir_path0)
+        os.makedirs(dir_path1)
+        os.makedirs(dir_path2)
+
+        # get the local templates
+        local_templates = phishingpage.get_local_templates()
+
+        # the expected results
+        expected = [dir0, dir1, dir2]
+
+        self.assertItemsEqual(expected, local_templates,
+                              "Failed to get multiple templates as "
+                              "local template!")
+
+        # remove the three directories
+        shutil.rmtree(dir_path0)
+        shutil.rmtree(dir_path1)
+        shutil.rmtree(dir_path2)
+
+
+class TestAddTemplate(unittest.TestCase):
+    """ Tests add_template function. """
+
+    def test_add_one_template(self):
+        """ Tests add_template when given a new template. """
+
+        # template to be added
+        template = "Test"
+
+        # add the template to the database
+        actual = phishingpage.add_template(template)
+
+        # get the template database
+        template_database = phishingpage.get_template_database()
+
+        # check to see if it is in the database
+        if template not in template_database:
+            self.fail("Failed to add the test template!")
+
+        self.assertIs(actual, True,
+                      "Failed to return True after a successful addition!")
+
+
+    def test_add_existing_template(self):
+        """  Test add_template when given an existing template. """
+
+        template = "minimal"
+
+        self.assertIs(phishingpage.add_template(template), False,
+                      "Failed to return False")
 
 if __name__ == '__main__':
     unittest.main()
