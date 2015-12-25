@@ -358,6 +358,7 @@ def add_template(template):
 
     Returns:
         True (bool): If addition is successful.
+        False (bool): If addition is unsuccessful.
 
     Raises:
         ArgumentIsNotAString: if the given info is not a string.
@@ -365,7 +366,16 @@ def add_template(template):
     # check if template is a string
     is_type_string(template)
 
-    # add the template to the database
-    TEMPLATE_DATABASE[template] = None
+    # check to see if it is already in the database
+    if template in TEMPLATE_DATABASE:
 
-    return True
+        # in case it is already in the database
+        return False
+
+    else:
+
+        # add the template to the database
+        TEMPLATE_DATABASE[template] = None
+
+        # in case of a successful addition
+        return True
