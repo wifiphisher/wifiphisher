@@ -919,7 +919,7 @@ if __name__ == "__main__":
             print "Please Input An Integer!"
 
         if (type(template_number) is int and
-            template_number in range(1, len(template_names) + 1)):
+                template_number in range(1, len(template_names) + 1)):
             break
         else:
             print "Wrong Input! Please Try Again."
@@ -940,8 +940,8 @@ if __name__ == "__main__":
             phishingpage.clean_template(template_name)
 
             # get user's response
-            response = raw_input("Template is available online. Do you want"\
-            " to download it now? [y/n] ")
+            response = raw_input("Template is available online. Do you want "
+                                 "to download it now? [y/n] ")
 
             # in case the user agrees to download
             if response == "Y" or response == "y":
