@@ -46,17 +46,20 @@ def grab_online(template):
     # check to see if template is a string
     is_type_string(template)
 
+    # get template_database
+    template_database = get_template_database()
+
     # check if user's choice exists in dictionary
-    if template in TEMPLATE_DATABASE:
+    if template in template_database:
 
         # make a new folder
         os.makedirs(get_path(template))
 
         # loop through template dictionary
-        for name in TEMPLATE_DATABASE[template]:
+        for name in template_database[template]:
 
             # get the URL
-            url = TEMPLATE_DATABASE[template][name]
+            url = template_database[template][name]
 
             # check if URL's exist
             if url_check(url):
@@ -86,11 +89,14 @@ def exists(dir_path):
     # check to see if given path is a string
     is_type_string(dir_path)
 
+    # get template_database
+    template_database = get_template_database()
+
     # remove the directory and get the name of the template
     chosen_template = dir_path[dir_path.find("/")+1:]
 
     # check if template exists
-    if chosen_template not in TEMPLATE_DATABASE:
+    if chosen_template not in template_database:
         raise TemplateNotAvailable
 
     # check the path and return accordingly
@@ -117,8 +123,11 @@ def get_path(template):
     # check to see if template name is a string
     is_type_string(template)
 
+    # get template_database
+    template_database = get_template_database()
+
     # check if template exists
-    if template not in TEMPLATE_DATABASE:
+    if template not in template_database:
         raise TemplateNotAvailable
 
     return PHISHING_PAGES_DIR + template
@@ -167,6 +176,9 @@ def check_template(template):
     # check if template is a string
     is_type_string(template)
 
+    # get template_database
+    template_database = get_template_database()
+
     # a list to store file names in
     local_file_names = []
 
@@ -186,7 +198,7 @@ def check_template(template):
                 local_file_names.append(name)
 
         # loop through the database file names
-        for file_name in TEMPLATE_DATABASE[template]:
+        for file_name in template_database[template]:
 
             # check if database file names match local file names
             if file_name not in local_file_names:
