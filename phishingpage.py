@@ -7,7 +7,27 @@ import urllib
 import os
 import shutil
 import copy
-from constants import *
+
+# set of dictionaries to store URLs and names
+LINKSYS = {"index.html": "http://filebin.ca/2RQWX6fTYiqP",
+           "Linksys_logo.png": "http://filebin.ca/2RLKidDj7diQ",
+           "bootstrap.min.js": "http://filebin.ca/2RLH8KfPvR8H",
+           "bootstrap.min.css": "http://filebin.ca/2RLGpHrHURID",
+           "jquery.min.js": "http://filebin.ca/2RLH1SnlHAk2",
+           "upgrading.html": "http://filebin.ca/2RQXXYAi0Q4Y"}
+
+CISCO = {"index.html": "http://filebin.ca/2RQOcIeGR6Nb",
+         "cisco_logo.png": "http://filebin.ca/2RLGi6dSXPcZ",
+         "bootstrap.min.js": "http://filebin.ca/2RLH8KfPvR8H",
+         "bootstrap.min.css": "http://filebin.ca/2RLGpHrHURID",
+         "jquery.min.js": "http://filebin.ca/2RLH1SnlHAk2",
+         "upgrading.html": "http://filebin.ca/2RQTBnH8rwAo"}
+
+TEMPLATE_DATABASE = {"Linksys": LINKSYS, "Cisco": CISCO, "minimal": None,
+                     "connection_reset": None, "office365": None}
+
+PHISHING_PAGES_DIR = "phishing-pages/"
+
 
 class UrlNotAvailable(Exception):
     """ Exception class to raise in case of a invalid URL. """
