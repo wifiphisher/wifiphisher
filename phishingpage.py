@@ -9,13 +9,21 @@ import shutil
 import copy
 
 # set of dictionaries to store URLs and names
-LINKSYS = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-           "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-           "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-           "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
-           "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
+LINKSYS = {"index.html": "http://filebin.ca/2RQWX6fTYiqP",
+           "Linksys_logo.png": "http://filebin.ca/2RLKidDj7diQ",
+           "bootstrap.min.js": "http://filebin.ca/2RLH8KfPvR8H",
+           "bootstrap.min.css": "http://filebin.ca/2RLGpHrHURID",
+           "jquery.min.js": "http://filebin.ca/2RLH1SnlHAk2",
+           "upgrading.html": "http://filebin.ca/2RQXXYAi0Q4Y"}
 
-TEMPLATE_DATABASE = {"linksys": LINKSYS, "minimal": None,
+CISCO = {"index.html": "http://filebin.ca/2RQOcIeGR6Nb",
+         "cisco_logo.png": "http://filebin.ca/2RLGi6dSXPcZ",
+         "bootstrap.min.js": "http://filebin.ca/2RLH8KfPvR8H",
+         "bootstrap.min.css": "http://filebin.ca/2RLGpHrHURID",
+         "jquery.min.js": "http://filebin.ca/2RLH1SnlHAk2",
+         "upgrading.html": "http://filebin.ca/2RQTBnH8rwAo"}
+
+TEMPLATE_DATABASE = {"Linksys": LINKSYS, "Cisco": CISCO, "minimal": None,
                      "connection_reset": None, "office365": None}
 
 PHISHING_PAGES_DIR = "phishing-pages/"
