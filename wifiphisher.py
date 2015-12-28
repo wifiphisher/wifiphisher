@@ -895,61 +895,84 @@ if __name__ == "__main__":
     # get all the templtes names for display
     template_names = list(template_database.keys())
 
-    # display start of template names
-    print "List Of All Templates: \n"
+    # variable used to indicate correct template selection
+    template_selected = False
 
-    # display the templates
-    for number in range(len(template_names)):
-        print "[" + G + str(number + 1) + W + "] " + template_names[number]
-
-    # loop until a valid choice is inputed
+    # loop until all operations for template selection is done
     while True:
 
-        # get user's choice
-        choosen_template = raw_input("Please Select One Of The Above "
-                                     "Templates: ")
+        # loop until a valid template is selected
+        while not template_selected:
 
-        # try to convert the input to integer
-        try:
+            # display start of template names
+            print "\nList Of All Templates: \n"
 
-            template_number = int(choosen_template)
+            # display the templates
+            for number in range(len(template_names)):
+                print ("[" + G + str(number + 1) + W + "] " +
+                       template_names[number])
 
-        except ValueError:
+            # get user's choice
+            choosen_template = raw_input("Please Select One Of The Above "
+                                         "Templates: ")
 
-            print "Please Input An Integer!"
+            # try to convert the input to integer
+            try:
 
-        if (type(template_number) is int and
-                template_number in range(1, len(template_names) + 1)):
+                template_number = int(choosen_template)
+
+            except ValueError:
+
+                # placed to avoid a program crash in case of non integer input
+                pass
+
+            if (type(template_number) is int and
+                    template_number in range(1, len(template_names) + 1)):
+
+                template_selected = True
+
+            else:
+
+                print "Wrong Input! Please Try Again."
+
+        # remove 1 from template number which was added for display reasons
+        template_number -= 1
+
+        # set the template name
+        template_name = template_names[template_number]
+
+        # check to see if the template is local
+        if template_database[template_name] is None:
+
+            # in case the template is local break out of infinite loop
             break
+
+        # in case the template is online
         else:
-            print "Wrong Input! Please Try Again."
 
-    # remove 1 from template number which was added for display reasons
-    template_number -= 1
+            # if template is incomplete locally, delete and ask for a download
+            if not phishingpage.check_template(template_name):
 
-    # set the template name
-    template_name = template_names[template_number]
+                # clean up the previous download
+                phishingpage.clean_template(template_name)
 
-    # check to see if the template is local
-    if not template_database[template_name] is None:
+                # get user's response
+                response = raw_input("Template is available online. Do you "
+                                     "want to download it now? [y/n] ")
 
-        # if template is incomplete locally, delete and ask for a download
-        if not phishingpage.check_template(template_name):
+                # in case the user agrees to download
+                if response == "Y" or response == "y":
+                    # display download info to the user
+                    print "[" + G + "+" + W + "] Downloading the template..."
 
-            # clean up the previous download
-            phishingpage.clean_template(template_name)
+                    # download the content
+                    phishingpage.grab_online(template_name)
 
-            # get user's response
-            response = raw_input("Template is available online. Do you want "
-                                 "to download it now? [y/n] ")
+                else:
 
-            # in case the user agrees to download
-            if response == "Y" or response == "y":
-                # display download info to the user
-                print "[" + G + "+" + W + "] Downloading the template..."
-
-                # download the content
-                phishingpage.grab_online(template_name)
+                    # since the user didn't want to download start the process
+                    # for template selection
+                    template_selected = False
 
     # set the path for the template
     TEMPLATE_PATH = phishingpage.get_path(template_name)
