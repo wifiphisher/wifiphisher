@@ -202,29 +202,17 @@ def check_template(template):
     # get template_database
     template_database = get_template_database()
 
-    # a list to store file names in
-    local_file_names = []
-
     # get the full path of the template
     template_path = get_path(template)
 
     # check to see if template exists
     if exists(template_path):
 
-        # loop through the directory content
-        for name in os.listdir(template_path):
-
-            # check to see if it is a file
-            if os.path.isfile(os.path.join(template_path, name)):
-
-                # add it to the list
-                local_file_names.append(name)
-
         # loop through the database file names
         for file_name in template_database[template]:
 
             # check if database file names match local file names
-            if file_name not in local_file_names:
+            if file_name not in os.listdir(template_path):
 
                 # in case a file is not locally present
                 return False
