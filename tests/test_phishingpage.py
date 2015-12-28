@@ -32,7 +32,7 @@ class TestGrabOnline(unittest.TestCase):
     def test_template_exists(self):
         """ Tests grab_online given a valid template name as an input. """
 
-        template = "linksys"
+        template = "Linksys"
         path = phishingpage.get_path(template)
 
         phishingpage.grab_online(template)
@@ -140,7 +140,7 @@ class TestExists(unittest.TestCase):
     def test_directory_exists(self):
         """ Tests exists with a valid directory as an input. """
 
-        path = "test/linksys"
+        path = "test/Linksys"
 
         os.makedirs(path)
 
@@ -296,7 +296,7 @@ class TestCheckTemplate(unittest.TestCase):
     def test_all_files_locally_present(self):
         """ Tests check_template when all files are locally present. """
 
-        template = "linksys"
+        template = "Linksys"
         path = phishingpage.get_path(template)
 
         # download the template
@@ -311,7 +311,7 @@ class TestCheckTemplate(unittest.TestCase):
         Tests check_template when some of the files are locally present.
         """
 
-        template = "linksys"
+        template = "Linksys"
         path = phishingpage.get_path(template)
 
         # download the template
@@ -330,7 +330,7 @@ class TestCheckTemplate(unittest.TestCase):
         present.
         """
 
-        template = "linksys"
+        template = "Linksys"
         path = phishingpage.get_path(template)
 
         # download the template
@@ -347,7 +347,7 @@ class TestCheckTemplate(unittest.TestCase):
     def test_not_locally_present(self):
         """ Tests check_template when no directory is locally present. """
 
-        template = "linksys"
+        template = "Linksys"
 
         self.assertEqual(phishingpage.check_template(template), False,
                          "Failed to check a template with no directory!")
@@ -394,7 +394,7 @@ class TestCleanTemplate(unittest.TestCase):
         template.
         """
 
-        template = "linksys"
+        template = "Linksys"
 
         self.assertEqual(phishingpage.clean_template(template), False,
                          "Failed to return False for non-existence directory!")
@@ -405,7 +405,7 @@ class TestCleanTemplate(unittest.TestCase):
         input.
         """
 
-        template = "linksys"
+        template = "Linksys"
         dir_path = phishingpage.PHISHING_PAGES_DIR
         path = phishingpage.get_path(template)
         local_directory_names_1 = []
@@ -446,7 +446,7 @@ class TestCleanTemplate(unittest.TestCase):
     def test_template_with_no_files(self):
         """ Tests clean_template when no files are locally present. """
 
-        template = "linksys"
+        template = "Linksys"
         dir_path = phishingpage.PHISHING_PAGES_DIR
         path = phishingpage.get_path(template)
         local_directory_names_1 = []
