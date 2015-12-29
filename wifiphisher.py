@@ -933,7 +933,7 @@ if __name__ == "__main__":
 
             else:
 
-                print "Wrong Input! Please Try Again."
+                print "[" + R + "-" + W + "] Wrong Input! Please Try Again"
 
         # remove 1 from template number which was added for display reasons
         template_number -= 1
@@ -952,6 +952,9 @@ if __name__ == "__main__":
 
             # if template is incomplete locally, delete and ask for a download
             if not phishingpage.check_template(template_name):
+
+                print ("[" + R + "-" + W + "] Deleting " + template_name +
+                       ": Template incomplete")
 
                 # clean up the previous download
                 phishingpage.clean_template(template_name)
@@ -973,6 +976,13 @@ if __name__ == "__main__":
                     # since the user didn't want to download start the process
                     # for template selection
                     template_selected = False
+
+            else:
+
+                # in case the template is online and complete
+                break
+
+    print "[" + G + "+" + W + "] Selecing " + template_name + " as the template"
 
     # set the path for the template
     TEMPLATE_PATH = phishingpage.get_path(template_name)
