@@ -969,7 +969,7 @@ if __name__ == "__main__":
                     print "[" + G + "+" + W + "] Downloading the template..."
 
                     # download the content
-                    phishingpage.grab_online(template_name)
+                    phishingpage.fetch_template(template_name)
 
                 else:
 

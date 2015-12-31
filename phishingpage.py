@@ -8,7 +8,7 @@ import os
 import shutil
 import copy
 
-# set of dictionaries to store URLs and names
+# set of dictionaries to store URLs and names for templates
 LINKSYS = {"index.html": "http://filebin.ca/2RQWX6fTYiqP",
            "Linksys_logo.png": "http://filebin.ca/2RLKidDj7diQ",
            "bootstrap.min.js": "http://filebin.ca/2RLH8KfPvR8H",
@@ -47,10 +47,10 @@ class ArgumentIsNotAString(Exception):
         Exception.__init__(self, "The given argument is not a string!")
 
 
-def grab_online(template):
+def fetch_template(template):
     """
-    Make a new folder with the name provided in template and fetch all the
-    files for the given template from the internet.
+    Make a new folder with the name provided in template directory and fetch
+    all the files for the given template from the internet.
 
     Args:
         template (str): The name of requested template.
@@ -63,40 +63,43 @@ def grab_online(template):
         TEMPLATE_DATABASE.
         ArgumentIsNotAString: if the given template is not a string.
     """
+
     # check to see if template is a string
     is_type_string(template)
 
     # get template_database
     template_database = get_template_database()
 
-    # check if user's choice exists in dictionary
+    # check if template exists in database
     if template in template_database:
 
         # make a new folder
         os.makedirs(get_path(template))
 
-        # loop through template dictionary
+        # loop through template database
         for name in template_database[template]:
 
             # get the URL
             url = template_database[template][name]
 
-            # check if URL's exist
+            # check if URL is accessible
             if url_check(url):
+
                 # download the files
                 urllib.urlretrieve(url, (get_path(template) + "/" + name))
 
     else:
 
+        # raise an error in case the template is not in the database
         raise TemplateNotAvailable()
 
 
-def exists(dir_path):
+def exists(path):
     """
     Check if the template directory in the given path exists.
 
     Args:
-        dir_path (str): path of a directory.
+        path (str): path of a directory.
 
     Returns:
         True (bool): if directory exists.
@@ -106,24 +109,34 @@ def exists(dir_path):
         ArgumentIsNotAString: if the given path is not a string.
         TemplateNotAvailable: if the given template is not available.
     """
+
     # check to see if given path is a string
-    is_type_string(dir_path)
+    is_type_string(path)
 
     # get template_database
     template_database = get_template_database()
 
     # remove the directory and get the name of the template
-    chosen_template = dir_path[dir_path.find("/")+1:]
+    template = path[path.find("/")+1:]
 
     # check if template exists
-    if chosen_template not in template_database:
-        raise TemplateNotAvailable
+    if template in template_database:
 
-    # check the path and return accordingly
-    if os.path.isdir(dir_path):
-        return True
+        # check the path and return accordingly
+        if os.path.isdir(path):
+
+            # in case the directory exists
+            return True
+
+        else:
+
+            # in case the directory doesn't exist
+            return False
+
     else:
-        return False
+
+        # raise an error in case template doesn't exists
+        raise TemplateNotAvailable
 
 
 def get_path(template):
@@ -140,6 +153,7 @@ def get_path(template):
         ArgumentIsNotAString: if the given template name is not a string.
         TemplateNotAvailable: if the given template is not available.
     """
+
     # check to see if template name is a string
     is_type_string(template)
 
@@ -150,15 +164,20 @@ def get_path(template):
     template_database = get_template_database()
 
     # check if template exists
-    if template not in template_database:
-        raise TemplateNotAvailable
+    if template in template_database:
 
-    return phishing_pages_dir + template
+        # in case the template exists
+        return phishing_pages_dir + template
+
+    else:
+
+        # raise error in case the template doesn't exist
+        raise TemplateNotAvailable
 
 
 def url_check(url):
     """
-    Check the existence of the URL.
+    Check the accessibility of the URL.
 
     Args:
         url (str): The URL to be checked.
@@ -170,14 +189,21 @@ def url_check(url):
         UrlNotAvailable: If URL is not available.
         ArgumentIsNotAString: if the given URL is not a string.
     """
+
     # check if url is a string
     is_type_string(url)
 
     # checks the URL and return value accordingly
     try:
+
         urllib.urlopen(url)
+
+        # in case the URL is accessible
         return True
+
     except:
+
+        # raise an error in case the URL is inaccessible
         raise UrlNotAvailable()
 
 
@@ -196,6 +222,7 @@ def check_template(template):
         ArgumentIsNotAString: if the given template name is not a string.
         TemplateNotAvailable: if the given template is not available.
     """
+
     # check if template is a string
     is_type_string(template)
 
@@ -205,24 +232,17 @@ def check_template(template):
     # get the full path of the template
     template_path = get_path(template)
 
-    # check to see if template exists
-    if exists(template_path):
+    # check to see if template exists and all the files are available
+    if (exists(template_path) and
+            (set(template_database[template].keys()) <=
+             set(os.listdir(template_path)))):
 
-        # loop through the database file names
-        for file_name in template_database[template]:
-
-            # check if database file names match local file names
-            if file_name not in os.listdir(template_path):
-
-                # in case a file is not locally present
-                return False
-
-        # in case all of the files are locally present
+        # in case all the files are available
         return True
 
     else:
 
-        # in case no directory is present
+        # in case all the files are not locally available
         return False
 
 
@@ -241,6 +261,7 @@ def clean_template(template):
         ArgumentIsNotAString: if the given template name is not a string.
         TemplateNotAvailable: if the given template is not available.
     """
+
     # check if template is a string
     is_type_string(template)
 
@@ -278,6 +299,7 @@ def is_type_string(info):
     Raises:
         ArgumentIsNotAString: if the given info is not a string.
     """
+
     if type(info) is str:
         return True
     else:
@@ -294,6 +316,7 @@ def get_template_database():
     Returns:
         (dict): A copy of the TEMPLATE_DATABASE.
     """
+
     # create a copy of the database
     template_database = copy.deepcopy(TEMPLATE_DATABASE)
 
@@ -310,7 +333,11 @@ def get_phishing_pages_dir():
     Returns:
         (str): A copy of the phishing_pages_dir.
     """
-    return copy.copy(PHISHING_PAGES_DIR)
+
+    # create a copy of the database
+    phishing_pages_dir = copy.copy(PHISHING_PAGES_DIR)
+
+    return phishing_pages_dir
 
 
 def get_local_templates():
@@ -323,6 +350,7 @@ def get_local_templates():
     Returns:
         (list): A list of all the local templates available.
     """
+
     # a list to store file names in
     local_templates = []
 
@@ -359,6 +387,7 @@ def add_template(template):
     Raises:
         ArgumentIsNotAString: if the given info is not a string.
     """
+
     # check if template is a string
     is_type_string(template)
 
