@@ -26,16 +26,16 @@ class TestUrlCheck(unittest.TestCase):
             phishingpage.url_check(url)
 
 
-class TestGrabOnline(unittest.TestCase):
-    """ Tests grab_online function. """
+class TestFetchTemplate(unittest.TestCase):
+    """ Tests fetch_template function. """
 
     def test_template_exists(self):
-        """ Tests grab_online given a valid template name as an input. """
+        """ Tests fetch_template given a valid template name as an input. """
 
         template = "Linksys"
         path = phishingpage.get_path(template)
 
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         check = phishingpage.check_template(template)
 
@@ -45,88 +45,88 @@ class TestGrabOnline(unittest.TestCase):
         shutil.rmtree(path)
 
     def test_template_not_exists(self):
-        """ Tests grab_online with non-existence template as an input. """
+        """ Tests fetch_template with non-existence template as an input. """
 
         with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.grab_online("randomnumber")
+            phishingpage.fetch_template("randomnumber")
 
     def test_template_empty(self):
-        """ Tests grab_online with an empty string as an input. """
+        """ Tests fetch_template with an empty string as an input. """
 
         with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.grab_online("")
+            phishingpage.fetch_template("")
 
     def test_template_special_character(self):
-        """ Tests grab_online with special string characters as an input. """
+        """ Tests fetch_template with special string characters as an input. """
 
         with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.grab_online("fdsjkjl#@!#")
+            phishingpage.fetch_template("fdsjkjl#@!#")
 
     def test_template_int(self):
-        """ Tests grab_online with an integer as an input. """
+        """ Tests fetch_template with an integer as an input. """
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(1)
+            phishingpage.fetch_template(1)
 
     def test_template_float(self):
-        """ Tests grab_online with a float as an input. """
+        """ Tests fetch_template with a float as an input. """
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(2.4)
+            phishingpage.fetch_template(2.4)
 
     def test_template_empty_list(self):
-        """ Tests grab_online with an empty list as an input. """
+        """ Tests fetch_template with an empty list as an input. """
 
         template = []
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_non_empty_list(self):
-        """ Tests grab_online with a non-empty list as an input. """
+        """ Tests fetch_template with a non-empty list as an input. """
 
         template = [1, 2, 3]
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_empty_dict(self):
-        """ Tests grab_online with empty dictionary as an input. """
+        """ Tests fetch_template with empty dictionary as an input. """
 
         template = dict()
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_non_empty_dict(self):
-        """ Tests grab_online with a non-empty dictionary as an input. """
+        """ Tests fetch_template with a non-empty dictionary as an input. """
 
         template = {"test": 1, "test2": 2}
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_empty_set(self):
-        """ Tests grab_online with an empty set as an input. """
+        """ Tests fetch_template with an empty set as an input. """
 
         template = set()
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_non_empty_set(self):
-        """ Test grab_online with a non-empty set as an input. """
+        """ Test fetch_template with a non-empty set as an input. """
 
         template = {1, 2, 3}
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(template)
+            phishingpage.fetch_template(template)
 
     def test_template_none(self):
-        """ Tests grab_online with None type as an input. """
+        """ Tests fetch_template with None type as an input. """
 
         with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.grab_online(None)
+            phishingpage.fetch_template(None)
 
 
 class TestExists(unittest.TestCase):
@@ -300,7 +300,7 @@ class TestCheckTemplate(unittest.TestCase):
         path = phishingpage.get_path(template)
 
         # download the template
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         self.assertEqual(phishingpage.check_template(template), True,
                          "Failed to check valid template with all files!")
@@ -315,7 +315,7 @@ class TestCheckTemplate(unittest.TestCase):
         path = phishingpage.get_path(template)
 
         # download the template
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         # remove a file
         os.remove(path + "/index.html")
@@ -334,7 +334,7 @@ class TestCheckTemplate(unittest.TestCase):
         path = phishingpage.get_path(template)
 
         # download the template
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         # remove all the files
         os.remove(path + "/index.html")
@@ -412,7 +412,7 @@ class TestCleanTemplate(unittest.TestCase):
         local_directory_names_2 = []
 
         # download the template
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         # remove a file
         os.remove(path + "/index.html")
@@ -453,7 +453,7 @@ class TestCleanTemplate(unittest.TestCase):
         local_directory_names_2 = []
 
         # download the template
-        phishingpage.grab_online(template)
+        phishingpage.fetch_template(template)
 
         # remove files
         os.remove(path + "/index.html")
