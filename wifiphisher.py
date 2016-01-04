@@ -131,6 +131,10 @@ def parse_args():
         help="Enter the MAC address of a specific access point to target"
     )
 
+    parser.add_argument("-T","--template",help=("Choose the template to run."+
+                        "Using this option will skip the interactive "+
+                        "selection"))
+
     return parser.parse_args()
 
 
@@ -901,6 +905,15 @@ if __name__ == "__main__":
     # loop until all operations for template selection is done
     while True:
 
+        # check if the template argument is set and is correct
+        if args.template and args.template in template_database:
+
+            # set the template name
+            template_name = args.template
+
+            # set the template selected to avoid interactive selection
+            template_selected = True
+
         # loop until a valid template is selected
         while not template_selected:
 
@@ -935,11 +948,17 @@ if __name__ == "__main__":
 
                 print "[" + R + "-" + W + "] Wrong Input! Please Try Again"
 
-        # remove 1 from template number which was added for display reasons
-        template_number -= 1
+            # remove 1 from template number which was added for display reasons
+            template_number -= 1
 
-        # set the template name
-        template_name = template_names[template_number]
+            try:
+                # set the template name
+                template_name = template_names[template_number]
+            except IndexError:
+
+                # placed to avoid a program crash in case of unexpected
+                # template number
+                pass
 
         # check to see if the template is local
         if template_database[template_name] is None:
