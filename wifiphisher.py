@@ -967,7 +967,6 @@ if __name__ == "__main__":
 
     # loop through the local templates
     for name in local_templates:
-
         # add the template to the database
         phishingpage.add_template(name)
 
@@ -982,24 +981,19 @@ if __name__ == "__main__":
 
     # loop until all operations for template selection is done
     while True:
-
         # check if the template argument is set and is correct
         if args.template and phishingpage.check_template(args.template):
-
             # set the template name
             template_name = args.template
 
             # exit loop to avoid interactive selection
             break
-
         # in case of an invalid template
         elif args.template and not phishingpage.check_template(args.template):
-
             raise InvalidTemplate
 
         # loop until a valid template is selected
         while not template_selected:
-
             # display start of template names
             print "\nList Of All Templates: \n"
 
@@ -1014,21 +1008,15 @@ if __name__ == "__main__":
 
             # try to convert the input to integer
             try:
-
                 template_number = int(choosen_template)
-
             except ValueError:
-
                 # placed to avoid a program crash in case of non integer input
                 template_number = -1
 
             if (type(template_number) is int and
                     template_number in range(1, len(template_names) + 1)):
-
                 template_selected = True
-
             else:
-
                 print "\n[" + R + "-" + W + "] Wrong Input! Please Try Again"
 
             # remove 1 from template number which was added for display reasons
@@ -1045,19 +1033,15 @@ if __name__ == "__main__":
 
         # check to see if the template is local
         if template_database[template_name] is None:
-
             # in case the template is local break out of infinite loop
             break
-
         # in case the template is online
         else:
-
             # if template is incomplete or non existent locally, delete and
             # ask for a download
             if ((not phishingpage.check_template(template_name)) or
                     (not phishingpage.exists("phishing-pages/" +
                                              template_name))):
-
                 print ("[" + R + "-" + W + "] Deleting " + template_name +
                        ": Template incomplete")
 
@@ -1078,20 +1062,16 @@ if __name__ == "__main__":
 
                     # exit the loop since template is downloaded
                     break
-
                 else:
-
                     # since the user didn't want to download start the process
                     # for template selection
                     template_selected = False
-
             else:
-
                 # in case the template is online and complete
                 break
 
-    print ("[" + G + "+" + W + "] Selecing " + template_name +
-           " as the template")
+    print ("[" + G + "+" + W + "] Selecting " + template_name +
+           " template")
 
     # set the path for the template
     TEMPLATE_PATH = phishingpage.get_path(template_name)
