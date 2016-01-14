@@ -54,6 +54,14 @@ terminate = False
 lock = Lock()
 
 
+class InvalidTemplate(Exception):
+    """ Exception class to raise in case of a invalid template. """
+
+    def __init__(self):
+        Exception.__init__(self, "The given template is either invalid or " +
+                                 "not available locally!")
+
+
 def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
@@ -884,128 +892,6 @@ if __name__ == "__main__":
     # Get hostapd if needed
     get_hostapd()
 
-    # get all the local templates
-    local_templates = phishingpage.get_local_templates()
-
-    # loop through the local templates
-    for name in local_templates:
-
-        # add the template to the database
-        phishingpage.add_template(name)
-
-    # get template_database
-    template_database = phishingpage.get_template_database()
-
-    # get all the templtes names for display
-    template_names = list(template_database.keys())
-
-    # variable used to indicate correct template selection
-    template_selected = False
-
-    # loop until all operations for template selection is done
-    while True:
-
-        # check if the template argument is set and is correct
-        if args.template and args.template in template_database:
-
-            # set the template name
-            template_name = args.template
-
-            # set the template selected to avoid interactive selection
-            template_selected = True
-
-        # loop until a valid template is selected
-        while not template_selected:
-
-            # display start of template names
-            print "\nList Of All Templates: \n"
-
-            # display the templates
-            for number in range(len(template_names)):
-                print ("[" + G + str(number + 1) + W + "] " +
-                       template_names[number])
-
-            # get user's choice
-            choosen_template = raw_input("Please Select One Of The Above "
-                                         "Templates: ")
-
-            # try to convert the input to integer
-            try:
-
-                template_number = int(choosen_template)
-
-            except ValueError:
-
-                # placed to avoid a program crash in case of non integer input
-                pass
-
-            if (type(template_number) is int and
-                    template_number in range(1, len(template_names) + 1)):
-
-                template_selected = True
-
-            else:
-
-                print "[" + R + "-" + W + "] Wrong Input! Please Try Again"
-
-            # remove 1 from template number which was added for display reasons
-            template_number -= 1
-
-            try:
-                # set the template name
-                template_name = template_names[template_number]
-            except IndexError:
-
-                # placed to avoid a program crash in case of unexpected
-                # template number
-                pass
-
-        # check to see if the template is local
-        if template_database[template_name] is None:
-
-            # in case the template is local break out of infinite loop
-            break
-
-        # in case the template is online
-        else:
-
-            # if template is incomplete locally, delete and ask for a download
-            if not phishingpage.check_template(template_name):
-
-                print ("[" + R + "-" + W + "] Deleting " + template_name +
-                       ": Template incomplete")
-
-                # clean up the previous download
-                phishingpage.clean_template(template_name)
-
-                # get user's response
-                response = raw_input("Template is available online. Do you "
-                                     "want to download it now? [y/n] ")
-
-                # in case the user agrees to download
-                if response == "Y" or response == "y":
-                    # display download info to the user
-                    print "[" + G + "+" + W + "] Downloading the template..."
-
-                    # download the content
-                    phishingpage.fetch_template(template_name)
-
-                else:
-
-                    # since the user didn't want to download start the process
-                    # for template selection
-                    template_selected = False
-
-            else:
-
-                # in case the template is online and complete
-                break
-
-    print "[" + G + "+" + W + "] Selecing " + template_name + " as the template"
-
-    # set the path for the template
-    TEMPLATE_PATH = phishingpage.get_path(template_name)
-
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
@@ -1075,6 +961,139 @@ if __name__ == "__main__":
     sniffing(mon_iface, targeting_cb)
     channel, essid, ap_mac = copy_AP()
     hop_daemon_running = False
+
+    # get all the local templates
+    local_templates = phishingpage.get_local_templates()
+
+    # loop through the local templates
+    for name in local_templates:
+
+        # add the template to the database
+        phishingpage.add_template(name)
+
+    # get template_database
+    template_database = phishingpage.get_template_database()
+
+    # get all the templtes names for display
+    template_names = list(template_database.keys())
+
+    # variable used to indicate correct template selection
+    template_selected = False
+
+    # loop until all operations for template selection is done
+    while True:
+
+        # check if the template argument is set and is correct
+        if args.template and phishingpage.check_template(args.template):
+
+            # set the template name
+            template_name = args.template
+
+            # exit loop to avoid interactive selection
+            break
+
+        # in case of an invalid template
+        elif args.template and not phishingpage.check_template(args.template):
+
+            raise InvalidTemplate
+
+        # loop until a valid template is selected
+        while not template_selected:
+
+            # display start of template names
+            print "\nList Of All Templates: \n"
+
+            # display the templates
+            for number in range(len(template_names)):
+                print ("[" + G + str(number + 1) + W + "] " +
+                       template_names[number])
+
+            # get user's choice
+            choosen_template = raw_input("Please select one of the above "
+                                         "templates: ")
+
+            # try to convert the input to integer
+            try:
+
+                template_number = int(choosen_template)
+
+            except ValueError:
+
+                # placed to avoid a program crash in case of non integer input
+                template_number = -1
+
+            if (type(template_number) is int and
+                    template_number in range(1, len(template_names) + 1)):
+
+                template_selected = True
+
+            else:
+
+                print "\n[" + R + "-" + W + "] Wrong Input! Please Try Again"
+
+            # remove 1 from template number which was added for display reasons
+            template_number -= 1
+
+            try:
+                # set the template name
+                template_name = template_names[template_number]
+            except IndexError:
+
+                # placed to avoid a program crash in case of unexpected
+                # template number
+                pass
+
+        # check to see if the template is local
+        if template_database[template_name] is None:
+
+            # in case the template is local break out of infinite loop
+            break
+
+        # in case the template is online
+        else:
+
+            # if template is incomplete or non existent locally, delete and
+            # ask for a download
+            if ((not phishingpage.check_template(template_name)) or
+                    (not phishingpage.exists(template_name))):
+
+                print ("[" + R + "-" + W + "] Deleting " + template_name +
+                       ": Template incomplete")
+
+                # clean up the previous download
+                phishingpage.clean_template(template_name)
+
+                # get user's response
+                response = raw_input("Template is available online. Do you "
+                                     "want to download it now? [y/n] ")
+
+                # in case the user agrees to download
+                if response == "Y" or response == "y":
+                    # display download info to the user
+                    print "[" + G + "+" + W + "] Downloading the template..."
+
+                    # download the content
+                    phishingpage.fetch_template(template_name)
+
+                    # exit the loop since template is downloaded
+                    break
+
+                else:
+
+                    # since the user didn't want to download start the process
+                    # for template selection
+                    template_selected = False
+
+            else:
+
+                # in case the template is online and complete
+                break
+
+    print ("[" + G + "+" + W + "] Selecing " + template_name +
+           " as the template")
+
+    # set the path for the template
+    TEMPLATE_PATH = phishingpage.get_path(template_name)
 
     # Start AP
     start_ap(ap_iface, channel, essid, args)
