@@ -1055,7 +1055,8 @@ if __name__ == "__main__":
             # if template is incomplete or non existent locally, delete and
             # ask for a download
             if ((not phishingpage.check_template(template_name)) or
-                    (not phishingpage.exists(template_name))):
+                    (not phishingpage.exists("phishing-pages/" +
+                                             template_name))):
 
                 print ("[" + R + "-" + W + "] Deleting " + template_name +
                        ": Template incomplete")
