@@ -1029,7 +1029,7 @@ if __name__ == "__main__":
 
                 # placed to avoid a program crash in case of unexpected
                 # template number
-                pass
+                continue
 
         # check to see if the template is local
         if template_database[template_name] is None:
