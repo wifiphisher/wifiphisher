@@ -828,6 +828,30 @@ def sniff_dot11(mon_iface):
     """
     sniff(iface=mon_iface, store=0, prn=cb)
 
+def get_dnsmasq():
+    if not os.path.isfile('/usr/bin/dnsmasq'):
+        install = raw_input(
+            ('[' + T + '*' + W + '] dnsmasq not found ' +
+             'in /usr/bin/dnsmasq, install now? [y/n] ')
+        )
+        if install == 'y':
+            if os.path.isfile('/bin/pacman'):
+                os.system('pacman -S dnsmasq')
+            else:
+                os.system('apt-get -y install dnsmasq')
+        else:
+            sys.exit(('[' + R + '-' + W + '] dnsmasq' +
+                     'not found in /usr/sbin/dnsmasq'))
+    if not os.path.isfile('/usr/bin/dnsmasq'):
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to install the \'dnsmasq\' package!\n' +
+            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
+            'Please follow the link below to configure your sources.list\n' +
+            B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
+            '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
+            '[' + G + '+' + W + '] Rerun the script again to install dnsmasq.\n' +
+            '[' + R + '!' + W + '] Closing'
+         ))
 
 def get_hostapd():
     if not os.path.isfile('/usr/sbin/hostapd'):
@@ -878,6 +902,9 @@ if __name__ == "__main__":
 
     # Get hostapd if needed
     get_hostapd()
+
+    # get dnsmasq if needed
+    get_dnsmasq()
 
     # get template_database
     template_database = phishingpage.get_template_database()
