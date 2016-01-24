@@ -836,7 +836,10 @@ def get_hostapd():
              'in /usr/sbin/hostapd, install now? [y/n] ')
         )
         if install == 'y':
-            os.system('apt-get -y install hostapd')
+            if os.path.isfile('/bin/pacman'):
+                os.system('pacman -S hostapd')
+            else:
+                os.system('apt-get -y install hostapd')
         else:
             sys.exit(('[' + R + '-' + W + '] hostapd' +
                      'not found in /usr/sbin/hostapd'))
