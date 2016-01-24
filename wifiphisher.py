@@ -225,21 +225,16 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.server.stop = True
 
     def do_GET(self):
-
-        if self.path == "/":
-            wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-            with open(wifi_webserver_tmp, "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                               self.client_address[0] + W + "\n"
-                               )
-                log_file.close()
+        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
+        with open(wifi_webserver_tmp, "a+") as log_file:
+            log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                           self.client_address[0] + W + "\n"
+                           )
+            log_file.close()
+        if not os.path.isfile("%s/%s" % (TEMPLATE_PATH, self.path)):
             self.path = "index.html"
         self.path = "%s/%s" % (TEMPLATE_PATH, self.path)
-
         if self.path.endswith(".html"):
-            if not os.path.isfile(self.path):
-                self.send_response(404)
-                return
             f = open(self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text-html')
