@@ -837,6 +837,8 @@ def get_dnsmasq():
         if install == 'y':
             if os.path.isfile('/bin/pacman'):
                 os.system('pacman -S dnsmasq')
+            else if os.path.isfile('/usr/bin/yum'):
+                os.system('yum install dnsmasq')
             else:
                 os.system('apt-get -y install dnsmasq')
         else:
@@ -862,6 +864,8 @@ def get_hostapd():
         if install == 'y':
             if os.path.isfile('/bin/pacman'):
                 os.system('pacman -S hostapd')
+            else if os.path.isfile('/usr/bin/yum'):
+                os.system('yum install hostapd')
             else:
                 os.system('apt-get -y install hostapd')
         else:
