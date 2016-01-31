@@ -829,13 +829,13 @@ def sniff_dot11(mon_iface):
     sniff(iface=mon_iface, store=0, prn=cb)
 
 def get_dnsmasq():
-    if not os.path.isfile('/usr/bin/dnsmasq'):
+    if not os.path.isfile('/usr/sbin/dnsmasq'):
         install = raw_input(
             ('[' + T + '*' + W + '] dnsmasq not found ' +
              'in /usr/bin/dnsmasq, install now? [y/n] ')
         )
         if install == 'y':
-            if os.path.isfile('/bin/pacman'):
+            if os.path.isfile('/usr/bin/pacman'):
                 os.system('pacman -S dnsmasq')
             elif os.path.isfile('/usr/bin/yum'):
                 os.system('yum install dnsmasq')
@@ -844,7 +844,7 @@ def get_dnsmasq():
         else:
             sys.exit(('[' + R + '-' + W + '] dnsmasq' +
                      'not found in /usr/sbin/dnsmasq'))
-    if not os.path.isfile('/usr/bin/dnsmasq'):
+    if not os.path.isfile('/usr/sbin/dnsmasq'):
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to install the \'dnsmasq\' package!\n' +
             '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
@@ -862,7 +862,7 @@ def get_hostapd():
              'in /usr/sbin/hostapd, install now? [y/n] ')
         )
         if install == 'y':
-            if os.path.isfile('/bin/pacman'):
+            if os.path.isfile('/usr/bin/pacman'):
                 os.system('pacman -S hostapd')
             elif os.path.isfile('/usr/bin/yum'):
                 os.system('yum install hostapd')
