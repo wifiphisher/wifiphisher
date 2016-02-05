@@ -6,19 +6,6 @@ Wifiphisher.py
 import urllib
 import os
 import shutil
-import copy
-
-# set of dictionaries to store URLs and names for templates
-LINKSYS = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-           "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-           "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-           "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
-           "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
-
-TEMPLATE_DATABASE = {"Linksys": LINKSYS, "minimal": None,
-                     "connection_reset": None, "office365": None}
-
-PHISHING_PAGES_DIR = "phishing-pages/"
 
 
 class UrlNotAvailable(Exception):
@@ -27,372 +14,269 @@ class UrlNotAvailable(Exception):
         Exception.__init__(self, "Could not reach the given URL!")
 
 
-class TemplateNotAvailable(Exception):
-    """ Exception class to raise in case of non-existence template. """
-    def __init__(self):
-        Exception.__init__(self, "The given template is not available!")
+class PhishingTemplate(object):
+    """ This class represents a offline phishing template. """
 
+    def __init__(self, name, description, status, data=None):
+        """
+        Initialize all the necessary operations.
 
-class ArgumentIsNotAString(Exception):
-    """ Exception class to raise in case of non-string input. """
-    def __init__(self):
-        Exception.__init__(self, "The given argument is not a string!")
+        Args:
+            self (PhishingScenario): A PhishingTemplate object.
+            name (str): The name of the template.
+            description (str): The description of the template.
+            status (str): The status of the template which is either "online"
+            or "offline"
+            data (dict) [optional]: The data used for the downloading the
+            template.
 
+        Returns:
+            None
+        """
 
-def fetch_template(template):
-    """
-    Make a new folder with the name provided in template directory and fetch
-    all the files for the given template from the internet.
+        # Initialize all the variables
+        self._name = name
+        self._description = description
+        self._status = status
+        self._data = data
+        self._path = "phishing-pages/" + self._name
 
-    Args:
-        template (str): The name of requested template.
+    def get_name(self):
+        """
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
 
-    Returns:
-        None
+        Returns:
+            (str): The name of the template
+        """
 
-    Raises:
-        TemplateNotAvailble: If the given template is not in the
-        TEMPLATE_DATABASE.
-        ArgumentIsNotAString: if the given template is not a string.
-    """
+        return self._name
 
-    # check to see if template is a string
-    is_type_string(template)
+    def get_path(self):
+        """
+        Return the path of the template files.
 
-    # get template_database
-    template_database = get_template_database()
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
+        Returns:
+            (str): The path of template files.
+        """
+        return self._path
 
-    # check if template exists in database
-    if template in template_database:
+    def is_online(self):
+        """
+        Return whether the template is online or not.
 
-        # make a new folder
-        os.makedirs(get_path(template))
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
 
-        # loop through template database
-        for name in template_database[template]:
+        Returns:
+            (bool): True if template is online and False otherwise.
+        """
 
-            # get the URL
-            url = template_database[template][name]
-
-            # check if URL is accessible
-            if url_check(url):
-
-                # download the files
-                urllib.urlretrieve(url, (get_path(template) + "/" + name))
-
-    else:
-
-        # raise an error in case the template is not in the database
-        raise TemplateNotAvailable()
-
-
-def exists(path):
-    """
-    Check if the template directory in the given path exists.
-
-    Args:
-        path (str): path of a directory.
-
-    Returns:
-        True (bool): if directory exists.
-        False (bool): if directory does not exist.
-
-    Raises:
-        ArgumentIsNotAString: if the given path is not a string.
-        TemplateNotAvailable: if the given template is not available.
-    """
-
-    # check to see if given path is a string
-    is_type_string(path)
-
-    # get template_database
-    template_database = get_template_database()
-
-    # remove the directory and get the name of the template
-    template = path[path.find("/")+1:]
-
-    # check if template exists
-    if template in template_database:
-
-        # check the path and return accordingly
-        if os.path.isdir(path):
-
-            # in case the directory exists
+        # check the status and return accordingly
+        if self._status == "online":
             return True
-
         else:
-
-            # in case the directory doesn't exist
             return False
 
-    else:
+    def check_data(self):
+        """
+        Analyze the data to check accessibility of the URL.
 
-        # raise an error in case template doesn't exists
-        raise TemplateNotAvailable
+        Args:
+            self (PhishingTemplate): An PhishingTemplate object.
 
+        Returns:
+            True (bool): If data is correct.
 
-def get_path(template):
-    """
-    Return the directory of the the given template.
+        Raises:
+            UrlNotAvailable: If URL is not available.
+        """
 
-    Args:
-        template (str): The name of the chosen template.
+        # placed to avoid crash in case the URL is inaccessible
+        try:
+            # check every URL
+            for url in self._data:
+                urllib.urlopen(self._data[url])
 
-    Returns:
-        (str): The full path of the chosen template.
+            # in case the all the data is accessible
+            return True
+        except:
+            raise UrlNotAvailable()
 
-    Raises:
-        ArgumentIsNotAString: if the given template name is not a string.
-        TemplateNotAvailable: if the given template is not available.
-    """
+    def fetch_files(self):
+        """
+        Download all the required files for the template.
 
-    # check to see if template name is a string
-    is_type_string(template)
+        Args:
+            self (PhishingTemplate): An PhishingTemplate object.
 
-    # get phishing pages directory
-    phishing_pages_dir = get_phishing_pages_dir()
+        Returns:
+            None
+        """
 
-    # get template_database
-    template_database = get_template_database()
+        # check if URL is accessible
+        if self.check_data():
+            # make a new folder
+            os.makedirs(self._path)
 
-    # check if template exists
-    if template in template_database:
+            # loop through template database
+            for name in self._data:
+                # get the URL and download it
+                url = self._data[name]
+                urllib.urlretrieve(url, (self._path + "/" + name))
 
-        # in case the template exists
-        return phishing_pages_dir + template
+    def check_file_integrity(self):
+        """
+        Check if the template has all the files locally.
 
-    else:
+        Args:
+            self (TemplateManager): A TemplateManager object.
 
-        # raise error in case the template doesn't exist
-        raise TemplateNotAvailable
+        Returns:
+            True (bool): If all the files are locally present.
+            False (bool): If not all the files are locally present.
+        """
 
+        # check if the directory exists and all files are present
+        if (os.path.isdir(self._path) and
+                (set(self._data.keys())) ==
+                (set(os.listdir(self._path)))):
+            return True
+        else:
+            return False
 
-def url_check(url):
-    """
-    Check the accessibility of the URL.
+    def remove_local_files(self):
+        """
+        Remove the local copy of the template.
 
-    Args:
-        url (str): The URL to be checked.
+        Agrs:
+            self (TemplateManager): A TemplateManager object.
+            template (str): The name of the template to be cleaned.
 
-    Returns:
-        True (bool): if URL exist.
+        Returns:
+            None
+        """
 
-    Raises:
-        UrlNotAvailable: If URL is not available.
-        ArgumentIsNotAString: if the given URL is not a string.
-    """
-
-    # check if url is a string
-    is_type_string(url)
-
-    # checks the URL and return value accordingly
-    try:
-
-        urllib.urlopen(url)
-
-        # in case the URL is accessible
-        return True
-
-    except:
-
-        # raise an error in case the URL is inaccessible
-        raise UrlNotAvailable()
-
-
-def check_template(template):
-    """
-    Check if the given template has all the files locally.
-
-    Args:
-        template (str): The template name to be checked.
-
-    Returns:
-        True (bool): If all the files are locally present.
-        False (bool): If not all the files are locally present.
-
-    Raises:
-        ArgumentIsNotAString: if the given template name is not a string.
-        TemplateNotAvailable: if the given template is not available.
-    """
-
-    # check if template is a string
-    is_type_string(template)
-
-    # get template_database
-    template_database = get_template_database()
-
-    # get the full path of the template
-    template_path = get_path(template)
-
-    # check to see if template exists and all the files are available
-    if (exists(template_path) and
-            (set(template_database[template].keys()) <=
-             set(os.listdir(template_path)))):
-
-        # in case all the files are available
-        return True
-
-    else:
-
-        # in case all the files are not locally available
-        return False
-
-
-def clean_template(template):
-    """
-    Clean the directory and all the files for the given template.
-
-    Agrs:
-        template (str): The name of the template to be cleaned.
-
-    Returns:
-        True (bool): If the operation was successful.
-        False (bool): If the operation was not successful.
-
-    Raises:
-        ArgumentIsNotAString: if the given template name is not a string.
-        TemplateNotAvailable: if the given template is not available.
-    """
-
-    # check if template is a string
-    is_type_string(template)
-
-    # path to the template
-    template_path = get_path(template)
-
-    # check if the files for the template not present locally
-    if not check_template(template):
-
-        # check if the directory exists
-        if exists(template_path):
-
+        # check if the template directory exists
+        if os.path.isdir(self._path):
             # remove the directory recursively
-            shutil.rmtree(template_path)
+            shutil.rmtree(self._path)
 
-            # in case it is removed successfully
-            return True
+    def __str__(self):
+        """
+        Return a string representation of the template.
 
-        else:
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
 
-            # in case no directory is present
-            return False
+        Returns:
+            (str): The name fallowed by the description of the template.
+        """
 
-
-def is_type_string(info):
-    """
-    Check if the given information is a string.
-
-    Args:
-        info (any): The information to be checked.
-
-    Returns:
-    True (bool): If the info is a string.
-
-    Raises:
-        ArgumentIsNotAString: if the given info is not a string.
-    """
-
-    if type(info) is str:
-        return True
-    else:
-        raise ArgumentIsNotAString()
+        return (self._name + "\nDescription: " +
+                self._description + "\n")
 
 
-def get_template_database():
-    """
-    Return a copy of the TEMPLATE_DATABASE.
+class TemplateManager(object):
+    """ This class handles all the template management operations. """
 
-    Args:
-        None
+    def __init__(self):
+        """
+        Initialize all the necessary operations.
 
-    Returns:
-        (dict): A copy of the TEMPLATE_DATABASE.
-    """
+        Args:
+            self (TemplateManager): A TemplateManager object.
 
-    # create a copy of the database
-    template_database = copy.deepcopy(TEMPLATE_DATABASE)
+        Returns:
+            None
+        """
 
-    return template_database
+        # Initialize all the variables
+        self._template_directory = "phishing-pages/"
 
+        linksys_data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
+                        "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
+                        "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
+                        "bootstrap.min.css":
+                            "http://pastebin.com/raw/LjM8RWsp",
+                        "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
 
-def get_phishing_pages_dir():
-    """
-    Return a copy of PHISHING_PAGES_DIR.
+        # TODO: finish the Description
+        linksys_description = "test"
+        linksys = PhishingTemplate("Linksys", linksys_description, "online",
+                                   linksys_data)
 
-    Args:
-        None
+        # TODO: finish the Description
+        minimal_description = "test"
+        minimal = PhishingTemplate("Minimal", minimal_description, "offline")
 
-    Returns:
-        (str): A copy of the phishing_pages_dir.
-    """
+        # TODO: finish the Description
+        connection_description = "test"
+        connection = PhishingTemplate("Connection Reset",
+                                      connection_description, "offline")
 
-    # create a copy of the database
-    phishing_pages_dir = copy.copy(PHISHING_PAGES_DIR)
+        # TODO: finish the Description
+        office_description = "test"
+        office = PhishingTemplate("Office", office_description, "offline")
 
-    return phishing_pages_dir
+        self._templates = {"Linksys": linksys, "minimal": minimal,
+                           "connection_reset": connection, "office365": office}
 
+    def get_templates(self):
+        """
+        Return a dictionary containing all the templates available.
 
-def get_local_templates():
-    """
-    Return all the local templates available.
+        Args:
+            self (TemplateManager): A TemplateManager object.
 
-    Args:
-        None
+        Returns:
+            (dict): A dictionary containing all the templates.
+        """
 
-    Returns:
-        (list): A list of all the local templates available.
-    """
+        return self._templates
 
-    # a list to store file names in
-    local_templates = []
+    def find_user_templates(self):
+        """
+        Return all the user's templates available.
 
-    # get template_database
-    template_database = get_template_database()
+        Args:
+            self (TemplateManager): A TemplateManager object.
 
-    # get phishing pages directory
-    phishing_pages_dir = get_phishing_pages_dir()
+        Returns:
+            (list): A list of all the local templates available.
+        """
 
-    # loop through the directory content
-    for name in os.listdir(phishing_pages_dir):
+        # a list to store file names in
+        local_templates = []
 
-        # check to see if it is a directory and not in the database
-        if (os.path.isdir(os.path.join(phishing_pages_dir, name)) and
-                name not in template_database):
+        # loop through the directory content
+        for name in os.listdir(self._template_directory):
+            # check to see if it is a directory and not in the database
+            if (os.path.isdir(os.path.join(self._template_directory, name)) and
+                    name not in self._templates):
+                # add it to the list
+                local_templates.append(name)
 
-            # add it to the list
-            local_templates.append(name)
+        return local_templates
 
-    return local_templates
+    def add_user_templates(self):
+        """
+        Add all the user templates to the database.
 
+        Args:
+            self (TemplateManager): A TemplateManager object.
 
-def add_template(template):
-    """
-    Add the template to TEMPLATE_DATABASE.
+        Returns:
+            None
+        """
 
-    Args:
-        template(str): The name of the template to be added.
+        # get all the user's templates
+        user_templates = self.find_user_templates()
 
-    Returns:
-        True (bool): If addition is successful.
-        False (bool): If addition is unsuccessful.
-
-    Raises:
-        ArgumentIsNotAString: if the given info is not a string.
-    """
-
-    # check if template is a string
-    is_type_string(template)
-
-    # check to see if it is already in the database
-    if template in TEMPLATE_DATABASE:
-
-        # in case it is already in the database
-        return False
-
-    else:
-
-        # add the template to the database
-        TEMPLATE_DATABASE[template] = None
-
-        # in case of a successful addition
-        return True
+        # loop through the templates
+        for template in user_templates:
+            # create a template object and add it to the database
+            temp = PhishingTemplate(template, "Not Available", "offline")
+            self._templates[template] = temp

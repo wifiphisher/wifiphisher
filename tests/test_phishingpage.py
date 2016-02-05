@@ -6,620 +6,205 @@ import os
 import shutil
 
 
-class TestUrlCheck(unittest.TestCase):
-    """ Tests url_check function. """
-
-    def test_valid_url(self):
-        """ Tests url_check given a valid URL and checks output. """
-
-        url = "https://google.com"
-
-        self.assertEqual(phishingpage.url_check(url), True,
-                         "Failed to check valid URL!")
-
-    def test_invalid_url(self):
-        """ Tests url_check given an invalid URL and checks output."""
-
-        url = "djfklsjfksjklfjsd.fsdjfsf"
-
-        with self.assertRaises(phishingpage.UrlNotAvailable):
-            phishingpage.url_check(url)
-
-
-class TestFetchTemplate(unittest.TestCase):
-    """ Tests fetch_template function. """
-
-    def test_template_exists(self):
-        """ Tests fetch_template given a valid template name as an input. """
-
-        template = "Linksys"
-        path = phishingpage.get_path(template)
-
-        phishingpage.fetch_template(template)
-
-        check = phishingpage.check_template(template)
-
-        self.assertEqual(check, True,
-                         "Failed to download all the files properly!")
-
-        shutil.rmtree(path)
-
-    def test_template_not_exists(self):
-        """ Tests fetch_template with non-existence template as an input. """
-
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.fetch_template("randomnumber")
-
-    def test_template_empty(self):
-        """ Tests fetch_template with an empty string as an input. """
-
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.fetch_template("")
-
-    def test_template_special_character(self):
-        """ Tests fetch_template with special string characters as an input. """
-
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.fetch_template("fdsjkjl#@!#")
-
-    def test_template_int(self):
-        """ Tests fetch_template with an integer as an input. """
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(1)
-
-    def test_template_float(self):
-        """ Tests fetch_template with a float as an input. """
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(2.4)
-
-    def test_template_empty_list(self):
-        """ Tests fetch_template with an empty list as an input. """
-
-        template = []
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_non_empty_list(self):
-        """ Tests fetch_template with a non-empty list as an input. """
-
-        template = [1, 2, 3]
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_empty_dict(self):
-        """ Tests fetch_template with empty dictionary as an input. """
-
-        template = dict()
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_non_empty_dict(self):
-        """ Tests fetch_template with a non-empty dictionary as an input. """
-
-        template = {"test": 1, "test2": 2}
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_empty_set(self):
-        """ Tests fetch_template with an empty set as an input. """
-
-        template = set()
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_non_empty_set(self):
-        """ Test fetch_template with a non-empty set as an input. """
-
-        template = {1, 2, 3}
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(template)
-
-    def test_template_none(self):
-        """ Tests fetch_template with None type as an input. """
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.fetch_template(None)
-
-
-class TestExists(unittest.TestCase):
-    """ Tests exists function. """
+class TestPhishingTemplate(unittest.TestCase):
+    """ Tests PhishingTemplate class. """
 
     def setUp(self):
-        """ Sets up the tests by creating a test directory. """
+        """ Sets up the variables for tests. """
 
-        os.makedirs("test")
+        # setup name, description and data
+        self._name = "test"
+        self._description = "This is a description."
+        self._data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
+                      "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
+                      "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
+                      "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
+                      "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
 
-    def test_directory_exists(self):
-        """ Tests exists with a valid directory as an input. """
+        # create the PhishingTemplate object
+        self._template = phishingpage.PhishingTemplate(self._name,
+                                                       self._description,
+                                                       "offline")
 
-        path = "test/Linksys"
-
-        os.makedirs(path)
-
-        self.assertEqual(phishingpage.exists(path), True,
-                         "Failed to find a correct directory!")
-        os.rmdir(path)
-
-    def test_directory_not_exists(self):
-        """ Tests exists with a invalid directory as an input. """
-
-        path = "test/t2"
-
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.exists(path)
-
-    def test_directory_valid_with_space(self):
-        """
-        Tests exists with a valid directory with spaces in it's name as
-        an input.
-        """
-
-        path = "test/t 2"
-
-        os.makedirs(path)
-
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.exists(path)
-
-        os.rmdir(path)
+        self._template1 = phishingpage.PhishingTemplate(self._name,
+                                                        self._description,
+                                                        "online", self._data)
 
     def tearDown(self):
-        """ Removes the test directory created by the setup. """
+        """ Tear down the tests. """
 
-        os.rmdir("test")
+        path = self._template1.get_path()
 
+        # if the files exists
+        if os.path.isdir(path):
+            # remove files
+            shutil.rmtree(path)
 
-class TestGetPath(unittest.TestCase):
-    """ Tests get_path function. """
+    def test_get_name(self):
+        """ Tests get_name method. """
 
-    def test_valid_string_input(self):
-        """ Tests get_path with a valid string as an input. """
+        self.assertEqual(self._template.get_name(),
+                         "test", "Failed to get the name of the template!")
 
-        template_name = "minimal"
-        correct = "phishing-pages/minimal"
+    def test_str(self):
+        """ Tests __str__ method. """
 
-        self.assertEqual(phishingpage.get_path(template_name), correct,
-                         "Failed to return proper value!")
+        expected = "test\nDescription: This is a description.\n"
 
-    def test_int_input(self):
-        """ Tests get_path with an integer as an input. """
+        self.assertEqual(self._template.__str__(), expected,
+                         "Failed to get proper __str__ string!")
 
-        template_name = 2
+    def test_is_online_online_template(self):
+        """ Tests is_online method using a online template. """
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.get_path(template_name)
+        self.assertTrue(self._template1,
+                        "Failed to return True for online template!")
 
-    def test_float_input(self):
-        """ Tests get_path with a float as an input. """
+    def test_is_online_offline_template(self):
+        """ Tests is_online method using a offline template. """
 
-        template_name = 100.83
+        self.assertTrue(self._template,
+                        "Failed to return False for offline template!")
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.get_path(template_name)
+    def test_check_data_valid(self):
+        """ Tests check_data method with valid data. """
 
-    def test_list_input(self):
-        """ Tests get_path with a list as an input. """
+        actual = self._template1.check_data()
 
-        template_name = []
+        self.assertEqual(actual, True,
+                         "Failed to check valid data!")
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.get_path(template_name)
+    def test_check_data_invalid(self):
+        """ Tests check_data method with invalid data. """
 
-    def test_set_input(self):
-        """ Tests get_path with a set as an input. """
+        # create an invalid data
+        data = {"name1": "url1", "name2": "this is not a url"}
+        template = phishingpage.PhishingTemplate("test", "None", "online",
+                                                 data)
 
-        template_name = set()
+        with self.assertRaises(phishingpage.UrlNotAvailable):
+            template.check_data()
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.get_path(template_name)
+    def test_fetch_files_valid(self):
+        """ Tests fetch_files method with valid data """
 
-    def test_dict_input(self):
-        """ Tests get_path with a dictionary as an input. """
+        # fetch the files
+        self._template1.fetch_files()
 
-        template_name = dict()
+        # get the path of the template
+        template_path = self._template1.get_path()
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.get_path(template_name)
+        # check if the directory exists and all files are present
+        if (os.path.isdir(template_path) and
+                (set(self._data.keys())) ==
+                (set(os.listdir(template_path)))):
+            pass
+        else:
+            self.fail("Failed to fetch all the files properly!")
 
+    def test_fetch_files_invalid(self):
+        """ Tests fetch_files method with invalid data """
 
-class TestIsTypeString(unittest.TestCase):
-    """ Tests is_type_string function. """
+        data = {"name": "url", "name2": "url2"}
+        template = phishingpage.PhishingTemplate("New", "None", "online", data)
 
-    def test_string_input(self):
-        """ Tests is_type_string with a valid string as an input. """
+        with self.assertRaises(phishingpage.UrlNotAvailable):
+            template.fetch_files()
 
-        info = "test"
+    def test_check_file_integrity_valid(self):
+        """ Tests check_file_integrity method with valid data. """
 
-        self.assertEqual(phishingpage.is_type_string(info), True,
-                         "Failed to return True with valid string!")
+        # fetch the files
+        self._template1.fetch_files()
 
-    def test_list_input(self):
-        """ Tests is_type_string with a list as an input. """
+        self.assertTrue(self._template1.check_file_integrity(),
+                        "Failed to check the integrity of the files!")
 
-        info = []
+    def test_check_file_integrity_invalid(self):
+        """ Tests check_file_integrity method with invalid data. """
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
+        # fetch the files
+        self._template1.fetch_files()
 
-    def test_set_input(self):
-        """ Tests is_type_string with a set as an input. """
-
-        info = set()
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
-
-    def test_dict_input(self):
-        """ Tests is_type_string with a dictionary as an input. """
-
-        info = dict()
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
-
-    def test_int_input(self):
-        """" Tests is_type_string with a integer as an input. """
-
-        info = 25
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
-
-    def test_float_input(self):
-        """ Tests is_type_string with a float as an input. """
-
-        info = 1.663e4343
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
-
-    def test_none_input(self):
-        """ Tests is_type_string with None as an input. """
-
-        info = None
-
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.is_type_string(info)
-
-
-class TestCheckTemplate(unittest.TestCase):
-    """ Tests check_template function. """
-
-    def test_all_files_locally_present(self):
-        """ Tests check_template when all files are locally present. """
-
-        template = "Linksys"
-        path = phishingpage.get_path(template)
-
-        # download the template
-        phishingpage.fetch_template(template)
-
-        self.assertEqual(phishingpage.check_template(template), True,
-                         "Failed to check valid template with all files!")
-        shutil.rmtree(path)
-
-    def test_some_files_locally_present(self):
-        """
-        Tests check_template when some of the files are locally present.
-        """
-
-        template = "Linksys"
-        path = phishingpage.get_path(template)
-
-        # download the template
-        phishingpage.fetch_template(template)
+        # get the path of the template
+        template_path = self._template1.get_path()
 
         # remove a file
-        os.remove(path + "/index.html")
+        os.remove(template_path + "/index.html")
 
-        self.assertEqual(phishingpage.check_template(template), False,
-                         "Failed to check a template with some files!")
-        shutil.rmtree(path)
+        # add a file
+        os.mknod(template_path + "/newfile.txt")
 
-    def test_no_files_locally_present(self):
-        """
-        Tests check_template when only an empty directory is locally
-        present.
-        """
+        self.assertFalse(self._template1.check_file_integrity(),
+                         "Failed to return False on invalid data!")
 
-        template = "Linksys"
-        path = phishingpage.get_path(template)
+    def test_remove_local_files(self):
+        """ Tests remove_local_files method. """
 
-        # download the template
-        phishingpage.fetch_template(template)
+        # fetch the files
+        self._template1.fetch_files()
 
-        # remove all the files
-        os.remove(path + "/index.html")
-        os.remove(path + "/Linksys_logo.png")
+        # remove the files
+        self._template1.remove_local_files()
 
-        self.assertEqual(phishingpage.check_template(template), False,
-                         "Failed to check a template with no files!")
-        shutil.rmtree(path)
+        test = os.path.isdir(self._template1.get_path())
 
-    def test_not_locally_present(self):
-        """ Tests check_template when no directory is locally present. """
+        self.assertFalse(test, "Failed to remove the local files!")
 
-        template = "Linksys"
 
-        self.assertEqual(phishingpage.check_template(template), False,
-                         "Failed to check a template with no directory!")
+class TestTemplateManager(unittest.TestCase):
+    """ Test TemplateManager class. """
 
-    def tests_invalid_input(self):
-        """ Tests check_template when given invalid input. """
+    def setUp(self):
+        """ Sets up the variables for tests. """
 
-        template = 2
+        self._manager = phishingpage.TemplateManager()
+        self._template_path = "phishing-pages/"
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.check_template(template)
+    def test_get_templates(self):
+        """ Tests get_templates method. """
 
-    def tests_invalid_template_input(self):
-        """ Tests check_template when given invalid template as an input. """
+        actual = self._manager.get_templates()
 
-        template = "no template"
+        expected = self._manager.get_templates()
 
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.check_template(template)
+        self.assertEqual(actual, expected, "Failed to get correct templates!")
 
+    def test_find_user_templates(self):
+        """ Tests find_user_templates method. """
 
-class TestCleanTemplate(unittest.TestCase):
-    """ Tests clean_template function. """
+        name = "new_template"
+        path = self._template_path + name
 
-    def test_invalid_input(self):
-        """ Tests clean_template when an invalid input is given. """
+        # create a new directory
+        os.makedirs(path)
 
-        template = 4.6
+        actual = self._manager.find_user_templates()
 
-        with self.assertRaises(phishingpage.ArgumentIsNotAString):
-            phishingpage.clean_template(template)
+        if name not in actual:
+            self.fail("Failed to find a new template!")
 
-    def test_invalid_template_input(self):
-        """ Tests clean_template when an invalid template input is given. """
+        # remove the directory
+        os.rmdir(path)
 
-        template = "no template"
+    def test_add_user_templates(self):
+        """ Tests add_user_templates method. """
 
-        with self.assertRaises(phishingpage.TemplateNotAvailable):
-            phishingpage.clean_template(template)
+        name = "new_template"
+        path = self._template_path + name
 
-    def test_no_directory_available(self):
-        """
-        Tests clean_template when no directory is locally present for the
-        template.
-        """
+        # create a new directory
+        os.makedirs(path)
 
-        template = "Linksys"
+        self._manager.add_user_templates()
 
-        self.assertEqual(phishingpage.clean_template(template), False,
-                         "Failed to return False for non-existence directory!")
+        templates = self._manager.get_templates()
 
-    def test_template_with_some_files(self):
-        """
-        Tests clean_template when a template with some files is given as an
-        input.
-        """
+        if name not in templates:
+            self.fail("Failed to add a new template!")
 
-        template = "Linksys"
-        dir_path = phishingpage.PHISHING_PAGES_DIR
-        path = phishingpage.get_path(template)
-        local_directory_names_1 = []
-        local_directory_names_2 = []
-
-        # download the template
-        phishingpage.fetch_template(template)
-
-        # remove a file
-        os.remove(path + "/index.html")
-
-        # loop through the directory content
-        for name in os.listdir(dir_path):
-
-            # check to see if it is a file
-            if os.path.isdir(os.path.join(dir_path, name)):
-
-                # add it to the list
-                local_directory_names_1.append(name)
-
-        phishingpage.clean_template(template)
-
-        # loop through the directory content
-        for name in os.listdir(dir_path):
-
-            # check to see if it is a file
-            if os.path.isdir(os.path.join(dir_path, name)):
-
-                # add it to the list
-                local_directory_names_2.append(name)
-
-        # remove the template from original list
-        local_directory_names_1.remove(template)
-
-        self.assertListEqual(local_directory_names_1, local_directory_names_2,
-                             "Failed to clean up a template!")
-
-    def test_template_with_no_files(self):
-        """ Tests clean_template when no files are locally present. """
-
-        template = "Linksys"
-        dir_path = phishingpage.PHISHING_PAGES_DIR
-        path = phishingpage.get_path(template)
-        local_directory_names_1 = []
-        local_directory_names_2 = []
-
-        # download the template
-        phishingpage.fetch_template(template)
-
-        # remove files
-        os.remove(path + "/index.html")
-        os.remove(path + "/Linksys_logo.png")
-
-        # loop through the directory content
-        for name in os.listdir(dir_path):
-
-            # check to see if it is a file
-            if os.path.isdir(os.path.join(dir_path, name)):
-
-                # add it to the list
-                local_directory_names_1.append(name)
-
-        phishingpage.clean_template(template)
-
-        # loop through the directory content
-        for name in os.listdir(dir_path):
-
-            # check to see if it is a file
-            if os.path.isdir(os.path.join(dir_path, name)):
-
-                # add it to the list
-                local_directory_names_2.append(name)
-
-        # remove the template from original list
-        local_directory_names_1.remove(template)
-
-        self.assertListEqual(local_directory_names_1, local_directory_names_2,
-                             "Failed to clean up a template!")
-
-
-class TestGetTemplateDatabase(unittest.TestCase):
-    """ Tests get_template_database function. """
-
-    def test_compare_unchanged(self):
-        """
-        Tests get_template_database contents with the original
-        TEMPLATE_DATABASE.
-        """
-
-        original = phishingpage.TEMPLATE_DATABASE
-        copy = phishingpage.get_template_database()
-
-        self.assertDictEqual(original, copy,
-                             "Failed to copy original TEMPLATE_DATABASE!")
-
-
-def test_compare_changed(self):
-    """
-    Tests get_template_database contents with the original
-    TEMPLATE_DATABASE when the original is changed.
-    """
-
-    original = phishingpage.TEMPLATE_DATABASE
-    copy = phishingpage.get_template_database()
-
-    # change elements in original
-    del original["minimal"]
-
-    self.assertDictEqual(original, copy,
-                         "Failed to copy original TEMPLATE_DATABASE when"
-                         " changed!")
-
-
-class TestGetPhishingPagesDir(unittest.TestCase):
-    """ Tests get_phishing_pages_dir function. """
-
-    def test_get_dir(self):
-        """
-        Tests get_phishing_pages_dir contents with the original
-        PHISHING_PAGES_DIR.
-        """
-
-        original = phishingpage.PHISHING_PAGES_DIR
-        copy = phishingpage.get_phishing_pages_dir()
-
-        self.assertEqual(original, copy,
-                         "Failed to get the original PHISHING_PAGES_DIR!")
-
-
-class TestGetLocalTemplates(unittest.TestCase):
-    """ Tests get_local_templates function. """
-
-    def test_get_local_templates_with_one_addition(self):
-        """ Test get_local_templates when created one local directory. """
-
-        path = phishingpage.get_phishing_pages_dir()
-        dir_path = path + "test"
-
-        os.makedirs(dir_path)
-
-        local_templates = phishingpage.get_local_templates()
-
-        expected = ["test"]
-
-        self.assertItemsEqual(expected, local_templates,
-                              "Failed to get 'test' as a local template!")
-
-        shutil.rmtree(dir_path)
-
-    def test_get_local_templates_with_multiple_addition(self):
-        """ Tests get_local_templates when created multiple directory. """
-
-        # names of the test directories
-        dir0 = "test_0"
-        dir1 = "test_1"
-        dir2 = "test_2"
-
-        # get the path for all three directories
-        path = phishingpage.get_phishing_pages_dir()
-        dir_path0 = path + dir0
-        dir_path1 = path + dir1
-        dir_path2 = path + dir2
-
-        # create the directories
-        os.makedirs(dir_path0)
-        os.makedirs(dir_path1)
-        os.makedirs(dir_path2)
-
-        # get the local templates
-        local_templates = phishingpage.get_local_templates()
-
-        # the expected results
-        expected = [dir0, dir1, dir2]
-
-        self.assertItemsEqual(expected, local_templates,
-                              "Failed to get multiple templates as "
-                              "local template!")
-
-        # remove the three directories
-        shutil.rmtree(dir_path0)
-        shutil.rmtree(dir_path1)
-        shutil.rmtree(dir_path2)
-
-
-class TestAddTemplate(unittest.TestCase):
-    """ Tests add_template function. """
-
-    def test_add_one_template(self):
-        """ Tests add_template when given a new template. """
-
-        # template to be added
-        template = "Test"
-
-        # add the template to the database
-        actual = phishingpage.add_template(template)
-
-        # get the template database
-        template_database = phishingpage.get_template_database()
-
-        # check to see if it is in the database
-        if template not in template_database:
-            self.fail("Failed to add the test template!")
-
-        self.assertIs(actual, True,
-                      "Failed to return True after a successful addition!")
-
-
-    def test_add_existing_template(self):
-        """  Test add_template when given an existing template. """
-
-        template = "minimal"
-
-        self.assertIs(phishingpage.add_template(template), False,
-                      "Failed to return False")
+        # remove the directory
+        os.rmdir(path)
 
 if __name__ == '__main__':
     unittest.main()
