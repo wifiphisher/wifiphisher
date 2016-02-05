@@ -19,47 +19,14 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 import phishingpage
+from constants import *
 
 conf.verb = 0
-
-# Basic configuration
-PORT = 8080
-SSL_PORT = 443
-PEM = 'cert/server.pem'
-TEMPLATE_PATH = ""
-POST_VALUE_PREFIX = "wfphshr"
-NETWORK_IP = "10.0.0.0"
-NETWORK_MASK = "255.255.255.0"
-NETWORK_GW_IP = "10.0.0.1"
-DHCP_LEASE = "10.0.0.2,10.0.0.100,12h"
-LINES_OUTPUT = 3
-
-DN = open(os.devnull, 'w')
-
-# Console colors
-W = '\033[0m'    # white (normal)
-R = '\033[31m'   # red
-G = '\033[32m'   # green
-O = '\033[33m'   # orange
-B = '\033[34m'   # blue
-P = '\033[35m'   # purple
-C = '\033[36m'   # cyan
-GR = '\033[37m'  # gray
-T = '\033[93m'   # tan
-
 count = 0  # for channel hopping Thread
 APs = {}  # for listing APs
 hop_daemon_running = True
 terminate = False
 lock = Lock()
-
-
-class InvalidTemplate(Exception):
-    """ Exception class to raise in case of a invalid template. """
-
-    def __init__(self):
-        Exception.__init__(self, "The given template is either invalid or " +
-                                 "not available locally!")
 
 
 def parse_args():
@@ -236,21 +203,16 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.server.stop = True
 
     def do_GET(self):
-
-        if self.path == "/":
-            wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-            with open(wifi_webserver_tmp, "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                               self.client_address[0] + W + "\n"
-                               )
-                log_file.close()
+        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
+        with open(wifi_webserver_tmp, "a+") as log_file:
+            log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                           self.client_address[0] + W + "\n"
+                           )
+            log_file.close()
+        if not os.path.isfile("%s/%s" % (TEMPLATE_PATH, self.path)):
             self.path = "index.html"
         self.path = "%s/%s" % (TEMPLATE_PATH, self.path)
-
         if self.path.endswith(".html"):
-            if not os.path.isfile(self.path):
-                self.send_response(404)
-                return
             f = open(self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text-html')
@@ -325,6 +287,8 @@ def shutdown():
         os.remove('/tmp/wifiphisher-jammer.tmp')
     if os.path.isfile('/tmp/hostapd.conf'):
         os.remove('/tmp/hostapd.conf')
+    if os.path.isfile('/tmp/wifiphisher-hostapd.log'):
+        os.remove('/tmp/wifiphisher-hostapd.log')
     reset_interfaces()
     print '\n[' + R + '!' + W + '] Closing'
     sys.exit(0)
@@ -496,9 +460,17 @@ def start_ap(mon_iface, channel, essid, args):
     with open('/tmp/hostapd.conf', 'w') as dhcpconf:
             dhcpconf.write(config % (mon_iface, essid, channel))
 
-    Popen(['hostapd', '/tmp/hostapd.conf'], stdout=DN, stderr=DN)
+    Popen(['hostapd', '/tmp/hostapd.conf', '-f', '/tmp/wifiphisher-hostapd.log'], stdout=DN, stderr=DN)
     try:
         time.sleep(6)  # Copied from Pwnstar which said it was necessary?
+        proc = check_output(['cat', '/tmp/wifiphisher-hostapd.log'])
+        if 'driver initialization failed' in proc:
+            print('[' + R + '+' + W +
+                  '] Driver initialization failed! (hostapd error)\n' +
+                  '[' + R + '+' + W +
+                  '] Try a different wireless interface using -aI option.'
+                  )
+            shutdown()
     except KeyboardInterrupt:
         shutdown()
 
@@ -844,6 +816,32 @@ def sniff_dot11(mon_iface):
     """
     sniff(iface=mon_iface, store=0, prn=cb)
 
+def get_dnsmasq():
+    if not os.path.isfile('/usr/sbin/dnsmasq'):
+        install = raw_input(
+            ('[' + T + '*' + W + '] dnsmasq not found ' +
+             'in /usr/bin/dnsmasq, install now? [y/n] ')
+        )
+        if install == 'y':
+            if os.path.isfile('/usr/bin/pacman'):
+                os.system('pacman -S dnsmasq')
+            elif os.path.isfile('/usr/bin/yum'):
+                os.system('yum install dnsmasq')
+            else:
+                os.system('apt-get -y install dnsmasq')
+        else:
+            sys.exit(('[' + R + '-' + W + '] dnsmasq' +
+                     'not found in /usr/sbin/dnsmasq'))
+    if not os.path.isfile('/usr/sbin/dnsmasq'):
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to install the \'dnsmasq\' package!\n' +
+            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
+            'Please follow the link below to configure your sources.list\n' +
+            B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
+            '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
+            '[' + G + '+' + W + '] Rerun the script again to install dnsmasq.\n' +
+            '[' + R + '!' + W + '] Closing'
+         ))
 
 def get_hostapd():
     if not os.path.isfile('/usr/sbin/hostapd'):
@@ -852,7 +850,12 @@ def get_hostapd():
              'in /usr/sbin/hostapd, install now? [y/n] ')
         )
         if install == 'y':
-            os.system('apt-get -y install hostapd')
+            if os.path.isfile('/usr/bin/pacman'):
+                os.system('pacman -S hostapd')
+            elif os.path.isfile('/usr/bin/yum'):
+                os.system('yum install hostapd')
+            else:
+                os.system('apt-get -y install hostapd')
         else:
             sys.exit(('[' + R + '-' + W + '] hostapd' +
                      'not found in /usr/sbin/hostapd'))
@@ -891,6 +894,36 @@ if __name__ == "__main__":
 
     # Get hostapd if needed
     get_hostapd()
+
+    # get dnsmasq if needed
+    get_dnsmasq()
+
+    # get template_database
+    template_database = phishingpage.get_template_database()
+
+    # check to see if the template is local
+    if not template_database[TEMPLATE_NAME] is None:
+
+        # if template is incomplete locally, delete and ask for a download
+        if not phishingpage.check_template(TEMPLATE_NAME):
+
+            # clean up the previous download
+            phishingpage.clean_template(TEMPLATE_NAME)
+
+            # get user's response
+            response = raw_input("Template is available online. Do you want"\
+            " to download it now? [y/n] ")
+
+            # in case the user agrees to download
+            if response == "Y" or response == "y":
+                # display download info to the user
+                print "[" + G + "+" + W + "] Downloading the template..."
+
+                # download the content
+                phishingpage.grab_online(TEMPLATE_NAME)
+
+    # set the path for the template
+    TEMPLATE_PATH = phishingpage.get_path(TEMPLATE_NAME)
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
@@ -961,6 +994,8 @@ if __name__ == "__main__":
     sniffing(mon_iface, targeting_cb)
     channel, essid, ap_mac = copy_AP()
     hop_daemon_running = False
+
+    
 
     # create a template manager object
     template_manager = phishingpage.TemplateManager()
@@ -1067,6 +1102,7 @@ if __name__ == "__main__":
 
     # set the path for the template
     TEMPLATE_PATH = template.get_path()
+
 
     # Start AP
     start_ap(ap_iface, channel, essid, args)
