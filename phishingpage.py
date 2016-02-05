@@ -7,19 +7,7 @@ import urllib
 import os
 import shutil
 import copy
-
-# set of dictionaries to store URLs and names
-LINKSYS = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-           "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-           "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-           "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
-           "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
-
-TEMPLATE_DATABASE = {"linksys": LINKSYS, "minimal": None,
-                     "connection_reset": None, "office365": None}
-
-PHISHING_PAGES_DIR = "phishing-pages/"
-
+from constants import *
 
 class UrlNotAvailable(Exception):
     """ Exception class to raise in case of a invalid URL. """
