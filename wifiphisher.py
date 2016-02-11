@@ -113,6 +113,14 @@ def parse_args():
     return parser.parse_args()
 
 
+class InvalidTemplate(Exception):
+    """ Exception class to raise in case of a invalid template. """
+
+    def __init__(self):
+        Exception.__init__(self, "The given template is either invalid or " +
+                                 "not available locally!")
+
+
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
     Simple HTTP server that extends the SimpleHTTPServer standard
@@ -898,33 +906,6 @@ if __name__ == "__main__":
     # get dnsmasq if needed
     get_dnsmasq()
 
-    # get template_database
-    template_database = phishingpage.get_template_database()
-
-    # check to see if the template is local
-    if not template_database[TEMPLATE_NAME] is None:
-
-        # if template is incomplete locally, delete and ask for a download
-        if not phishingpage.check_template(TEMPLATE_NAME):
-
-            # clean up the previous download
-            phishingpage.clean_template(TEMPLATE_NAME)
-
-            # get user's response
-            response = raw_input("Template is available online. Do you want"\
-            " to download it now? [y/n] ")
-
-            # in case the user agrees to download
-            if response == "Y" or response == "y":
-                # display download info to the user
-                print "[" + G + "+" + W + "] Downloading the template..."
-
-                # download the content
-                phishingpage.grab_online(TEMPLATE_NAME)
-
-    # set the path for the template
-    TEMPLATE_PATH = phishingpage.get_path(TEMPLATE_NAME)
-
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
@@ -994,8 +975,6 @@ if __name__ == "__main__":
     sniffing(mon_iface, targeting_cb)
     channel, essid, ap_mac = copy_AP()
     hop_daemon_running = False
-
-    
 
     # create a template manager object
     template_manager = phishingpage.TemplateManager()
