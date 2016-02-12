@@ -993,7 +993,7 @@ if __name__ == "__main__":
         # check if the template argument is set and is correct
         if args.template and args.template in templates:
             # set the template name
-            template = args.template
+            template = templates[args.template]
 
             # skip template selection
             break

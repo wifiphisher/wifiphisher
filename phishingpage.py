@@ -39,7 +39,7 @@ class PhishingTemplate(object):
         self._description = description
         self._status = status
         self._data = data
-        self._path = "phishing-pages/" + self._name
+        self._path = "phishing-pages/" + self._name.lower()
 
     def get_name(self):
         """
@@ -214,7 +214,7 @@ class TemplateManager(object):
 
         # TODO: finish the Description
         connection_description = "test"
-        connection = PhishingTemplate("Connection Reset",
+        connection = PhishingTemplate("Connection_Reset",
                                       connection_description, "offline")
 
         # TODO: finish the Description
