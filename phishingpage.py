@@ -24,7 +24,7 @@ class UrlNotAvailable(Exception):
 class PhishingTemplate(object):
     """ This class represents a offline phishing template. """
 
-    def __init__(self, name, display_name, description, data=None):
+    def __init__(self, name, display_name="", description="", data=None):
         """
         Initialize all the necessary operations.
 
@@ -293,6 +293,7 @@ class TemplateManager(object):
         # loop through the directory content
         for name in os.listdir(self._template_directory):
             # check to see if it is a directory and not in the database
+            # TODO: Add more checks here. Does the dir contain HTML files?
             if (os.path.isdir(os.path.join(self._template_directory, name)) and
                     name not in self._templates):
                 # add it to the list
@@ -317,5 +318,5 @@ class TemplateManager(object):
         # loop through the templates
         for template in user_templates:
             # create a template object and add it to the database
-            temp = PhishingTemplate(template, "Not Available", "Not Available", "offline")
-            self._templates[template] = temp
+            local_template = PhishingTemplate(template, template)
+            self._templates[template] = local_template
