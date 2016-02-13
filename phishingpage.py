@@ -257,6 +257,9 @@ class TemplateManager(object):
         self._templates = {"Linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
 
+
+        self.add_user_templates()
+
     def get_templates(self, only_online=False):
         """
         Return a dictionary containing all the templates available.

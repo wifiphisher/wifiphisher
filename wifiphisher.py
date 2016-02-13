@@ -486,8 +486,6 @@ def download_template(template):
 def select_template(args):
     # create a template manager object
     template_manager = phishingpage.TemplateManager()
-    # add all the user templates to the database
-    template_manager.add_user_templates()
     # get all available templates
     templates = template_manager.get_templates()
     # get all the templates names for display
