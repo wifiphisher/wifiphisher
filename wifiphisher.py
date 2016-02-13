@@ -446,6 +446,30 @@ def copy_AP():
         return copy_AP()
 
 
+def download_template(template):
+    # check if template is complete
+    if template.check_file_integrity():
+        # in case the template is complete
+        return 1
+    else:
+        print ("[" + R + "-" + W + "] Deleting " +
+               template.get_name() + ": Template incomplete")
+        # clean up the previous download
+        template.remove_local_files()
+        # get user's response
+        response = raw_input("Template is available online. Do you "
+                             "want to download it now? [y/n] ")
+        # in case the user agrees to download
+        if response in ("Y", "y"):
+            # display download info to the user
+            print "[" + G + "+" + W + "] Downloading the template..."
+            # download the content
+            template.fetch_files()
+            # exit the loop since template is downloaded
+            return 1
+    return 0
+
+
 def select_template(args):
     # create a template manager object
     template_manager = phishingpage.TemplateManager()
@@ -461,8 +485,11 @@ def select_template(args):
         if args.template and args.template in templates:
             # set the template name
             template = templates[args.template]
-            # skip template selection
-            break
+            if template.is_online():
+                # If the download fails, choose another one.
+                if not download_template(template):
+                    continue
+                break
         elif args.template and args.template not in templates:
             # in case of an invalid template
             raise phishingpage.InvalidTemplate
@@ -498,33 +525,10 @@ def select_template(args):
         template = templates[template_names[template_number]]
         # check to see if the template is online
         if template.is_online():
-            # check if template is complete
-            if template.check_file_integrity():
-                # in case the template is complete
-                break
-            else:
-                print ("[" + R + "-" + W + "] Deleting " +
-                       template.get_name() + ": Template incomplete")
-                # clean up the previous download
-                template.remove_local_files()
-                # get user's response
-                response = raw_input("Template is available online. Do you "
-                                     "want to download it now? [y/n] ")
-                # in case the user agrees to download
-                if response in ("Y", "y"):
-                    # display download info to the user
-                    print "[" + G + "+" + W + "] Downloading the template..."
-                    # download the content
-                    template.fetch_files()
-                    # exit the loop since template is downloaded
-                    break
-                else:
-                    # since the user didn't want to download start the process
-                    # for template selection
-                    continue
-        else:
-            # in case the template is offline
-            break
+            # If the download fails, choose another one.
+            if not download_template(template):
+                continue
+        break
     return template
 
 
@@ -1011,6 +1015,7 @@ if __name__ == "__main__":
     else:
         ap_iface = args.apinterface
 
+    '''
     if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
         sys.exit(
             ('[' + G + '+' + W +
@@ -1019,6 +1024,7 @@ if __name__ == "__main__":
              '[' + R + '!' + W + '] Closing'
              )
         )
+    '''
 
     '''
     We got the interfaces correctly at this point. Monitor mon_iface & for
