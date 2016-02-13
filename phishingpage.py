@@ -7,6 +7,13 @@ import urllib
 import os
 import shutil
 
+class InvalidTemplate(Exception):
+    """ Exception class to raise in case of a invalid template. """
+
+    def __init__(self):
+        Exception.__init__(self, "The given template is either invalid or " +
+                                 "not available locally!")
+
 
 class UrlNotAvailable(Exception):
     """ Exception class to raise in case of a invalid URL. """

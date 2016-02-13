@@ -113,14 +113,6 @@ def parse_args():
     return parser.parse_args()
 
 
-class InvalidTemplate(Exception):
-    """ Exception class to raise in case of a invalid template. """
-
-    def __init__(self):
-        Exception.__init__(self, "The given template is either invalid or " +
-                                 "not available locally!")
-
-
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
     Simple HTTP server that extends the SimpleHTTPServer standard
@@ -473,7 +465,7 @@ def select_template(args):
             break
         elif args.template and args.template not in templates:
             # in case of an invalid template
-            raise InvalidTemplate
+            raise phishingpage.InvalidTemplate
         # clear the screen        
         os.system('clear')
         # display start of template names
