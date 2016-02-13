@@ -503,17 +503,17 @@ def select_template(args):
             # clear the screen        
             os.system('clear')
             # display start of template names
-            print "\nList Of All Templates: \n"
+            print "\nAvailable Phishing Scenarios: \n"
             # display the templates
             index = 1
             for k, v in templates.iteritems():
-                print (G + str(index) + W + " - " +
-                       v.get_display_name())
+                print (G + str(index) + W + " - " + v.get_display_name() + 
+                      '\n\t' + v.get_description() + '\n') 
                 index += 1
             # get user's choice
             choosen_template = raw_input("\n[" + G + "+" + W +
                                          "] Choose the [" + G + "num" + W +
-                                         "] of the template you wish to use: ")
+                                         "] of the scenario you wish to use: ")
             # placed to avoid a program crash in case of non integer input
             try:
                 template_number = int(choosen_template)
@@ -532,7 +532,7 @@ def select_template(args):
             template = templates[template_names[template_number]]
             break 
     # TODO. We need to move this check at the start of the script.
-    if not template.check_file_integrity():
+    if template.is_online() and not template.check_file_integrity():
         sys.exit((
         '\n[' + R + '!' + W + '] Template ' + template.get_display_name() + 
         ' is only available online.\n' +

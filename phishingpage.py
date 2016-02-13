@@ -38,6 +38,7 @@ class PhishingTemplate(object):
         Returns:
             None
         """
+        #TODO: Maybe add a category field?
 
         # Initialize all the variables
         self._name = name
@@ -67,6 +68,17 @@ class PhishingTemplate(object):
         """
 
         return self._display_name
+
+    def get_description(self):
+        """
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
+
+        Returns:
+            (str): The description of the template.
+        """
+
+        return self._description
 
     def get_path(self):
         """
@@ -226,6 +238,8 @@ class TemplateManager(object):
             None
         """
 
+        # TODO: Move templates to constants.
+
         # Initialize all the variables
         self._template_directory = "phishing-pages/"
 
@@ -235,26 +249,32 @@ class TemplateManager(object):
                 "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
                 "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
                 "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
-        display_name = "Linksys"
-        description = "test"
+        display_name = "Linksys Router Configuration Page"
+        description = ("Linksys wireless router configuration page " + 
+                      "asking for WPA/WPA2 password due to a firmware upgrade. " + 
+                      "Mobile-friendly.")
         linksys = PhishingTemplate("linksys", display_name, description, data)
 
         # Minimal
-        display_name = "Minimal"
-        description = "test"
+        display_name = "Minimal Router Configuration Page"
+        description = ("Minimal router configuration page without logos or " + 
+                      "brands asking for WPA/WPA2 password due to a firmware upgrade.")
         minimal = PhishingTemplate("minimal", display_name, description)
 
         # Connection Reset
-        display_name = "Connection Reset"
-        description = "test"
+        display_name = "Browser Connection Reset"
+        description = ("Browser message asking for WPA/WPA2 password " + 
+                       "due to a connection reset. Style changes according the user-agent " + 
+                       "header. Mobile-friendly.")
         connection = PhishingTemplate("connection_reset", display_name, description)
 
         # Office365
-        display_name = "Office"
-        description = "test"
+        display_name = "Office 365 Login Portal"
+        description = ("Replica of Office 365 Login Portal. Template was taken from " + 
+                      "Phishing Frenzy Templates project. Mobile-friendly.")
         office = PhishingTemplate("office365", display_name, description)
 
-        self._templates = {"Linksys": linksys, "minimal": minimal,
+        self._templates = {"linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
 
 
