@@ -106,9 +106,18 @@ def parse_args():
         help="Enter the MAC address of a specific access point to target"
     )
 
-    parser.add_argument("-T","--template",help=("Choose the template to run."+
-                        "Using this option will skip the interactive "+
-                        "selection"))
+    parser.add_argument(
+        "-T",
+        "--template",
+        help=("Choose the template to run."+
+              "Using this option will skip the interactive "+
+              "selection"))
+
+    parser.add_argument(
+        "-dT",
+        "--downloadtemplates",
+        help=("Download more templates in the startup."),
+        action='store_true')
 
     return parser.parse_args()
 
@@ -445,29 +454,33 @@ def copy_AP():
     except KeyError:
         return copy_AP()
 
+def get_templates():
+    template_manager = phishingpage.TemplateManager()
+    templates = template_manager.get_templates(only_online=True)
+    for k, v in templates.iteritems():
+        download_template(v)
+         
 
 def download_template(template):
     # check if template is complete
     if template.check_file_integrity():
+        print ("[" + G + "+" + W + "] Template " +
+               template.get_display_name() + " already downloaded")
         # in case the template is complete
         return 1
     else:
-        print ("[" + R + "-" + W + "] Deleting " +
-               template.get_name() + ": Template incomplete")
-        # clean up the previous download
-        template.remove_local_files()
-        # get user's response
-        response = raw_input("Template is available online. Do you "
-                             "want to download it now? [y/n] ")
-        # in case the user agrees to download
-        if response in ("Y", "y"):
-            # display download info to the user
-            print "[" + G + "+" + W + "] Downloading the template..."
-            # download the content
-            template.fetch_files()
-            # exit the loop since template is downloaded
-            return 1
-    return 0
+        if template.dir_exists():
+            print ("[" + G + "+" + W + "] Deleting " +
+                   template.get_display_name() + ": Template not found or incomplete")
+            # clean up the previous download
+            template.remove_local_files()
+        # display download info to the user
+        print ("[" + G + "+" + W + "] Downloading template " +
+              template.get_display_name() + "...")
+        # download the content
+        template.fetch_files()
+        # exit the loop since template is downloaded
+        return 1
 
 
 def select_template(args):
@@ -480,55 +493,55 @@ def select_template(args):
     # get all the templates names for display
     template_names = list(templates.keys())
     # loop until all operations for template selection is done
-    while True:
-        # check if the template argument is set and is correct
-        if args.template and args.template in templates:
-            # set the template name
-            template = templates[args.template]
-            if template.is_online():
-                # If the download fails, choose another one.
-                if not download_template(template):
-                    continue
-                break
-        elif args.template and args.template not in templates:
-            # in case of an invalid template
-            raise phishingpage.InvalidTemplate
-        # clear the screen        
-        os.system('clear')
-        # display start of template names
-        print "\nList Of All Templates: \n"
-        # display the templates
-        index = 1
-        for k, v in templates.iteritems():
-            print (G + str(index) + W + " - " +
-                   v.get_display_name())
-            index += 1
-        # get user's choice
-        choosen_template = raw_input("\n[" + G + "+" + W +
-                                     "] Choose the [" + G + "num" + W +
-                                     "] of the template you wish to use: ")
-        # placed to avoid a program crash in case of non integer input
-        try:
-            template_number = int(choosen_template)
-        except ValueError:
-            print "\n[" + R + "-" + W + "] Please input an integer."
-            # start from the beginning
-            continue
-        if template_number not in range(1, len(template_names) + 1):
-            print ("\n[" + R + "-" + W + "] Wrong input number! please" +
-                   " try again")
-            # start from the beginning
-            continue
-        # remove 1 from template number which was added for display reasons
-        template_number -= 1
-        # get the template
-        template = templates[template_names[template_number]]
-        # check to see if the template is online
-        if template.is_online():
-            # If the download fails, choose another one.
-            if not download_template(template):
+    # check if the template argument is set and is correct
+    if args.template and args.template in templates:
+        # set the template name
+        template = templates[args.template]
+    elif args.template and args.template not in templates:
+        # in case of an invalid template
+        raise phishingpage.InvalidTemplate
+    else:
+        while True:
+            # clear the screen        
+            os.system('clear')
+            # display start of template names
+            print "\nList Of All Templates: \n"
+            # display the templates
+            index = 1
+            for k, v in templates.iteritems():
+                print (G + str(index) + W + " - " +
+                       v.get_display_name())
+                index += 1
+            # get user's choice
+            choosen_template = raw_input("\n[" + G + "+" + W +
+                                         "] Choose the [" + G + "num" + W +
+                                         "] of the template you wish to use: ")
+            # placed to avoid a program crash in case of non integer input
+            try:
+                template_number = int(choosen_template)
+            except ValueError:
+                print "\n[" + R + "-" + W + "] Please input an integer."
+                # start from the beginning
                 continue
-        break
+            if template_number not in range(1, len(template_names) + 1):
+                print ("\n[" + R + "-" + W + "] Wrong input number! please" +
+                       " try again")
+                # start from the beginning
+                continue
+            # remove 1 from template number which was added for display reasons
+            template_number -= 1
+            # get the template
+            template = templates[template_names[template_number]]
+            break 
+    # TODO. We need to move this check at the start of the script.
+    if not template.check_file_integrity():
+        sys.exit((
+        '\n[' + R + '!' + W + '] Template ' + template.get_display_name() + 
+        ' is only available online.\n' +
+        '[' + G + '+' + W + '] Rerun the script using the -dT or ' + 
+        '--downloadtemplates option to install it.\n' +
+        '[' + R + '!' + W + '] Closing'
+        )) 
     return template
 
 
@@ -925,7 +938,7 @@ def get_dnsmasq():
             'Please follow the link below to configure your sources.list\n' +
             B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
             '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
-            '[' + G + '+' + W + '] Rerun the script again to install dnsmasq.\n' +
+            '[' + G + '+' + W + '] Rerun the script to install dnsmasq.\n' +
             '[' + R + '!' + W + '] Closing'
          ))
 
@@ -952,7 +965,7 @@ def get_hostapd():
             'Please follow the link below to configure your sources.list\n' +
             B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
             '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
-            '[' + G + '+' + W + '] Rerun the script again to install hostapd.\n' +
+            '[' + G + '+' + W + '] Rerun the script to install hostapd.\n' +
             '[' + R + '!' + W + '] Closing'
          ))
 
@@ -973,16 +986,16 @@ if __name__ == "__main__":
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
-    # Kill any possible programs that may interfere with the wireless card
-    # Only for systems with airmon-ng installed
-    if os.path.isfile('/usr/sbin/airmon-ng'):
-        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
 
     # Get hostapd if needed
     get_hostapd()
 
-    # get dnsmasq if needed
+    # Get dnsmasq if needed
     get_dnsmasq()
+
+    # Download more templates if requested
+    if args.downloadtemplates:
+        get_templates()
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
@@ -1057,10 +1070,14 @@ if __name__ == "__main__":
     hop_daemon_running = False
 
     template = select_template(args)
-    print ("[" + G + "+" + W + "] Selecting " + template.get_name() +
+    print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
            " template")
     # set the path for the template
     TEMPLATE_PATH = template.get_path()
+    # Kill any possible programs that may interfere with the wireless card
+    # Only for systems with airmon-ng installed
+    if os.path.isfile('/usr/sbin/airmon-ng'):
+        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
     # Start AP
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)

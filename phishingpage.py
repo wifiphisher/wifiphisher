@@ -145,7 +145,7 @@ class PhishingTemplate(object):
 
     def check_file_integrity(self):
         """
-        Check if the template has all the files locally.
+        Check if an online template has its required files stored locally.
 
         Args:
             self (TemplateManager): A TemplateManager object.
@@ -156,12 +156,29 @@ class PhishingTemplate(object):
         """
 
         # check if the directory exists and all files are present
-        if (os.path.isdir(self._path) and
+        if (self.dir_exists() and
+                self.is_online() and 
                 (set(self._data.keys())) ==
                 (set(os.listdir(self._path)))):
             return True
-        else:
-            return False
+        return False
+
+    def dir_exists(self):
+        """
+        Checks if the directory exists in the filesystem.
+
+        Agrs:
+            self (TemplateManager): A TemplateManager object.
+
+        Returns:
+            True (bool): If directory exists in the filesystem
+            False (bool): If directory does not exist in the filesystem
+        """
+
+        # Check if the template directory exists
+        if os.path.isdir(self._path):
+            return True
+        return False
 
     def remove_local_files(self):
         """
@@ -176,7 +193,7 @@ class PhishingTemplate(object):
         """
 
         # check if the template directory exists
-        if os.path.isdir(self._path):
+        if self.dir_exists():
             # remove the directory recursively
             shutil.rmtree(self._path)
 
@@ -240,18 +257,24 @@ class TemplateManager(object):
         self._templates = {"Linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
 
-    def get_templates(self):
+    def get_templates(self, only_online=False):
         """
         Return a dictionary containing all the templates available.
 
         Args:
             self (TemplateManager): A TemplateManager object.
+            only_online (bool): A flag that if set returns only the online templates
 
         Returns:
-            (dict): A dictionary containing all the templates.
+            (dict): A dictionary containing the requested templates.
         """
 
-        return self._templates
+        templates = self._templates.copy()
+        if only_online:
+            for k, v in self._templates.iteritems():
+                if not v.is_online():
+                    del templates[k]
+        return templates
 
     def find_user_templates(self):
         """
