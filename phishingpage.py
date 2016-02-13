@@ -220,22 +220,22 @@ class TemplateManager(object):
                 "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
         display_name = "Linksys"
         description = "test"
-        linksys = PhishingTemplate("Linksys", display_name, description, data)
+        linksys = PhishingTemplate("linksys", display_name, description, data)
 
         # Minimal
         display_name = "Minimal"
         description = "test"
-        minimal = PhishingTemplate("Minimal", display_name, description)
+        minimal = PhishingTemplate("minimal", display_name, description)
 
         # Connection Reset
         display_name = "Connection Reset"
         description = "test"
-        connection = PhishingTemplate("Connection_Reset", display_name, description)
+        connection = PhishingTemplate("connection_reset", display_name, description)
 
-        # Office
+        # Office365
         display_name = "Office"
         description = "test"
-        office = PhishingTemplate("Office", display_name, description)
+        office = PhishingTemplate("office365", display_name, description)
 
         self._templates = {"Linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
