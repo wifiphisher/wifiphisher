@@ -1001,7 +1001,7 @@ if __name__ == "__main__":
         print "\nList Of All Templates: \n"
         # display the templates
         for number in range(len(template_names)):
-            print ("[" + G + str(number + 1) + W + "] " +
+            print (G + str(number + 1) + W + " - " +
                    str(templates[template_names[number]]))
         # get user's choice
         choosen_template = raw_input("\n[" + G + "+" + W +
@@ -1014,13 +1014,11 @@ if __name__ == "__main__":
             print "\n[" + R + "-" + W + "] Please input an integer."
             # start from the beginning
             continue
-
         if template_number not in range(1, len(template_names) + 1):
             print ("\n[" + R + "-" + W + "] Wrong input number! please" +
                    " try again")
             # start from the beginning
             continue
-
         # remove 1 from template number which was added for display reasons
         template_number -= 1
         # get the template
