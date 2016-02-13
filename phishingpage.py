@@ -17,7 +17,7 @@ class UrlNotAvailable(Exception):
 class PhishingTemplate(object):
     """ This class represents a offline phishing template. """
 
-    def __init__(self, name, display_name, description, status, data=None):
+    def __init__(self, name, display_name, description, data=None):
         """
         Initialize all the necessary operations.
 
@@ -25,8 +25,6 @@ class PhishingTemplate(object):
             self (PhishingScenario): A PhishingTemplate object.
             name (str): The name of the template.
             description (str): The description of the template.
-            status (str): The status of the template which is either "online"
-            or "offline"
             data (dict) [optional]: The data used for the downloading the
             template.
 
@@ -38,7 +36,6 @@ class PhishingTemplate(object):
         self._name = name
         self._display_name = display_name
         self._description = description
-        self._status = status
         self._data = data
         self._path = "phishing-pages/" + self._name.lower()
 
@@ -87,7 +84,7 @@ class PhishingTemplate(object):
         """
 
         # check the status and return accordingly
-        if self._status == "online":
+        if self._data:
             return True
         else:
             return False
@@ -216,23 +213,22 @@ class TemplateManager(object):
                 "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
         display_name = "Linksys"
         description = "test"
-        linksys = PhishingTemplate("Linksys", display_name, description,
-                                   "online", data)
+        linksys = PhishingTemplate("Linksys", display_name, description, data)
 
         # Minimal
         display_name = "Minimal"
         description = "test"
-        minimal = PhishingTemplate("Minimal", display_name, description, "offline")
+        minimal = PhishingTemplate("Minimal", display_name, description)
 
         # Connection Reset
         display_name = "Connection Reset"
         description = "test"
-        connection = PhishingTemplate("Connection_Reset", display_name, description, "offline")
+        connection = PhishingTemplate("Connection_Reset", display_name, description)
 
         # Office
         display_name = "Office"
         description = "test"
-        office = PhishingTemplate("Office", display_name, description, "offline")
+        office = PhishingTemplate("Office", display_name, description)
 
         self._templates = {"Linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
