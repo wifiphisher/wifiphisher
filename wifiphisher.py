@@ -454,6 +454,86 @@ def copy_AP():
         return copy_AP()
 
 
+def select_template(args):
+    # create a template manager object
+    template_manager = phishingpage.TemplateManager()
+    # add all the user templates to the database
+    template_manager.add_user_templates()
+    # get all available templates
+    templates = template_manager.get_templates()
+    # get all the templates names for display
+    template_names = list(templates.keys())
+    # loop until all operations for template selection is done
+    while True:
+        # check if the template argument is set and is correct
+        if args.template and args.template in templates:
+            # set the template name
+            template = templates[args.template]
+            # skip template selection
+            break
+        elif args.template and args.template not in templates:
+            # in case of an invalid template
+            raise InvalidTemplate
+        # clear the screen        
+        os.system('clear')
+        # display start of template names
+        print "\nList Of All Templates: \n"
+        # display the templates
+        for number in range(len(template_names)):
+            print (G + str(number + 1) + W + " - " +
+                   str(templates[template_names[number]]))
+        # get user's choice
+        choosen_template = raw_input("\n[" + G + "+" + W +
+                                     "] Choose the [" + G + "num" + W +
+                                     "] of the template you wish to use: ")
+        # placed to avoid a program crash in case of non integer input
+        try:
+            template_number = int(choosen_template)
+        except ValueError:
+            print "\n[" + R + "-" + W + "] Please input an integer."
+            # start from the beginning
+            continue
+        if template_number not in range(1, len(template_names) + 1):
+            print ("\n[" + R + "-" + W + "] Wrong input number! please" +
+                   " try again")
+            # start from the beginning
+            continue
+        # remove 1 from template number which was added for display reasons
+        template_number -= 1
+        # get the template
+        template = templates[template_names[template_number]]
+        # check to see if the template is online
+        if template.is_online():
+            # check if template is complete
+            if template.check_file_integrity():
+                # in case the template is complete
+                break
+            else:
+                print ("[" + R + "-" + W + "] Deleting " +
+                       template.get_name() + ": Template incomplete")
+                # clean up the previous download
+                template.remove_local_files()
+                # get user's response
+                response = raw_input("Template is available online. Do you "
+                                     "want to download it now? [y/n] ")
+                # in case the user agrees to download
+                if response in ("Y", "y"):
+                    # display download info to the user
+                    print "[" + G + "+" + W + "] Downloading the template..."
+                    # download the content
+                    template.fetch_files()
+                    # exit the loop since template is downloaded
+                    break
+                else:
+                    # since the user didn't want to download start the process
+                    # for template selection
+                    continue
+        else:
+            # in case the template is offline
+            break
+    return template
+
+
 def start_ap(mon_iface, channel, essid, args):
     print '[' + T + '*' + W + '] Starting the fake access point...'
     config = (
@@ -976,83 +1056,7 @@ if __name__ == "__main__":
     channel, essid, ap_mac = copy_AP()
     hop_daemon_running = False
 
-    # create a template manager object
-    template_manager = phishingpage.TemplateManager()
-    # add all the user templates to the database
-    template_manager.add_user_templates()
-    # get all available templates
-    templates = template_manager.get_templates()
-    # get all the templates names for display
-    template_names = list(templates.keys())
-    # loop until all operations for template selection is done
-    while True:
-        # check if the template argument is set and is correct
-        if args.template and args.template in templates:
-            # set the template name
-            template = templates[args.template]
-            # skip template selection
-            break
-        elif args.template and args.template not in templates:
-            # in case of an invalid template
-            raise InvalidTemplate
-        # clear the screen        
-        os.system('clear')
-        # display start of template names
-        print "\nList Of All Templates: \n"
-        # display the templates
-        for number in range(len(template_names)):
-            print (G + str(number + 1) + W + " - " +
-                   str(templates[template_names[number]]))
-        # get user's choice
-        choosen_template = raw_input("\n[" + G + "+" + W +
-                                     "] Choose the [" + G + "num" + W +
-                                     "] of the template you wish to use: ")
-        # placed to avoid a program crash in case of non integer input
-        try:
-            template_number = int(choosen_template)
-        except ValueError:
-            print "\n[" + R + "-" + W + "] Please input an integer."
-            # start from the beginning
-            continue
-        if template_number not in range(1, len(template_names) + 1):
-            print ("\n[" + R + "-" + W + "] Wrong input number! please" +
-                   " try again")
-            # start from the beginning
-            continue
-        # remove 1 from template number which was added for display reasons
-        template_number -= 1
-        # get the template
-        template = templates[template_names[template_number]]
-        # check to see if the template is online
-        if template.is_online():
-            # check if template is complete
-            if template.check_file_integrity():
-                # in case the template is complete
-                break
-            else:
-                print ("[" + R + "-" + W + "] Deleting " +
-                       template.get_name() + ": Template incomplete")
-                # clean up the previous download
-                template.remove_local_files()
-                # get user's response
-                response = raw_input("Template is available online. Do you "
-                                     "want to download it now? [y/n] ")
-                # in case the user agrees to download
-                if response in ("Y", "y"):
-                    # display download info to the user
-                    print "[" + G + "+" + W + "] Downloading the template..."
-                    # download the content
-                    template.fetch_files()
-                    # exit the loop since template is downloaded
-                    break
-                else:
-                    # since the user didn't want to download start the process
-                    # for template selection
-                    continue
-        else:
-            # in case the template is offline
-            break
-
+    template = select_template(args)
     print ("[" + G + "+" + W + "] Selecting " + template.get_name() +
            " template")
     # set the path for the template
