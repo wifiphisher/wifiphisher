@@ -17,7 +17,7 @@ class UrlNotAvailable(Exception):
 class PhishingTemplate(object):
     """ This class represents a offline phishing template. """
 
-    def __init__(self, name, description, status, data=None):
+    def __init__(self, name, display_name, description, status, data=None):
         """
         Initialize all the necessary operations.
 
@@ -36,6 +36,7 @@ class PhishingTemplate(object):
 
         # Initialize all the variables
         self._name = name
+        self.display_name = display_name
         self._description = description
         self._status = status
         self._data = data
@@ -196,30 +197,31 @@ class TemplateManager(object):
         # Initialize all the variables
         self._template_directory = "phishing-pages/"
 
-        linksys_data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-                        "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-                        "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-                        "bootstrap.min.css":
-                            "http://pastebin.com/raw/LjM8RWsp",
-                        "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
+        # Linksys
+        data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
+                "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
+                "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
+                "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
+                "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
+        display_name = "Linksys"
+        description = "test"
+        linksys = PhishingTemplate("Linksys", display_name, description,
+                                   "online", data)
 
-        # TODO: finish the Description
-        linksys_description = "test"
-        linksys = PhishingTemplate("Linksys", linksys_description, "online",
-                                   linksys_data)
+        # Minimal
+        display_name = "Minimal"
+        description = "test"
+        minimal = PhishingTemplate("Minimal", display_name, description, "offline")
 
-        # TODO: finish the Description
-        minimal_description = "test"
-        minimal = PhishingTemplate("Minimal", minimal_description, "offline")
+        # Connection Reset
+        display_name = "Connection Reset"
+        description = "test"
+        connection = PhishingTemplate("Connection_Reset", display_name, description, "offline")
 
-        # TODO: finish the Description
-        connection_description = "test"
-        connection = PhishingTemplate("Connection_Reset",
-                                      connection_description, "offline")
-
-        # TODO: finish the Description
-        office_description = "test"
-        office = PhishingTemplate("Office", office_description, "offline")
+        # Office
+        display_name = "Office"
+        description = "test"
+        office = PhishingTemplate("Office", display_name, description, "offline")
 
         self._templates = {"Linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office}
@@ -278,5 +280,5 @@ class TemplateManager(object):
         # loop through the templates
         for template in user_templates:
             # create a template object and add it to the database
-            temp = PhishingTemplate(template, "Not Available", "offline")
+            temp = PhishingTemplate(template, "Not Available", "Not Available", "offline")
             self._templates[template] = temp

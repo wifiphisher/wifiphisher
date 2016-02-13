@@ -479,9 +479,11 @@ def select_template(args):
         # display start of template names
         print "\nList Of All Templates: \n"
         # display the templates
-        for number in range(len(template_names)):
-            print (G + str(number + 1) + W + " - " +
-                   str(templates[template_names[number]]))
+        index = 1
+        for k, v in templates.iteritems():
+            print (G + str(index) + W + " - " +
+                   v.display_name)
+            index += 1
         # get user's choice
         choosen_template = raw_input("\n[" + G + "+" + W +
                                      "] Choose the [" + G + "num" + W +
