@@ -482,7 +482,7 @@ def select_template(args):
         index = 1
         for k, v in templates.iteritems():
             print (G + str(index) + W + " - " +
-                   v.display_name)
+                   v.get_display_name())
             index += 1
         # get user's choice
         choosen_template = raw_input("\n[" + G + "+" + W +

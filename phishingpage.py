@@ -36,7 +36,7 @@ class PhishingTemplate(object):
 
         # Initialize all the variables
         self._name = name
-        self.display_name = display_name
+        self._display_name = display_name
         self._description = description
         self._status = status
         self._data = data
@@ -48,10 +48,21 @@ class PhishingTemplate(object):
             self (PhishingTemplate): A PhishingTemplate object.
 
         Returns:
-            (str): The name of the template
+            (str): The name of the template as stored in the filesystem.
         """
 
         return self._name
+
+    def get_display_name(self):
+        """
+        Args:
+            self (PhishingTemplate): A PhishingTemplate object.
+
+        Returns:
+            (str): The display name of the template.
+        """
+
+        return self._display_name
 
     def get_path(self):
         """
