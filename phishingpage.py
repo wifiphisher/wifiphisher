@@ -281,8 +281,8 @@ class TemplateManager(object):
                 "bootstrap.min.css": "https://1fichier.com/?5whjdbl0q5",
                 "upgrading.html": "https://1fichier.com/?0b5zo556k3",
                 "cisco_logo.png": "https://1fichier.com/?q78mmz3h00"}
-        display_name = "Linksys Router Configuration Page"
-        description = ("Linksys wireless router configuration page " +
+        display_name = "Cisco Router Configuration Page"
+        description = ("Cisco wireless router configuration page " +
                       "asking for WPA/WPA2 password due to a firmware " +
                       "upgrade. Mobile-friendly.")
         cisco = PhishingTemplate("cisco", display_name, description)
