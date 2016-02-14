@@ -169,7 +169,7 @@ class PhishingTemplate(object):
 
         # check if the directory exists and all files are present
         if (self.dir_exists() and
-                self.is_online() and 
+                self.is_online() and
                 (set(self._data.keys())) ==
                 (set(os.listdir(self._path)))):
             return True
@@ -250,32 +250,46 @@ class TemplateManager(object):
                 "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
                 "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
         display_name = "Linksys Router Configuration Page"
-        description = ("Linksys wireless router configuration page " + 
-                      "asking for WPA/WPA2 password due to a firmware upgrade. " + 
+        description = ("Linksys wireless router configuration page " +
+                      "asking for WPA/WPA2 password due to a firmware upgrade. " +
                       "Mobile-friendly.")
         linksys = PhishingTemplate("linksys", display_name, description, data)
 
         # Minimal
         display_name = "Minimal Router Configuration Page"
-        description = ("Minimal router configuration page without logos or " + 
+        description = ("Minimal router configuration page without logos or " +
                       "brands asking for WPA/WPA2 password due to a firmware upgrade.")
         minimal = PhishingTemplate("minimal", display_name, description)
 
         # Connection Reset
         display_name = "Browser Connection Reset"
-        description = ("Browser message asking for WPA/WPA2 password " + 
-                       "due to a connection reset. Style changes according the user-agent " + 
+        description = ("Browser message asking for WPA/WPA2 password " +
+                       "due to a connection reset. Style changes according the user-agent " +
                        "header. Mobile-friendly.")
         connection = PhishingTemplate("connection_reset", display_name, description)
 
         # Office365
         display_name = "Office 365 Login Portal"
-        description = ("Replica of Office 365 Login Portal. Template was taken from " + 
+        description = ("Replica of Office 365 Login Portal. Template was taken from " +
                       "Phishing Frenzy Templates project. Mobile-friendly.")
         office = PhishingTemplate("office365", display_name, description)
 
+        # Cisco
+        data = {"index.html": "https://1fichier.com/?a859xmgioi",
+                "jquery.min.js": "https://1fichier.com/?6vz5v2nw91",
+                "bootstrap.min.js": "https://1fichier.com/?6k1qeidwfc",
+                "bootstrap.min.css": "https://1fichier.com/?5whjdbl0q5",
+                "upgrading.html": "https://1fichier.com/?0b5zo556k3",
+                "cisco_logo.png": "https://1fichier.com/?q78mmz3h00"}
+        display_name = "Linksys Router Configuration Page"
+        description = ("Linksys wireless router configuration page " +
+                      "asking for WPA/WPA2 password due to a firmware " +
+                      "upgrade. Mobile-friendly.")
+        cisco = PhishingTemplate("cisco", display_name, description)
+
         self._templates = {"linksys": linksys, "minimal": minimal,
-                           "connection_reset": connection, "office365": office}
+                           "connection_reset": connection, "office365": office,
+                           "cisco": cisco}
 
 
         self.add_user_templates()
