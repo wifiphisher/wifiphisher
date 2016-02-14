@@ -285,7 +285,7 @@ class TemplateManager(object):
         description = ("Cisco wireless router configuration page " +
                       "asking for WPA/WPA2 password due to a firmware " +
                       "upgrade. Mobile-friendly.")
-        cisco = PhishingTemplate("cisco", display_name, description)
+        cisco = PhishingTemplate("cisco", display_name, description, data)
 
         self._templates = {"linksys": linksys, "minimal": minimal,
                            "connection_reset": connection, "office365": office,
