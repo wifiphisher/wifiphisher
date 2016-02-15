@@ -114,12 +114,23 @@ def parse_args():
               "selection"))
 
     parser.add_argument(
+        "-pK",
+        "--presharedkey",
+        help=("Add WPA/WPA2 protection on the rogue Access Point"))
+
+    parser.add_argument(
         "-dT",
         "--downloadtemplates",
         help=("Download more templates in the startup."),
         action='store_true')
 
     return parser.parse_args()
+
+def check_args(args):
+    if args.presharedkey and \
+    (len(args.presharedkey) < 8 \
+    or len(args.presharedkey) > 64):
+        sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
 
 
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
@@ -554,6 +565,12 @@ def start_ap(mon_iface, channel, essid, args):
         'macaddr_acl=0\n'
         'ignore_broadcast_ssid=0\n'
     )
+    if args.presharedkey:
+        config += (
+            'wpa=2\n'
+            'wpa_passphrase=%s\n'
+        ) % args.presharedkey
+
     with open('/tmp/hostapd.conf', 'w') as dhcpconf:
             dhcpconf.write(config % (mon_iface, essid, channel))
 
@@ -981,6 +998,10 @@ if __name__ == "__main__":
 
     # Parse args
     args = parse_args()
+
+    # Check args
+    check_args(args)    
+
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
