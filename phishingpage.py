@@ -243,18 +243,6 @@ class TemplateManager(object):
         # Initialize all the variables
         self._template_directory = "phishing-pages/"
 
-        # Linksys
-        data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-                "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-                "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-                "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
-                "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
-        display_name = "Linksys Router Configuration Page"
-        description = ("Linksys wireless router configuration page " + 
-                      "asking for WPA/WPA2 password due to a firmware upgrade. " + 
-                      "Mobile-friendly.")
-        linksys = PhishingTemplate("linksys", display_name, description, data)
-
         # Minimal
         display_name = "Minimal Router Configuration Page"
         description = ("Minimal router configuration page without logos or " + 
@@ -274,7 +262,7 @@ class TemplateManager(object):
                       "Phishing Frenzy Templates project. Mobile-friendly.")
         office = PhishingTemplate("office365", display_name, description)
 
-        self._templates = {"linksys": linksys, "minimal": minimal,
+        self._templates = {"minimal": minimal,
                            "connection_reset": connection, "office365": office}
 
 
