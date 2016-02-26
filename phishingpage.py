@@ -243,12 +243,6 @@ class TemplateManager(object):
         # Initialize all the variables
         self._template_directory = "phishing-pages/"
 
-        # Minimal
-        display_name = "Minimal Router Configuration Page"
-        description = ("Minimal router configuration page without logos or " +
-                      "brands asking for WPA/WPA2 password due to a firmware upgrade.")
-        minimal = PhishingTemplate("minimal", display_name, description)
-
         # Firmware Upgrade
         display_name = "Firmware Upgrade Page"
         description = ("A router configuration page without logos or " +
@@ -270,8 +264,7 @@ class TemplateManager(object):
                       "Phishing Frenzy Templates project. Mobile-friendly.")
         office = PhishingTemplate("office365", display_name, description)
 
-        self._templates = {"minimal": minimal,
-                           "connection_reset": connection, "office365": office,
+        self._templates = {"connection_reset": connection, "office365": office,
                            "firmware-upgrade": firmware_upgrade}
 
 
