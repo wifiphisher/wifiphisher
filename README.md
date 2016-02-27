@@ -68,6 +68,8 @@ Wifiphisher's current version is **1.1**. You can download the latest release fr
 * HowTo video by JackkTutorials: https://www.youtube.com/watch?v=tCwclyurB8I
 * "Get Anyone's Wi-Fi Password Without Cracking Using Wifiphisher" by Null Byte: http://null-byte.wonderhowto.com/how-to/hack-wi-fi-get-anyones-wi-fi-password-without-cracking-using-wifiphisher-0165154/
 
+<b>Note</b>: This is the only official page for wifiphisher. Other sites may be delivering malware.
+
 [![alt text][1.1]][1]
 [1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
 [1]: http://www.twitter.com/_sophron
