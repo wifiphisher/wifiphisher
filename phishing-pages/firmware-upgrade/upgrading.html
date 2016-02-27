@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Router Configuration Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+
+  <!-- CSS -->
+  <style type="text/css">
+
+    /* Sticky footer styles
+    -------------------------------------------------- */
+
+    html,
+    body {
+          height: 100%;
+          /* The html and body elements cannot have any padding or margin. */
+        }
+
+        /* Wrapper for page content to push down footer */
+        #wrap {
+          min-height: 100%;
+          height: auto !important;
+          height: 100%;
+          /* Negative indent footer by it's height */
+          margin: 0 auto -60px;
+        }
+
+        /* Set the fixed height of the footer here */
+        #push,
+        #footer {
+          height: 60px;
+        }
+        #footer {
+          background-color: #f5f5f5;
+        }
+
+        /* Lastly, apply responsive CSS fixes as necessary */
+        @media (max-width: 767px) {
+          #footer {
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+        }
+
+        #clockdiv{
+	         font-family: sans-serif;
+	         color: #fff;
+	         display: inline-block;
+	         font-weight: 100;
+	         text-align: center;
+	         font-size: 30px;
+         }
+
+        #clockdiv > div{
+           padding: 10px;
+           border-radius: 3px;
+	         background: #00BF96;
+	         display: inline-block;
+         }
+
+        #clockdiv div > span{
+          padding: 15px;
+	        border-radius: 3px;
+	        background: #00816A;
+	        display: inline-block;
+        }
+
+      .smalltext{
+	       padding-top: 5px;
+	       font-size: 16px;
+       }
+
+  </style>
+</head>
+<body>
+
+  <!-- Start navigation bar -->
+  <nav class="navbar navbar-inverse" style="background:RoyalBlue;margin-top:2em;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <!--
+        <a class="navbar-brand"><img style="background:transparent" src="Your LOGO" alt="Logo"></a>
+        -->
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Setup <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Basic Setup</a></li>
+              <li><a href="#">DDNS</a></li>
+              <li><a href="#">MAC Address Clone</a></li>
+              <li><a href="#">Advanced Routing</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Wireless <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Basic Wireless Settings</a></li>
+              <li><a href="#">Wireless Security</a></li>
+              <li><a href="#">Wireless MAC Filter</a></li>
+              <li><a href="#">Advanced Wireless Settings</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Security <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Firewall</a></li>
+              <li><a href="#">VPN</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Access Restriction <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Internet Access</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Administration <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Management</a></li>
+              <li><a href="#">Log</a></li>
+              <li><a href="#">Diagnostics</a></li>
+              <li><a href="#">Factory Defaults</a></li>
+              <li><a href="#">Config Manegements</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#upgrade-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Status <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Router</a></li>
+              <li><a href="#">Local Network</a></li>
+              <li><a href="#">Wireless</a></li>
+              <li><a href="#">Advanced Routing</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End navigation bar -->
+
+  <!-- Start firt phase -->
+  <div class="container">
+    <div>
+      <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade In Progress</h2>
+      <p class="lead">The update is currently being uploaded to the router.
+                      Please do not dissconnect or turn off the router while it's
+                      being updated.</p>
+    </div>
+
+    <!-- Start porgress bar -->
+    <div id="instance" class="progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+        <span class="sr-only">0% Complete</span>
+      </div>
+    </div>
+    <!-- End porgress bar -->
+
+    <div id="push"></div>
+  </div>
+<!-- End first phase -->
+
+<!-- Start second phase -->
+  <div class="container show-on-done hidden">
+    <div class="row content">
+      <div class="col-sm">
+        <div>
+          <p class="lead">The update was successful and currently it's being installed.
+                          The router is being rebooted and you will lose access to
+                          the internet. Please allow the timer to expire before
+                          you connect back to the router.</p>
+        </div>
+      </div>
+
+      <!-- start of the countdown -->
+      <div class="col-sm text-center">
+        <div id="clockdiv">
+          <div>
+            <span class="minutes"></span>
+            <div class="smalltext">Minutes</div>
+          </div>
+          <div>
+            <span class="seconds"></span>
+            <div class="smalltext">Seconds</div>
+          </div>
+        </div>
+      </div>
+      <!-- end of the countdown -->
+
+    </div>
+    <div id="push"></div>
+  </div>
+  <!-- End second phase -->
+
+  <!-- Start footer -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p class="text-muted">©  2016, All Rights Reserved.</p>
+    </div>
+  </footer>
+  <!-- End footer -->
+
+  <!-- Start upgrade first message -->
+  <div class="modal fade" id="upgrade-only" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Information</h4>
+        </div>
+        <div class="modal-body">
+          <p>Please Wait For Update To Finish.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End upgrade first message -->
+
+<script>
+/*
+  Increases the progress bar
+*/
+function fakeProgress(container, durationInMs, onDone) {
+    var intervalInMS = 200;
+    var doneDelay = intervalInMS * 2;
+    var bar = container.find('.progress-bar');
+    var srOnly = bar.find('.sr-only');
+    var percent = 0;
+
+    var interval = setInterval(function updateBar() {
+        percent += 100 * (intervalInMS/durationInMs);
+        bar.css({width: percent + '%'});
+        bar['aria-valuenow'] = percent;
+        srOnly.text(percent + '% Complete');
+
+        if (percent >= 100) {
+            clearInterval(interval);
+            setTimeout(function() {
+                if (typeof onDone === 'function') {
+                    onDone();
+                }
+            }, doneDelay);
+        }
+    }, intervalInMS);
+}
+
+/*
+  Used to show content after the progress bar is done
+*/
+function onDone() {
+    $('.show-on-done').removeClass('hidden');
+
+    var deadline = new Date(Date.parse(new Date()) + 5 * 60 * 1000);
+    initializeClock('clockdiv', deadline);
+}
+
+/*
+  Calculates the remaning time
+*/
+function getTimeRemaining(endtime) {
+  var t = Date.parse(endtime) - Date.parse(new Date());
+  var seconds = Math.floor((t / 1000) % 60);
+  var minutes = Math.floor((t / 1000 / 60) % 60);
+
+  return {
+    'total': t,
+    'minutes': minutes,
+    'seconds': seconds
+  };
+}
+
+/*
+  Creates the clock related content
+*/
+function initializeClock(id, endtime) {
+  var clock = document.getElementById(id);
+  var minutesSpan = clock.querySelector('.minutes');
+  var secondsSpan = clock.querySelector('.seconds');
+
+  function updateClock() {
+    var t = getTimeRemaining(endtime);
+
+
+    minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+    secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+    if (t.total <= 0) {
+      clearInterval(timeinterval);
+    }
+  }
+
+  // updating the countdown
+  updateClock();
+  var timeinterval = setInterval(updateClock, 1000);
+}
+
+// speed of the progress bar in milliseconds
+var duration = 100000;
+
+// start the progress bar
+fakeProgress($('#instance'), duration, onDone);
+
+</script>
+</body>
+</html>
