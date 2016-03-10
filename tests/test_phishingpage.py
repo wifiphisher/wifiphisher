@@ -3,7 +3,6 @@
 import unittest
 import phishingpage
 import os
-import shutil
 
 
 class TestPhishingTemplate(unittest.TestCase):
@@ -13,143 +12,40 @@ class TestPhishingTemplate(unittest.TestCase):
         """ Sets up the variables for tests. """
 
         # setup name, description and data
-        self._name = "test"
-        self._description = "This is a description."
-        self._data = {"index.html": "http://pastebin.com/raw.php?i=b0Uz1sta",
-                      "Linksys_logo.png": "https://i.imgur.com/slBTPcu.png",
-                      "bootstrap.min.js": "http://pastebin.com/raw/scqf9HKz",
-                      "bootstrap.min.css": "http://pastebin.com/raw/LjM8RWsp",
-                      "jquery.min.js": "http://pastebin.com/raw/Bms2tMTE"}
+        display_name = "Test"
+        description = ("Test Description.")
+        self._template = phishingpage.PhishingTemplate("Test", display_name,
+                                                       description)
 
-        # create the PhishingTemplate object
-        self._template = phishingpage.PhishingTemplate(self._name,
-                                                       self._description,
-                                                       "offline")
+    def test_get_display_name(self):
+        """ Tests get_display_name method. """
 
-        self._template1 = phishingpage.PhishingTemplate(self._name,
-                                                        self._description,
-                                                        "online", self._data)
-
-    def tearDown(self):
-        """ Tear down the tests. """
-
-        path = self._template1.get_path()
-
-        # if the files exists
-        if os.path.isdir(path):
-            # remove files
-            shutil.rmtree(path)
-
-    def test_get_name(self):
-        """ Tests get_name method. """
-
-        self.assertEqual(self._template.get_name(),
-                         "test", "Failed to get the name of the template!")
+        self.assertEqual(self._template.get_display_name(),
+                         "Test", "Failed to get the name of the template!")
 
     def test_str(self):
         """ Tests __str__ method. """
 
-        expected = "test\nDescription: This is a description.\n"
+        expected = "Test\n\tTest Description.\n"
 
         self.assertEqual(self._template.__str__(), expected,
                          "Failed to get proper __str__ string!")
 
-    def test_is_online_online_template(self):
-        """ Tests is_online method using a online template. """
+    def test_get_description(self):
+        """ Tests get_description method. """
 
-        self.assertTrue(self._template1,
-                        "Failed to return True for online template!")
+        expected = "Test Description."
 
-    def test_is_online_offline_template(self):
-        """ Tests is_online method using a offline template. """
+        self.assertEqual(self._template.get_description(), expected,
+                         "Failed to get the correct description!")
 
-        self.assertTrue(self._template,
-                        "Failed to return False for offline template!")
+    def test_get_path(self):
+        """ Test get_path method. """
 
-    def test_check_data_valid(self):
-        """ Tests check_data method with valid data. """
+        expected = "phishing-pages/test"
 
-        actual = self._template1.check_data()
-
-        self.assertEqual(actual, True,
-                         "Failed to check valid data!")
-
-    def test_check_data_invalid(self):
-        """ Tests check_data method with invalid data. """
-
-        # create an invalid data
-        data = {"name1": "url1", "name2": "this is not a url"}
-        template = phishingpage.PhishingTemplate("test", "None", "online",
-                                                 data)
-
-        with self.assertRaises(phishingpage.UrlNotAvailable):
-            template.check_data()
-
-    def test_fetch_files_valid(self):
-        """ Tests fetch_files method with valid data """
-
-        # fetch the files
-        self._template1.fetch_files()
-
-        # get the path of the template
-        template_path = self._template1.get_path()
-
-        # check if the directory exists and all files are present
-        if (os.path.isdir(template_path) and
-                (set(self._data.keys())) ==
-                (set(os.listdir(template_path)))):
-            pass
-        else:
-            self.fail("Failed to fetch all the files properly!")
-
-    def test_fetch_files_invalid(self):
-        """ Tests fetch_files method with invalid data """
-
-        data = {"name": "url", "name2": "url2"}
-        template = phishingpage.PhishingTemplate("New", "None", "online", data)
-
-        with self.assertRaises(phishingpage.UrlNotAvailable):
-            template.fetch_files()
-
-    def test_check_file_integrity_valid(self):
-        """ Tests check_file_integrity method with valid data. """
-
-        # fetch the files
-        self._template1.fetch_files()
-
-        self.assertTrue(self._template1.check_file_integrity(),
-                        "Failed to check the integrity of the files!")
-
-    def test_check_file_integrity_invalid(self):
-        """ Tests check_file_integrity method with invalid data. """
-
-        # fetch the files
-        self._template1.fetch_files()
-
-        # get the path of the template
-        template_path = self._template1.get_path()
-
-        # remove a file
-        os.remove(template_path + "/index.html")
-
-        # add a file
-        os.mknod(template_path + "/newfile.txt")
-
-        self.assertFalse(self._template1.check_file_integrity(),
-                         "Failed to return False on invalid data!")
-
-    def test_remove_local_files(self):
-        """ Tests remove_local_files method. """
-
-        # fetch the files
-        self._template1.fetch_files()
-
-        # remove the files
-        self._template1.remove_local_files()
-
-        test = os.path.isdir(self._template1.get_path())
-
-        self.assertFalse(test, "Failed to remove the local files!")
+        self.assertEqual(self._template.get_path(), expected,
+                         "Failed to get the correct path!")
 
 
 class TestTemplateManager(unittest.TestCase):
@@ -166,9 +62,9 @@ class TestTemplateManager(unittest.TestCase):
 
         actual = self._manager.get_templates()
 
-        expected = self._manager.get_templates()
-
-        self.assertEqual(actual, expected, "Failed to get correct templates!")
+        if ("connection_reset" and "office365" and
+                "firmware-upgrade") not in actual:
+            self.fail("Failed to get correct templates!")
 
     def test_find_user_templates(self):
         """ Tests find_user_templates method. """
