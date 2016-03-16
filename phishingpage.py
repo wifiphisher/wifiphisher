@@ -129,13 +129,15 @@ class TemplateManager(object):
 
         # Browser Plugin Update
         display_name = "Browser Plugin Update"
-        description = ("RA generic browser plugin update template that "  + 
-                       "can be used to serve payloads to targets.")
-        office = PhishingTemplate("plugin_update", display_name, description)
+        description = ("A generic browser plugin update template that "  + 
+                       "can be used to serve payloads to targets. "  + 
+                       "Requires prior preparation of payload. Mobile-friendly.")
+        plugin_update = PhishingTemplate("plugin_update", display_name, description)
 
 
         self._templates = {"connection_reset": connection, "office365": office,
-                           "firmware-upgrade": firmware_upgrade, "plugin_update": plugin_update}
+                           "firmware-upgrade": firmware_upgrade, 
+                           "plugin_update": plugin_update}
 
         # add all the user templates to the database
         self.add_user_templates()
