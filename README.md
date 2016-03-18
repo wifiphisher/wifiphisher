@@ -3,7 +3,7 @@
 ## About
 Wifiphisher is a security tool that mounts automated phishing attacks against WiFi networks in order to obtain secret passphrases or other credentials. It is a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 secret passphrases.
 
-Wifiphisher works on Kali Linux and is licensed under the MIT license.
+Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
 ## How it works
 After achieving a man-in-the-middle position using the Evil Twin attack, wifiphisher redirects all HTTP requests to an attacker-controlled look-alike web site.
