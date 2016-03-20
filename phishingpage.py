@@ -130,8 +130,8 @@ class TemplateManager(object):
         # Browser Plugin Update
         display_name = "Browser Plugin Update"
         description = ("A generic browser plugin update template that "  + 
-                       "can be used to serve payloads to targets. "  + 
-                       "Requires prior preparation of payload. Mobile-friendly.")
+                       "can be used to serve payloads to Windows targets. "  + 
+                       "Mobile-friendly.")
         plugin_update = PhishingTemplate("plugin_update", display_name, description)
 
 
