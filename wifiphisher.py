@@ -927,7 +927,7 @@ def get_dnsmasq():
                 os.system('apt-get -y install dnsmasq')
         else:
             sys.exit(('[' + R + '-' + W + '] dnsmasq' +
-                     'not found in /usr/sbin/dnsmasq'))
+                     ' not found in /usr/sbin/dnsmasq'))
     if not os.path.isfile('/usr/sbin/dnsmasq'):
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to install the \'dnsmasq\' package!\n' +
@@ -954,7 +954,7 @@ def get_hostapd():
                 os.system('apt-get -y install hostapd')
         else:
             sys.exit(('[' + R + '-' + W + '] hostapd' +
-                     'not found in /usr/sbin/hostapd'))
+                     ' not found in /usr/sbin/hostapd'))
     if not os.path.isfile('/usr/sbin/hostapd'):
         sys.exit((
             '\n[' + R + '-' + W + '] Unable to install the \'hostapd\' package!\n' +
