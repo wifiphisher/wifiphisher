@@ -45,7 +45,7 @@ From the victim's perspective, the attack makes use in three phases:
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
 
-If you don't know how to code, you can help us by <a href="https://github.com/sophron/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the <a href="https://github.com/sophron/wifiphisher/wiki/Bug-reporting-guidelines">Bug Reporting Guidelines</a> and the <a href="https://github.com/sophron/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.
+If you don't know how to code, you can help us by <a href="https://github.com/sophron/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the <a href="https://github.com/sophron/wifiphisher/wiki/Bug-reporting-guidelines">Bug Reporting Guidelines</a> and the <a href="https://github.com/sophron/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.  Note that the tool does not aim to be script-kiddie friendly. Make sure you do understand how the tool works before opening an issue.
 
 ## Credits
 The script is based on an idea from <a
