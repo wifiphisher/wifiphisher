@@ -12,7 +12,7 @@ From the victim's perspective, the attack makes use in three phases:
 
 1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations.
 2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will start connecting to the rogue access point. After this phase, the victim is MiTMed.
-3. **Victim is being served a realistic router config-looking page**. wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials. The tool supports community-built templates for different phishing scenarios, such as:
+3. **Victim is being served a realistic router config-looking page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials. The tool supports community-built templates for different phishing scenarios, such as:
   * Router configuration pages that ask for the WPA/WPA2 passphrase due to a router firmware upgrade.
   * 3rd party login pages (for example, login pages similar to those of popular social networking or e-mail access sites and products)
   * Captive portals, like the ones that are being used by hotels and airports.
