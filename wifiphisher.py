@@ -596,11 +596,12 @@ def dhcp(dhcpconf, mon_iface):
         stdout=DN,
         stderr=DN
     )
+    # Give it some time to avoid "SIOCADDRT: Network is unreachable"
+    time.sleep(.5)
     # Make sure that we have set the network properly.
     proc = check_output(['ifconfig', str(mon_iface)])
     if NETWORK_GW_IP not in proc:
         return False
-    time.sleep(.5)  # Give it some time to avoid "SIOCADDRT: Network is unreachable"
     os.system(
         ('route add -net %s netmask %s gw %s' %
          (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
