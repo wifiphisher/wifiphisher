@@ -1,8 +1,15 @@
 """ This module tests all the functions in the phishingpage module. """
 
 import unittest
-import phishingpage
+import sys
 import os
+
+dir_of_executable = os.path.dirname(__file__)
+path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
+sys.path.insert(0, path_to_project_root)
+
+import wifiphisher.phishingpage as phishingpage
+from wifiphisher.constants import *
 
 
 class TestPhishingTemplate(unittest.TestCase):
@@ -42,7 +49,7 @@ class TestPhishingTemplate(unittest.TestCase):
     def test_get_path(self):
         """ Test get_path method. """
 
-        expected = "phishing-pages/test"
+        expected = PHISHING_PAGES_DIR + "test"
 
         self.assertEqual(self._template.get_path(), expected,
                          "Failed to get the correct path!")
@@ -55,7 +62,7 @@ class TestTemplateManager(unittest.TestCase):
         """ Sets up the variables for tests. """
 
         self._manager = phishingpage.TemplateManager()
-        self._template_path = "phishing-pages/"
+        self._template_path = PHISHING_PAGES_DIR
 
     def test_get_templates(self):
         """ Tests get_templates method. """
