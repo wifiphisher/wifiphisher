@@ -4,6 +4,7 @@ Wifiphisher.py
 """
 
 import os
+from constants import *
 
 
 class InvalidTemplate(Exception):
@@ -35,7 +36,7 @@ class PhishingTemplate(object):
         self._name = name
         self._display_name = display_name
         self._description = description
-        self._path = "phishing-pages/" + self._name.lower()
+        self._path = PHISHING_PAGES_DIR + self._name.lower()
 
     def get_display_name(self):
         """
@@ -102,7 +103,7 @@ class TemplateManager(object):
         # TODO: Move templates to constants.
 
         # Initialize all the variables
-        self._template_directory = "phishing-pages/"
+        self._template_directory = PHISHING_PAGES_DIR
 
         # Firmware Upgrade
         display_name = "Firmware Upgrade Page"

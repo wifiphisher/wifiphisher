@@ -24,11 +24,13 @@ from constants import *
 
 conf.verb = 0
 count = 0  # for channel hopping Thread
-APs = {}  # for listing APs
+APs = {} # for listing APs
+clients_APs = []
 hop_daemon_running = True
 terminate = False
 lock = Lock()
-
+args = 0
+mon_MAC = 0
 
 def parse_args():
     # Create the arguments
@@ -649,7 +651,7 @@ def channel_hop2(mon_iface):
     5 seconds in order to populate the deauth list nicely.
     After that it goes as fast as it can
     '''
-    global monchannel, first_pass
+    global monchannel, first_pass, args
 
     channelNum = 0
 
@@ -697,6 +699,8 @@ def deauth(monchannel):
     if there's multi-APs to one gateway. Constantly scans the clients_APs list
     and starts a thread to deauth each instance
     '''
+
+    global clients_APs, APs, args
 
     pkts = []
 
@@ -748,6 +752,7 @@ def deauth(monchannel):
 
 
 def output(monchannel):
+    global clients_APs, APs, args
     wifi_jammer_tmp = "/tmp/wifiphisher-jammer.tmp"
     with open(wifi_jammer_tmp, "a+") as log_file:
         log_file.truncate()
@@ -797,7 +802,7 @@ def cb(pkt):
     are type 1 or 2 (control, data), and append the addr1 and addr2
     to the list of deauth targets.
     '''
-    global clients_APs, APs
+    global clients_APs, APs, args
 
     # return these if's keeping clients_APs the same or just reset clients_APs?
     # I like the idea of the tool repopulating the variable more
@@ -968,7 +973,7 @@ def get_hostapd():
             '[' + R + '!' + W + '] Closing'
          ))
 
-if __name__ == "__main__":
+def run():
 
     print "               _  __ _       _     _     _               "
     print "              (_)/ _(_)     | |   (_)   | |              "
@@ -981,6 +986,7 @@ if __name__ == "__main__":
     print "                                                         "
 
     # Parse args
+    global args, APs, clients_APs, mon_MAC
     args = parse_args()
 
     # Check args

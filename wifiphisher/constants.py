@@ -6,8 +6,9 @@ import os
 # Basic configuration
 PORT = 8080
 SSL_PORT = 443
-PEM = 'cert/server.pem'
+PEM = 'wifiphisher/cert/server.pem'
 TEMPLATE_PATH = ""
+PHISHING_PAGES_DIR = "wifiphisher/phishing-pages/"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
