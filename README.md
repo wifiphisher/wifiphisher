@@ -20,6 +20,11 @@ From the victim's perspective, the attack makes use in three phases:
 <p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
 ## Usage
+
+Run the tool by hitting `python bin/wifiphisher`. 
+
+Following are some common options along with their descriptions:
+
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
 | -m | maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
