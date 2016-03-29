@@ -121,14 +121,6 @@ class TemplateManager(object):
         connection = PhishingTemplate("connection_reset", display_name,
                                       description)
 
-        # Office365
-        display_name = "Office 365 Login Portal"
-        description = ("Replica of Office 365 Login Portal. Template was " +
-                       "taken from Phishing Frenzy Templates project. " +
-                       "Mobile-friendly.")
-        office = PhishingTemplate("office365", display_name, description)
-
-
         # Browser Plugin Update
         display_name = "Browser Plugin Update"
         description = ("A generic browser plugin update template that "  + 
