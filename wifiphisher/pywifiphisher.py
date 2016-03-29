@@ -31,6 +31,7 @@ terminate = False
 lock = Lock()
 args = 0
 mon_MAC = 0
+template_path = 0
 
 def parse_args():
     # Create the arguments
@@ -226,9 +227,9 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                            self.client_address[0] + W + "\n"
                            )
             log_file.close()
-        if not os.path.isfile("%s/%s" % (TEMPLATE_PATH, self.path)):
+        if not os.path.isfile("%s/%s" % (template_path, self.path)):
             self.path = "index.html"
-        self.path = "%s/%s" % (TEMPLATE_PATH, self.path)
+        self.path = "%s/%s" % (template_path, self.path)
         if self.path.endswith(".html"):
             f = open(self.path)
             self.send_response(200)
@@ -986,7 +987,7 @@ def run():
     print "                                                         "
 
     # Parse args
-    global args, APs, clients_APs, mon_MAC
+    global args, APs, clients_APs, mon_MAC, template_path
     args = parse_args()
 
     # Check args
@@ -1105,7 +1106,7 @@ def run():
 
 
     # set the path for the template
-    TEMPLATE_PATH = template.get_path()
+    template_path = template.get_path()
 
     # Kill any possible programs that may interfere with the wireless card
     # Only for systems with airmon-ng installed
