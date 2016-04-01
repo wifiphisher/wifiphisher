@@ -20,6 +20,7 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from shutil import copyfile
 import phishingpage
+import interfaces
 from constants import *
 
 conf.verb = 0
@@ -288,7 +289,7 @@ def stop_server(port=PORT, ssl_port=SSL_PORT):
     conn.getresponse()
 
 
-def shutdown():
+def shutdown(wireless_interfaces=None):
     """
     Shutdowns program.
     """
@@ -307,71 +308,17 @@ def shutdown():
         os.remove('/tmp/hostapd.conf')
     if os.path.isfile('/tmp/wifiphisher-hostapd.log'):
         os.remove('/tmp/wifiphisher-hostapd.log')
-    reset_interfaces()
+
+    # set all the used interfaces to managed (normal) mode and show any errors
+    if wireless_interfaces:
+        for interface in wireless_interfaces:
+            try:
+                interfaces.set_interface_mode(interface, "managed")
+            except interfaces.SetMonitorModeError as err:
+                print err
+
     print '\n[' + R + '!' + W + '] Closing'
     sys.exit(0)
-
-
-def get_interfaces():
-    interfaces = {"monitor": [], "managed": [], "all": []}
-    proc = Popen(['iwconfig'], stdout=PIPE, stderr=DN)
-    for line in proc.communicate()[0].split('\n'):
-        if len(line) == 0:
-            continue  # Isn't an empty string
-        if line[0] != ' ':  # Doesn't start with space
-            wired_search = re.search('eth[0-9]|em[0-9]|p[1-9]p[1-9]', line)
-            if not wired_search:  # Isn't wired
-                iface = line[:line.find(' ')]  # is the interface
-                if 'Mode:Monitor' in line:
-                    interfaces["monitor"].append(iface)
-                elif 'IEEE 802.11' in line:
-                    interfaces["managed"].append(iface)
-                interfaces["all"].append(iface)
-    return interfaces
-
-
-def get_iface(mode="all", exceptions=["_wifi"]):
-    ifaces = get_interfaces()[mode]
-    for i in ifaces:
-        if i not in exceptions:
-            return i
-    return False
-
-
-def reset_interfaces():
-    monitors = get_interfaces()["monitor"]
-    for m in monitors:
-        if 'mon' in m and os.path.isfile('/usr/sbin/airmon-ng'):
-            Popen(['airmon-ng', 'stop', m], stdout=DN, stderr=DN)
-        else:
-            Popen(['ifconfig', m, 'down'], stdout=DN, stderr=DN)
-            Popen(['iwconfig', m, 'mode', 'managed'], stdout=DN, stderr=DN)
-            Popen(['ifconfig', m, 'up'], stdout=DN, stderr=DN)
-
-
-def get_internet_interface():
-    '''return the wifi internet connected iface'''
-    inet_iface = None
-
-    if os.path.isfile("/sbin/ip") == True:
-        proc = Popen(['/sbin/ip', 'route'], stdout=PIPE, stderr=DN)
-        def_route = proc.communicate()[0].split('\n')  # [0].split()
-        for line in def_route:
-            if 'wlan' in line and 'default via' in line:
-                line = line.split()
-                inet_iface = line[4]
-                ipprefix = line[2][:2]  # Just checking if it's 192, 172, or 10
-                return inet_iface
-    else:
-        proc = open('/proc/net/route', 'r')
-        default = proc.readlines()[1]
-        if "wlan" in default:
-            def_route = default.split()[0]
-        x = iter(default.split()[2])
-        res = [''.join(i) for i in zip(x, x)]
-        d = [str(int(i, 16)) for i in res]
-        return inet_iface
-    return False
 
 
 def channel_hop(mon_iface):
@@ -610,26 +557,6 @@ def dhcp(dhcpconf, mon_iface):
          (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
     return True
-
-
-def get_strongest_iface(exceptions=[]):
-    interfaces = get_interfaces()["managed"]
-    scanned_aps = []
-    for i in interfaces:
-        if i in exceptions:
-            continue
-        count = 0
-        proc = Popen(['iwlist', i, 'scan'], stdout=PIPE, stderr=DN)
-        for line in proc.communicate()[0].split('\n'):
-            if ' - Address:' in line:  # first line in iwlist scan for a new AP
-                count += 1
-        scanned_aps.append((count, i))
-        print ('[' + G + '+' + W + '] Networks discovered by '
-               + G + i + W + ': ' + T + str(count) + W)
-    if len(scanned_aps) > 0:
-        interface = max(scanned_aps)[1]
-        return interface
-    return False
 
 
 def start_mode(interface, mode="monitor"):
@@ -986,6 +913,9 @@ def run():
     print "                      |_|                                "
     print "                                                         "
 
+    # Initialize a list to store the used interfaces
+    used_interfaces = list()
+
     # Parse args
     global args, APs, clients_APs, mon_MAC, template_path
     args = parse_args()
@@ -1006,49 +936,48 @@ def run():
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
-    reset_interfaces()
-    # Exit if less than two wireless interfaces exist in the system
-    if len(get_interfaces()['all']) <= 0:
-        sys.exit('[' + R + '-' + W + '] No wireless interfaces ' \
-               + 'found. Closing... ')
-    elif len(get_interfaces()['all']) == 1:
-        sys.exit('[' + R + '-' + W + '] Only one wireless interface ' \
-               + 'found. Closing... ')
-    # Get the right interfaces
-    inet_iface = get_internet_interface()
-    if not args.jamminginterface:
-        mon_iface = get_iface(mode="monitor", exceptions=[inet_iface])
-        iface_to_monitor = False
-    else:
-        mon_iface = False
-        iface_to_monitor = args.jamminginterface
-    if not mon_iface:
-        if args.jamminginterface:
-            iface_to_monitor = args.jamminginterface
-        else:
-            iface_to_monitor = get_strongest_iface()
-        mon_iface = start_mode(iface_to_monitor, "monitor")
-    wj_iface = mon_iface
-    if not args.apinterface:
-        ap_iface = get_iface(mode="managed", exceptions=[iface_to_monitor])
-    else:
-        ap_iface = args.apinterface
 
-    '''
-    if inet_iface and inet_iface in [ap_iface, iface_to_monitor]:
-        sys.exit(
-            ('[' + G + '+' + W +
-             '] Interface %s is connected to the Internet. ' % inet_iface +
-             'Please disconnect and rerun the script.\n' +
-             '[' + R + '!' + W + '] Closing'
-             )
-        )
-    '''
+    # get interfaces for monitor mode and AP mode and shutdown on any errors
+    try:
+        mon_iface, ap_iface = interfaces.get_interfaces(args.jamminginterface,
+                                                        args.apinterface)
+        # TODO: this line should be removed once all the wj_iface have been
+        # removed
+        wj_iface = mon_iface
+    except interfaces.NotEnoughInterfacesFound as err:
+        print err
+        print ("HINT: Wifiphisher requires two wireless adapters of which "
+               "at least one should support AP mode and one should support"
+               "monitor mode.")
+        shutdown()
+    except interfaces.JammingInterfaceInvalid as err:
+        print err
+        shutdown()
+    except interfaces.ApInterfaceInvalid as err:
+        print err
+        shutdown()
+    except interfaces.NoApInterfaceFound as err:
+        print err
+        shutdown()
+    except interfaces.NoMonitorInterfaceFound as err:
+        print err
+        shutdown()
 
-    '''
-    We got the interfaces correctly at this point. Monitor mon_iface & for
-    the AP ap_iface.
-    '''
+    # display selected interfaces to the user
+    print "Selecting {0} interface for jamming.".format(mon_iface)
+    print "Selecting {0} interface for access point creation.".format(ap_iface)
+    print ""
+
+    # add the selected interfaces to the used list
+    used_interfaces = [mon_iface, ap_iface]
+
+    # set the monitor interface to monitor mode and shutdown on any errors
+    try:
+        interfaces.set_interface_mode(mon_iface, "monitor")
+    except interfaces.SetMonitorModeError as err:
+        print err
+        shutdown()
+
     # Set iptable rules and kernel variables.
     os.system(
         ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
@@ -1093,12 +1022,12 @@ def run():
         # copy payload to update directory
 
         while not os.path.isfile(payload_path):
-            
+
             print "Invalid file path"
 
             payload_path = raw_input("\n[" + G + "+" + W +
                                      "] Enter the [" + G + "full path" + W +
-                                     "] to the payload you wish to serve: ")            
+                                     "] to the payload you wish to serve: ")
 
         print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
 
@@ -1211,4 +1140,4 @@ def run():
                 shutdown()
             time.sleep(0.5)
     except KeyboardInterrupt:
-        shutdown()
+        shutdown(used_interfaces)
