@@ -4,437 +4,689 @@ Wifiphisher.py
 """
 
 import subprocess
-import os
 import re
 
-DEVNULL = open(os.devnull, "w")
 
-
-class NotEnoughInterfacesFound(Exception):
+class NotEnoughInterfacesFoundError(Exception):
     """
     Exception class to raise in case of a finding less than enough interfaces.
     """
 
     def __init__(self):
-        Exception.__init__(self,
-                           "Not enough interfaces were found! Try again.")
+        """
+        Construct the class.
 
-class SetMonitorModeError(Exception):
-    """
-    Exception class to raise in case of catching any errors in
-    set_interface_mode function.
-    """
+        :param self: A NotEnoughInterfacesFoundError object
+        :type self: NotEnoughInterfacesFoundError
+        :return: None
+        :rtype: None
+        """
 
-    def __init__(self, error_message):
-        Exception.__init__(self,
-                           ("An error has detected in set_interface_mode.\n" +
-                            error_message))
+        message = ("We have failed to find enough wireless interfaces for the "
+                   "program to run. Please ensure that you have two wireless "
+                   "adapters connected to your device and they are compatible."
+                   "In order to be compatible at least one of them must "
+                   "supports AP mode and at least one must support monitor "
+                   "mode.")
+        Exception.__init__(self, message)
 
 
-class NoApInterfaceFound(Exception):
+class NoApInterfaceFoundError(Exception):
     """
     Exception class to raise in case of a not finding a valid AP interface.
     """
 
     def __init__(self):
-        Exception.__init__(self, "No interface with AP mode was found!")
+        """
+        Construct the class.
+
+        :param self: A NoApInterfaceFoundError object
+        :type self: NoApInterfaceFoundError
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We have failed to find a wireless interface which supports"
+                   " AP mode. Please make sure that all the wireless adapters "
+                   "are connected and they are compatible.")
+        Exception.__init__(self, message)
 
 
-class NoMonitorInterfaceFound(Exception):
+class NoMonitorInterfaceFoundError(Exception):
     """
     Exception class to raise in case of a not finding a valid monitor
     interface.
     """
 
     def __init__(self):
-        Exception.__init__(self, "No interface with monitor mode was found!")
+        """
+        Construct the class.
+
+        :param self: A NoMonitorInterfaceFoundError object
+        :type self: NoMonitorInterfaceFoundError
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We have failed to find a wireless interface which supports"
+                   " monitor mode. Please make sure that all the wireless "
+                   "adapters are connected and they are compatible.")
+        Exception.__init__(self, message)
 
 
-class JammingInterfaceInvalid(Exception):
+class JammingInterfaceInvalidError(Exception):
     """
     Exception class to raise in case of a invalid jamming interface.
     """
 
     def __init__(self):
-        Exception.__init__(self, "Invalid jamming interface (-jI) was given!")
+        """
+        Construct the class.
+
+        :param self: A JammingInterfaceInvalidError object
+        :type self: JammingInterfaceInvalidError
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We have failed to set the jamming interface(-jI). This is "
+                   "either due to the fact that we were unable to find the "
+                   "given interface in our available interfaces or the given "
+                   "interface was incompatible. It is recommended to use our "
+                   "automatic interface selection for better results.")
+        Exception.__init__(self, message)
 
 
-class ApInterfaceInvalid(Exception):
+class ApInterfaceInvalidError(Exception):
     """
     Exception class to raise in case of a invalid ap interface.
     """
 
     def __init__(self):
-        Exception.__init__(self, "Invalid AP interface (-aI) was given!")
+        """
+        Construct the class.
+
+        :param self: A ApInterfaceInvalidError object
+        :type self: ApInterfaceInvalidError
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We have failed to set the access point interface (-aI). "
+                   "This is either due to the fact that we were unable to find"
+                   " the given interface in our available interfaces or the "
+                   "given interface was incompatible. It is recommended to use"
+                   " our automatic interface selection for better results.")
+        Exception.__init__(self, message)
 
 
-def check_compatibility(interface):
+class IwCmdError(Exception):
     """
-    Check the compatibility of the interface in regards to both monitor
-    mode and AP mode.
-
-    Args:
-        interface (str): An interface to be checked.
-
-    Returns:
-        ((bool), (bool)): The first item indicates if the interface has monitor
-                          mode and the second item indicates if AP mode is
-                          available.
-
-    Dependencies:
-        word_in_sentence
-    """
-
-    # Initialize variable names
-    device_name = str()
-    has_monitor = bool()
-    has_ap = bool()
-
-    # run the command to get all the wireless devices
-    device_command = subprocess.Popen(["iw", "dev"], stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
-
-    # get a list of all the devices
-    devices = device_command.communicate()[0].split("\n")
-
-    # find the name of the device if available
-    for line in range(len(devices)):
-        if word_in_sentence(devices[line], r"\b{0}\b".format(interface)):
-            device_name = devices[line-1]
-
-    # in case the device doesn't exist return False
-    if not device_name:
-        return has_monitor, has_ap
-
-    # run the command to get all the available info for device
-    info_command = subprocess.Popen(["iw", device_name, "info"],
-                                    stdout=subprocess.PIPE, stderr=DEVNULL)
-
-    # list of all the info
-    info = info_command.communicate()[0].split("\n")
-
-    # check info to see if monitor or AP mode is supported
-    for line in info:
-        # set has_monitor to True if monitor mode is supported
-        if line == "\t\t * monitor":
-            has_monitor = True
-        # set has_ap to True if AP mode is supported
-        elif line == "\t\t * AP":
-            has_ap = True
-
-    return has_monitor, has_ap
-
-
-def word_in_sentence(sentence, word):
-    """
-    Return whether word is in the sentence or not.
-
-    Args:
-        sentence (str): A sentence to be checked.
-
-        word (str)    : A word to be checked against the sentence.
-
-    Returns:
-        True (bool) : If word is in the sentence.
-
-        False (bool): If word is not in the sentence.
+    Exception class to raise in case of a error while executing _iw_cmd.
     """
 
-    # search for word in the sentence
-    test = re.search(word, sentence)
+    def __init__(self, error_message):
+        """
+        Construct the class.
 
-    # return True if the word is in the sentence and return False otherwise
-    try:
-        test.group(0)
-        return True
-    except AttributeError:
-        return False
+        :param self: A IwCmdError object
+        :param error_message: The error message to be displayed
+        :type self: IwCmdError
+        :type error_message: str
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We're sorry. An error has been detected after executing "
+                   "_iw_cmd method. If this is the first time you have "
+                   "encountered this error you can try again. Otherwise "
+                   "please report this error so we can fix it.\n" +
+                   error_message)
+        Exception.__init__(self, message)
 
 
-def set_interface_mode(interface, mode):
+class IwconfigCmdError(Exception):
     """
-    Return True if operation is setting the interface to the desired mode was
-    successful, otherwise, return False and the error message provided.
-
-    Args:
-        interface (str): The name of the interface to be activated.
-        mode      (str): The mode the interface should be set to. The modes are
-                         [ad-hoc, managed, master, monitor, repeater,
-                         secondary].
-
-    Returns:
-        ((bool), (list(str))): A boolean representing whether the operation was
-                               successful or not and a list of containing
-                               errors that were produced.
+    Exception class to raise in case of a error while executing _iwconfig_cmd.
     """
 
-    # turn the interface off
-    down_command = subprocess.Popen(["ifconfig", interface, "down"],
-                                    stdout=DEVNULL, stderr=subprocess.PIPE)
+    def __init__(self, error_message):
+        """
+        Construct the class.
 
-    # get any possible error
-    down_error = down_command.communicate()[1]
+        :param self: A IwconfigCmdError object
+        :param error_message: The error message to be displayed
+        :type self: IwconfigCmdError
+        :type error_message: str
+        :return: None
+        :rtype: None
+        """
 
-    # raise an error if any errors were produced
-    if down_error:
-        raise SetMonitorModeError(down_error)
-
-    # set the interface to managed mode
-    iw_command = subprocess.Popen(["iwconfig", interface, "mode", mode],
-                                  stdout=DEVNULL, stderr=subprocess.PIPE)
-
-    # get any possible error
-    iw_error = iw_command.communicate()[1]
-
-    # raise an error if any errors were produced
-    if iw_error:
-        raise SetMonitorModeError(down_error)
-
-    # turn the interface on
-    on_command = subprocess.Popen(["ifconfig", interface, "up"],
-                                  stdout=DEVNULL, stderr=subprocess.PIPE)
-
-    # get any possible error
-    on_error = on_command.communicate()[1]
-
-    # raise an error if any errors were produced
-    if on_error:
-        raise SetMonitorModeError(on_error)
+        message = ("We're sorry. An error has been detected after executing "
+                   "_iwconfig_cmd method. If this is the first time you have "
+                   "encountered this error you can try again. Otherwise "
+                   "please report this error so we can fix it.\n" +
+                   error_message)
+        Exception.__init__(self, message)
 
 
-def get_wireless_interfaces():
+class IfconfigCmdError(Exception):
     """
-    Return a list of available wireless interfaces.
-
-    Args:
-        None.
-
-    Returns:
-        (list): A list of available wireless interfaces.
+    Exception class to raise in case of a error while executing _ifconfig_cmd.
     """
 
-    # Initialize a list to store the wireless interfaces
-    wireless_interfaces = list()
+    def __init__(self, error_message):
+        """
+        Construct the class.
 
-    # run the command to get the interfaces
-    iwconfig_command = subprocess.Popen("iwconfig", stdout=subprocess.PIPE,
-                                        stderr=DEVNULL)
+        :param self: A IfconfigCmdError object
+        :param error_message: The error message to be displayed
+        :type self: IfconfigCmdError
+        :type error_message: str
+        :return: None
+        :rtype: None
+        """
 
-    # add all the wireless interfaces to the list
-    for line in iwconfig_command.communicate()[0].split("\n"):
-        # check if the line includes an interface
-        if len(line) > 0 and line[0] != " ":
+        message = ("We're sorry. An error has been detected after executing "
+                   "_ifconfig_cmd method. If this is the first time you have "
+                   "encountered this error you can try again. Otherwise "
+                   "please report this error so we can fix it.\n" +
+                   error_message)
+        Exception.__init__(self, message)
+
+
+class NetworkAdapter(object):
+    """
+    This class represents a newtrok interface (netwrok adapter).
+    """
+
+    def __init__(self, name):
+        """
+        Setup the class with all the given arguments.
+
+        :param self: A NetworkAdapter object
+        :param name: Name of the interface
+        :type self: NetworkAdapter
+        :type name: str
+        :return: None
+        :rtype: None
+        .. note: the availability of monitor mode and AP mode is set to False
+            by default
+        """
+
+        # setup fields
+        self._name = name
+        self._support_ap_mode = False
+        self._support_monitor_mode = False
+
+    def get_name(self):
+        """
+        Return the name of the interface.
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: The name of the interface
+        :rtype: str
+        """
+
+        return self._name
+
+    def has_ap_mode(self):
+        """
+        Return whether the interface supports AP mode.
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: True if interface supports AP mode and False otherwise
+        :rtype: bool
+        """
+
+        return self._support_ap_mode
+
+    def has_monitor_mode(self):
+        """
+        Return whether the interface supports monitor mode.
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: True if interface supports monitor mode and False otherwise
+        :rtype: bool
+        """
+
+        return self._support_monitor_mode
+
+    def set_ap_support(self, availability):
+        """
+        Set the availability of AP mode for the interface.
+
+        :param self: A NetworkAdapter object.
+        :param availability: True if interface supports AP mode and False
+            otherwise
+        :type self: NetworkAdapter
+        :type availability: bool
+        :return: None
+        :rtype: None
+        """
+
+        self._support_ap_mode = availability
+
+    def set_monitor_support(self, availability):
+        """
+        Set the availability of monitor mode for the interface.
+
+        :param self(): A NetworkAdapter object.
+        :param availability: True if interface supports monitor mode and False
+            otherwise
+        :type self: NetworkAdapter
+        :type availability: bool
+        :return: None
+        :rtype: None
+        """
+
+        self._support_monitor_mode = availability
+
+
+class NetworkManager(object):
+    """
+    This class represents a network manager where it handles all the management
+    for the interfaces.
+    """
+
+    def __init__(self, jamming_argument, ap_argument):
+        """
+        Setup the class with all the given arguments.
+
+        :param self: A NetworkManager object
+        :param jamming_argument: The jamming argument given by user
+        :param ap_argument: The AP argument given by user
+        :type self: NetworkManager
+        :type jamming_argument: str
+        :type ap_argument: str
+        :return: None
+        :rtype: None
+        .. seealso:: NetworkAdapter
+        """
+
+        # setup fields
+        self._jam_argument = jamming_argument
+        self._ap_argument = ap_argument
+        self._interfaces = list()
+
+        # create, add and check compatibility for each interface
+        for interface in self._find_wireless_interfaces():
+            interface_object = NetworkAdapter(interface)
+            self._interfaces.append(interface_object)
+            self._check_compatibility(interface_object)
+
+    @staticmethod
+    def _exec_cmd(command, stdout=None, stderr=None):
+        """
+        Return the subprocess.Popen object after executing command.
+
+        :param command: The command to be executed
+        :param stdout: Value for subprocess.Popen stdout argument.
+        :param stderr: Value for subprocess.Popen stderr argument.
+        :type command: list
+        :type stdout: subprocess object or None
+        :type stderr: subprocess object or None
+        :return: The subprocess.Popen object after executing command.
+        :rtype: subprocess.Popen
+        """
+
+        return subprocess.Popen(command, stdout=stdout, stderr=stderr)
+
+    def _iw_cmd(self, arguments):
+        """
+        Return the output of the iw command with it's arguments.
+
+        :param self: A NetworkManager object
+        :param arguments: List of all arguments for iw command
+        :type self: NetworkManager
+        :type arguments: list
+        :return: the output of the command
+        :rtype: str
+        :raises IwCmdError: If an error is produced after executing iw command
+        .. seealso:: _exec_cmd
+        .. warning:: "iw" should not be in arguments
+        """
+
+        # execute the command and get it's output
+        command = self._exec_cmd(["iw"] + arguments, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        output = command.communicate()
+
+        # raise an error in case of error detection and return stdout otherwise
+        if output[1]:
+            raise IwCmdError(output[1])
+        else:
+            return output[0]
+
+    def _iwconfig_cmd(self, arguments):
+        """
+        Return the output of iwconfig command.
+
+        :param self: A NetworkManager object
+        :param arguments: List of all arguments for iwconfig command
+        :type self: NetworkManager
+        :type arguments: list
+        :return: the output of the command
+        :rtype: str
+        :raises IwconfigCmdError: if an error is produced after executing
+            iwconfig command
+        .. seealso:: _exec_cmd
+        .. warning:: "iwconfig" should not be in arguments
+        """
+
+        # execute the command and get it's output
+        command = self._exec_cmd(["iwconfig"] + arguments,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        output = command.communicate()
+
+        # raise an error in case of error detection and return stdout otherwise
+        if output[1]:
+            raise IwconfigCmdError(output[1])
+        else:
+            return output[0]
+
+    def _ifconfig_cmd(self, arguments):
+        """
+        Return the output of ifconfig command.
+
+        :param self: A NetworkManager object
+        :param arguments: List of all arguments for ifconfig command
+        :type self: NetworkManager
+        :type arguments: list
+        :return: the output of the command
+        :rtype: str
+        :raises IfconfigCmdError: if an error is produced after executing
+            ifconfig command
+        .. seealso:: _exec_cmd
+        .. warning:: "ifconfig" should not be in arguments
+        """
+
+        # execute the command and get it's output
+        command = self._exec_cmd(["ifconfig"] + arguments,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        output = command.communicate()
+
+        # raise an error in case of error detection and return stdout otherwise
+        if output[1]:
+            raise IfconfigCmdError(output[1])
+        else:
+            return output[0]
+
+    def _check_compatibility(self, interface):
+        """
+        Check and set the compatibility of the network adapter in regards to
+        monitor mode and AP mode.
+
+        :param self: A NetworkManager object
+        :param interface: A network adapter to be checked
+        :type self: NetworkManager
+        :type interface: NetworkAdapter
+        :return: None
+        :rtype: None
+        :raises IwCmdError: If an error is produced after executing iw command
+        .. seealso:: _iw_cmd, _word_in_sentence, NetworkAdapter
+        """
+
+        # get a list of all the devices
+        devices = self._iw_cmd(["dev"]).split("\n")
+
+        # find the name of the device if available
+        for line in range(len(devices)):
+            if self._word_in_sentence(devices[line],
+                                      r"\b{0}\b".format(interface.get_name())):
+                physical_name = devices[line-1]
+
+        # get a list of all info about the device
+        device_info = self._iw_cmd([physical_name, "info"]).split("\n")
+
+        # determine if device supports monitor or AP mode
+        for line in device_info:
+            if line == "\t\t * monitor":
+                interface.set_monitor_support(True)
+            elif line == "\t\t * AP":
+                interface.set_ap_support(True)
+
+    @staticmethod
+    def _word_in_sentence(sentence, word):
+        """
+        Return whether word is found in the sentence.
+
+        :param sentence: A sentence to be checked
+        :param word: A word to be checked against the sentence
+        :type sentence: str
+        :type word: str
+        :return: True if word is in the sentence and False otherwise
+        :rtype: bool
+        """
+
+        # return True if the word is in the sentence and return False otherwise
+        try:
+            re.search(word, sentence).group(0)
+            return True
+        except AttributeError:
+            return False
+
+    def set_interface_mode(self, interface, mode):
+        """
+        Set the desired mode to the network interface.
+
+        :param self: A NetworkManager object
+        :param interface: A NetworkAdapter object
+        :param mode: The mode the interface should be set to
+        :type self: NetworkManager
+        :type interface: NetworkAdapter
+        :type mode: str
+        :return: None
+        :rtype: None
+        :raises IfconfigCmdError: if an error is produced after executing
+            ifconfig command
+        .. note:: available modes are ad-hoc, managed, master, monitor,
+            repeater, secondary
+        .. seealso:: _ifconfig_cmd
+        """
+
+        # turn off, set the mode and turn on the interface
+        self._ifconfig_cmd([interface, "down"])
+        self._iwconfig_cmd([interface, "mode", mode])
+        self._ifconfig_cmd([interface, "up"])
+
+    def _find_wireless_interfaces(self):
+        """
+        Return a list of available wireless interfaces.
+
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: a list of available wireless interfaces
+        :rtype: list
+        :raises IfconfigCmdError: if an error is produced after executing
+            ifconfig command
+        """
+
+        # initialize a list to store the wireless interfaces
+        wireless_interfaces = list()
+
+        # get the interfaces info
+        interfaces_info = self._ifconfig_cmd(["-a"]).split("\n")
+
+        # add all the wireless interfaces to the list
+        for line in interfaces_info:
             # add the interface to the list if it is wireless
             if line.startswith("w"):
                 wireless_interfaces.append(line[:line.find(" ")])
 
-    return wireless_interfaces
+        return wireless_interfaces
 
+    def get_interfaces(self):
+        """
+        Return a tuple containing an interface with monitor mode fallowed by an
+        interface with AP mode available.
 
-def get_interfaces(jamming_argument, ap_argument):
-    """
-    Return a tuple containing an interface with monitor mode fallowed by an
-    interface with AP mode available.
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: a tuple containing monitor interface fallowed by AP interface
+        :rtype: tuple
+        :raises NotEnoughInterfacesFoundError: if less than two interfaces are
+            found
+        :raises JammingInterfaceInvalidError: if the jamming argument is
+            invalid
+        :raises ApInterfaceInvalidError: if the AP argument is invalid
+        .. seealso:: NetworkAdapter
+        """
 
-    Args:
-        jamming_argument (str): The value for jamming interface
-                                argument (-jI).
+        monitor_interface = None
+        ap_interface = None
 
-        ap_argument      (str): The value for ap interface argument (-aI).
+        # raise an error in case of less than two interfaces found
+        if len(self._interfaces) < 2:
+            raise NotEnoughInterfacesFoundError()
 
-    Returns:
-        (str, str): A tuple containing monitor interface fallowed by
-                    ap interface.
+        # in case of jamming argument (-jI) was supplied
+        if self._jam_argument:
+            for interface in self._interfaces:
+                if (interface.get_name() == self._jam_argument and
+                        interface.has_monitor_mode()):
+                    # set the interface and remove it from the list
+                    monitor_interface = interface
+                    self._interfaces.remove(interface)
 
-    Raises:
-        NotEnoughInterfacesFound: If less than two interfaces is
-                                  discovered.
+                    # get an interface with AP mode if ap_argument is not given
+                    if not self._ap_argument:
+                        ap_interface = self._find_interface(has_ap_mode=True)
+                    break
 
-        JammingInterfaceInvalid : If an invalid jamming interface (-jI) is
-                                 supplied.
+            # raise an error if jamming interface given is invalid
+            if not monitor_interface:
+                raise JammingInterfaceInvalidError()
 
-        ApInterfaceInvalid      : If an invalid ap interface (-aI) is
-                                  supplied.
+        # in case of AP argument (-aI) was supplied
+        if self._ap_argument:
+            for interface in self._interfaces:
+                if (interface.get_name() == self._ap_argument and
+                        interface.has_ap_mode()):
+                    # set the interface and remove it from the list
+                    ap_interface = interface
+                    self._interfaces.remove(interface)
 
-        NoApInterfaceFound      : In case of not finding a valid AP
-                                  interface.
+                    # get an interface with monitor mode if jamming_argument
+                    # is not given
+                    if not self._jam_argument:
+                        monitor_interface =\
+                                    self._find_interface(has_monitor_mode=True)
+                    break
 
-        NoMonitorInterfaceFound : In case of not finding a valid monitor
-                                 interface.
+            # raise an error if AP interface given is invalid
+            if not ap_interface:
+                raise ApInterfaceInvalidError()
 
-    Dependencies:
-        get_wireless_interfaces
-        check_compatibility
-        get_interface
-        select_interface_automatically
-    """
+        # in case of automatic interface detection is required
+        if not self._jam_argument and not self._ap_argument:
+            monitor_interface, ap_interface =\
+                    self._find_interface_automatically()
 
-    # get wireless interfaces
-    wireless_interfaces = get_wireless_interfaces()
+        return monitor_interface.get_name(), ap_interface.get_name()
 
-    # raise an error in case of less than two interfaces found
-    if len(wireless_interfaces) < 2:
-        raise NotEnoughInterfacesFound()
+    def _find_interface_automatically(self):
+        """
+        Find and return an interface with monitor mode support fallowed by
+        an interface with AP mode support.
 
-    # in case of jamming argument (-jI) was supplied
-    if jamming_argument:
-        # check if the interface is both compatible and available
-        if (check_compatibility(jamming_argument)[0] and
-                jamming_argument in wireless_interfaces):
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: a tuple containing monitor interface fallowed by AP interface
+        :rtype: tuple
+        :raises NoApInterfaceFoundError: if no interface with AP mode is found
+        :raises NoMonitorInterfaceFoundError: if no interface with monitor mode
+            is found
+        .. seealso:: NetworkAdapter
+        .. warning:: The function returns NetworkAdapter objects and not str
+        """
 
-            # set the interface and remove it from the list
-            monitor_interface = jamming_argument
-            wireless_interfaces.remove(monitor_interface)
+        # initialize list for comparison
+        ap_available = list()
+        monitor_available = list()
 
-            # get an interface with ap mode if ap_argument is not given
-            if not ap_argument:
-                ap_interface = get_interface(wireless_interfaces, "AP")
-        # raise an error in case of invalid jamming argument was supplied
+        # populate ap_available and monitor_available lists
+        for interface in self._interfaces:
+            # add all the interfaces with monitor mode
+            if interface.has_monitor_mode():
+                monitor_available.append(interface)
+
+            # add all the interfaces with AP mode
+            if interface.has_ap_mode():
+                ap_available.append(interface)
+
+        # raise error if no interface with AP mode is found
+        if len(ap_available) == 0:
+            raise NoApInterfaceFoundError()
+        # raise error if no interface with monitor mode is found
+        elif len(monitor_available) == 0:
+            raise NoMonitorInterfaceFoundError()
+        # in case of having more interfaces with monitor mode
+        elif len(monitor_available) >= len(ap_available):
+            # select an AP interface and remove it from available interfaces
+            ap_interface = ap_available[0]
+            ap_available.remove(ap_interface)
+
+            # if the ap_interface is also in monitor_available remove it
+            if ap_interface in monitor_available:
+                monitor_available.remove(ap_interface)
+
+            # select the first available interface with monitor mode
+            monitor_interface = monitor_available[0]
+        # in case of having more interfaces with AP mode
         else:
-            raise JammingInterfaceInvalid()
+            # select an monitor interface and remove it from available
+            # interfaces
+            monitor_interface = monitor_available[0]
+            monitor_available.remove(monitor_interface)
 
-    # in case of ap argument (-aI) was supplied
-    if ap_argument:
-        # check if the interface is compatible and is available
-        if (check_compatibility(ap_argument)[1] and
-                ap_argument in wireless_interfaces):
+            # if the monitor_interface is also in ap_available remove it
+            if monitor_interface in ap_available:
+                ap_available.remove(monitor_available)
 
-            # set the interface and remove it from the list
-            ap_interface = ap_argument
-            wireless_interfaces.remove(ap_interface)
+            # select the first available interface with AP mode
+            ap_interface = ap_available[0]
 
-            # get an interface with monitor mode if jamming_argument is not
-            # given
-            if not jamming_argument:
-                monitor_interface = get_interface(wireless_interfaces,
-                                                  "monitor")
-        # raise an error in case of invalid ap argument was supplied
-        else:
-            raise ApInterfaceInvalid()
+        return monitor_interface, ap_interface
 
-    # in case of automatic interface detection is required
-    if not jamming_argument and not ap_argument:
-        # find the interfaces automatically
-        monitor_interface, ap_interface =\
-                select_interface_automatically(wireless_interfaces)
+    def _find_interface(self, has_ap_mode=None, has_monitor_mode=None):
+        """
+        Find and return an interface depending on the arguments set. If
+        has_ap_mode flag is set an interface with AP mode available might be
+        returned(if it exists). If has_monitor_mode is set an interface with
+        monitor mode available might be returned(if it exists).
 
-    return monitor_interface, ap_interface
+        :param self: A NetworkManager object
+        :param has_ap_mode: Value to be set if interface with AP mode is needed
+        :param has_monitor_mode: Value to be set if interface with monitor
+            mode is needed
+        :type self: NetworkManager
+        :type has_ap_mode: bool or None
+        :type has_monitor_mode: bool or None
+        :return: an NetworkAdapter object
+        :rtype: NetworkAdapter or None
+        :raises NoMonitorInterfaceFoundError: if has_monitor_mode flag is set
+            but no interface with monitor mode is found
+        :raises NoApInterfaceFoundError: if has_ap_mode flag is set is set but
+            no interface with AP mode is found
+        .. seealso:: NetworkAdapter
+        """
 
-
-def select_interface_automatically(interfaces):
-    """
-    Return a tuple containing monitor interface fallowed by ap interface which
-    was selected automatically.
-
-    Args:
-        interfaces (list): A list of available wireless interfaces.
-
-    Returns:
-        (str, str): A tuple containing monitor interface fallowed by ap
-                    interface.
-
-    Raises:
-        NoApInterfaceFound     : In case of not finding a valid AP interface.
-
-        NoMonitorInterfaceFound: In case of not finding a valid monitor
-                                 interface.
-
-    Dependencies:
-        check_compatibility
-    """
-
-    # Initialize list for comparison
-    ap_available = list()
-    monitor_available = list()
-
-    # populate ap_available and monitor_available lists
-    for interface in interfaces:
-        # check the compatibility of interface
-        compatibility = check_compatibility(interface)
-
-        # add all the interfaces with monitor mode
-        if compatibility[0]:
-            monitor_available.append(interface)
-
-        # add all the interfaces with AP mode
-        if compatibility[1]:
-            ap_available.append(interface)
-
-    # raise error if no interface with ap mode is found
-    if len(ap_available) == 0:
-        raise NoApInterfaceFound()
-    # raise error if no interface with monitor mode is found
-    elif len(monitor_available) == 0:
-        raise NoMonitorInterfaceFound()
-    # in case of having more interfaces with monitor mode
-    elif len(monitor_available) >= len(ap_available):
-        # select an ap interface and remove it from available interfaces
-        ap_interface = ap_available[0]
-        ap_available.remove(ap_interface)
-
-        # if the ap_interface is also in monitor_available remove it
-        if ap_interface in monitor_available:
-            monitor_available.remove(ap_interface)
-
-        # select the first available interface with monitor mode
-        monitor_interface = monitor_available[0]
-    # in case of having more interfaces with ap mode
-    else:
-        # select an monitor interface and remove it from available interfaces
-        monitor_interface = monitor_available[0]
-        monitor_available.remove(monitor_interface)
-
-        # if the monitor_interface is also in ap_available remove it
-        if monitor_interface in ap_available:
-            ap_available.remove(monitor_available)
-
-        # select the first available interface with ap mode
-        ap_interface = ap_available[0]
-
-    return monitor_interface, ap_interface
-
-
-def get_interface(interfaces, interface_type):
-    """
-    Return a string containing the name of the interface from interfaces
-    depending on the interface_type given.
-
-    Args:
-        interfaces (list)   : A list of available wireless interfaces.
-
-        interface_type (str): The interface type required which can have a
-                              value of either 'monitor' or 'AP' for an
-                              interface with monitor mode and an interface with
-                              AP mode available respectively.
-
-    Raises:
-        NoMonitorInterfaceFound: If the interface_type is 'monitor' but no
-                                 interfaces with monitor mode is found.
-
-        NoApInterfaceFound     : If the interface_type is 'AP' but no interface
-                                 with AP mode is found.
-
-    Dependencies:
-        check_compatibility
-    """
-
-    # Initialize ap and monitor interfaces
-    monitor_interface = None
-    ap_interface = None
-
-    if interface_type == "monitor":
-        for interface in interfaces:
-            if check_compatibility(interface)[0]:
-                monitor_interface = interface
-        if not monitor_interface:
-            raise NoMonitorInterfaceFound()
-
-        return monitor_interface
-    elif interface_type == "AP":
-        for interface in interfaces:
-            if check_compatibility(interface)[1]:
-                ap_interface = interface
-        if not ap_interface:
-            raise NoApInterfaceFound()
-
-        return ap_interface
+        # find a interface which supports monitor mode and raise error if not
+        # found
+        if has_monitor_mode:
+            for interface in self._interfaces:
+                if interface.has_monitor_mode():
+                    return interface
+            raise NoMonitorInterfaceFoundError()
+        # find a interface which supports AP mode and raise error if not found
+        elif has_ap_mode:
+            for interface in self._interfaces:
+                if interface.has_ap_mode():
+                    return interface
+            raise NoApInterfaceFoundError()

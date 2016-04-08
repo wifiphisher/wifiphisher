@@ -311,10 +311,12 @@ def shutdown(wireless_interfaces=None):
 
     # set all the used interfaces to managed (normal) mode and show any errors
     if wireless_interfaces:
+        network_manager = interfaces.NetworkManager(None, None)
         for interface in wireless_interfaces:
             try:
-                interfaces.set_interface_mode(interface, "managed")
-            except interfaces.SetMonitorModeError as err:
+                network_manager.set_interface_mode(interface, "managed")
+            except (interfaces.IfconfigCmdError,
+                    interfaces.IwconfigCmdError) as err:
                 print err
 
     print '\n[' + R + '!' + W + '] Closing'
@@ -557,18 +559,6 @@ def dhcp(dhcpconf, mon_iface):
          (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
     )
     return True
-
-
-def start_mode(interface, mode="monitor"):
-    print ('[' + G + '+' + W + '] Starting ' + mode + ' mode off '
-           + G + interface + W)
-    try:
-        os.system('ifconfig %s down' % interface)
-        os.system('iwconfig %s mode %s' % (interface, mode))
-        os.system('ifconfig %s up' % interface)
-        return interface
-    except Exception:
-        sys.exit('[' + R + '-' + W + '] Could not start %s mode' % mode)
 
 
 # Wifi Jammer stuff
@@ -937,46 +927,35 @@ def run():
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
 
-    # get interfaces for monitor mode and AP mode and shutdown on any errors
+    network_manager = interfaces.NetworkManager(args.jamminginterface,
+                                                args.apinterface)
+
+    # get interfaces for monitor mode and AP mode and set the monitor interface
+    # to monitor mode. shutdown on any errors
     try:
-        mon_iface, ap_iface = interfaces.get_interfaces(args.jamminginterface,
-                                                        args.apinterface)
+        mon_iface, ap_iface = network_manager.get_interfaces()
         # TODO: this line should be removed once all the wj_iface have been
         # removed
         wj_iface = mon_iface
-    except interfaces.NotEnoughInterfacesFound as err:
-        print err
-        print ("HINT: Wifiphisher requires two wireless adapters of which "
-               "at least one should support AP mode and one should support"
-               "monitor mode.")
-        shutdown()
-    except interfaces.JammingInterfaceInvalid as err:
-        print err
-        shutdown()
-    except interfaces.ApInterfaceInvalid as err:
-        print err
-        shutdown()
-    except interfaces.NoApInterfaceFound as err:
-        print err
-        shutdown()
-    except interfaces.NoMonitorInterfaceFound as err:
-        print err
-        shutdown()
 
-    # display selected interfaces to the user
-    print "Selecting {0} interface for jamming.".format(mon_iface)
-    print "Selecting {0} interface for access point creation.".format(ap_iface)
-    print ""
+        # display selected interfaces to the user
+        print ("\n[{0}+{1}] Selecting {2} interface for jamming\n"
+               "[{0}+{1}] Selecting {3} interface for access point"
+               " creation\n").format(G, W, mon_iface, ap_iface)
+
+        # set monitor mode to monitor interface
+        network_manager.set_interface_mode(mon_iface, "monitor")
+    except (interfaces.NotEnoughInterfacesFoundError,
+            interfaces.JammingInterfaceInvalidError,
+            interfaces.ApInterfaceInvalidError,
+            interfaces.NoApInterfaceFoundError,
+            interfaces.NoMonitorInterfaceFoundError, interfaces.IwCmdError,
+            interfaces.IwconfigCmdError, interfaces.IfconfigCmdError) as err:
+        print ("[{0}!{1}] " + str(err)).format(R, W)
+        shutdown()
 
     # add the selected interfaces to the used list
     used_interfaces = [mon_iface, ap_iface]
-
-    # set the monitor interface to monitor mode and shutdown on any errors
-    try:
-        interfaces.set_interface_mode(mon_iface, "monitor")
-    except interfaces.SetMonitorModeError as err:
-        print err
-        shutdown()
 
     # Set iptable rules and kernel variables.
     os.system(
@@ -1137,7 +1116,7 @@ def run():
             print lines
             if terminate:
                 time.sleep(3)
-                shutdown()
+                shutdown(used_interfaces)
             time.sleep(0.5)
     except KeyboardInterrupt:
         shutdown(used_interfaces)
