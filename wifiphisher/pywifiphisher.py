@@ -939,9 +939,9 @@ def run():
         wj_iface = mon_iface
 
         # display selected interfaces to the user
-        print ("\n[{0}+{1}] Selecting {2} interface for jamming\n"
-               "[{0}+{1}] Selecting {3} interface for access point"
-               " creation\n").format(G, W, mon_iface, ap_iface)
+        print ("\n[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
+               "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
+               "rogue access point").format(G, W, mon_iface, ap_iface)
 
         # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
@@ -990,7 +990,6 @@ def run():
            " template")
 
     # payload selection for browser plugin update
-
     if "Browser Plugin Update" in template.get_display_name():
 
         # get payload path
