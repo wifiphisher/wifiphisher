@@ -47,6 +47,23 @@ Following are some common options along with their descriptions:
 * Kali Linux.
 * Two wireless network adapters; one capable of injection.
 
+## setup using vagrant
+* this will require at least vagrant 1.7, <a 
+href="https://www.vagrantup.com/downloads.html">download from  here</a> and virtualbox <a href="https://www.virtualbox.org/wiki/Downloads">download from here</a>.
+* also make sure you have enabled wireless support on virtualbox, the top answer on <a href="http://askubuntu.com/questions/282018/wifi-card-on-an-virtualboxs-ubuntu"> this thread</a> is very good on how to do that.
+* clone this repository and change into its directory     
+* then execute the following commands from your terminal          
+`vagrant up`            
+`vagrant ssh`          
+`cd /vagrant`           
+* fix some path issues, ie, from inside the virtual machine:        
+`echo 'export PATH=$PATH:/usr/local/sbin' >> ~/.bashrc`            
+`echo 'export PATH=$PATH:/usr/sbin' >> ~/.bashrc`            
+`echo 'export PATH=$PATH:/sbin' >> ~/.bashrc`                   
+`source ~/.bashrc`  
+* start wifiphiser:                         
+`sudo python wifiphisher.py`  # you should execute script as root
+
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
 
@@ -55,8 +72,7 @@ If you don't know how to code, you can help us by <a href="https://github.com/so
 ## Credits
 The script is based on an idea from <a
 href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
-jamming and selecting an AP have also been taken from his scripts <a
-href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
+jamming and selecting an AP have also been taken from his scripts <ahref="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
 href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
 
 A full list of contributors lies <a href="https://github.com/sophron/wifiphisher/graphs/contributors">here</a>.

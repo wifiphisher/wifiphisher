@@ -1,0 +1,20 @@
+---
+- hosts: all
+  gather_facts: no
+  sudo: yes
+  #sudo_user: "{{ ANSIBLE_SSH_USER }}"
+
+  # vars_files:
+  #   - base.yml
+
+  tasks:
+
+    - name: fix PATH issues
+      shell: echo {{ item }} >> ~/.bashrc
+      with_items:
+        - 'export PATH=$PATH:/usr/local/sbin'
+        - 'export PATH=$PATH:/usr/sbin'
+        - 'export PATH=$PATH:/sbin'
+
+    - name: source bashrc
+      shell: . ~/.bashrc
