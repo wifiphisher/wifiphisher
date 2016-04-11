@@ -516,8 +516,9 @@ class NetworkManager(object):
         # add all the wireless interfaces to the list
         for line in interfaces_info:
             # add the interface to the list if it is wireless
-            if line.startswith("w"):
-                wireless_interfaces.append(line[:line.find(" ")])
+            result = re.match(r"(wl)\w+", line)
+            if result:
+                wireless_interfaces.append(result.group(0))
 
         return wireless_interfaces
 
