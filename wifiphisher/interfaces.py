@@ -517,7 +517,11 @@ class NetworkManager(object):
         for line in interfaces_info:
             # add the interface to the list if it is wireless
             if line.startswith("w"):
-                wireless_interfaces.append(line[:line.find(" ")])
+                interface = line[:line.find(" ")]
+                # if ifconfig version if greater that 1.6
+                if interface[-1] == ":":
+                    interface = interface[:-1]
+                wireless_interfaces.append(interface)
 
         return wireless_interfaces
 
