@@ -435,10 +435,9 @@ class NetworkManager(object):
         # get a list of all the devices
         devices = self._iw_cmd(["dev"]).split("\n")
 
-        # find the name of the device if available
+        # find the physical name of the device
         for line in range(len(devices)):
-            if self._word_in_sentence(devices[line],
-                                      r"\b{0}\b".format(interface.get_name())):
+            if interface.get_name() in devices[line]:
                 physical_name = devices[line-1]
 
         # get a list of all info about the device
@@ -450,26 +449,6 @@ class NetworkManager(object):
                 interface.set_monitor_support(True)
             elif line == "\t\t * AP":
                 interface.set_ap_support(True)
-
-    @staticmethod
-    def _word_in_sentence(sentence, word):
-        """
-        Return whether word is found in the sentence.
-
-        :param sentence: A sentence to be checked
-        :param word: A word to be checked against the sentence
-        :type sentence: str
-        :type word: str
-        :return: True if word is in the sentence and False otherwise
-        :rtype: bool
-        """
-
-        # return True if the word is in the sentence and return False otherwise
-        try:
-            re.search(word, sentence).group(0)
-            return True
-        except AttributeError:
-            return False
 
     def set_interface_mode(self, interface, mode):
         """
@@ -516,12 +495,9 @@ class NetworkManager(object):
         # add all the wireless interfaces to the list
         for line in interfaces_info:
             # add the interface to the list if it is wireless
-            if line.startswith("w"):
-                interface = line[:line.find(" ")]
-                # if ifconfig version if greater that 1.6
-                if interface[-1] == ":":
-                    interface = interface[:-1]
-                wireless_interfaces.append(interface)
+            result = re.match(r"(wl)\w+", line)
+            if result:
+                wireless_interfaces.append(result.group(0))
 
         return wireless_interfaces
 
