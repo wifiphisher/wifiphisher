@@ -8,7 +8,7 @@ from constants import *
 
 
 class InvalidTemplate(Exception):
-    """ Exception class to raise in case of a invalid template. """
+    """ Exception class to raise in case of a invalid template """
 
     def __init__(self):
         Exception.__init__(self, "The given template is either invalid or " +
@@ -16,23 +16,24 @@ class InvalidTemplate(Exception):
 
 
 class PhishingTemplate(object):
-    """ This class represents a offline phishing template. """
+    """ This class represents phishing templates """
 
     def __init__(self, name, display_name="", description=""):
         """
-        Initialize all the necessary operations.
+        Construct object.
 
-        Args:
-            self (PhishingScenario): A PhishingTemplate object.
-            name (str): The name of the template.
-            description (str): The description of the template.
-
-        Returns:
-            None
+        :param self: A PhishingTemplate object
+        :param name: The name of the template
+        :param description: The description of the template
+        :type self: PhishingScenario
+        :type name: str
+        :type description: str
+        :return: None
+        :rtype: None
+        .. todo:: Maybe add a category field
         """
-        # TODO: Maybe add a category field?
 
-        # Initialize all the variables
+        # setup all the variables
         self._name = name
         self._display_name = display_name
         self._description = description
@@ -40,22 +41,24 @@ class PhishingTemplate(object):
 
     def get_display_name(self):
         """
-        Args:
-            self (PhishingTemplate): A PhishingTemplate object.
+        Return the display name of the template.
 
-        Returns:
-            (str): The display name of the template.
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the display name of the template
+        :rtype: str
         """
 
         return self._display_name
 
     def get_description(self):
         """
-        Args:
-            self (PhishingTemplate): A PhishingTemplate object.
+        Return the description of the template.
 
-        Returns:
-            (str): The description of the template.
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the description of the template
+        :rtype: str
         """
 
         return self._description
@@ -64,45 +67,41 @@ class PhishingTemplate(object):
         """
         Return the path of the template files.
 
-        Args:
-            self (PhishingTemplate): A PhishingTemplate object.
-        Returns:
-            (str): The path of template files.
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the path of template files
+        :rtype: str
         """
+
         return self._path
 
     def __str__(self):
         """
         Return a string representation of the template.
 
-        Args:
-            self (PhishingTemplate): A PhishingTemplate object.
-
-        Returns:
-            (str): The name fallowed by the description of the template.
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the name followed by the description of the template
+        :rtype: str
         """
 
-        return (self._display_name + "\n\t" +
-                self._description + "\n")
+        return (self._display_name + "\n\t" + self._description + "\n")
 
 
 class TemplateManager(object):
-    """ This class handles all the template management operations. """
+    """ This class handles all the template management operations """
 
     def __init__(self):
         """
-        Initialize all the necessary operations.
+        Construct object.
 
-        Args:
-            self (TemplateManager): A TemplateManager object.
-
-        Returns:
-            None
+        :param self: A TemplateManager object
+        :type self: TemplateManager
+        :return: None
+        :rtype: None
         """
 
-        # TODO: Move templates to constants.
-
-        # Initialize all the variables
+        # setup the templates
         self._template_directory = PHISHING_PAGES_DIR
 
         # Firmware Upgrade
@@ -138,13 +137,12 @@ class TemplateManager(object):
 
     def get_templates(self):
         """
-        Return a dictionary containing all the templates available.
+        Return all the available templates.
 
-        Args:
-            self (TemplateManager): A TemplateManager object.
-
-        Returns:
-            (dict): A dictionary containing the requested templates.
+        :param self: A TemplateManager object
+        :type self: TemplateManager
+        :return: all the available templates
+        :rtype: dict
         """
 
         return self._templates
@@ -153,11 +151,11 @@ class TemplateManager(object):
         """
         Return all the user's templates available.
 
-        Args:
-            self (TemplateManager): A TemplateManager object.
-
-        Returns:
-            (list): A list of all the local templates available.
+        :param self: A TemplateManager object
+        :type self: TemplateManager
+        :return: all the local templates available
+        :rtype: list
+        .. todo:: check to make sure directory contains HTML files
         """
 
         # a list to store file names in
@@ -166,7 +164,6 @@ class TemplateManager(object):
         # loop through the directory content
         for name in os.listdir(self._template_directory):
             # check to see if it is a directory and not in the database
-            # TODO: Add more checks here. Does the dir contain HTML files?
             if (os.path.isdir(os.path.join(self._template_directory, name)) and
                     name not in self._templates):
                 # add it to the list
@@ -178,11 +175,10 @@ class TemplateManager(object):
         """
         Add all the user templates to the database.
 
-        Args:
-            self (TemplateManager): A TemplateManager object.
-
-        Returns:
-            None
+        :param self: A TemplateManager object
+        :type: self: TemplateManager
+        :return: None
+        :rtype: None
         """
 
         # get all the user's templates
