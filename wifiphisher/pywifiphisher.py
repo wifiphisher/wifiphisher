@@ -15,6 +15,7 @@ from scapy.all import *
 from shutil import copyfile
 import phishingpage
 import phishinghttp
+import macmatcher
 import interfaces
 from constants import *
 
@@ -214,15 +215,33 @@ def targeting_cb(pkt):
 
 
 def target_APs():
-    global APs, count
+    global APs, count, mac_matcher
     os.system('clear')
     print ('[' + G + '+' + W + '] Ctrl-C at any time to copy an access' +
            ' point from below')
-    print 'num  ch   ESSID'
-    print '---------------'
+
+    max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
+
+    header = ('{0:3}  {1:3}  {2:{width}}     {3:17} {4:10}'
+        .format('num', 'ch', 'ESSID', 'BSSID', 'vendor', width=max_name_size))
+
+    print header
+    print '-' * len(header)
+
     for ap in APs:
-        print (G + str(ap).ljust(2) + W + ' - ' + APs[ap][0].ljust(2) + ' - ' +
-               T + APs[ap][1] + W)
+
+        mac = APs[ap][2]
+        vendor = mac_matcher.get_vendor_name(mac)
+
+        print ((G + '{0:2}' + W + ' - {1:2}  - ' +
+               T + '{2:{width}} ' + W + ' - ' +
+               B + '{3:17}' + W + ' {4:}'
+            ).format(ap,
+                    APs[ap][0],
+                    APs[ap][1],
+                    mac,
+                    vendor,
+                    width=max_name_size))
 
 
 def copy_AP():
@@ -743,7 +762,7 @@ def run():
     used_interfaces = list()
 
     # Parse args
-    global args, APs, clients_APs, mon_MAC
+    global args, APs, clients_APs, mon_MAC, mac_matcher
     args = parse_args()
 
     # Check args
@@ -765,6 +784,8 @@ def run():
 
     network_manager = interfaces.NetworkManager(args.jamminginterface,
                                                 args.apinterface)
+
+    mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
 
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
@@ -903,6 +924,9 @@ def run():
     secure_webserver.start()
 
     time.sleep(3)
+
+    #no longer need mac_matcher
+    mac_matcher.unbind()
 
     clients_APs = []
     APs = []

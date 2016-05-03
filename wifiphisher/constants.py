@@ -8,6 +8,7 @@ PORT = 8080
 SSL_PORT = 443
 PEM = 'wifiphisher/cert/server.pem'
 PHISHING_PAGES_DIR = "wifiphisher/phishing-pages/"
+MAC_PREFIX_FILE = "nmap-mac-prefixes"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
