@@ -613,8 +613,11 @@ class NetworkManager(object):
             ap_available.remove(ap_interface)
 
             # if the ap_interface is also in monitor_available remove it
-            if ap_interface in monitor_available:
+            if (ap_interface in monitor_available and
+                    len(monitor_available) > 1):
                 monitor_available.remove(ap_interface)
+            else:
+                raise NoMonitorInterfaceFoundError
 
             # select the first available interface with monitor mode
             monitor_interface = monitor_available[0]
@@ -626,8 +629,10 @@ class NetworkManager(object):
             monitor_available.remove(monitor_interface)
 
             # if the monitor_interface is also in ap_available remove it
-            if monitor_interface in ap_available:
-                ap_available.remove(monitor_available)
+            if monitor_interface in ap_available and len(ap_available) > 1:
+                ap_available.remove(monitor_interface)
+            else:
+                raise NoApInterfaceFoundError
 
             # select the first available interface with AP mode
             ap_interface = ap_available[0]

@@ -269,13 +269,15 @@ class TestNetworkManager(unittest.TestCase):
 
     @mock.patch("wifiphisher.interfaces.subprocess")
     @mock.patch.object(interfaces.NetworkManager, "_ifconfig_cmd")
-    def test_set_interface_mode(self, mock_sub, mock_ifconfig):
+    @mock.patch.object(interfaces.NetworkManager, "_iwconfig_cmd")
+    def test_set_interface_mode(self, mock_sub, mock_ifconfig, mock_iwconfig):
         """
         Test set_interface_mode method
         """
 
         # set the return value
         mock_sub.Popen.return_value.communicate.return_value = [None, None]
+        mock_iwconfig.return_value = None
 
         interface = "wlan0"
 
@@ -465,7 +467,6 @@ class TestNetworkManager(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    @unittest.skip("enable after fix")
     def test_find_interface_automatically_case_2(self):
         """
         Test _find_interface_automatically method when two interfaces are
@@ -491,12 +492,11 @@ class TestNetworkManager(unittest.TestCase):
 
         self.assertEqual(actual, expected)
 
-    @unittest.skip("enable after fix")
     def test_find_interface_automatically_case_3(self):
         """
         Test _find_interface_automatically method when two interfaces are
-        given. one interfaces support AP and monitor mode while the other
-        interface supports neither AP or monitor mode.
+        given and one interfaces support AP and monitor mode while the other
+        interface supports neither.
         """
 
         # create fake interfaces
@@ -512,6 +512,27 @@ class TestNetworkManager(unittest.TestCase):
         self.network_manager._interfaces.append(interface1)
 
         self.assertRaises(interfaces.NoMonitorInterfaceFoundError,
+                          self.network_manager._find_interface_automatically)
+
+    def test_find_interface_automatically_case_4(self):
+        """
+        Test _find_interface_automatically method when two interfaces are
+        given and both interfaces only support monitor mode.
+        """
+
+        # create fake interfaces
+        interface0 = interfaces.NetworkAdapter("wlan0")
+        interface1 = interfaces.NetworkAdapter("wlan1")
+
+        # set AP and monitor support
+        interface0.set_monitor_support(True)
+        interface1.set_monitor_support(True)
+
+        # add the interfaces to the list
+        self.network_manager._interfaces.append(interface0)
+        self.network_manager._interfaces.append(interface1)
+
+        self.assertRaises(interfaces.NoApInterfaceFoundError,
                           self.network_manager._find_interface_automatically)
 
     def test_get_interfaces_no_interface(self):
