@@ -746,6 +746,28 @@ def get_hostapd():
             '[' + R + '!' + W + '] Closing'
          ))
 
+
+def kill_interfering_procs():
+    # Kill any possible programs that may interfere with the wireless card
+    # For systems with airmon-ng installed
+    if os.path.isfile('/usr/sbin/airmon-ng'):
+        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
+    # For ubuntu distros with nmcli
+    elif os.path.isfile('/usr/bin/nmcli') and \
+            os.path.isfile('/usr/sbin/rfkill'):
+        Popen(
+            ['nmcli', 'radio', 'wifi', 'off'],
+            stdout=PIPE,
+            stderr=DN
+        ).wait()
+        Popen(
+            ['rfkill', 'unblock', 'wlan'],
+            stdout=PIPE,
+            stderr=DN
+        ).wait()
+
+        time.sleep(1)
+
 def run():
 
     print "               _  __ _       _     _     _               "
@@ -787,10 +809,14 @@ def run():
 
     mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
 
+
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
     try:
         mon_iface, ap_iface = network_manager.get_interfaces()
+
+        #kill_interfering_procs()
+
         # TODO: this line should be removed once all the wj_iface have been
         # removed
         wj_iface = mon_iface
@@ -872,10 +898,6 @@ def run():
     # set the path for the template
     phishinghttp.set_template_path(template.get_path())
 
-    # Kill any possible programs that may interfere with the wireless card
-    # Only for systems with airmon-ng installed
-    if os.path.isfile('/usr/sbin/airmon-ng'):
-        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
     # Start AP
     start_ap(ap_iface, channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface)
