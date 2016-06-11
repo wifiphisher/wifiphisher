@@ -3,7 +3,7 @@ This module was made to handle all the interface related operations for
 Wifiphisher.py
 """
 
-import PyRIC.pyric.pyw as pyric
+import pyric.pyw as pyric
 
 
 class NotEnoughInterfacesFoundError(Exception):
