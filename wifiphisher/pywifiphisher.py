@@ -815,7 +815,7 @@ def run():
     try:
         mon_iface, ap_iface = network_manager.get_interfaces()
 
-        #kill_interfering_procs()
+        kill_interfering_procs()
 
         # TODO: this line should be removed once all the wj_iface have been
         # removed
