@@ -128,9 +128,17 @@ class TemplateManager(object):
         plugin_update = PhishingTemplate("plugin_update",
                                          display_name, description)
 
+        # Browser Plugin Update
+        display_name = "OAuth Login Page"
+        description = ("A page that looks like an OAuth login page which " +
+                       "grants internet access by providing Facebook or " +
+                       "Google credentials. Mobile-friendly.")
+        oauth_login = PhishingTemplate("oauth-login", display_name, description)
+
         self._templates = {"connection_reset": connection,
                            "firmware-upgrade": firmware_upgrade,
-                           "plugin_update": plugin_update}
+                           "plugin_update": plugin_update,
+                           "oauth-login": oauth_login}
 
         # add all the user templates to the database
         self.add_user_templates()
