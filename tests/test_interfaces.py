@@ -3,7 +3,6 @@
 import unittest
 import mock
 import wifiphisher.interfaces as interfaces
-import PyRIC.pyric.pyw as pyric
 
 
 class TestNetworkAdapter(unittest.TestCase):
