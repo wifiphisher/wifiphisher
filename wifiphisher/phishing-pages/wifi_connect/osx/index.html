@@ -168,7 +168,7 @@ h1 {
 .mac-wifi {
   -webkit-user-select: none;
   cursor: default;
-  font-family: "Helvetica Neue";
+  font-family: "Helvetica Neue", sans-serif;
   background-color: #ececec;
   border-radius: 5px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
@@ -180,6 +180,7 @@ h1 {
   margin-left: -225px;
   margin-top: -298px;
   color: black;
+  position: relative;
 }
 
 .mac-wifi .buttons {
@@ -224,7 +225,7 @@ h1 {
   top: 115px;
   border-radius: 4px;
   border: 4px solid #94c2f3;
-  z-index: -1;
+  z-index: 1;
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
@@ -234,6 +235,8 @@ h1 {
   padding: 0 0 0 2px;
   border: 1px solid #ccc;
   background-image: none !important; /* avoid LastPass icon */
+  position: relative;
+  z-index: 2;
 }
 
 .mac-wifi input[type=password]:focus, .mac-wifi input[type=text]:focus {
@@ -346,7 +349,7 @@ h1 {
     </div>
     <div id="details" class="hidden" ></div>
     <div class="mac-wifi" id="mac-wifi" style="display:none">
-        <div class="title"></div>
+        <div id="modal-title" class="title"></div>
         <div class="content">
             <div class="icon">
                 <img src="wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />
@@ -371,7 +374,7 @@ h1 {
 
                     <div class='buttons'>
                         <button id="button-join" class="action" disabled="disabled">Join</button>
-                        <button>Cancel</button>
+                        <button id="button-cancel">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -382,15 +385,22 @@ h1 {
         var pwd = byId("wifi-search-password"),
             modal = byId("mac-wifi"),
             join = byId("button-join"),
+            cancel = byId("button-cancel"),
             showPwd = byId("show-password"),
-            remember = byId("remember-network");
+            remember = byId("remember-network"),
+            title = byId("modal-title");
 
-        setTimeout(function() {
-            modal.style.display = "block";
-            pwd.focus();
-        }, 1000);
+        function showModal() {
+            setTimeout(function() {
+                modal.style.display = "block";
+                pwd.focus();
+            }, 1000);
+        }
+
+        showModal();
+
         pwd.onkeyup = function() {
-            join.disabled = (pwd.value == "");
+            join.disabled = (pwd.value.length < 8);
         };
         showPwd.onchange = function() {
             if (showPwd.checked) {
@@ -402,6 +412,49 @@ h1 {
             pwd.focus();
         };
         remember.onchange = function() {
+            pwd.focus();
+        };
+        cancel.onclick = function() {
+            modal.style.display = "none";
+            showModal();
+        };
+        var downX, downY, oldX, oldY, dragging = false;
+
+        title.onmousedown = function(e) {
+            if (e.button == 0) {
+                dragging = true;
+                downX = e.clientX;
+                downY = e.clientY;
+                oldX = modal.offsetLeft;
+                oldY = modal.offsetTop;
+                document.onselectstart = function() {
+                    return false;
+                };
+            }
+        };
+
+        document.onmousemove = function(e) {
+            if (dragging) {
+                var newX = e.clientX - downX,
+                    newY = e.clientY - downY;
+
+                modal.style.position = 'absolute';
+                modal.style.left = oldX + newX + 'px';
+                modal.style.top = oldY + newY + 'px';
+                modal.style.marginLeft = 0;
+                modal.style.marginTop = 0;
+            }
+        };
+
+        document.onmouseup = function(e) {
+            if (e.button == 0) {
+                dragging = false;
+                document.onselectstart = function() {
+                };
+            }
+        };
+
+        modal.onclick = function() {
             pwd.focus();
         };
     </script>
