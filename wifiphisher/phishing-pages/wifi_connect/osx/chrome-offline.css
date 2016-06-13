@@ -1,0 +1,162 @@
+/* Copyright 2014 The Chromium Authors. All rights reserved.
+   Use of this source code is governed by a BSD-style license that can be
+   found in the LICENSE file. */
+
+body {
+  background-color: #f7f7f7;
+  color: #646464;
+}
+
+#details {
+  color: #696969;
+  margin: 45px 0 50px;
+}
+
+#details p:not(:first-of-type) {
+  margin-top: 20px;
+}
+
+#details-button {
+  background: inherit;
+  border: 0;
+  float: none;
+  margin: 0;
+  padding: 10px 0;
+  text-transform: uppercase;
+}
+
+#details-button:hover {
+  box-shadow: inherit;
+  text-decoration: underline;
+}
+
+.error-code {
+  color: #696969;
+  display: inline;
+  font-size: .86667em;
+  margin-top: 15px;
+  opacity: .5;
+  text-transform: uppercase;
+}
+
+#error-debugging-info {
+  font-size: 0.8em;
+}
+
+h1 {
+  color: #333;
+  font-size: 1.6em;
+  font-weight: normal;
+  line-height: 1.25em;
+  margin-bottom: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-size: 125%;
+}
+
+.icon {
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 72px;
+  margin: 0 0 40px;
+  width: 72px;
+}
+
+.nav-wrapper {
+  margin-top: 51px;
+}
+
+.nav-wrapper::after {
+  clear: both;
+  content: '';
+  display: table;
+  width: 100%;
+}
+
+.small-link {
+  color: #696969;
+  font-size: .875em;
+}
+
+/* Don't use the main frame div when the error is in a subframe. */
+html[subframe] #main-frame-error {
+  display: none;
+}
+
+/* Don't use the subframe error div when the error is in a main frame. */
+html:not([subframe]) #sub-frame-error {
+  display: none;
+}
+
+h1 {
+  margin-top: 0;
+  word-wrap: break-word;
+}
+
+.icon {
+  -webkit-user-select: none;
+  display: inline-block;
+}
+
+.error-code {
+  display: block;
+  font-size: .8em;
+}
+
+.hidden {
+  display: none;
+}
+
+#suggestion {
+  margin-top: 15px;
+}
+
+#suggestions-list p {
+  -webkit-margin-after: 0;
+}
+
+#suggestions-list ul {
+  margin-top: 0;
+}
+
+/* Offline page */
+.offline {
+  transition: -webkit-filter 1.5s cubic-bezier(0.65, 0.05, 0.36, 1),
+              background-color 1.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+  will-change: -webkit-filter, background-color;
+}
+
+.offline.inverted {
+  -webkit-filter: invert(100%);
+  background-color: #000;
+}
+
+.offline .interstitial-wrapper {
+  color: #2b2b2b;
+  font-size: 1em;
+  line-height: 1.55;
+  margin: 0 auto;
+  max-width: 600px;
+  padding-top: 100px;
+  width: 100%;
+}
+
+.offline .runner-container {
+  height: 150px;
+  max-width: 600px;
+  overflow: hidden;
+  position: absolute;
+  top: 35px;
+  width: 44px;
+}
+
+#offline-resources {
+  display: none;
+}
+

