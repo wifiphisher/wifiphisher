@@ -922,6 +922,24 @@ def run():
 
         copyfile(payload_path, PHISHING_PAGES_DIR + '/plugin_update/update/update.exe')
 
+    APs_context = []
+    for i in APs:
+        APs_context.append({
+            'channel': APs[i][0],
+            'essid': APs[i][1],
+            'bssid': APs[i][2],
+            'vendor': mac_matcher.get_vendor_name(APs[i][2])
+        })
+
+    template.merge_context({'APs': APs_context})
+
+    template.merge_context({
+        'target_ap_channel': channel,
+        'target_ap_essid': essid,
+        'target_ap_bssid': ap_mac,
+        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac)
+    })
+
     phishinghttp.serve_template(template)
 
     # Start AP
