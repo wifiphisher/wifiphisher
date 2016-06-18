@@ -9,6 +9,7 @@ import argparse
 import fcntl
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
+from distutils.spawn import find_executable
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
@@ -746,6 +747,33 @@ def get_hostapd():
             '[' + R + '!' + W + '] Closing'
          ))
 
+def get_ifconfig():
+    # This is only useful for Arch Linux which does not contain ifconfig by default
+    if not find_executable('ifconfig'):
+        install = raw_input(
+            ('[' + T + '*' + W + '] ifconfig not found. ' +
+             'install now? [y/n] ')
+        )
+        if install == 'y':
+            if os.path.isfile('/usr/bin/pacman'):
+                os.system('pacman -S net-tools')
+            else:
+                sys.exit((
+                    '\n[' + R + '-' + W + '] Don\'t know how to install ifconfig for your distribution.\n' +
+                    '[' + G + '+' + W + '] Rerun the script after installing it manually.\n' +
+                    '[' + R + '!' + W + '] Closing'
+                ))
+        else:
+            sys.exit(('[' + R + '-' + W + '] ifconfig' +
+                     ' not found'))
+    if not find_executable('ifconfig'):
+        sys.exit((
+            '\n[' + R + '-' + W + '] Unable to install the \'net-tools\' package!\n' +
+            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
+            '[' + G + '+' + W + '] Run pacman -Syu to make sure you are up to date first.\n' +
+            '[' + G + '+' + W + '] Rerun the script to install net-tools.\n' +
+            '[' + R + '!' + W + '] Closing'
+         ))
 
 def kill_interfering_procs():
     # Kill any possible programs that may interfere with the wireless card
@@ -799,6 +827,9 @@ def run():
 
     # Get dnsmasq if needed
     get_dnsmasq()
+
+    # Get ifconfig if needed
+    get_ifconfig()
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
