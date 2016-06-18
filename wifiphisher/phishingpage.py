@@ -6,6 +6,25 @@ Wifiphisher.py
 import os
 from constants import *
 
+import ConfigParser
+
+
+def config_section_map(config_file, section):
+    """
+    Map the values of a config file to a dictionary.
+    """
+
+    config = ConfigParser.ConfigParser()
+    config.read(config_file)
+    dict1 = {}
+    options = config.options(section)
+    for option in options:
+        try:
+            dict1[option] = config.get(section, option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
 
 class InvalidTemplate(Exception):
     """ Exception class to raise in case of a invalid template """
@@ -104,33 +123,16 @@ class TemplateManager(object):
         # setup the templates
         self._template_directory = PHISHING_PAGES_DIR
 
-        # Firmware Upgrade
-        display_name = "Firmware Upgrade Page"
-        description = ("A router configuration page without logos or " +
-                       "brands asking for WPA/WPA2 password due to a " +
-                       "firmware upgrade. Mobile-friendly.")
-        firmware_upgrade = PhishingTemplate("firmware-upgrade", display_name,
-                                            description)
+        page_dirs = os.listdir(PHISHING_PAGES_DIR)
 
-        # Connection Reset
-        display_name = "Browser Connection Reset"
-        description = ("Browser message asking for WPA/WPA2 password " +
-                       "due to a connection reset. Style changes according " +
-                       "the user-agent header. Mobile-friendly.")
-        connection = PhishingTemplate("connection_reset", display_name,
-                                      description)
+        self._templates = {}
 
-        # Browser Plugin Update
-        display_name = "Browser Plugin Update"
-        description = ("A generic browser plugin update template that " +
-                       "can be used to serve payloads to Windows targets. " +
-                       "Mobile-friendly.")
-        plugin_update = PhishingTemplate("plugin_update",
-                                         display_name, description)
-
-        self._templates = {"connection_reset": connection,
-                           "firmware-upgrade": firmware_upgrade,
-                           "plugin_update": plugin_update}
+        for page in page_dirs:
+            config_path = os.path.join(PHISHING_PAGES_DIR, page, 'config.ini')
+            config = config_section_map(config_path, 'info')
+            desc = config['description']
+            self._templates[page] = PhishingTemplate(page, config['name'],
+                                                     desc)
 
         # add all the user templates to the database
         self.add_user_templates()
