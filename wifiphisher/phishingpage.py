@@ -65,6 +65,14 @@ class PhishingTemplate(object):
         self._context = config_section_map(config_path, 'context')
         self._env = Environment(loader=FileSystemLoader(self._path))
 
+    def merge_context(self, context):
+        """
+            Merge dict context with current one
+            In case of confict always keep current values
+        """
+        context.update(self._context)
+        self._context = context
+
     def get_display_name(self):
         """
         Return the display name of the template.
