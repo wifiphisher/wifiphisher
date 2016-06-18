@@ -5,6 +5,7 @@ import SocketServer
 import ssl
 import socket
 import cgi
+import os
 from constants import *
 
 template = False
@@ -121,7 +122,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             return
         # Leave binary and other data to default handler.
         else:
-            self.path = "%s/%s" % (template_path, self.path)
+            os.chdir(template_path)
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):

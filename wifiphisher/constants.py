@@ -3,12 +3,16 @@
 
 import os
 
+dir_of_executable = os.path.dirname(__file__)
+path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '../wifiphisher'))
+dir_of_data = path_to_project_root + '/data/'
+
 # Basic configuration
 PORT = 8080
 SSL_PORT = 443
-PEM = 'wifiphisher/data/cert/server.pem'
-PHISHING_PAGES_DIR = "wifiphisher/data/phishing-pages/"
-MAC_PREFIX_FILE = "wifiphisher/data/nmap-mac-prefixes"
+PEM = dir_of_data + 'cert/server.pem'
+PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
+MAC_PREFIX_FILE = dir_of_data + "nmap-mac-prefixes"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
