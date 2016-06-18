@@ -863,8 +863,7 @@ def run():
             interfaces.JammingInterfaceInvalidError,
             interfaces.ApInterfaceInvalidError,
             interfaces.NoApInterfaceFoundError,
-            interfaces.NoMonitorInterfaceFoundError, interfaces.IwCmdError,
-            interfaces.IwconfigCmdError, interfaces.IfconfigCmdError) as err:
+            interfaces.NoMonitorInterfaceFoundError) as err:
         print ("[{0}!{1}] " + str(err)).format(R, W)
         shutdown()
 
