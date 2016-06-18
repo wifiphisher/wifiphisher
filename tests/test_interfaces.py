@@ -61,278 +61,106 @@ class TestNetworkManager(unittest.TestCase):
 
         self.network_manager = interfaces.NetworkManager(None, None)
 
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_exec_cmd_no_args(self, mock_sub):
-        """
-        Test _exec_cmd method with no arguments
-        """
-
-        # call the method
-        self.network_manager._exec_cmd("test")
-
-        # check that subprocess.Poepn is called with the right parameters
-        mock_sub.Popen.assert_called_with("test", stdout=None, stderr=None)
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_exec_cmd_args(self, mock_sub):
-        """
-        Test _exec_cmd method with arguments
-        """
-
-        # call the method
-        self.network_manager._exec_cmd("test",
-                                       mock_sub.stdout, mock_sub.stderr)
-
-        # check that subprocess.Poepn is called with the right parameters
-        mock_sub.Popen.assert_called_with("test", stdout=mock_sub.stdout,
-                                          stderr=mock_sub.stderr)
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_iw_cmd_valid(self, mock_sub):
-        """T
-        est _iw_cmd method with valid input
-        """
-
-        # set the return value and call the method
-        mock_sub.Popen.return_value.communicate.return_value = ["valid", None]
-        self.network_manager._iw_cmd(["some command"])
-
-        # check that subprocess.Poepn is called with the right parameters
-        mock_sub.Popen.assert_called_with(["iw", "some command"],
-                                          stdout=mock_sub.PIPE,
-                                          stderr=mock_sub.PIPE)
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_iw_cmd_invalid(self, mock_sub):
-        """
-        Test _iw_cmd method with invalid input
-        """
-
-        # set the return value
-        mock_sub.Popen.return_value.communicate.return_value = [None, "error"]
-
-        # check that the error is raised
-        self.assertRaises(interfaces.IwCmdError, self.network_manager._iw_cmd,
-                          ["some command"])
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_iwconfig_cmd_valid(self, mock_sub):
-        """
-        Test _iwconfig_cmd method with valid input
-        """
-
-        # call the method
-        mock_sub.Popen.return_value.communicate.return_value = ["valid", None]
-        self.network_manager._iwconfig_cmd(["valid"])
-
-        # check that subprocess.Poepn is called with the right parameters
-        mock_sub.Popen.assert_called_with(["iwconfig", "valid"],
-                                          stdout=mock_sub.PIPE,
-                                          stderr=mock_sub.PIPE)
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_iwconfig_cmd_invalid(self, mock_sub):
-        """
-        Test _iwconfig_cmd method with invalid input
-        """
-
-        # set the return value
-        mock_sub.Popen.return_value.communicate.return_value = [None, "error"]
-
-        # check that the error is raised
-        self.assertRaises(interfaces.IwconfigCmdError,
-                          self.network_manager._iwconfig_cmd, ["invalid"])
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_ifconfig_cmd_valid(self, mock_sub):
-        """
-        Test _ifconfig_cmd method with valid input
-        """
-
-        # call the method
-        mock_sub.Popen.return_value.communicate.return_value = ["valid", None]
-        self.network_manager._ifconfig_cmd(["valid"])
-
-        # check that subprocess.Poepn is called with the right parameters
-        mock_sub.Popen.assert_called_with(["ifconfig", "valid"],
-                                          stdout=mock_sub.PIPE,
-                                          stderr=mock_sub.PIPE)
-
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    def test_ifconfig_cmd_invalid(self, mock_sub):
-        """
-        Test _ifconfig_cmd method with invalid input
-        """
-
-        # set the return value
-        mock_sub.Popen.return_value.communicate.return_value = [None, "error"]
-
-        # check that the error is raised
-        self.assertRaises(interfaces.IfconfigCmdError,
-                          self.network_manager._ifconfig_cmd, ["invalid"])
-
-    @mock.patch.object(interfaces.NetworkManager, "_iw_cmd")
-    def test_check_compatibility_no_ap_no_monitor(self, mock_iw):
+    @mock.patch("wifiphisher.interfaces.pyric")
+    def test_check_compatibility_no_ap_no_monitor(self, mock_pyric):
         """
         Test _check_compatibility method while the interface has no AP support
         nor monitor support
         """
 
-        # result to be used
-        device_result = ("phy#1\n\tInterface wlan0\n\t\tifindex 4\n\t\twdev "
-                         "0x100000001\n\t\taddr 00:c0:ca:81:e2:d8"
-                         "\n\t\ttype managed\n")
+        # set the return value
+        mock_pyric.getcard.return_value = None
+        mock_pyric.devmodes.return_value = []
+        mock_pyric.winterfaces.return_value = ["wlan0"]
 
         # create a interface
         interface = interfaces.NetworkAdapter("wlan0")
 
-        # set the return value and call the method
-        mock_iw.return_value = device_result
+        # call the method
         self.network_manager._check_compatibility(interface)
 
         # check that values are correct
         self.assertFalse(interface.has_ap_mode())
         self.assertFalse(interface.has_monitor_mode())
 
-    @mock.patch.object(interfaces.NetworkManager, "_iw_cmd")
-    def test_check_compatibility_has_ap_no_monitor(self, mock_iw):
+    @mock.patch("wifiphisher.interfaces.pyric")
+    def test_check_compatibility_has_ap_no_monitor(self, mock_pyric):
         """
         Test _check_compatibility method while the interface has AP support
         but no monitor support
         """
 
-        # result to be used
-        device_result = ("phy#1\n\tInterface wlan0\n\t\tifindex 4\n\t\twdev "
-                         "0x100000001\n\t\taddr 00:c0:ca:81:e2:d8"
-                         "\n\t\ttype managed\n")
-        device_info = ("\t\t * IBSS\n\t\t * managed\n\t\t * AP")
-
         # create a interface
         interface = interfaces.NetworkAdapter("wlan0")
 
         # set the return value and call the method
-        mock_iw.side_effect = [device_result, device_info]
+        mock_pyric.getcard.return_value = None
+        mock_pyric.devmodes.return_value = ["AP"]
+        mock_pyric.winterfaces.return_value = ["wlan0"]
         self.network_manager._check_compatibility(interface)
 
         # check that values are correct
         self.assertTrue(interface.has_ap_mode())
         self.assertFalse(interface.has_monitor_mode())
 
-    @mock.patch.object(interfaces.NetworkManager, "_iw_cmd")
-    def test_check_compatibility_no_ap_has_monitor(self, mock_iw):
+    @mock.patch("wifiphisher.interfaces.pyric")
+    def test_check_compatibility_no_ap_has_monitor(self, mock_pyric):
         """
         Test _check_compatibility method while the interface doesn't have AP
         support but it has monitor support
         """
 
-        # result to be used
-        device_result = ("phy#1\n\tInterface wlan0\n\t\tifindex 4\n\t\twdev "
-                         "0x100000001\n\t\taddr 00:c0:ca:81:e2:d8"
-                         "\n\t\ttype managed\n")
-        device_info = ("\t\t * IBSS\n\t\t * managed\n\t\t * monitor")
-
         # create a interface
         interface = interfaces.NetworkAdapter("wlan0")
 
         # set the return value and call the method
-        mock_iw.side_effect = [device_result, device_info]
+        mock_pyric.getcard.return_value = None
+        mock_pyric.devmodes.return_value = ["monitor"]
+        mock_pyric.winterfaces.return_value = ["wlan0"]
         self.network_manager._check_compatibility(interface)
 
         # check that values are correct
         self.assertFalse(interface.has_ap_mode())
         self.assertTrue(interface.has_monitor_mode())
 
-    @mock.patch.object(interfaces.NetworkManager, "_iw_cmd")
-    def test_check_compatibility_has_ap_has_monitor(self, mock_iw):
+    @mock.patch("wifiphisher.interfaces.pyric")
+    def test_check_compatibility_has_ap_has_monitor(self, mock_pyric):
         """
         Test _check_compatibility method while the interface has AP support
         and monitor support
         """
 
-        # result to be used
-        device_result = ("phy#1\n\tInterface wlan0\n\t\tifindex 4\n\t\twdev "
-                         "0x100000001\n\t\taddr 00:c0:ca:81:e2:d8"
-                         "\n\t\ttype managed\n")
-        device_info = ("\t\t * IBSS\n\t\t * managed\n\t\t * monitor"
-                       "\n\t\t * AP")
-
         # create a interface
         interface = interfaces.NetworkAdapter("wlan0")
 
         # set the return value and call the method
-        mock_iw.side_effect = [device_result, device_info]
+        mock_pyric.getcard.return_value = None
+        mock_pyric.devmodes.return_value = ["monitor", "AP"]
+        mock_pyric.winterfaces.return_value = ["wlan0"]
         self.network_manager._check_compatibility(interface)
 
         # check that values are correct
         self.assertTrue(interface.has_ap_mode())
         self.assertTrue(interface.has_monitor_mode())
 
-    @mock.patch("wifiphisher.interfaces.subprocess")
-    @mock.patch.object(interfaces.NetworkManager, "_ifconfig_cmd")
-    @mock.patch.object(interfaces.NetworkManager, "_iwconfig_cmd")
-    def test_set_interface_mode(self, mock_sub, mock_ifconfig, mock_iwconfig):
+    @mock.patch("wifiphisher.interfaces.pyric")
+    def test_set_interface_mode(self, mock_pyric):
         """
         Test set_interface_mode method
         """
 
-        # set the return value
-        mock_sub.Popen.return_value.communicate.return_value = [None, None]
-        mock_iwconfig.return_value = None
-
         interface = "wlan0"
+
+        # set return value
+        mock_pyric.getcard.return_value = "test"
 
         # call the method
         self.network_manager.set_interface_mode(interface, "monitor")
-        expected = [mock.call(['wlan0', 'down']), mock.call(['wlan0', 'up'])]
 
         # check that methods are called with the right parameters
-        mock_ifconfig.assert_has_calls(expected)
-        mock_sub.assert_called_with([interface, "mode", "monitor"])
-
-    @mock.patch.object(interfaces.NetworkManager, "_ifconfig_cmd")
-    def test_find_wireless_interfaces_multiple(self, mock_ifconfig):
-        """
-        Test _find_wireless_interfaces method with multiple interfaces
-        """
-
-        # set the result for ifconfig call
-        result = "\nwlan0: test\nlo: another\nenp: 1212"
-        mock_ifconfig.return_value = result
-
-        expected = ["wlan0"]
-        actual = self.network_manager._find_wireless_interfaces()
-
-        self.assertEqual(sorted(actual), sorted(expected))
-
-    @mock.patch.object(interfaces.NetworkManager, "_ifconfig_cmd")
-    def test_find_wireless_interfaces_no_interfaces(self, mock_ifconfig):
-        """
-        Test _find_wireless_interfaces method with no wireless interfaces
-        """
-
-        # set the result for ifconfig call
-        result = "\nlo: another\nenp: 1212"
-        mock_ifconfig.return_value = result
-
-        expected = list()
-        actual = self.network_manager._find_wireless_interfaces()
-
-        self.assertEqual(sorted(actual), sorted(expected))
-
-    @mock.patch.object(interfaces.NetworkManager, "_ifconfig_cmd")
-    def test_find_wireless_interfaces_older_ifconfig(self, mock_ifconfig):
-        """
-        Test _find_wireless_interfaces method older versions of ifconfig
-        """
-
-        # set the result for ifconfig call
-        result = "\nlo another\nenp 1212\nwlan0 test\nwlan2: hi"
-        mock_ifconfig.return_value = result
-
-        expected = ["wlan0", "wlan2"]
-        actual = self.network_manager._find_wireless_interfaces()
-
-        self.assertEqual(sorted(actual), sorted(expected))
+        mock_pyric.down.assert_called_with("test")
+        mock_pyric.modeset.assert_called_with("test", "monitor")
+        mock_pyric.up.assert_called_with("test")
 
     def test_find_interface_monitor_exists(self):
         """

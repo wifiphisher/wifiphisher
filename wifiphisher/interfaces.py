@@ -3,8 +3,7 @@ This module was made to handle all the interface related operations for
 Wifiphisher.py
 """
 
-import subprocess
-import re
+import pyric.pyw as pyric
 
 
 class NotEnoughInterfacesFoundError(Exception):
@@ -117,81 +116,6 @@ class ApInterfaceInvalidError(Exception):
                    " the given interface in our available interfaces or the "
                    "given interface was incompatible. It is recommended to use"
                    " our automatic interface selection for better results.")
-        Exception.__init__(self, message)
-
-
-class IwCmdError(Exception):
-    """
-    Exception class to raise in case of a error while executing _iw_cmd.
-    """
-
-    def __init__(self, error_message):
-        """
-        Construct the class.
-
-        :param self: A IwCmdError object
-        :param error_message: The error message to be displayed
-        :type self: IwCmdError
-        :type error_message: str
-        :return: None
-        :rtype: None
-        """
-
-        message = ("We're sorry. An error has been detected after executing "
-                   "_iw_cmd method. If this is the first time you have "
-                   "encountered this error you can try again. Otherwise "
-                   "please report this error so we can fix it.\n" +
-                   error_message)
-        Exception.__init__(self, message)
-
-
-class IwconfigCmdError(Exception):
-    """
-    Exception class to raise in case of a error while executing _iwconfig_cmd.
-    """
-
-    def __init__(self, error_message):
-        """
-        Construct the class.
-
-        :param self: A IwconfigCmdError object
-        :param error_message: The error message to be displayed
-        :type self: IwconfigCmdError
-        :type error_message: str
-        :return: None
-        :rtype: None
-        """
-
-        message = ("We're sorry. An error has been detected after executing "
-                   "_iwconfig_cmd method. If this is the first time you have "
-                   "encountered this error you can try again. Otherwise "
-                   "please report this error so we can fix it.\n" +
-                   error_message)
-        Exception.__init__(self, message)
-
-
-class IfconfigCmdError(Exception):
-    """
-    Exception class to raise in case of a error while executing _ifconfig_cmd.
-    """
-
-    def __init__(self, error_message):
-        """
-        Construct the class.
-
-        :param self: A IfconfigCmdError object
-        :param error_message: The error message to be displayed
-        :type self: IfconfigCmdError
-        :type error_message: str
-        :return: None
-        :rtype: None
-        """
-
-        message = ("We're sorry. An error has been detected after executing "
-                   "_ifconfig_cmd method. If this is the first time you have "
-                   "encountered this error you can try again. Otherwise "
-                   "please report this error so we can fix it.\n" +
-                   error_message)
         Exception.__init__(self, message)
 
 
@@ -312,110 +236,14 @@ class NetworkManager(object):
         self._ap_argument = ap_argument
         self._interfaces = list()
 
+        # get all the wireless interfaces
+        wireless_interfaces = pyric.winterfaces()
+
         # create, add and check compatibility for each interface
-        for interface in self._find_wireless_interfaces():
+        for interface in wireless_interfaces:
             interface_object = NetworkAdapter(interface)
             self._interfaces.append(interface_object)
             self._check_compatibility(interface_object)
-
-    @staticmethod
-    def _exec_cmd(command, stdout=None, stderr=None):
-        """
-        Return the subprocess.Popen object after executing command.
-
-        :param command: The command to be executed
-        :param stdout: Value for subprocess.Popen stdout argument.
-        :param stderr: Value for subprocess.Popen stderr argument.
-        :type command: list
-        :type stdout: subprocess object or None
-        :type stderr: subprocess object or None
-        :return: The subprocess.Popen object after executing command.
-        :rtype: subprocess.Popen
-        """
-
-        return subprocess.Popen(command, stdout=stdout, stderr=stderr)
-
-    def _iw_cmd(self, arguments):
-        """
-        Return the output of the iw command with it's arguments.
-
-        :param self: A NetworkManager object
-        :param arguments: List of all arguments for iw command
-        :type self: NetworkManager
-        :type arguments: list
-        :return: the output of the command
-        :rtype: str
-        :raises IwCmdError: If an error is produced after executing iw command
-        .. seealso:: _exec_cmd
-        .. warning:: "iw" should not be in arguments
-        """
-
-        # execute the command and get it's output
-        command = self._exec_cmd(["iw"] + arguments, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-        output = command.communicate()
-
-        # raise an error in case of error detection and return stdout otherwise
-        if output[1]:
-            raise IwCmdError(output[1])
-        else:
-            return output[0]
-
-    def _iwconfig_cmd(self, arguments):
-        """
-        Return the output of iwconfig command.
-
-        :param self: A NetworkManager object
-        :param arguments: List of all arguments for iwconfig command
-        :type self: NetworkManager
-        :type arguments: list
-        :return: the output of the command
-        :rtype: str
-        :raises IwconfigCmdError: if an error is produced after executing
-            iwconfig command
-        .. seealso:: _exec_cmd
-        .. warning:: "iwconfig" should not be in arguments
-        """
-
-        # execute the command and get it's output
-        command = self._exec_cmd(["iwconfig"] + arguments,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-        output = command.communicate()
-
-        # raise an error in case of error detection and return stdout otherwise
-        if output[1]:
-            raise IwconfigCmdError(output[1])
-        else:
-            return output[0]
-
-    def _ifconfig_cmd(self, arguments):
-        """
-        Return the output of ifconfig command.
-
-        :param self: A NetworkManager object
-        :param arguments: List of all arguments for ifconfig command
-        :type self: NetworkManager
-        :type arguments: list
-        :return: the output of the command
-        :rtype: str
-        :raises IfconfigCmdError: if an error is produced after executing
-            ifconfig command
-        .. seealso:: _exec_cmd
-        .. warning:: "ifconfig" should not be in arguments
-        """
-
-        # execute the command and get it's output
-        command = self._exec_cmd(["ifconfig"] + arguments,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE)
-        output = command.communicate()
-
-        # raise an error in case of error detection and return stdout otherwise
-        if output[1]:
-            raise IfconfigCmdError(output[1])
-        else:
-            return output[0]
 
     def _check_compatibility(self, interface):
         """
@@ -432,22 +260,18 @@ class NetworkManager(object):
         .. seealso:: _iw_cmd, _word_in_sentence, NetworkAdapter
         """
 
-        # get a list of all the devices
-        devices = self._iw_cmd(["dev"]).split("\n")
+        # get all the wireless interfaces
+        wireless_interfaces = pyric.winterfaces()
 
-        # find the physical name of the device
-        for line in range(len(devices)):
-            if interface.get_name() in devices[line]:
-                physical_name = devices[line-1]
+        # set monitor and AP mode if card supports it
+        for wireless_interface in wireless_interfaces:
+            # find all the available modes
+            card = pyric.getcard(wireless_interface)
+            modes = pyric.devmodes(card)
 
-        # get a list of all info about the device
-        device_info = self._iw_cmd([physical_name, "info"]).split("\n")
-
-        # determine if device supports monitor or AP mode
-        for line in device_info:
-            if line == "\t\t * monitor":
+            if "monitor" in modes:
                 interface.set_monitor_support(True)
-            elif line == "\t\t * AP":
+            if "AP" in modes:
                 interface.set_ap_support(True)
 
     def set_interface_mode(self, interface, mode):
@@ -469,37 +293,13 @@ class NetworkManager(object):
         .. seealso:: _ifconfig_cmd
         """
 
+        # get the card
+        card = pyric.getcard(interface)
+
         # turn off, set the mode and turn on the interface
-        self._ifconfig_cmd([interface, "down"])
-        self._iwconfig_cmd([interface, "mode", mode])
-        self._ifconfig_cmd([interface, "up"])
-
-    def _find_wireless_interfaces(self):
-        """
-        Return a list of available wireless interfaces.
-
-        :param self: A NetworkManager object
-        :type self: NetworkManager
-        :return: a list of available wireless interfaces
-        :rtype: list
-        :raises IfconfigCmdError: if an error is produced after executing
-            ifconfig command
-        """
-
-        # initialize a list to store the wireless interfaces
-        wireless_interfaces = list()
-
-        # get the interfaces info
-        interfaces_info = self._ifconfig_cmd(["-a"]).split("\n")
-
-        # add all the wireless interfaces to the list
-        for line in interfaces_info:
-            # add the interface to the list if it is wireless
-            result = re.match(r"(wl)\w+", line)
-            if result:
-                wireless_interfaces.append(result.group(0))
-
-        return wireless_interfaces
+        pyric.down(card)
+        pyric.modeset(card, mode)
+        pyric.up(card)
 
     def get_interfaces(self):
         """
