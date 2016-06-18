@@ -144,8 +144,6 @@ def shutdown(wireless_interfaces=None):
         os.remove('/tmp/wifiphisher-jammer.tmp')
     if os.path.isfile('/tmp/hostapd.conf'):
         os.remove('/tmp/hostapd.conf')
-    if os.path.isfile('/tmp/wifiphisher-hostapd.log'):
-        os.remove('/tmp/wifiphisher-hostapd.log')
 
     # set all the used interfaces to managed (normal) mode and show any errors
     if wireless_interfaces:
@@ -365,13 +363,13 @@ def start_ap(mon_iface, channel, essid, args):
     with open('/tmp/hostapd.conf', 'w') as dhcpconf:
             dhcpconf.write(config % (mon_iface, essid, channel))
 
-    Popen(['hostapd', '/tmp/hostapd.conf', '-f', '/tmp/wifiphisher-hostapd.log'], stdout=DN, stderr=DN)
+    hostapd_proc = Popen(['hostapd', '/tmp/hostapd.conf'], stdout=DN, stderr=DN)
     try:
         time.sleep(6)  # Copied from Pwnstar which said it was necessary?
-        proc = check_output(['cat', '/tmp/wifiphisher-hostapd.log'])
-        if 'driver initialization failed' in proc:
+        if hostapd_proc.poll() != None:
+            # hostapd will exit on error
             print('[' + R + '+' + W +
-                  '] Driver initialization failed! (hostapd error)\n' +
+                  '] Failed to start the fake access point! (hostapd error)\n' +
                   '[' + R + '+' + W +
                   '] Try a different wireless interface using -aI option.'
                   )
