@@ -7,7 +7,7 @@ import os
 from constants import *
 
 import ConfigParser
-
+from jinja2 import Environment, FileSystemLoader
 
 def config_section_map(config_file, section):
     """
@@ -17,6 +17,10 @@ def config_section_map(config_file, section):
     config = ConfigParser.ConfigParser()
     config.read(config_file)
     dict1 = {}
+
+    if section not in config.sections():
+        return dict1
+
     options = config.options(section)
     for option in options:
         try:
@@ -37,26 +41,29 @@ class InvalidTemplate(Exception):
 class PhishingTemplate(object):
     """ This class represents phishing templates """
 
-    def __init__(self, name, display_name="", description=""):
+    def __init__(self, name):
         """
         Construct object.
 
         :param self: A PhishingTemplate object
-        :param name: The name of the template
-        :param description: The description of the template
         :type self: PhishingScenario
-        :type name: str
-        :type description: str
         :return: None
         :rtype: None
         .. todo:: Maybe add a category field
         """
 
         # setup all the variables
+
+        config_path = os.path.join(PHISHING_PAGES_DIR, name, 'config.ini')
+        info = config_section_map(config_path, 'info')
+
         self._name = name
-        self._display_name = display_name
-        self._description = description
+        self._display_name = info['name']
+        self._description = info['description']
         self._path = PHISHING_PAGES_DIR + self._name.lower()
+
+        self._context = config_section_map(config_path, 'context')
+        self._env = Environment(loader=FileSystemLoader(self._path))
 
     def get_display_name(self):
         """
@@ -94,6 +101,10 @@ class PhishingTemplate(object):
 
         return self._path
 
+    def render(self, path):
+        t = self._env.get_template(path)
+        return t.render(self._context)
+
     def __str__(self):
         """
         Return a string representation of the template.
@@ -128,11 +139,7 @@ class TemplateManager(object):
         self._templates = {}
 
         for page in page_dirs:
-            config_path = os.path.join(PHISHING_PAGES_DIR, page, 'config.ini')
-            config = config_section_map(config_path, 'info')
-            desc = config['description']
-            self._templates[page] = PhishingTemplate(page, config['name'],
-                                                     desc)
+            self._templates[page] = PhishingTemplate(page)
 
         # add all the user templates to the database
         self.add_user_templates()
