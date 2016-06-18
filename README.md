@@ -21,7 +21,9 @@ From the victim's perspective, the attack makes use in three phases:
 
 ## Usage
 
-Run the tool by hitting `python bin/wifiphisher`. 
+Install the tool by hitting `python setup.py install`. 
+
+Run the tool by typing `wifiphisher` afterwards. 
 
 Following are some common options along with their descriptions:
 
