@@ -925,9 +925,7 @@ def run():
 
         copyfile(payload_path, PHISHING_PAGES_DIR + '/plugin_update/update/update.exe')
 
-
-    # set the path for the template
-    phishinghttp.set_template_path(template.get_path())
+    phishinghttp.serve_template(template)
 
     # Start AP
     start_ap(ap_iface, channel, essid, args)

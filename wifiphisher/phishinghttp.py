@@ -7,7 +7,7 @@ import socket
 import cgi
 from constants import *
 
-template_path = False
+template = False
 terminate = False
 
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
@@ -100,7 +100,9 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.server.stop = True
 
     def do_GET(self):
-        global template_path
+        global template
+
+        template_path = template.get_path()
         wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
         with open(wifi_webserver_tmp, "a+") as log_file:
             log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
@@ -109,18 +111,17 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             log_file.close()
         if not os.path.isfile("%s/%s" % (template_path, self.path)):
             self.path = "index.html"
-        self.path = "%s/%s" % (template_path, self.path)
+
         if self.path.endswith(".html"):
-            f = open(self.path)
             self.send_response(200)
             self.send_header('Content-type', 'text-html')
             self.end_headers()
             # Send file content to client
-            self.wfile.write(f.read())
-            f.close()
+            self.wfile.write(template.render(self.path).encode('utf-8'))
             return
         # Leave binary and other data to default handler.
         else:
+            self.path = "%s/%s" % (template_path, self.path)
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
@@ -167,6 +168,7 @@ def stop_server(port=PORT, ssl_port=SSL_PORT):
     conn.request("QUIT", "/")
     conn.getresponse()
 
-def set_template_path(path):
-    global template_path
-    template_path = path
+
+def serve_template(t):
+    global template
+    template = t
