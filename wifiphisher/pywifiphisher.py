@@ -150,11 +150,7 @@ def shutdown(wireless_interfaces=None):
     if wireless_interfaces:
         network_manager = interfaces.NetworkManager(None, None)
         for interface in wireless_interfaces:
-            try:
-                network_manager.set_interface_mode(interface, "managed")
-            except (interfaces.IfconfigCmdError,
-                    interfaces.IwconfigCmdError) as err:
-                print err
+            network_manager.set_interface_mode(interface, "managed")
 
     print '[' + R + '!' + W + '] Closing'
     sys.exit(0)
