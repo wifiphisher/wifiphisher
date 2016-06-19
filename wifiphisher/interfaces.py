@@ -258,7 +258,7 @@ class NetworkManager(object):
         """
 
         # Set monitor and AP mode if card supports it
-        card = pyric.getcard(interface)
+        card = pyric.getcard(interface.get_name())
         modes = pyric.devmodes(card)
 
         if "monitor" in modes:
