@@ -23,7 +23,7 @@ class NotEnoughInterfacesFoundError(Exception):
 
         message = ("There are not enough wireless interfaces for the tool to "
                    "run! Please ensure that at least two wireless adapters "
-                   "are connected to the device and they are compatible. At " 
+                   "are connected to the device and they are compatible. At "
                    "least one must support Master (AP) mode and another "
                    "must support Monitor mode.")
         Exception.__init__(self, message)
@@ -257,19 +257,14 @@ class NetworkManager(object):
         .. seealso:: _iw_cmd, _word_in_sentence, NetworkAdapter
         """
 
-        # Get all the wireless interfaces
-        wireless_interfaces = pyric.winterfaces()
-
         # Set monitor and AP mode if card supports it
-        for wireless_interface in wireless_interfaces:
-            # Find all the available modes
-            card = pyric.getcard(wireless_interface)
-            modes = pyric.devmodes(card)
+        card = pyric.getcard(interface)
+        modes = pyric.devmodes(card)
 
-            if "monitor" in modes:
-                interface.set_monitor_support(True)
-            if "AP" in modes:
-                interface.set_ap_support(True)
+        if "monitor" in modes:
+            interface.set_monitor_support(True)
+        if "AP" in modes:
+            interface.set_ap_support(True)
 
     def set_interface_mode(self, interface, mode):
         """
