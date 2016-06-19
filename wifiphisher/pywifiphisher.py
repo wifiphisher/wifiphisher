@@ -811,13 +811,9 @@ def run():
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
 
-    # Get hostapd if needed
+    # Get hostapd, dnsmasq or ifconfig if needed
     get_hostapd()
-
-    # Get dnsmasq if needed
     get_dnsmasq()
-
-    # Get ifconfig if needed
     get_ifconfig()
 
     # TODO: We should have more checks here:
