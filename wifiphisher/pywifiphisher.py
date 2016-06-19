@@ -20,6 +20,7 @@ import macmatcher
 import interfaces
 from constants import *
 
+VERSION = "1.1GIT"
 conf.verb = 0
 count = 0  # for channel hopping Thread
 APs = {} # for listing APs
@@ -155,7 +156,7 @@ def shutdown(wireless_interfaces=None):
                     interfaces.IwconfigCmdError) as err:
                 print err
 
-    print '\n[' + R + '!' + W + '] Closing'
+    print '[' + R + '!' + W + '] Closing'
     sys.exit(0)
 
 
@@ -796,6 +797,8 @@ def kill_interfering_procs():
 
 def run():
 
+    print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' % \
+          (VERSION, time.strftime("%Y-%m-%d %H:%M")))
 
     # Initialize a list to store the used interfaces
     used_interfaces = list()
