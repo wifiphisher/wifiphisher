@@ -841,9 +841,9 @@ def run():
         wj_iface = mon_iface
 
         # display selected interfaces to the user
-        print ("\n[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
+        print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
                "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
-               "rogue access point").format(G, W, mon_iface, ap_iface)
+               "rogue Access Point").format(G, W, mon_iface, ap_iface)
 
         # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
