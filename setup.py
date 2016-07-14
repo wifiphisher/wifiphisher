@@ -17,7 +17,7 @@ entry_points = {
 ]
 },
 install_requires = [
-'PyRIC == 0.1.2.1',
+'PyRIC',
 'jinja2']
 )
 
