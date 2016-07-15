@@ -37,12 +37,6 @@ def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-c",
-        "--channel",
-        help="Choose the channel for monitoring. Default is channel 1",
-        default="1"
-    )
-    parser.add_argument(
         "-s",
         "--skip",
         help="Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA"
@@ -105,11 +99,12 @@ def parse_args():
               ),
         action='store_true')
     parser.add_argument(
-        "-a",
-        "--accesspoint",
-        help="Enter the MAC address of a specific access point to target"
+        "-e",
+        "--essid",
+        help=("Enter the ESSID of the rogue access point (Evil Twin) " +
+             "This will skip Access Point selection phase."
+             )
     )
-
     parser.add_argument(
         "-T",
         "--template",
@@ -912,14 +907,23 @@ def run():
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 
-    # Copy AP
-    time.sleep(3)
-    hop = Thread(target=channel_hop, args=(mon_iface,))
-    hop.daemon = True
-    hop.start()
-    sniffing(mon_iface, targeting_cb)
-    channel, essid, ap_mac = copy_AP()
-    hop_daemon_running = False
+    if args.essid:
+        essid = args.essid
+        channel = str(CHANNEL)
+        args.accesspoint = False
+        args.channel = False
+        ap_mac = None
+    else:
+        # Copy AP
+        time.sleep(3)
+        hop = Thread(target=channel_hop, args=(mon_iface,))
+        hop.daemon = True
+        hop.start()
+        sniffing(mon_iface, targeting_cb)
+        channel, essid, ap_mac = copy_AP()
+        args.accesspoint = ap_mac
+        args.channel = channel
+        hop_daemon_running = False
 
     # get the correct template
     template = select_template(args.template)
@@ -961,7 +965,7 @@ def run():
     template.merge_context({'APs': APs_context})
 
     template.merge_context({
-        'target_ap_channel': channel,
+        'target_ap_channel': args.channel,
         'target_ap_essid': essid,
         'target_ap_bssid': ap_mac,
         'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac)
@@ -1023,8 +1027,6 @@ def run():
 
     clients_APs = []
     APs = []
-    args.accesspoint = ap_mac
-    args.channel = channel
     monitor_on = None
     conf.iface = mon_iface
     mon_MAC = mon_mac(mon_iface)

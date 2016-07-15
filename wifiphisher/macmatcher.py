@@ -41,13 +41,14 @@ class MACMatcher(object):
         :rtype: str
         """
 
-        # convert mac to match prefix file format
-        vendor_part = mac_address.replace(':', '').upper()[0:6]
+        if mac_address:
+            # convert mac to match prefix file format
+            vendor_part = mac_address.replace(':', '').upper()[0:6]
 
-        if vendor_part in self.mac_to_vendor:
-            return self.mac_to_vendor[vendor_part]
-        else:
-            return 'Unknown'
+            if vendor_part in self.mac_to_vendor:
+                return self.mac_to_vendor[vendor_part]
+
+        return 'Unknown'
 
     def unbind(self):
         """

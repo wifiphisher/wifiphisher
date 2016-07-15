@@ -10,6 +10,7 @@ dir_of_data = path_to_project_root + '/data/'
 # Basic configuration
 PORT = 8080
 SSL_PORT = 443
+CHANNEL = 6
 PEM = dir_of_data + 'cert/server.pem'
 PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
 MAC_PREFIX_FILE = dir_of_data + "nmap-mac-prefixes"
