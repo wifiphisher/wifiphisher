@@ -1069,6 +1069,7 @@ def run():
                 lines = "\n" * LINES_OUTPUT
             print lines
             if phishinghttp.terminate:
+                time.sleep(3)
                 shutdown(used_interfaces)
             time.sleep(0.5)
     except KeyboardInterrupt:
