@@ -60,6 +60,10 @@ class PhishingTemplate(object):
         self._name = name
         self._display_name = info['name']
         self._description = info['description']
+        self._payload = False
+        if 'payloadpath' in info:
+            self._payload = info['payloadpath']
+        
         self._path = PHISHING_PAGES_DIR + self._name.lower()
 
         self._context = config_section_map(config_path, 'context')
@@ -84,6 +88,32 @@ class PhishingTemplate(object):
         """
 
         return self._display_name
+
+    def get_payload_path(self):
+        """
+        Return the payload path of the template.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: The path of the template 
+        :rtype: bool
+        """
+
+        return self._payload
+
+    def has_payload(self):
+        """
+        Return whether the template has a payload.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: boolean if it needs payload 
+        :rtype: bool
+        """
+
+        if self._payload:
+            return True
+        return False
 
     def get_description(self):
         """

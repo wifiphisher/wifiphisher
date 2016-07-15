@@ -9,7 +9,6 @@ import argparse
 import fcntl
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
-from distutils.spawn import find_executable
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
@@ -715,88 +714,6 @@ def sniff_dot11(mon_iface):
         else:
             raise
 
-def get_dnsmasq():
-    if not os.path.isfile('/usr/sbin/dnsmasq'):
-        install = raw_input(
-            ('[' + T + '*' + W + '] dnsmasq not found ' +
-             'in /usr/bin/dnsmasq, install now? [y/n] ')
-        )
-        if install == 'y':
-            if os.path.isfile('/usr/bin/pacman'):
-                os.system('pacman -S dnsmasq')
-            elif os.path.isfile('/usr/bin/yum'):
-                os.system('yum install dnsmasq')
-            else:
-                os.system('apt-get -y install dnsmasq')
-        else:
-            sys.exit(('[' + R + '-' + W + '] dnsmasq' +
-                     ' not found in /usr/sbin/dnsmasq'))
-    if not os.path.isfile('/usr/sbin/dnsmasq'):
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to install the \'dnsmasq\' package!\n' +
-            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
-            'Please follow the link below to configure your sources.list\n' +
-            B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
-            '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
-            '[' + G + '+' + W + '] Rerun the script to install dnsmasq.\n' +
-            '[' + R + '!' + W + '] Closing'
-         ))
-
-def get_hostapd():
-    if not os.path.isfile('/usr/sbin/hostapd'):
-        install = raw_input(
-            ('[' + T + '*' + W + '] hostapd not found ' +
-             'in /usr/sbin/hostapd, install now? [y/n] ')
-        )
-        if install == 'y':
-            if os.path.isfile('/usr/bin/pacman'):
-                os.system('pacman -S hostapd')
-            elif os.path.isfile('/usr/bin/yum'):
-                os.system('yum install hostapd')
-            else:
-                os.system('apt-get -y install hostapd')
-        else:
-            sys.exit(('[' + R + '-' + W + '] hostapd' +
-                     ' not found in /usr/sbin/hostapd'))
-    if not os.path.isfile('/usr/sbin/hostapd'):
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to install the \'hostapd\' package!\n' +
-            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
-            'Please follow the link below to configure your sources.list\n' +
-            B + 'http://docs.kali.org/general-use/kali-linux-sources-list-repositories\n' + W +
-            '[' + G + '+' + W + '] Run apt-get update for changes to take effect.\n' +
-            '[' + G + '+' + W + '] Rerun the script to install hostapd.\n' +
-            '[' + R + '!' + W + '] Closing'
-         ))
-
-def get_ifconfig():
-    # This is only useful for Arch Linux which does not contain ifconfig by default
-    if not find_executable('ifconfig'):
-        install = raw_input(
-            ('[' + T + '*' + W + '] ifconfig not found. ' +
-             'install now? [y/n] ')
-        )
-        if install == 'y':
-            if os.path.isfile('/usr/bin/pacman'):
-                os.system('pacman -S net-tools')
-            else:
-                sys.exit((
-                    '\n[' + R + '-' + W + '] Don\'t know how to install ifconfig for your distribution.\n' +
-                    '[' + G + '+' + W + '] Rerun the script after installing it manually.\n' +
-                    '[' + R + '!' + W + '] Closing'
-                ))
-        else:
-            sys.exit(('[' + R + '-' + W + '] ifconfig' +
-                     ' not found'))
-    if not find_executable('ifconfig'):
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to install the \'net-tools\' package!\n' +
-            '[' + T + '*' + W + '] This process requires a persistent internet connection!\n' +
-            '[' + G + '+' + W + '] Run pacman -Syu to make sure you are up to date first.\n' +
-            '[' + G + '+' + W + '] Rerun the script to install net-tools.\n' +
-            '[' + R + '!' + W + '] Closing'
-         ))
-
 def kill_interfering_procs():
     # Kill any possible programs that may interfere with the wireless card
     # For systems with airmon-ng installed
@@ -836,11 +753,6 @@ def run():
     # Are you root?
     if os.geteuid():
         sys.exit('[' + R + '-' + W + '] Please run as root')
-
-    # Get hostapd, dnsmasq or ifconfig if needed
-    get_hostapd()
-    get_dnsmasq()
-    get_ifconfig()
 
     # TODO: We should have more checks here:
     # Is anything binded to our HTTP(S) ports?
@@ -932,26 +844,18 @@ def run():
            " template")
 
     # payload selection for browser plugin update
-    if "Browser Plugin Update" in template.get_display_name():
-
-        # get payload path
-        payload_path = raw_input("\n[" + G + "+" + W +
-                                     "] Enter the [" + G + "full path" + W +
-                                     "] to the payload you wish to serve: ")
-
+    if template.has_payload():
+        payload_path = False
         # copy payload to update directory
-
-        while not os.path.isfile(payload_path):
-
-            print "Invalid file path"
-
-            payload_path = raw_input("\n[" + G + "+" + W +
+        while not payload_path or not os.path.isfile(payload_path):
+            # get payload path
+            payload_path = raw_input("[" + G + "+" + W +
                                      "] Enter the [" + G + "full path" + W +
                                      "] to the payload you wish to serve: ")
-
+            if not os.path.isfile(payload_path):
+                print '[' + R + '-' + W + '] Invalid file path!'
         print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
-
-        copyfile(payload_path, PHISHING_PAGES_DIR + '/plugin_update/update/update.exe')
+        copyfile(payload_path, PHISHING_PAGES_DIR + template.get_payload_path())
 
     APs_context = []
     for i in APs:
