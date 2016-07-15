@@ -48,7 +48,7 @@ class MACMatcher(object):
             if vendor_part in self.mac_to_vendor:
                 return self.mac_to_vendor[vendor_part]
 
-        return 'Unknown'
+        return None
 
     def unbind(self):
         """

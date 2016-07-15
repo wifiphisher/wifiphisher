@@ -129,7 +129,7 @@
   <div class="container">
 	   <div class="col-sm">
        <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
-    	 <p class="lead">A new version of the {{ target_ap_vendor }} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review our new terms and conditions and proceed.</p>
+    	 <p class="lead">A new version of the {{ target_ap_vendor if target_ap_vendor != None}} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review our new terms and conditions and proceed.</p>
      </div>
     <form>
       <div class="form-group">
