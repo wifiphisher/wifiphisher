@@ -129,7 +129,7 @@ def stopfilter(x):
         return True
     return False
 
-def shutdown(wireless_interfaces=None):
+def shutdown(template=None, wireless_interfaces=None):
     """
     Shutdowns program.
     """
@@ -152,7 +152,7 @@ def shutdown(wireless_interfaces=None):
     if os.path.isfile('/tmp/hostapd.conf'):
         os.remove('/tmp/hostapd.conf')
 
-    # set all the used interfaces to managed (normal) mode and show any errors
+    # Set all the used interfaces to managed (normal) mode and show any errors
     if wireless_interfaces:
         network_manager = interfaces.NetworkManager(None, None)
         for interface in wireless_interfaces:
@@ -161,6 +161,10 @@ def shutdown(wireless_interfaces=None):
             except (interfaces.IfconfigCmdError,
                     interfaces.IwconfigCmdError) as err:
                 print err
+
+    # Remove any template extra files
+    if template:
+        template.remove_extra_files()
 
     print '[' + R + '!' + W + '] Closing'
     sys.exit(0)
@@ -868,11 +872,14 @@ def run():
 
     template.merge_context({'APs': APs_context})
 
+    ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
+
     template.merge_context({
         'target_ap_channel': args.channel,
         'target_ap_essid': essid,
         'target_ap_bssid': ap_mac,
-        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac)
+        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac),
+        'target_ap_logo_path': ap_logo_path 
     })
 
     phishinghttp.serve_template(template)
@@ -884,7 +891,7 @@ def run():
         print('[' + G + '+' + W +
               '] Could not set IP address on %s!' % ap_iface
               )
-        shutdown()
+        shutdown(template)
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
@@ -974,7 +981,7 @@ def run():
             print lines
             if phishinghttp.terminate:
                 time.sleep(3)
-                shutdown(used_interfaces)
+                shutdown(template, used_interfaces)
             time.sleep(0.5)
     except KeyboardInterrupt:
-        shutdown(used_interfaces)
+        shutdown(template, used_interfaces)

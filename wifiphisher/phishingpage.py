@@ -5,6 +5,7 @@ Wifiphisher.py
 
 import os
 from constants import *
+from shutil import copyfile
 
 import ConfigParser
 from jinja2 import Environment, FileSystemLoader
@@ -26,7 +27,6 @@ def config_section_map(config_file, section):
         try:
             dict1[option] = config.get(section, option)
         except:
-            print("exception on %s!" % option)
             dict1[option] = None
     return dict1
 
@@ -64,10 +64,11 @@ class PhishingTemplate(object):
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
         
-        self._path = PHISHING_PAGES_DIR + self._name.lower()
+        self._path = PHISHING_PAGES_DIR + self._name.lower() + "/"
 
         self._context = config_section_map(config_path, 'context')
         self._env = Environment(loader=FileSystemLoader(self._path))
+        self._extra_files = []
 
     def merge_context(self, context):
         """
@@ -139,6 +140,39 @@ class PhishingTemplate(object):
 
         return self._path
 
+    def use_file(self, path):
+        """
+        Copies a file in the filesystem to the path 
+        of the template files.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :param path: path of the file that is to be copied
+        :type self: str
+        :return: the path of the file under the template files
+        :rtype: str
+        """
+
+        if os.path.isfile(path):
+            filename = os.path.basename(path)
+            copyfile(path, self.get_path() + filename)
+            self._extra_files.append(self.get_path() + filename) 
+            return filename
+
+    def remove_extra_files(self):
+        """
+        Removes extra used files (if any)
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: None
+        :rtype: None
+        """
+
+        for f in self._extra_files:
+            if os.path.isfile(f):
+                os.remove(f)
+
     def render(self, path):
         t = self._env.get_template(path)
         return t.render(self._context)
@@ -177,7 +211,8 @@ class TemplateManager(object):
         self._templates = {}
 
         for page in page_dirs:
-            self._templates[page] = PhishingTemplate(page)
+            if os.path.isdir(page):
+                self._templates[page] = PhishingTemplate(page)
 
         # add all the user templates to the database
         self.add_user_templates()
@@ -234,5 +269,5 @@ class TemplateManager(object):
         # loop through the templates
         for template in user_templates:
             # create a template object and add it to the database
-            local_template = PhishingTemplate(template, template)
+            local_template = PhishingTemplate(template)
             self._templates[template] = local_template

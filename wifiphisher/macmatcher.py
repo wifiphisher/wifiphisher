@@ -2,6 +2,7 @@
 This module was made to match MAC address with vendors
 """
 
+from constants import *
 
 class MACMatcher(object):
     """
@@ -24,8 +25,8 @@ class MACMatcher(object):
             for line in prefixes_file:
                 # skip comments
                 if not line.startswith("#"):
-                    [bssid, vendor] = line.rstrip('\n').split(' ', 1)
-                    self.mac_to_vendor[bssid] = vendor
+                    unpack = line.rstrip('\n').split('|')
+                    self.mac_to_vendor[unpack[0]] = unpack
 
     def get_vendor_name(self, mac_address):
         """
@@ -46,7 +47,32 @@ class MACMatcher(object):
             vendor_part = mac_address.replace(':', '').upper()[0:6]
 
             if vendor_part in self.mac_to_vendor:
-                return self.mac_to_vendor[vendor_part]
+                return self.mac_to_vendor[vendor_part][1]
+
+        return None
+
+    def get_vendor_logo_path(self, mac_address):
+        """
+        Return the the full path of the logo in the filesystem
+        for the given MAC address
+        or empty if no match.
+
+        :param self: A MACMatcher object
+        :type self: MACMatcher
+        :param mac_address: mac address represended as two
+                            hexadecimal digits separated by colons
+        :type mac_address: string
+        :return: the full path of the logo in the filesystem
+        :rtype: str
+        """
+
+        if mac_address:
+            # convert mac to match prefix file format
+            vendor_part = mac_address.replace(':', '').upper()[0:6]
+
+            if vendor_part in self.mac_to_vendor and \
+            len(self.mac_to_vendor[vendor_part]) > 2:
+                return LOGOS_DIR + self.mac_to_vendor[vendor_part][2]
 
         return None
 
