@@ -124,12 +124,17 @@ def check_args(args):
     or len(args.presharedkey) > 64):
         sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
 
+    if (args.jamminginterface and not args.apinterface) or \
+    (not args.jamminginterface and args.apinterface):
+        sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) are used in conjuction.')
+
+
 def stopfilter(x):
     if not sniff_daemon_running:
         return True
     return False
 
-def shutdown(template=None, wireless_interfaces=None):
+def shutdown(template=None, network_manager=None):
     """
     Shutdowns program.
     """
@@ -153,13 +158,11 @@ def shutdown(template=None, wireless_interfaces=None):
         os.remove('/tmp/hostapd.conf')
 
     # Set all the used interfaces to managed (normal) mode and show any errors
-    if wireless_interfaces:
-        network_manager = interfaces.NetworkManager(None, None)
-        for interface in wireless_interfaces:
-            try:
-                network_manager.set_interface_mode(interface, "managed")
-            except:
-                print '[' + R + '!' + W + '] Failed to reset interface' 
+    if network_manager:
+        try:
+            network_manager.reset_ifaces_to_managed()
+        except:
+            print '[' + R + '!' + W + '] Failed to reset interface' 
 
     # Remove any template extra files
     if template:
@@ -778,9 +781,6 @@ def run():
     print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' % \
           (VERSION, time.strftime("%Y-%m-%d %H:%M")))
 
-    # Initialize a list to store the used interfaces
-    used_interfaces = list()
-
     # Parse args
     global args, APs, clients_APs, mon_MAC, mac_matcher, hop_daemon_running
     args = parse_args()
@@ -796,16 +796,20 @@ def run():
     # Is anything binded to our HTTP(S) ports?
     # Maybe we should save current iptables rules somewhere
 
-    network_manager = interfaces.NetworkManager(args.jamminginterface,
-                                                args.apinterface)
+    network_manager = interfaces.NetworkManager()
 
     mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
-
 
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
     try:
-        mon_iface, ap_iface = network_manager.get_interfaces()
+        if args.jamminginterface and args.apinterface:
+            mon_iface = network_manager.get_jam_iface(args.jamminginterface)
+            ap_iface = network_manager.get_ap_iface(args.apinterface)
+        else:
+            mon_iface, ap_iface = network_manager.find_interface_automatically()
+        network_manager.set_jam_iface(mon_iface)
+        network_manager.set_ap_iface(ap_iface)
 
         kill_interfering_procs()
 
@@ -828,9 +832,6 @@ def run():
         print ("[{0}!{1}] " + str(err)).format(R, W)
         time.sleep(2)
         shutdown()
-
-    # add the selected interfaces to the used list
-    used_interfaces = [mon_iface, ap_iface]
 
     set_fw_rules()
     set_kernel_var()
@@ -995,7 +996,7 @@ def run():
             print lines
             if phishinghttp.terminate:
                 time.sleep(3)
-                shutdown(template, used_interfaces)
+                shutdown(template, network_manager)
             time.sleep(0.5)
     except KeyboardInterrupt:
-        shutdown(template, used_interfaces)
+        shutdown(template, network_manager)

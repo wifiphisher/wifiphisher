@@ -118,7 +118,7 @@ class ApInterfaceInvalidError(Exception):
 
 class NetworkAdapter(object):
     """
-    This class represents a newtrok interface (netwrok adapter).
+    This class represents a newtrok interface (network adapter).
     """
 
     def __init__(self, name):
@@ -139,6 +139,16 @@ class NetworkAdapter(object):
         self._name = name
         self._support_ap_mode = False
         self._support_monitor_mode = False
+        self.being_used = False
+
+        # Set monitor and AP mode if card supports it
+        card = pyric.getcard(name)
+        modes = pyric.devmodes(card)
+
+        if "monitor" in modes:
+            self._support_monitor_mode = True
+        if "AP" in modes:
+            self._support_ap_mode = True
 
     def get_name(self):
         """
@@ -176,36 +186,6 @@ class NetworkAdapter(object):
 
         return self._support_monitor_mode
 
-    def set_ap_support(self, availability):
-        """
-        Set the availability of AP mode for the interface.
-
-        :param self: A NetworkAdapter object.
-        :param availability: True if interface supports AP mode and False
-            otherwise
-        :type self: NetworkAdapter
-        :type availability: bool
-        :return: None
-        :rtype: None
-        """
-
-        self._support_ap_mode = availability
-
-    def set_monitor_support(self, availability):
-        """
-        Set the availability of monitor mode for the interface.
-
-        :param self(): A NetworkAdapter object.
-        :param availability: True if interface supports monitor mode and False
-            otherwise
-        :type self: NetworkAdapter
-        :type availability: bool
-        :return: None
-        :rtype: None
-        """
-
-        self._support_monitor_mode = availability
-
 
 class NetworkManager(object):
     """
@@ -213,7 +193,7 @@ class NetworkManager(object):
     for the interfaces.
     """
 
-    def __init__(self, jamming_argument, ap_argument):
+    def __init__(self):
         """
         Setup the class with all the given arguments.
 
@@ -229,42 +209,13 @@ class NetworkManager(object):
         """
 
         # Setup the fields
-        self._jam_argument = jamming_argument
-        self._ap_argument = ap_argument
-        self._interfaces = list()
-
-        # Get all the wireless interfaces
-        wireless_interfaces = pyric.winterfaces()
+        self._interfaces = {}
+        self.ap_iface = ""
+        self.jam_iface = ""
 
         # Create, add and check compatibility for each interface
-        for interface in wireless_interfaces:
-            interface_object = NetworkAdapter(interface)
-            self._interfaces.append(interface_object)
-            self._check_compatibility(interface_object)
-
-    def _check_compatibility(self, interface):
-        """
-        Check and set the compatibility of the network adapter in regards to
-        monitor mode and AP mode.
-
-        :param self: A NetworkManager object
-        :param interface: A network adapter to be checked
-        :type self: NetworkManager
-        :type interface: NetworkAdapter
-        :return: None
-        :rtype: None
-        :raises IwCmdError: If an error is produced after executing iw command
-        .. seealso:: _iw_cmd, _word_in_sentence, NetworkAdapter
-        """
-
-        # Set monitor and AP mode if card supports it
-        card = pyric.getcard(interface.get_name())
-        modes = pyric.devmodes(card)
-
-        if "monitor" in modes:
-            interface.set_monitor_support(True)
-        if "AP" in modes:
-            interface.set_ap_support(True)
+        for interface in pyric.winterfaces():
+            self._interfaces[interface] = NetworkAdapter(interface)
 
     def set_interface_mode(self, interface, mode):
         """
@@ -293,78 +244,9 @@ class NetworkManager(object):
         pyric.modeset(card, mode)
         pyric.up(card)
 
-    def get_interfaces(self):
+    def find_interface_automatically(self):
         """
-        Return a tuple containing an interface with monitor mode fallowed by an
-        interface with AP mode available.
-
-        :param self: A NetworkManager object
-        :type self: NetworkManager
-        :return: a tuple containing monitor interface fallowed by AP interface
-        :rtype: tuple
-        :raises NotEnoughInterfacesFoundError: if less than two interfaces are
-            found
-        :raises JammingInterfaceInvalidError: if the jamming argument is
-            invalid
-        :raises ApInterfaceInvalidError: if the AP argument is invalid
-        .. seealso:: NetworkAdapter
-        """
-
-        monitor_interface = None
-        ap_interface = None
-
-        # Raise an error in case of less than two interfaces found
-        if len(self._interfaces) < 2:
-            raise NotEnoughInterfacesFoundError()
-
-        # In case of jamming argument (-jI) was supplied
-        if self._jam_argument:
-            for interface in self._interfaces:
-                if (interface.get_name() == self._jam_argument and
-                        interface.has_monitor_mode()):
-                    # Set the interface and remove it from the list
-                    monitor_interface = interface
-                    self._interfaces.remove(interface)
-
-                    # Get an interface with AP mode if ap_argument is not given
-                    if not self._ap_argument:
-                        ap_interface = self._find_interface(has_ap_mode=True)
-                    break
-
-            # Raise an error if the given jamming interface is invalid
-            if not monitor_interface:
-                raise JammingInterfaceInvalidError()
-
-        # In case where AP argument (-aI) is given
-        if self._ap_argument:
-            for interface in self._interfaces:
-                if (interface.get_name() == self._ap_argument and
-                        interface.has_ap_mode()):
-                    # Set the interface and remove it from the list
-                    ap_interface = interface
-                    self._interfaces.remove(interface)
-
-                    # Get an interface with monitor mode if jamming_argument
-                    # is not given
-                    if not self._jam_argument:
-                        monitor_interface =\
-                                    self._find_interface(has_monitor_mode=True)
-                    break
-
-            # Raise an error if AP interface given is invalid
-            if not ap_interface:
-                raise ApInterfaceInvalidError()
-
-        # In case of automatic interface detection is required
-        if not self._jam_argument and not self._ap_argument:
-            monitor_interface, ap_interface =\
-                    self._find_interface_automatically()
-
-        return monitor_interface.get_name(), ap_interface.get_name()
-
-    def _find_interface_automatically(self):
-        """
-        Find and return an interface with monitor mode support fallowed by
+        Find and return an interface with monitor mode support followed by
         an interface with AP mode support.
 
         :param self: A NetworkManager object
@@ -378,16 +260,19 @@ class NetworkManager(object):
         .. warning:: The function returns NetworkAdapter objects and not str
         """
 
+        # Raise an error in case of less than two interfaces found
+        if len(self._interfaces) < 2:
+            raise NotEnoughInterfacesFoundError()
+
         # Initialize list for comparison
         ap_available = list()
         monitor_available = list()
 
         # Populate ap_available and monitor_available lists
-        for interface in self._interfaces:
+        for k, interface in self._interfaces.iteritems():
             # Add all the interfaces with monitor mode
             if interface.has_monitor_mode():
                 monitor_available.append(interface)
-
             # Add all the interfaces with AP mode
             if interface.has_ap_mode():
                 ap_available.append(interface)
@@ -396,74 +281,68 @@ class NetworkManager(object):
         if len(ap_available) == 0:
             raise NoApInterfaceFoundError()
         # Raise error if no interface with monitor mode is found
-        elif len(monitor_available) == 0:
+        if len(monitor_available) == 0:
             raise NoMonitorInterfaceFoundError()
-        # In case of having more interfaces with monitor mode
-        elif len(monitor_available) >= len(ap_available):
+        # Raise error if one card is supposed to do both
+        if len(monitor_available) == 1 and len(ap_available) == 1:
+            if monitor_available[0] == ap_available[0]:
+                raise NotEnoughInterfacesFoundError()
+
+        # We only have one AP mode interface. We don't want to use it for jamming.
+        if len(monitor_available) > 1 and \
+        len(ap_available) == 1 and \
+        ap_available[0] in monitor_available:
             # Select an AP interface and remove it from available interfaces
             ap_interface = ap_available[0]
             ap_available.remove(ap_interface)
-
-            # If the ap_interface is also in monitor_available remove it
-            if (ap_interface in monitor_available and
-                    len(monitor_available) > 1):
-                monitor_available.remove(ap_interface)
-            else:
-                raise NoMonitorInterfaceFoundError
-
             # Select the first available interface with monitor mode
-            monitor_interface = monitor_available[0]
-        # In case of having more interfaces with AP mode
-        else:
-            # Select an monitor interface and remove it from available
-            # interfaces
-            monitor_interface = monitor_available[0]
-            monitor_available.remove(monitor_interface)
+            for m in monitor_available:
+                if m != ap_interface:
+                    monitor_interface = m
+            return monitor_interface.get_name(), ap_interface.get_name()
 
-            # If the monitor_interface is also in ap_available remove it
-            if monitor_interface in ap_available and len(ap_available) > 1:
-                ap_available.remove(monitor_interface)
-            else:
-                raise NoApInterfaceFoundError
+        # We only have one Monitor mode interface. We don't want to use it for AP.
+        # Covers all other cases too
+        monitor_interface = monitor_available[0]
+        # Select the first available interface with monitor mode
+        for a in ap_available:
+            if a != monitor_interface:
+                ap_interface = a
 
-            # Select the first available interface with AP mode
-            ap_interface = ap_available[0]
+        return monitor_interface.get_name(), ap_interface.get_name()
 
-        return monitor_interface, ap_interface
 
-    def _find_interface(self, has_ap_mode=None, has_monitor_mode=None):
-        """
-        Find and return an interface depending on the arguments set. If
-        has_ap_mode flag is set an interface with AP mode available might be
-        returned(if it exists). If has_monitor_mode is set an interface with
-        monitor mode available might be returned(if it exists).
-
-        :param self: A NetworkManager object
-        :param has_ap_mode: Value to be set if interface with AP mode is needed
-        :param has_monitor_mode: Value to be set if interface with monitor
-            mode is needed
-        :type self: NetworkManager
-        :type has_ap_mode: bool or None
-        :type has_monitor_mode: bool or None
-        :return: an NetworkAdapter object
-        :rtype: NetworkAdapter or None
-        :raises NoMonitorInterfaceFoundError: if has_monitor_mode flag is set
-            but no interface with monitor mode is found
-        :raises NoApInterfaceFoundError: if has_ap_mode flag is set is set but
-            no interface with AP mode is found
-        .. seealso:: NetworkAdapter
-        """
-
-        # Find an interface which supports monitor mode and raise error if not
-        # found
-        if has_monitor_mode:
-            for interface in self._interfaces:
+    def get_jam_iface(self, interface_name):
+        for k, interface in self._interfaces.iteritems():
+            if k == interface_name and not interface.being_used:
                 if interface.has_monitor_mode():
-                    return interface
-            raise NoMonitorInterfaceFoundError()
-        # Find an interface which supports AP mode and raise error if not found
-        elif has_ap_mode:
-            for interface in self._interfaces:
+                    return k
+                else:
+                    raise JammingInterfaceInvalidError
+        raise JammingInterfaceInvalidError
+
+    def get_ap_iface(self, interface_name):
+        for k, interface in self._interfaces.iteritems():
+            if k == interface_name and not interface.being_used:
                 if interface.has_ap_mode():
-                    return interface
-            raise NoApInterfaceFoundError()
+                    return k
+                else:
+                    raise ApInterfaceInvalidError
+        raise ApInterfaceInvalidError
+
+    def set_ap_iface(self, iface):
+        self.ap_iface = iface
+        iface_obj = self._interfaces[iface]
+        iface_obj.being_used = True
+        self._interfaces[iface] = iface_obj
+
+    def set_jam_iface(self, iface):
+        self.jam_iface = iface
+        iface_obj = self._interfaces[iface]
+        iface_obj.being_used = True
+        self._interfaces[iface] = iface_obj
+
+    def reset_ifaces_to_managed(self):
+        for k, i in self._interfaces.iteritems():
+            if i.being_used:
+                self.set_interface_mode(k, "managed")
