@@ -158,9 +158,8 @@ def shutdown(template=None, wireless_interfaces=None):
         for interface in wireless_interfaces:
             try:
                 network_manager.set_interface_mode(interface, "managed")
-            except (interfaces.IfconfigCmdError,
-                    interfaces.IwconfigCmdError) as err:
-                print err
+            except:
+                print '[' + R + '!' + W + '] Failed to reset interface' 
 
     # Remove any template extra files
     if template:
