@@ -169,6 +169,39 @@ def shutdown(template=None, wireless_interfaces=None):
     sys.exit(0)
 
 
+def set_fw_rules():
+    """
+    Set iptable rules
+    """
+    os.system(
+        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, PORT))
+    )
+    os.system(
+        ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, 53))
+    )
+    os.system(
+        ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, 53))
+    )
+    os.system(
+        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
+         % (NETWORK_GW_IP, SSL_PORT))
+    )
+
+
+def set_kernel_var():
+    """
+    Set kernel variables.
+    """
+    Popen(
+        ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
+        stdout=DN,
+        stderr=PIPE
+    )
+
+
 def channel_hop(mon_iface):
     chan = 0
     while hop_daemon_running:
@@ -270,7 +303,9 @@ def copy_AP():
                  '] of the AP you wish to copy: ')
             )
             copy = int(copy)
-        except Exception:
+        except KeyboardInterrupt:
+            shutdown()
+        except:
             copy = None
             continue
     try:
@@ -797,28 +832,8 @@ def run():
     # add the selected interfaces to the used list
     used_interfaces = [mon_iface, ap_iface]
 
-    # Set iptable rules and kernel variables.
-    os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, PORT))
-    )
-    os.system(
-        ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, SSL_PORT))
-    )
-    Popen(
-        ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
-        stdout=DN,
-        stderr=PIPE
-    )
+    set_fw_rules()
+    set_kernel_var()
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 
