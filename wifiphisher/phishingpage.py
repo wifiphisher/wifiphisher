@@ -153,7 +153,7 @@ class PhishingTemplate(object):
         :rtype: str
         """
 
-        if os.path.isfile(path):
+        if path is not None and os.path.isfile(path):
             filename = os.path.basename(path)
             copyfile(path, self.get_path() + filename)
             self._extra_files.append(self.get_path() + filename) 
