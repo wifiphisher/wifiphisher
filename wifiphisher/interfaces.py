@@ -186,6 +186,10 @@ class NetworkAdapter(object):
 
         return self._support_monitor_mode
 
+    def set_channel(self, channel):        
+        card = pyric.getcard(self._name)
+        pyric.chset(card, channel, None)
+
 
 class NetworkManager(object):
     """
@@ -237,7 +241,7 @@ class NetworkManager(object):
         """
 
         # Get the card
-        card = pyric.getcard(interface)
+        card = pyric.getcard(interface.get_name())
 
         # Turn off, set the mode and turn on the interface
         pyric.down(card)
@@ -299,7 +303,7 @@ class NetworkManager(object):
             for m in monitor_available:
                 if m != ap_interface:
                     monitor_interface = m
-            return monitor_interface.get_name(), ap_interface.get_name()
+            return monitor_interface, ap_interface
 
         # We only have one Monitor mode interface. We don't want to use it for AP.
         # Covers all other cases too
@@ -309,14 +313,14 @@ class NetworkManager(object):
             if a != monitor_interface:
                 ap_interface = a
 
-        return monitor_interface.get_name(), ap_interface.get_name()
+        return monitor_interface, ap_interface
 
 
     def get_jam_iface(self, interface_name):
         for k, interface in self._interfaces.iteritems():
             if k == interface_name and not interface.being_used:
                 if interface.has_monitor_mode():
-                    return k
+                    return interface
                 else:
                     raise JammingInterfaceInvalidError
         raise JammingInterfaceInvalidError
@@ -325,7 +329,7 @@ class NetworkManager(object):
         for k, interface in self._interfaces.iteritems():
             if k == interface_name and not interface.being_used:
                 if interface.has_ap_mode():
-                    return k
+                    return interface
                 else:
                     raise ApInterfaceInvalidError
         raise ApInterfaceInvalidError
@@ -345,4 +349,4 @@ class NetworkManager(object):
     def reset_ifaces_to_managed(self):
         for k, i in self._interfaces.iteritems():
             if i.being_used:
-                self.set_interface_mode(k, "managed")
+                self.set_interface_mode(i, "managed")

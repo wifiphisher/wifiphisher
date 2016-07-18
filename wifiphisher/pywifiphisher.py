@@ -212,24 +212,8 @@ def channel_hop(mon_iface):
             if chan > 11:
                 chan = 0
             chan = chan + 1
-            channel = str(chan)
-            iw = Popen(
-                ['iw', 'dev', mon_iface, 'set', 'channel', channel],
-                stdout=DN, stderr=PIPE
-            )
-            for line in iw.communicate()[1].split('\n'):
-                # iw dev shouldnt display output unless there's an error
-                if len(line) > 2:
-                    with lock:
-                        err = (
-                            '[' + R + '-' + W + '] Channel hopping failed: ' +
-                            R + line + W + '\n'
-                            'Try disconnecting the monitor mode\'s parent' +
-                            'interface (e.g. wlan0)\n'
-                            'from the network if you have not already\n'
-                        )
-                        sys.exit(err)
-                    break
+            channel = chan
+            mon_iface.set_channel(channel)
             time.sleep(1)
         except KeyboardInterrupt:
             sys.exit()
@@ -493,21 +477,8 @@ def channel_hop2(mon_iface):
                 with lock:
                     first_pass = 0
             with lock:
-                monchannel = str(channelNum)
-
-            proc = Popen(
-                ['iw', 'dev', mon_iface, 'set', 'channel', monchannel],
-                stdout=DN,
-                stderr=PIPE
-            )
-
-            for line in proc.communicate()[1].split('\n'):
-                if len(line) > 2:
-                    # iw dev shouldnt display output unless there's an error
-                    err = ('[' + R + '-' + W + '] Channel hopping failed: '
-                           + R + line + W)
-                    sys.exit(err)
-
+                monchannel = channelNum
+            mon_iface.set_channel(monchannel)
         output(monchannel)
         if args.channel:
             time.sleep(.05)
@@ -516,7 +487,6 @@ def channel_hop2(mon_iface):
             if first_pass == 1:
                 time.sleep(1)
                 continue
-
         deauth(monchannel)
 
 
@@ -808,8 +778,8 @@ def run():
             ap_iface = network_manager.get_ap_iface(args.apinterface)
         else:
             mon_iface, ap_iface = network_manager.find_interface_automatically()
-        network_manager.set_jam_iface(mon_iface)
-        network_manager.set_ap_iface(ap_iface)
+        network_manager.set_jam_iface(mon_iface.get_name())
+        network_manager.set_ap_iface(ap_iface.get_name())
 
         kill_interfering_procs()
 
@@ -820,7 +790,7 @@ def run():
         # display selected interfaces to the user
         print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
                "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
-               "rogue Access Point").format(G, W, mon_iface, ap_iface)
+               "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
 
         # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
@@ -850,7 +820,7 @@ def run():
         hop = Thread(target=channel_hop, args=(mon_iface,))
         hop.daemon = True
         hop.start()
-        sniffing(mon_iface, targeting_cb)
+        sniffing(mon_iface.get_name(), targeting_cb)
         channel, essid, ap_mac = copy_AP()
         args.accesspoint = ap_mac
         args.channel = channel
@@ -900,18 +870,18 @@ def run():
     phishinghttp.serve_template(template)
 
     # Start AP
-    start_ap(ap_iface, channel, essid, args)
-    dhcpconf = dhcp_conf(ap_iface)
-    if not dhcp(dhcpconf, ap_iface):
+    start_ap(ap_iface.get_name(), channel, essid, args)
+    dhcpconf = dhcp_conf(ap_iface.get_name())
+    if not dhcp(dhcpconf, ap_iface.get_name()):
         print('[' + G + '+' + W +
-              '] Could not set IP address on %s!' % ap_iface
+              '] Could not set IP address on %s!' % ap_iface.get_name()
               )
         shutdown(template)
     os.system('clear')
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
-           T + channel + W + ' via ' + T + mon_iface +
-           W + ' on ' + T + str(ap_iface) + W)
+           T + channel + W + ' via ' + T + mon_iface.get_name() +
+           W + ' on ' + T + str(ap_iface.get_name()) + W)
 
     # With configured DHCP, we may now start the web server
     # Start HTTP server in a background thread
@@ -954,8 +924,8 @@ def run():
     clients_APs = []
     APs = []
     monitor_on = None
-    conf.iface = mon_iface
-    mon_MAC = mon_mac(mon_iface)
+    conf.iface = mon_iface.get_name()
+    mon_MAC = mon_mac(mon_iface.get_name())
     first_pass = 1
 
     monchannel = channel
@@ -965,7 +935,7 @@ def run():
     hop.start()
 
     # Start sniffing
-    sniff_thread = Thread(target=sniff_dot11, args=(wj_iface,))
+    sniff_thread = Thread(target=sniff_dot11, args=(wj_iface.get_name(),))
     sniff_thread.daemon = True
     sniff_thread.start()
 
