@@ -47,7 +47,7 @@ Following are some common options along with their descriptions:
 
 ## Requirements
 * Kali Linux.
-* Two wireless network adapters; one capable of injection.
+* Two wireless network adapters that support AP and Monitor mode accordingly.
 
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
@@ -56,10 +56,7 @@ If you don't know how to code, you can help us by <a href="https://github.com/so
 
 ## Credits
 The script is based on an idea from <a
-href="https://github.com/DanMcInerney">Dan McInerney</a>. The parts for the
-jamming and selecting an AP have also been taken from his scripts <a
-href="https://github.com/DanMcInerney/wifijammer">wifijammer</a> and <a
-href="https://github.com/DanMcInerney/fakeAP">fakeAP</a>.
+href="https://github.com/DanMcInerney">Dan McInerney</a>.
 
 A full list of contributors lies <a href="https://github.com/sophron/wifiphisher/graphs/contributors">here</a>.
 
