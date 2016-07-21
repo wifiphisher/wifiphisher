@@ -57,23 +57,6 @@ def parse_args():
               )
     )
     parser.add_argument(
-        "-m",
-        "--maximum",
-        help=("Choose the maximum number of clients to deauth." +
-              "List of clients will be emptied and repopulated after" +
-              "hitting the limit. Example: -m 5"
-              )
-    )
-    parser.add_argument(
-        "-n",
-        "--noupdate",
-        help=("Do not clear the deauth list when the maximum (-m) number" +
-              "of client/AP combos is reached. Must be used in conjunction" +
-              "with -m. Example: -m 10 -n"
-              ),
-        action='store_true'
-    )
-    parser.add_argument(
         "-t",
         "--timeinterval",
         help=("Choose the time interval between packets being sent." +
@@ -604,15 +587,6 @@ def cb(pkt):
     if sniff_daemon_running:
         # return these if's keeping clients_APs the same or just reset clients_APs?
         # I like the idea of the tool repopulating the variable more
-        if args.maximum:
-            if args.noupdate:
-                if len(clients_APs) > int(args.maximum):
-                    return
-            else:
-                if len(clients_APs) > int(args.maximum):
-                    with lock:
-                        clients_APs = []
-                        APs = []
 
         '''
         We're adding the AP and channel to the deauth list at time of creation
