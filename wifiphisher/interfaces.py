@@ -25,7 +25,9 @@ class NotEnoughInterfacesFoundError(Exception):
                    "run! Please ensure that at least two wireless adapters "
                    "are connected to the device and they are compatible. At "
                    "least one must support Master (AP) mode and another "
-                   "must support Monitor mode.")
+                   "must support Monitor mode.\n"
+                   "Otherwise, you may try --nojamming option that will turn "
+                   "off the deauthentication phase.")
         Exception.__init__(self, message)
 
 
