@@ -81,6 +81,12 @@ def parse_args():
               ),
         action='store_true')
     parser.add_argument(
+        "-nJ",
+        "--nojamming",
+        help=("Skip the deauthentication phase."
+              ),
+        action='store_true')
+    parser.add_argument(
         "-e",
         "--essid",
         help=("Enter the ESSID of the rogue access point (Evil Twin) " +
@@ -93,7 +99,6 @@ def parse_args():
         help=("Choose the template to run."+
               "Using this option will skip the interactive "+
               "selection"))
-
     parser.add_argument(
         "-pK",
         "--presharedkey",
@@ -102,6 +107,10 @@ def parse_args():
     return parser.parse_args()
 
 def check_args(args):
+    """
+    Checks the given arguments for logic errors.
+    """
+
     if args.presharedkey and \
     (len(args.presharedkey) < 8 \
     or len(args.presharedkey) > 64):
@@ -110,6 +119,9 @@ def check_args(args):
     if (args.jamminginterface and not args.apinterface) or \
     (not args.jamminginterface and args.apinterface):
         sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) are used in conjuction.')
+
+    if args.nojamming and args.jamminginterface: 
+        sys.exit('[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
 
 def stopfilter(x):
@@ -746,24 +758,30 @@ def run():
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
     try:
-        if args.jamminginterface and args.apinterface:
-            mon_iface = network_manager.get_jam_iface(args.jamminginterface)
-            ap_iface = network_manager.get_ap_iface(args.apinterface)
+        if not args.nojamming:
+            if args.jamminginterface and args.apinterface:
+                mon_iface = network_manager.get_jam_iface(args.jamminginterface)
+                ap_iface = network_manager.get_ap_iface(args.apinterface)
+            else:
+                mon_iface, ap_iface = network_manager.find_interface_automatically()
+            network_manager.set_jam_iface(mon_iface.get_name())
+            network_manager.set_ap_iface(ap_iface.get_name())
+            # display selected interfaces to the user
+            print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
+                   "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
+                   "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
         else:
-            mon_iface, ap_iface = network_manager.find_interface_automatically()
-        network_manager.set_jam_iface(mon_iface.get_name())
-        network_manager.set_ap_iface(ap_iface.get_name())
+            ap_iface = network_manager.get_ap_iface()
+            mon_iface = ap_iface
+            network_manager.set_ap_iface(ap_iface.get_name())
+            print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "\
+                   "rogue Access Point").format(G, W, ap_iface.get_name())
 
         kill_interfering_procs()
 
         # TODO: this line should be removed once all the wj_iface have been
         # removed
         wj_iface = mon_iface
-
-        # display selected interfaces to the user
-        print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
-               "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
-               "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
 
         # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
@@ -842,6 +860,9 @@ def run():
 
     phishinghttp.serve_template(template)
 
+    # We want to set this now for hostapd. Maybe the interface was in "monitor"
+    # mode for network discovery before (e.g. when --nojamming is enabled).
+    network_manager.set_interface_mode(ap_iface, "managed")
     # Start AP
     start_ap(ap_iface.get_name(), channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface.get_name())

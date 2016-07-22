@@ -325,13 +325,18 @@ class NetworkManager(object):
                     raise JammingInterfaceInvalidError
         raise JammingInterfaceInvalidError
 
-    def get_ap_iface(self, interface_name):
+    def get_ap_iface(self, interface_name=None):
         for k, interface in self._interfaces.iteritems():
+            if interface_name == None:
+                if interface.has_ap_mode():
+                    return interface 
             if k == interface_name and not interface.being_used:
                 if interface.has_ap_mode():
                     return interface
                 else:
                     raise ApInterfaceInvalidError
+        if interface_name == None:
+            raise NoApInterfaceFoundError
         raise ApInterfaceInvalidError
 
     def set_ap_iface(self, iface):
