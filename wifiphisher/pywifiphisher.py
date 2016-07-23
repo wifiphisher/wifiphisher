@@ -779,10 +779,6 @@ def run():
 
         kill_interfering_procs()
 
-        # TODO: this line should be removed once all the wj_iface have been
-        # removed
-        wj_iface = mon_iface
-
         # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
     except (interfaces.NotEnoughInterfacesFoundError,
@@ -924,12 +920,12 @@ def run():
 
     monchannel = channel
     # Start channel hopping
-    hop = Thread(target=channel_hop2, args=(wj_iface,))
+    hop = Thread(target=channel_hop2, args=(mon_iface,))
     hop.daemon = True
     hop.start()
 
     # Start sniffing
-    sniff_thread = Thread(target=sniff_dot11, args=(wj_iface.get_name(),))
+    sniff_thread = Thread(target=sniff_dot11, args=(mon_iface.get_name(),))
     sniff_thread.daemon = True
     sniff_thread.start()
 
