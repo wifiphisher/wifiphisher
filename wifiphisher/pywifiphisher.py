@@ -792,6 +792,7 @@ def run():
 
     set_fw_rules()
     set_kernel_var()
+    network_manager.up_ifaces([ap_iface, mon_iface])
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 

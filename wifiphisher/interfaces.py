@@ -223,6 +223,11 @@ class NetworkManager(object):
         for interface in pyric.winterfaces():
             self._interfaces[interface] = NetworkAdapter(interface)
 
+    def up_ifaces(self, ifaces):
+        for i in ifaces:    
+            card = pyric.getcard(i.get_name())
+            pyric.up(card)
+            
     def set_interface_mode(self, interface, mode):
         """
         Set the desired mode to the network interface.
