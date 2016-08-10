@@ -43,30 +43,27 @@ def parse_args():
     parser.add_argument(
         "-jI",
         "--jamminginterface",
-        help=("Choose monitor mode interface. " +
-              "By default script will find the most powerful interface and " +
-              "starts monitor mode on it. Example: -jI mon5"
+        help=("Manually choose an interface that supports monitor mode for " +
+              "deauthenticating the victims. " +
+              "Example: -jI wlan1"
               )
     )
     parser.add_argument(
         "-aI",
         "--apinterface",
-        help=("Choose access point interface. " +
-              "By default script will find the most powerful interface and " +
-              "starts an access point on it. Example: -aI wlan0"
+        help=("Manually choose an interface that supports AP mode for  " +
+              "spawning an AP. " +
+              "Example: -aI wlan0"
               )
     )
     parser.add_argument(
         "-t",
         "--timeinterval",
-        help=("Choose the time interval between packets being sent." +
-              " Default is as fast as possible. If you see scapy " +
-              "errors like 'no buffer space' try: -t .00001"
-              )
+        help=("Choose the time interval between DEAUTH packets being sent")
     )
     parser.add_argument(
-        "-p",
-        "--packets",
+        "-dP",
+        "--deauthpackets",
         help=("Choose the number of packets to send in each deauth burst. " +
               "Default value is 1; 1 packet to the client and 1 packet to " +
               "the AP. Send 2 deauth packets to the client and 2 deauth " +
@@ -83,26 +80,29 @@ def parse_args():
     parser.add_argument(
         "-nJ",
         "--nojamming",
-        help=("Skip the deauthentication phase."
+        help=("Skip the deauthentication phase. When this option is used, " +
+              "only one wireless interface is required"
               ),
         action='store_true')
     parser.add_argument(
         "-e",
         "--essid",
-        help=("Enter the ESSID of the rogue access point (Evil Twin) " +
-             "This will skip Access Point selection phase."
+        help=("Enter the ESSID of the rogue Access Point. " +
+             "This option will skip Access Point selection phase. " +
+             "Example: --essid 'Free WiFi'"
              )
     )
     parser.add_argument(
-        "-T",
-        "--template",
-        help=("Choose the template to run."+
-              "Using this option will skip the interactive "+
-              "selection"))
+        "-p",
+        "--phishingscenario",
+        help=("Choose the phishing scenario to run."+
+              "This option will skip the scenario selection phase. " +
+              "Example: -p firmware_upgrade"))
     parser.add_argument(
         "-pK",
         "--presharedkey",
-        help=("Add WPA/WPA2 protection on the rogue Access Point"))
+        help=("Add WPA/WPA2 protection on the rogue Access Point. " + 
+              "Example: -pK s3cr3tp4ssw0rd"))
 
     return parser.parse_args()
 
@@ -536,11 +536,11 @@ def deauth(monchannel):
         # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
         if not args.timeinterval:
             args.timeinterval = 0
-        if not args.packets:
-            args.packets = 1
+        if not args.deauthpackets:
+            args.deauthpackets = 1
 
         for p in pkts:
-            send(p, inter=float(args.timeinterval), count=int(args.packets))
+            send(p, inter=float(args.timeinterval), count=int(args.deauthpackets))
 
 
 def output(monchannel):
@@ -815,7 +815,7 @@ def run():
         hop_daemon_running = False
 
     # get the correct template
-    template = select_template(args.template)
+    template = select_template(args.phishingscenario)
 
     print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
            " template")
