@@ -3,7 +3,8 @@ This module was made to handle all the interface related operations for
 Wifiphisher.py
 """
 
-import pyric.pyw as pyric
+import pyric
+import pyric.pyw as pyw
 
 
 class NotEnoughInterfacesFoundError(Exception):
@@ -23,7 +24,8 @@ class NotEnoughInterfacesFoundError(Exception):
 
         message = ("There are not enough wireless interfaces for the tool to "
                    "run! Please ensure that at least two wireless adapters "
-                   "are connected to the device and they are compatible. At "
+                   "are connected to the device and they are compatible " +
+                   "(drivers should support netlink). At "
                    "least one must support Master (AP) mode and another "
                    "must support Monitor mode.\n"
                    "Otherwise, you may try --nojamming option that will turn "
@@ -144,8 +146,8 @@ class NetworkAdapter(object):
         self.being_used = False
 
         # Set monitor and AP mode if card supports it
-        card = pyric.getcard(name)
-        modes = pyric.devmodes(card)
+        card = pyw.getcard(name)
+        modes = pyw.devmodes(card)
 
         if "monitor" in modes:
             self._support_monitor_mode = True
@@ -189,8 +191,8 @@ class NetworkAdapter(object):
         return self._support_monitor_mode
 
     def set_channel(self, channel):        
-        card = pyric.getcard(self._name)
-        pyric.chset(card, channel, None)
+        card = pyw.getcard(self._name)
+        pyw.chset(card, channel, None)
 
 
 class NetworkManager(object):
@@ -220,13 +222,18 @@ class NetworkManager(object):
         self.jam_iface = ""
 
         # Create, add and check compatibility for each interface
-        for interface in pyric.winterfaces():
-            self._interfaces[interface] = NetworkAdapter(interface)
+        for interface in pyw.winterfaces():
+            try:
+                self._interfaces[interface] = NetworkAdapter(interface)
+            except pyric.error as e:
+                pass
+            #except pyric.error:
+            #    pass
 
     def up_ifaces(self, ifaces):
         for i in ifaces:    
-            card = pyric.getcard(i.get_name())
-            pyric.up(card)
+            card = pyw.getcard(i.get_name())
+            pyw.up(card)
             
     def set_interface_mode(self, interface, mode):
         """
@@ -248,12 +255,12 @@ class NetworkManager(object):
         """
 
         # Get the card
-        card = pyric.getcard(interface.get_name())
+        card = pyw.getcard(interface.get_name())
 
         # Turn off, set the mode and turn on the interface
-        pyric.down(card)
-        pyric.modeset(card, mode)
-        pyric.up(card)
+        pyw.down(card)
+        pyw.modeset(card, mode)
+        pyw.up(card)
 
     def find_interface_automatically(self):
         """
