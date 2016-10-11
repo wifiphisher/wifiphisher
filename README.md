@@ -6,7 +6,7 @@ Wifiphisher is a security tool that mounts automated phishing attacks against Wi
 Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
 ## How it works
-After achieving a man-in-the-middle position using the Evil Twin attack, wifiphisher redirects all HTTP requests to an attacker-controlled look-alike web site.
+After achieving a man-in-the-middle position using the Evil Twin attack, Wifiphisher redirects all HTTP requests to an attacker-controlled look-alike web site.
 
 From the victim's perspective, the attack makes use in three phases:
 
@@ -20,9 +20,9 @@ From the victim's perspective, the attack makes use in three phases:
 <p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
 ## Requirements
-* Kali Linux.
-* One wireless network adapter that supports AP mode.
-* One wireless network adapter that is capable of injection.
+* Kali Linux. Although people have made Wifiphisher work on other distros, Kali Linux is the officially supported distribution, thus all new features are tested on this platform.
+* One wireless network adapter that supports AP mode. Drivers should support netlink.
+* One wireless network adapter that supports Monitor mode and is capable of injection. Again, drivers should support netlink. If a second wireless network adapter is not available, you may run the tool with the `--nojamming` option. This will turn off the de-authentication attack though.
 
 ## Installation
 
@@ -31,7 +31,7 @@ To install the latest development version type the following commands:
 ```bash
 git clone https://github.com/sophron/wifiphisher.git # Download the latest revision
 cd wifiphisher # Switch to tool's directory
-sudo python setup.py install # Install any dependencies
+sudo python setup.py install # Install any dependencies (Currently, hostapd, PyRIC, jinja2) 
 ```
 
 ## Usage
@@ -48,7 +48,7 @@ wifiphisher -aI wlan0 -jI wlan4 -p firmware-upgrade
 
 Use wlan0 for spawning the rogue Access Point and wlan4 for DoS attacks. Select the target network manually from the list and perform the "Firmware Upgrade" scenario. 
 
-Useful for selecting manually the wireless adapters. The "Firware Upgrade" scenario is an easy way for obtaining the PSK from a password-protected network.
+Useful for manually selecting the wireless adapters. The "Firware Upgrade" scenario is an easy way for obtaining the PSK from a password-protected network.
 
 ***
 
@@ -68,7 +68,7 @@ wifiphisher --nojamming --essid "FREE WI-FI" -p oauth-login
 
 Do not target any network. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario.
 
-Useful against public areas. The "OAuth Login" scenario provides a simple way for capturing credentials from social networks, like Facebook. 
+Useful against victims in public areas. The "OAuth Login" scenario provides a simple way for capturing credentials from social networks, like Facebook. 
 
 Following are all the options along with their descriptions (also available with `wifiphisher -h`):
 
