@@ -19,13 +19,58 @@ From the victim's perspective, the attack makes use in three phases:
 
 <p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
+## Requirements
+* Kali Linux.
+* One wireless network adapter that supports AP mode.
+* One wireless network adapter that is capable of injection.
+
+## Installation
+
+To install the latest development version type the following commands:
+
+```bash
+git clone https://github.com/sophron/wifiphisher.git # Download the latest revision
+cd wifiphisher # Switch to tool's directory
+sudo python setup.py install # Install any dependencies
+```
+
 ## Usage
 
-Install the tool by hitting `python setup.py install`. 
+Run the tool by typing `wifiphisher` or `python bin/wifiphisher` (from inside the tool's directory).
 
-Run the tool by typing `wifiphisher` afterwards. 
+By running the tool without any options, it will find the right interfaces and interactively ask the user to pick the ESSID of the target network (out of a list with all the ESSIDs in the around area) as well as a phishing scenario to perform.
 
-Following are some common options along with their descriptions:
+***
+
+```shell
+wifiphisher -aI wlan0 -jI wlan4 -p firmware-upgrade
+```
+
+Use wlan0 for spawning the rogue Access Point and wlan4 for DoS attacks. Select the target network manually from the list and perform the "Firmware Upgrade" scenario. 
+
+Useful for selecting manually the wireless adapters. The "Firware Upgrade" scenario is an easy way for obtaining the PSK from a password-protected network.
+
+***
+
+```shell
+wifiphisher --essid CONFERENCE_WIFI -p plugin_update -pK s3cr3tp4ssw0rd
+```
+
+Automatically pick the right interfaces. Target the Wi-Fi with ESSID "CONFERENCE_WIFI" and perform the "Plugin Update" scenario. The Evil Twin will be password-protected with PSK "s3cr3tp4ssw0rd". 
+
+Useful against networks with disclosed PSKs (e.g. in conferences). The "Plugin Update" scenario provides an easy way for getting the victims to download malicious executables (e.g. malwares containing a reverse shell payload).
+
+***
+
+```shell
+wifiphisher --nojamming --essid "FREE WI-FI" -p oauth-login
+```
+
+Do not target any network. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario.
+
+Useful against public areas. The "OAuth Login" scenario provides a simple way for capturing credentials from social networks, like Facebook. 
+
+Following are all the options along with their descriptions (also available with `wifiphisher -h`):
 
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
@@ -44,11 +89,6 @@ Following are some common options along with their descriptions:
 <p align="center"><img src="https://sophron.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
 <p align="center"><img src="https://sophron.github.io/wifiphisher/ss3.png" /><br /><i>Fake router configuration page</i></p>
 
-
-## Requirements
-* Kali Linux.
-* Two wireless network adapters that support AP and Monitor mode accordingly.
-
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
 
@@ -63,7 +103,7 @@ A full list of contributors lies <a href="https://github.com/sophron/wifiphisher
 ## License
 Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more information.
 
-## Project Status & Download
+## Project Status
 Wifiphisher's current version is **1.1**. You can download the latest release from <a href="https://github.com/sophron/wifiphisher/releases/tag/v1.1">here</a>. Otherwise you can get the latest development version by cloning this repository. 
 
 ## Other resources
