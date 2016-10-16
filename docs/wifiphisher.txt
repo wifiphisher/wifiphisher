@@ -110,7 +110,7 @@ PHISHING SCENARIOS
     target_ap_channel <str>: The channel of the target Access Point
     target_ap_vendor <str>: The vendor's name of the target Access Point
     target_ap_logo_path <str>: The relative path of the target Access Point vendor's logo in the filesystem
-    APs_context <list>: A list containing AP dictionaries of the Access Points captured during the
+    APs <list>: A list containing AP dictionaries of the Access Points captured during the
         AP <dict>: A dictionary holding the following information regarding an Access Point:
             channel <str>: The channel of the Access Point
             essid <str> The ESSID of the Access Point
