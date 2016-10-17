@@ -103,6 +103,10 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         global template
 
+        # Two slashes in the URL will confuse our server
+        if self.path.count("/") > 1:
+            self.redirect("/index.html")
+
         template_path = template.get_path()
         wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
         with open(wifi_webserver_tmp, "a+") as log_file:
