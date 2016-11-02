@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import string
 import re
 import time
 import sys
 import argparse
 import fcntl
+import pickle
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
@@ -218,7 +220,8 @@ def sniffing(interface, cb):
     '''This exists for if/when I get deauth working
     so that it's easy to call sniff() in a thread'''
     try:
-        sniff(iface=interface, prn=cb, store=0, stop_filter=stopfilter)
+        sniff(iface=interface, prn=cb, stop_filter=stopfilter, \
+        store=False, lfilter=lambda p: (Dot11Beacon in p or Dot11ProbeResp in p))
     except socket.error as e:
         # Network is down
         if e.errno == 100:
@@ -228,21 +231,44 @@ def sniffing(interface, cb):
 
 
 def targeting_cb(pkt):
+
     global APs, count
-    if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
-        try:
-            ap_channel = str(ord(pkt[Dot11Elt:3].info))
-        except Exception:
-            return
-        essid = pkt[Dot11Elt].info
-        mac = pkt[Dot11].addr2
-        if len(APs) > 0:
-            for num in APs:
-                if essid in APs[num][1]:
-                    return
-        count += 1
-        APs[count] = [ap_channel, essid, mac]
-        target_APs()
+
+    bssid = pkt[Dot11].addr3
+    p = pkt[Dot11Elt]
+    cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
+                      "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
+    essid, channel = None, None
+    crypto = set()
+    while isinstance(p, Dot11Elt):
+        if p.ID == 0:
+            try: p.info.decode('utf8')
+            except UnicodeDecodeError: essid = "<contains non-printable chars>"
+            else: essid = p.info
+        elif p.ID == 3:
+            try:
+                channel = str(ord(p.info))
+            # TypeError: ord() expected a character, but string of length 2 found
+            except Exception:
+                return
+        elif p.ID == 48:
+            crypto.add("WPA2")
+        elif p.ID == 221 and p.info.startswith('\x00P\xf2\x01\x01\x00'):
+            crypto.add("WPA")
+        p = p.payload
+    if not crypto:
+        if 'privacy' in cap:
+            crypto.add("WEP")
+        else:
+            crypto.add("OPEN")
+
+    if len(APs) > 0:
+        for num in APs:
+            if essid in APs[num][1]:
+                return
+    count += 1
+    APs[count] = [channel, essid, bssid, '|'.join(list(crypto))]
+    target_APs()
 
 
 def target_APs():
@@ -253,8 +279,8 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}     {3:17} {4:10}'
-        .format('num', 'ch', 'ESSID', 'BSSID', 'vendor', width=max_name_size))
+    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
+        .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -262,15 +288,18 @@ def target_APs():
     for ap in APs:
 
         mac = APs[ap][2]
+        crypto = APs[ap][3]
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
                T + '{2:{width}} ' + W + ' - ' +
-               B + '{3:17}' + W + ' {4:}'
+               B + '{3:17}' + W + ' - {4:12} - ' + 
+               R + ' {5:}' + W
             ).format(ap,
                     APs[ap][0],
                     APs[ap][1],
                     mac,
+                    crypto,
                     vendor,
                     width=max_name_size))
 
