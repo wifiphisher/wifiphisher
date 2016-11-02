@@ -267,7 +267,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '|'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
     target_APs()
 
 
@@ -325,7 +325,8 @@ def copy_AP():
         if str(essid) == "\x00":
             essid = ' '
         mac = APs[copy][2]
-        return channel, essid, mac
+        enctype = APs[copy][3]
+        return channel, essid, mac, enctype
     except KeyError:
         return copy_AP()
 
@@ -838,7 +839,7 @@ def run():
         hop.daemon = True
         hop.start()
         sniffing(mon_iface.get_name(), targeting_cb)
-        channel, essid, ap_mac = copy_AP()
+        channel, essid, ap_mac, enctype = copy_AP()
         args.accesspoint = ap_mac
         args.channel = channel
         hop_daemon_running = False
@@ -880,6 +881,7 @@ def run():
         'target_ap_channel': args.channel,
         'target_ap_essid': essid,
         'target_ap_bssid': ap_mac,
+        'target_ap_encryption': enctype,
         'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac),
         'target_ap_logo_path': ap_logo_path 
     })
