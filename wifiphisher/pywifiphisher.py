@@ -832,6 +832,7 @@ def run():
         args.accesspoint = False
         args.channel = False
         ap_mac = None
+        enctype = None
     else:
         # Copy AP
         time.sleep(3)
