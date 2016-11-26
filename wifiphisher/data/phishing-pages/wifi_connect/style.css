@@ -1,6 +1,7 @@
 body {
     font-family: 'Open Sans', sans-serif;
     background-repeat: no-repeat;
+    height: 100%;
 }
 .network-manager {
     border-left: 1px solid #777;
@@ -16,17 +17,17 @@ span {
     color: #ccc;
     font-size: 90%;
 }
-ul {
+ul:not(.chrome-list) {
     list-style: none;
     padding: 0;
     margin: 0;
 }
-li {
+ul:not(.chrome-list) li {
     padding: 10px 10px 20px 10px;
     clear: both;
     cursor: pointer;
 }
-li:hover {
+ul:not(.chrome-list) li:hover {
     background-color: #494f58;
 }
 strong {

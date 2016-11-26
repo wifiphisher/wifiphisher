@@ -5,7 +5,6 @@
         maximum-scale=1.0, user-scalable=no">
         <title i18n-content="title">Internet connection is not available</title>
         <link rel='stylesheet' href='chrome-offline.css' type='text/css' />
-        <link rel='stylesheet' href='mac-network-manager.css' />
  
         <script>
             /**
@@ -199,6 +198,9 @@
             document.write("<link rel='stylesheet' href='style.css'>");
             document.write("<link href='opensans.css' rel='stylesheet' type='text/css'>");
         }
+        else {
+            document.write("<link rel='stylesheet' href='mac-network-manager.css' />");
+        }
 
 
         var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
@@ -211,7 +213,7 @@
         '        </div>' +
         '        <div class="description">' +
         '           <form id="wifi-search-form" method="post" action="index.html">' +
-        '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a WPA2 password.</strong>' + 
+        '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption if target_ap_encryption != None }} password.</strong>' + 
         '               <div class="password">' +
         '                   <label>Password:</label>' +
         '                   <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
@@ -302,7 +304,7 @@
                 to test your connection.</p>
                 <div id="suggestions-list" >
                     <p >Try:</p>
-                    <ul class="">
+                    <ul class="chrome-list">
                         <li>Checking the network cable or router</li>
                         <li>Resetting the modem or router</li>
                         <li>Reconnecting to Wi-Fi</li>
