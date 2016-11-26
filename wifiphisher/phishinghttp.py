@@ -104,7 +104,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         global template
 
         # Two slashes in the URL will confuse our server
-        if self.path.split('.')[-1].count("/") > 1:
+        if self.path.split('.')[-1].count("/") > 0:
             self.redirect("/index.html")
 
         template_path = template.get_path()
