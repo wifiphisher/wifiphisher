@@ -85,9 +85,11 @@ Following are all the options along with their descriptions (also available with
 
 ## Screenshots
 
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss1.png" /><br /><i>Targeting an access point</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss5.png" /><br /><i>Targeting an access point</i></p>
 <p align="center"><img src="https://sophron.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss3.png" /><br /><i>Fake router configuration page</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss7.png" /><br /><i>Fake router configuration page</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss6.png" /><br /><i>Fake OAuth Login Page</i></p>
+<p align="center"><img src="https://sophron.github.io/wifiphisher/ss4.png" /><br /><i>Fake web-based network manager</i></p>
 
 ## Help needed
 If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
