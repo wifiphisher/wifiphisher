@@ -1,7 +1,7 @@
 <p align="center"><img src="https://sophron.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-Wifiphisher is a security tool that mounts automated victim-customized phishing attacks against WiFi clients in order to obtain secret passphrases or other credentials. It is primarily a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 pre-shared keys.
+Wifiphisher is a security tool that mounts automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It is primarily a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
 
 Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
@@ -75,14 +75,18 @@ Following are all the options along with their descriptions (also available with
 
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
-| -m | maximum | Choose the maximum number of clients to deauth. List of clients will be emptied and repopulated after hitting the limit. Example: -m 5 |
-| -n | noupdate | Do not clear the deauth list when the maximum (-m) number of client/AP combos is reached. Must be used in conjunction with -m. Example: -m 10 -n |
-| -t | timeinterval | Choose the time interval between packets being sent. Default is as fast as possible. If you see scapy errors like 'no buffer space' try: -t .00001 |
-| -p | packets | Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -p 2 |
-| -d | directedonly | Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs |
-| -a | accesspoint | Enter the MAC address of a specific access point to target |
-| -jI | jamminginterface | Choose the interface for jamming. By default script will find the most powerful interface and starts monitor mode on it. |
-| -aI | apinterface | Choose the interface for the fake AP.  By default script will find the second most powerful interface and starts monitor mode on it. |
+| -h | help | show this help message and exit |
+|-h | --help| show this help message and exit |
+|-s SKIP| --skip SKIP|	Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA|
+|-jI JAMMINGINTERFACE| --jamminginterface JAMMINGINTERFACE|	Manually choose an interface that supports monitor mode for deauthenticating the victims. Example: -jI wlan1|
+|-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
+|-t TIMEINTERVAL| --timeinterval TIMEINTERVAL|	Choose the time interval between DEAUTH packets being sent|
+|-dP DEAUTHPACKETS| --deauthpackets DEAUTHPACKETS|	Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -dP 2|
+|-d| --directedonly|	Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs|
+|-nJ| --nojamming|	Skip the deauthentication phase. When this option is used, only one wireless interface is required|
+|-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
+|-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
+|-pK PRESHAREDKEY| --presharedkey PRESHAREDKEY|	Add WPA/WPA2 protection on the rogue Access Point. Example: -pK s3cr3tp4ssw0rd|
 
 ## Screenshots
 
