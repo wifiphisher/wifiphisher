@@ -69,7 +69,7 @@ def parse_args():
         help=("Choose the number of packets to send in each deauth burst. " +
               "Default value is 1; 1 packet to the client and 1 packet to " +
               "the AP. Send 2 deauth packets to the client and 2 deauth " +
-              "packets to the AP: -p 2"
+              "packets to the AP: -dP 2"
               )
     )
     parser.add_argument(
