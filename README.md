@@ -1,28 +1,27 @@
 <p align="center"><img src="https://sophron.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-Wifiphisher is a security tool that mounts automated phishing attacks against WiFi networks in order to obtain secret passphrases or other credentials. It is a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 secret passphrases.
+Wifiphisher is a security tool that mounts automated victim-customized phishing attacks against WiFi clients in order to obtain secret passphrases or other credentials. It is primarily a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages or WPA/WPA2 pre-shared keys.
 
 Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
 ## How it works
-After achieving a man-in-the-middle position using the Evil Twin attack, Wifiphisher redirects all HTTP requests to an attacker-controlled look-alike web site.
+After achieving a man-in-the-middle position using the Evil Twin attack, Wifiphisher redirects all HTTP requests to an attacker-controlled phishing page.
 
 From the victim's perspective, the attack makes use in three phases:
 
 1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations.
-2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will start connecting to the rogue access point. After this phase, the victim is MiTMed.
-3. **Victim is being served a realistic router config-looking page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials. The tool supports community-built templates for different phishing scenarios, such as:
-  * Router configuration pages that ask for the WPA/WPA2 passphrase due to a router firmware upgrade.
-  * 3rd party login pages (for example, login pages similar to those of popular social networking or e-mail access sites and products)
-  * Captive portals, like the ones that are being used by hotels and airports.
+2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will eventually start connecting to the rogue access point. After this phase, the victim is MiTMed.
+3. **Victim is being served a realistic router config-looking page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials. The tool supports community-built templates for different phishing scenarios.
 
 <p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
 ## Requirements
-* Kali Linux. Although people have made Wifiphisher work on other distros, Kali Linux is the officially supported distribution, thus all new features are tested on this platform.
+Following are the requirements for getting the most out of Wifiphisher:
+
+* Kali Linux. Although people have made Wifiphisher work on other distros, Kali Linux is the officially supported distribution, thus all new features are primarily tested on this platform.
 * One wireless network adapter that supports AP mode. Drivers should support netlink.
-* One wireless network adapter that supports Monitor mode and is capable of injection. Again, drivers should support netlink. If a second wireless network adapter is not available, you may run the tool with the `--nojamming` option. This will turn off the de-authentication attack though.
+* One wireless network adapter that supports Monitor mode and is capable of injection. Again, drivers should support netlink. If a second wireless network adapter is not available, you may run the tool with the --nojamming option. This will turn off the de-authentication attack though.
 
 ## Installation
 
@@ -33,6 +32,8 @@ git clone https://github.com/sophron/wifiphisher.git # Download the latest revis
 cd wifiphisher # Switch to tool's directory
 sudo python setup.py install # Install any dependencies (Currently, hostapd, PyRIC, jinja2) 
 ```
+
+Alternatively, you can download the latest stable version from the <a href="https://github.com/sophron/wifiphisher/releases">Releases page</a>.
 
 ## Usage
 
