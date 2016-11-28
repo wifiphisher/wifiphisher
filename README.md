@@ -75,7 +75,6 @@ Following are all the options along with their descriptions (also available with
 
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
-| -h | help | show this help message and exit |
 |-h | --help| show this help message and exit |
 |-s SKIP| --skip SKIP|	Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA|
 |-jI JAMMINGINTERFACE| --jamminginterface JAMMINGINTERFACE|	Manually choose an interface that supports monitor mode for deauthenticating the victims. Example: -jI wlan1|
