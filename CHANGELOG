@@ -1,0 +1,39 @@
+Wifiphisher v1.2 [2016-12-04] 
+
+o Web server now starts after DHCP [@sophron]
+o Support logging of multiple POST values [@sophron]
+o Include some ASCII art [@sophron]
+o Introduced 'phishinghttp' module and fixed bugs on HTTP server [@sophron]
+o Users may now interactively choose the scenario they wish [@blackHatMonkey]
+o Included an impoved algorithm for detecting and using two of the available network interfaces. [@blackHatMonkey]
+o Introduced --presharedkey option. Users may now create Evil Twin against password-protected networks. [@sophron]
+o Introduced "Browser Plugin Update" scenario. [@V1V1]
+o Packaged the project. Dependencies can now be automatically installed with setup.py. [@sophron]
+o Added the feature to detect AP vendor based on BSSID. [@lvrach]
+o Included template engine. [@lvrach]
+o Fixed issues on Ubuntu. [@lvrach]
+o Fixed issues on Arch Linux. [@gtklocker]
+o Included PyRIC project. [@blackhatMonkey]
+o Introduced --essid option. This will skip the AP selection phase. [@sophron]
+o Introduced --nojamming option. This will turn off deauthentication. [@sophron]
+o Introduced new OAuth template. [@sophron]
+o Introduced new "Wi-Fi Connect" template. [@dionyziz]
+
+Wifiphisher v1.1 [2015-07-01]
+
+The actual first release of the tool happened on Jan 5 2015. Bugs have been
+tackled since then. I consider this a maintenance release (1.1) after the major
+release (1.0) that happened back then.
+
+o Fixed compatibility with systems defaulting to python3. [@jaseg]
+o Fixed bug with undefined variable (#7). [@yasoob]
+o Fixed concatenation error. [@HassenPy]
+o Code cleaning. [@yasoob]
+o Added connection-reset template. [@shelt]
+o PEP8 fixes [@HassenPy]
+o Disallowed the usage of an Internet-connected interface for the Access Point as this would reset IP addressing. [@sophron]
+o Fixed the bug with the empty password (#97). [@sophron]
+o Code restructure. [@sophron]
+o Catched exception when another process is listening to one of our ports. [@sophron]
+o Output a message when hostapd cannot be installed. [@HassenPy]
+o Added support for Pineapple's DD-WRT. [@tgalyean]
