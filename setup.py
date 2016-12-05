@@ -13,7 +13,7 @@ license = "GPL",
 keywords = ['wifiphisher', 'evil', 'twin', 'phishing'],
 packages = find_packages(),
 include_package_data = True,
-version = "1.1",
+version = "1.2",
 entry_points = {
 'console_scripts': [
 'wifiphisher = wifiphisher.pywifiphisher:run'

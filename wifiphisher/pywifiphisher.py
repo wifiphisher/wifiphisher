@@ -21,7 +21,7 @@ import macmatcher
 import interfaces
 from constants import *
 
-VERSION = "1.1GIT"
+VERSION = "1.2"
 conf.verb = 0
 count = 0  # for channel hopping Thread
 APs = {} # for listing APs
