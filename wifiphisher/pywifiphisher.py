@@ -951,11 +951,12 @@ def run():
     conf.iface = mon_iface.get_name()
     mon_MAC = mon_mac(mon_iface.get_name())
 
-    monchannel = channel
-    # Start channel hopping
-    hop = Thread(target=channel_hop2, args=(mon_iface,))
-    hop.daemon = True
-    hop.start()
+    if not args.nojamming:
+        monchannel = channel
+        # Start channel hopping
+        hop = Thread(target=channel_hop2, args=(mon_iface,))
+        hop.daemon = True
+        hop.start()
 
     # Start sniffing
     sniff_thread = Thread(target=sniff_dot11, args=(mon_iface.get_name(),))
