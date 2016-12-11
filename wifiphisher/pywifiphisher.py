@@ -119,9 +119,10 @@ def check_args(args):
     or len(args.presharedkey) > 64):
         sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
 
-    if (args.jamminginterface and not args.apinterface) or \
-    (not args.jamminginterface and args.apinterface):
-        sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) are used in conjuction.')
+    if ((args.jamminginterface and not args.apinterface) or \
+    (not args.jamminginterface and args.apinterface)) and \
+    not (args.nojamming and args.apinterface):
+        sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
     if args.nojamming and args.jamminginterface: 
         sys.exit('[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
@@ -802,7 +803,10 @@ def run():
                    "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
                    "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
         else:
-            ap_iface = network_manager.get_ap_iface()
+            if args.apinterface:
+                ap_iface = network_manager.get_ap_iface(interface_name=args.apinterface)
+            else:
+                ap_iface = network_manager.get_ap_iface()
             mon_iface = ap_iface
             network_manager.set_ap_iface(ap_iface.get_name())
             print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "\
