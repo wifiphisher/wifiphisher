@@ -33,6 +33,7 @@ terminate = False
 lock = Lock()
 args = 0
 mon_MAC = 0
+first_pass = 1
 
 def parse_args():
     # Create the arguments
@@ -949,7 +950,6 @@ def run():
     monitor_on = None
     conf.iface = mon_iface.get_name()
     mon_MAC = mon_mac(mon_iface.get_name())
-    first_pass = 1
 
     monchannel = channel
     # Start channel hopping
