@@ -106,6 +106,12 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point. " + 
               "Example: -pK s3cr3tp4ssw0rd"))
+    parser.add_argument(
+        "-qS",
+        "--quitonsuccess",
+        help=("Stop the script after successfully retrieving one pair of "
+              "credentials"),
+        action='store_true')
 
     return parser.parse_args()
 
@@ -992,7 +998,7 @@ def run():
             else:
                 lines = "\n" * LINES_OUTPUT
             print lines
-            if phishinghttp.terminate:
+            if phishinghttp.terminate and args.quitonsuccess:
                 time.sleep(3)
                 shutdown(template, network_manager)
             time.sleep(0.5)
