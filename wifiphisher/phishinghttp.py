@@ -10,6 +10,7 @@ from constants import *
 
 template = False
 terminate = False
+first_password = True
 
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
@@ -130,7 +131,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        global terminate
+        global terminate, first_password
         redirect = False
         form = cgi.FieldStorage(
             fp=self.rfile,
@@ -151,6 +152,11 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                                    W + "\n"
                                    )
                     log_file.close()
+
+        if first_password:
+            self.redirect("/error.html")
+            first_password = False
+            return
         if redirect:
             self.redirect("/upgrading.html")
             terminate = True
