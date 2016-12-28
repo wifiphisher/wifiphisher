@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import subprocess
 import os
 import string
 import re
@@ -141,13 +142,13 @@ def shutdown(template=None, network_manager=None):
     jamming_daemon_running = False
     sniff_daemon_running = False
 
-    os.system('iptables -F')
-    os.system('iptables -X')
-    os.system('iptables -t nat -F')
-    os.system('iptables -t nat -X')
-    os.system('pkill airbase-ng')
-    os.system('pkill dnsmasq')
-    os.system('pkill hostapd')
+    subprocess.call('iptables -F', shell=True)
+    subprocess.call('iptables -X', shell=True)
+    subprocess.call('iptables -t nat -F', shell=True)
+    subprocess.call('iptables -t nat -X', shell=True)
+    subprocess.call('pkill airbase-ng', shell=True)
+    subprocess.call('pkill dnsmasq', shell=True)
+    subprocess.call('pkill hostapd', shell=True)
 
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -175,22 +176,22 @@ def set_fw_rules():
     """
     Set iptable rules
     """
-    os.system(
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, PORT))
-    )
-    os.system(
+         % (NETWORK_GW_IP, PORT)),
+    shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
+         % (NETWORK_GW_IP, 53)),
+    shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
+         % (NETWORK_GW_IP, 53)),
+    shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, SSL_PORT))
-    )
+         % (NETWORK_GW_IP, SSL_PORT)),
+    shell=True)
 
 
 def set_kernel_var():
@@ -275,7 +276,7 @@ def targeting_cb(pkt):
 
 def target_APs():
     global APs, count, mac_matcher
-    os.system('clear')
+    subprocess.call('clear', shell=True)
     print ('[' + G + '+' + W + '] Ctrl-C at any time to copy an access' +
            ' point from below')
 
@@ -371,7 +372,7 @@ def select_template(template_argument):
         # loop until all operations for template selection is done
         while True:
             # clear the screen
-            os.system('clear')
+            subprocess.call('clear', shell=True)
 
             # display template header
             print "\nAvailable Phishing Scenarios:\n"
@@ -474,10 +475,10 @@ def dhcp(dhcpconf, mon_iface):
     proc = check_output(['ifconfig', str(mon_iface)])
     if NETWORK_GW_IP not in proc:
         return False
-    os.system(
+    subprocess.call(
         ('route add -net %s netmask %s gw %s' %
-         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
-    )
+         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP)),
+    shell=True)
     return True
 
 
@@ -905,7 +906,7 @@ def run():
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
         shutdown(template)
-    os.system('clear')
+    subprocess.call('clear', shell=True)
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
            T + channel + W + ' via ' + T + mon_iface.get_name() +
@@ -970,7 +971,7 @@ def run():
     # Main loop.
     try:
         while 1:
-            os.system("clear")
+            subprocess.call("clear", shell=True)
             print "Jamming devices: "
             if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
                 proc = check_output(['cat', '/tmp/wifiphisher-jammer.tmp'])
