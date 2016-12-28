@@ -190,7 +190,7 @@ class NetworkAdapter(object):
 
         return self._support_monitor_mode
 
-    def set_channel(self, channel):        
+    def set_channel(self, channel):
         card = pyw.getcard(self._name)
         pyw.chset(card, channel, None)
 
@@ -227,14 +227,14 @@ class NetworkManager(object):
                 self._interfaces[interface] = NetworkAdapter(interface)
             except pyric.error as e:
                 pass
-            #except pyric.error:
+            # except pyric.error:
             #    pass
 
     def up_ifaces(self, ifaces):
-        for i in ifaces:    
+        for i in ifaces:
             card = pyw.getcard(i.get_name())
             pyw.up(card)
-            
+
     def set_interface_mode(self, interface, mode):
         """
         Set the desired mode to the network interface.
@@ -306,10 +306,11 @@ class NetworkManager(object):
             if monitor_available[0] == ap_available[0]:
                 raise NotEnoughInterfacesFoundError()
 
-        # We only have one AP mode interface. We don't want to use it for jamming.
+        # We only have one AP mode interface. We don't want to use it for
+        # jamming.
         if len(monitor_available) > 1 and \
-        len(ap_available) == 1 and \
-        ap_available[0] in monitor_available:
+                len(ap_available) == 1 and \
+                ap_available[0] in monitor_available:
             # Select an AP interface and remove it from available interfaces
             ap_interface = ap_available[0]
             ap_available.remove(ap_interface)
@@ -329,7 +330,6 @@ class NetworkManager(object):
 
         return monitor_interface, ap_interface
 
-
     def get_jam_iface(self, interface_name):
         for k, interface in self._interfaces.iteritems():
             if k == interface_name and not interface.being_used:
@@ -343,7 +343,7 @@ class NetworkManager(object):
         for k, interface in self._interfaces.iteritems():
             if interface_name == None:
                 if interface.has_ap_mode():
-                    return interface 
+                    return interface
             if k == interface_name and not interface.being_used:
                 if interface.has_ap_mode():
                     return interface
