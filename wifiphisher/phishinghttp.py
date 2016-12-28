@@ -11,6 +11,7 @@ from constants import *
 template = False
 terminate = False
 
+
 class SecureHTTPServer(BaseHTTPServer.HTTPServer):
     """
     Simple HTTP server that extends the SimpleHTTPServer standard
@@ -22,6 +23,7 @@ class SecureHTTPServer(BaseHTTPServer.HTTPServer):
 
     It also reacts to self.stop flag.
     """
+
     def __init__(self, server_address, HandlerClass):
         SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
         self.socket = ssl.SSLSocket(
@@ -47,6 +49,7 @@ class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     Request handler for the HTTPS server. It responds to
     everything with a 301 redirection to the HTTP server.
     """
+
     def do_QUIT(self):
         """
         Sends a 200 OK response, and sets server.stop to True
@@ -62,7 +65,8 @@ class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(301)
-        self.send_header('Location', 'http://' + NETWORK_GW_IP + ':' + str(PORT))
+        self.send_header('Location', 'http://' +
+                         NETWORK_GW_IP + ':' + str(PORT))
         self.end_headers()
 
     def log_message(self, format, *args):
@@ -87,6 +91,7 @@ class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     """
     Request handler for the HTTP server that logs POST requests.
     """
+
     def redirect(self, page="/"):
         self.send_response(301)
         self.send_header('Location', page)
