@@ -110,7 +110,7 @@ def parse_args():
     parser.add_argument(
           "-nD",
           "--noDmasq",
-          help=("To use dmasq itself for dhcp." +
+          help=("To use dmasq itself for dhcp. " +
                 "Example : -nD"
                 ),
           action='store_true')
