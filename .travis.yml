@@ -8,3 +8,6 @@ before_install:
 
 install:
   - python setup.py install
+
+script:
+  - true  # do nothing for now.
