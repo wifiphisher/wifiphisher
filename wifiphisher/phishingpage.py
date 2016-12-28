@@ -9,6 +9,7 @@ from shutil import copyfile
 
 import ConfigParser
 
+
 def config_section_map(config_file, section):
     """
     Map the values of a config file to a dictionary.
@@ -28,6 +29,7 @@ def config_section_map(config_file, section):
         except:
             dict1[option] = None
     return dict1
+
 
 class InvalidTemplate(Exception):
     """ Exception class to raise in case of a invalid template """
@@ -62,7 +64,7 @@ class PhishingTemplate(object):
         self._payload = False
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
-        
+
         self._path = PHISHING_PAGES_DIR + self._name.lower() + "/"
         self._path_static = PHISHING_PAGES_DIR + self._name.lower() + "/static/"
 
@@ -180,7 +182,7 @@ class PhishingTemplate(object):
         if path is not None and os.path.isfile(path):
             filename = os.path.basename(path)
             copyfile(path, self.get_path_static() + filename)
-            self._extra_files.append(self.get_path_static() + filename) 
+            self._extra_files.append(self.get_path_static() + filename)
             return filename
 
     def remove_extra_files(self):

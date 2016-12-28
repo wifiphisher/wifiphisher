@@ -4,6 +4,7 @@ This module was made to match MAC address with vendors
 
 from constants import *
 
+
 class MACMatcher(object):
     """
     This class is using Organizationally Unique Identifiers (OUIs)
@@ -11,6 +12,7 @@ class MACMatcher(object):
 
     See http://standards.ieee.org/faqs/OUI.html
     """
+
     def __init__(self, mac_prefix_file):
         """
         :param self: A MACMatcher object
@@ -71,7 +73,7 @@ class MACMatcher(object):
             vendor_part = mac_address.replace(':', '').upper()[0:6]
 
             if vendor_part in self.mac_to_vendor and \
-            len(self.mac_to_vendor[vendor_part]) > 2:
+                    len(self.mac_to_vendor[vendor_part]) > 2:
                 return LOGOS_DIR + self.mac_to_vendor[vendor_part][2]
 
         return None
