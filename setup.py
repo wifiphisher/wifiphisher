@@ -21,7 +21,7 @@ entry_points = {
 },
 install_requires = [
 'PyRIC',
-'jinja2']
+'tornado']
 )
 
 def get_dnsmasq():

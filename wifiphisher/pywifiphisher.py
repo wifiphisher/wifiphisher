@@ -431,7 +431,7 @@ def start_ap(mon_iface, channel, essid, args):
 
     hostapd_proc = Popen(['hostapd', '/tmp/hostapd.conf'], stdout=DN, stderr=DN)
     try:
-        time.sleep(6)  # Copied from Pwnstar which said it was necessary?
+        time.sleep(2)
         if hostapd_proc.poll() != None:
             # hostapd will exit on error
             print('[' + R + '+' + W +
@@ -873,10 +873,10 @@ def run():
     APs_context = []
     for i in APs:
         APs_context.append({
-            'channel': APs[i][0],
-            'essid': APs[i][1],
-            'bssid': APs[i][2],
-            'vendor': mac_matcher.get_vendor_name(APs[i][2])
+            'channel': APs[i][0] or "",
+            'essid': APs[i][1] or "",
+            'bssid': APs[i][2] or "",
+            'vendor': mac_matcher.get_vendor_name(APs[i][2]) or ""
         })
 
     template.merge_context({'APs': APs_context})
@@ -884,15 +884,13 @@ def run():
     ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
     template.merge_context({
-        'target_ap_channel': args.channel,
-        'target_ap_essid': essid,
-        'target_ap_bssid': ap_mac,
-        'target_ap_encryption': enctype,
-        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac),
-        'target_ap_logo_path': ap_logo_path 
+        'target_ap_channel': args.channel or "",
+        'target_ap_essid': essid or "",
+        'target_ap_bssid': ap_mac or "",
+        'target_ap_encryption': enctype or "",
+        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
+        'target_ap_logo_path': ap_logo_path or ""
     })
-
-    phishinghttp.serve_template(template)
 
     # We want to set this now for hostapd. Maybe the interface was in "monitor"
     # mode for network discovery before (e.g. when --nojamming is enabled).
@@ -913,38 +911,12 @@ def run():
 
     # With configured DHCP, we may now start the web server
     # Start HTTP server in a background thread
-    Handler = phishinghttp.HTTPRequestHandler
-    try:
-        httpd = phishinghttp.HTTPServer((NETWORK_GW_IP, PORT), Handler)
-    except socket.error, v:
-        errno = v[0]
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTP server (socket errno ' + str(errno) + ')!\n' +
-            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(PORT) + '?\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
-    webserver = Thread(target=httpd.serve_forever)
+    print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
+    webserver = Thread(target=phishinghttp.runHTTPServer, args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
     webserver.daemon = True
     webserver.start()
-    # Start HTTPS server in a background thread
-    Handler = phishinghttp.SecureHTTPRequestHandler
-    try:
-        httpd = phishinghttp.SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
-    except socket.error, v:
-        errno = v[0]
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTPS server (socket errno ' + str(errno) + ')!\n' +
-            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(SSL_PORT) + '?\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
-           str(SSL_PORT))
-    secure_webserver = Thread(target=httpd.serve_forever)
-    secure_webserver.daemon = True
-    secure_webserver.start()
 
-    time.sleep(3)
+    time.sleep(1.5)
 
     # We no longer need mac_matcher
     mac_matcher.unbind()

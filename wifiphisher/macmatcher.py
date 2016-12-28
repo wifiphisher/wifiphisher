@@ -49,7 +49,7 @@ class MACMatcher(object):
             if vendor_part in self.mac_to_vendor:
                 return self.mac_to_vendor[vendor_part][1]
 
-        return None
+        return False
 
     def get_vendor_logo_path(self, mac_address):
         """
