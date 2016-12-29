@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sophron/wifiphisher.svg?branch=master)](https://travis-ci.org/sophron/wifiphisher)
+
 <p align="center"><img src="https://sophron.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
@@ -30,7 +32,7 @@ To install the latest development version type the following commands:
 ```bash
 git clone https://github.com/sophron/wifiphisher.git # Download the latest revision
 cd wifiphisher # Switch to tool's directory
-sudo python setup.py install # Install any dependencies (Currently, hostapd, PyRIC, jinja2) 
+sudo python setup.py install # Install any dependencies (Currently, hostapd, dnsmasq, PyRIC, blessings) 
 ```
 
 Alternatively, you can download the latest stable version from the <a href="https://github.com/sophron/wifiphisher/releases">Releases page</a>.

