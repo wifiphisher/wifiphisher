@@ -1,5 +1,10 @@
 import tornado.ioloop
 import tornado.web
+import logging
+hn = logging.NullHandler()
+hn.setLevel(logging.DEBUG)
+logging.getLogger('tornado.access').disabled = True
+logging.getLogger('tornado.general').disabled = True
 from constants import *
 
 template = False
@@ -11,15 +16,19 @@ class DowngradeToHTTP(tornado.web.RequestHandler):
 
 class ShowPhishingPageHandler(tornado.web.RequestHandler):
     def get(self, url):
-        if "/" in url:
-            self.redirect("/index")
-        self.render("index.html", **template.get_context())
-        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-        with open(wifi_webserver_tmp, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                           self.request.remote_ip + W + "\n"
-                           )
-            log_file.close()
+        try:
+            if "/" in url:
+                self.redirect("/index")
+            self.render("index.html", **template.get_context())
+            wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
+            with open(wifi_webserver_tmp, "a+") as log_file:
+                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
+                               self.request.remote_ip + W + "\n"
+                               )
+                log_file.close()
+        # Ignore weird requests
+        except:
+            pass
 
 class ReceiveCredsHandler(tornado.web.RequestHandler):
     def post(self):
