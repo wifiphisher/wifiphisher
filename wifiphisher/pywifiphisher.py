@@ -109,6 +109,12 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
+    parser.add_argument(
+        "-qS",
+        "--quitonsuccess",
+        help=("Stop the script after successfully retrieving one pair of "
+              "credentials"),
+        action='store_true')
 
     return parser.parse_args()
 
@@ -983,7 +989,7 @@ def run():
                     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                         proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
                         print term.move(18,0) + proc
-                    if phishinghttp.terminate:
+                    if phishinghttp.terminate and args.quitonsuccess:
                         shutdown(template, network_manager)
     except KeyboardInterrupt:
         shutdown(template, network_manager)
