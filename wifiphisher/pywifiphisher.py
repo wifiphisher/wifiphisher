@@ -10,6 +10,7 @@ import sys
 import argparse
 import fcntl
 import pickle
+from blessings import Terminal
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
@@ -942,32 +943,30 @@ def run():
 
     # Main loop.
     try:
-        while 1:
-            subprocess.call("clear", shell=True)
-            print "Jamming devices: "
-            if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
-                proc = check_output(['cat', '/tmp/wifiphisher-jammer.tmp'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            print "DHCP Leases: "
-            if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-                proc = check_output(['cat', '/var/lib/misc/dnsmasq.leases'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            print "HTTP requests: "
-            if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-                proc = check_output(['cat', '/tmp/wifiphisher-webserver.tmp'])
-                lines = proc + "\n" * (LINES_OUTPUT - len(proc.split('\n')))
-            else:
-                lines = "\n" * LINES_OUTPUT
-            print lines
-            if phishinghttp.terminate:
-                time.sleep(3)
-                shutdown(template, network_manager)
-            time.sleep(0.5)
+        term = Terminal()
+        with term.fullscreen():
+            while 1:
+                term.clear()
+                with term.hidden_cursor():
+                    print term.move(0, term.width - 30) + "|"
+                    print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
+                    print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
+                    print term.move(3, term.width - 30) + "|" + " Channel: " + channel
+                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name() 
+                    print term.move(5, term.width - 30) + "|" + "_"*29 
+                    print term.move(1,0) + term.blue("Jamming devices: ")
+                    if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
+                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-jammer.tmp'])
+                        print term.move(4,0) + proc 
+                    print term.move(9,0) + term.blue("DHCP Leases: ")
+                    if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+                        proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
+                        print term.move(10,0) + proc
+                    print term.move(17,0) + term.blue("HTTP requests: ")
+                    if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+                        print term.move(18,0) + proc
+                    if phishinghttp.terminate:
+                        shutdown(template, network_manager)
     except KeyboardInterrupt:
         shutdown(template, network_manager)
