@@ -1,0 +1,156 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-repeat: no-repeat;
+    height: 100%;
+}
+.network-manager {
+    border-left: 1px solid #777;
+    border-top: 1px solid #777;
+    width: 400px;
+    background-color: #3d444c;
+    color: white;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+span {
+    color: #ccc;
+    font-size: 90%;
+}
+ul:not(.chrome-list) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+ul:not(.chrome-list) li {
+    padding: 10px 10px 20px 10px;
+    clear: both;
+    cursor: pointer;
+}
+ul:not(.chrome-list) li:hover {
+    background-color: #494f58;
+}
+strong {
+    display: block;
+    margin-bottom: 5px;
+}
+li.selected {
+    background-color: #0769b7;
+}
+input[type=checkbox] {
+    display: none;
+}
+button {
+    border: 1px solid transparent;
+    background-color: #3987c6;
+    padding: 10px 40px;
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 90%;
+    cursor: pointer;
+}
+div.disconnected:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+button:hover {
+    border: 1px solid white;
+}
+button.connect {
+    float: right;
+    clear: both;
+}
+button.authenticate, button.cancel {
+    width: 155px;
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 30px;
+}
+button:hover {
+}
+.disconnected {
+    display: block;
+}
+.connected {
+    display: none;
+}
+div.check {
+    width: 14px;
+    height: 14px;
+    border: 1px solid black;
+    background-color: white;
+    margin: 9px 5px 0 2px;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+}
+input[type=checkbox] + label div.check:after {
+    font-family: 'Open Sans', sans-serif;
+    content: '✓'; 
+    color: black;
+    position: absolute;
+    left: 2px;
+    top: -3px;
+    display: block;
+    width: 14px;
+    height: 14px;
+}
+input[type=password] {
+    border: 0px solid black;
+    display: block;
+    width: 100%;
+    height: 20px;
+    margin: 2px 0;
+}
+label {
+    font-size: 90%;
+    display: block;
+}
+a {
+    color: #3987c6;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+div.content {
+    width: 330px;
+    margin-left: 43px;
+    font-size: 90%;
+}
+div.wifi.icon {
+    position: relative;
+    width: 25px;
+    height: 25px;
+    float: left;
+}
+div.wifi.icon div.dot {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border: 3px solid white;
+    border-radius: 4px;
+}
+div.wifi.icon div.small {
+    border: 2px solid white;
+    border-radius: 50px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-right: 0;
+    border-bottom: 0;
+}
+div.wifi.icon div.dot2 {
+    width: 10px;
+    height: 10px;
+}
+div.wifi.icon div.dot3 {
+    width: 15px;
+    height: 15px;
+}
+div.wifi.icon div.dot4 {
+    width: 20px;
+    height: 20px;
+}

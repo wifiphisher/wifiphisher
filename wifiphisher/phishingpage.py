@@ -8,7 +8,7 @@ from constants import *
 from shutil import copyfile
 
 import ConfigParser
-from jinja2 import Environment, FileSystemLoader
+
 
 def config_section_map(config_file, section):
     """
@@ -29,6 +29,7 @@ def config_section_map(config_file, section):
         except:
             dict1[option] = None
     return dict1
+
 
 class InvalidTemplate(Exception):
     """ Exception class to raise in case of a invalid template """
@@ -63,11 +64,11 @@ class PhishingTemplate(object):
         self._payload = False
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
-        
+
         self._path = PHISHING_PAGES_DIR + self._name.lower() + "/"
+        self._path_static = PHISHING_PAGES_DIR + self._name.lower() + "/static/"
 
         self._context = config_section_map(config_path, 'context')
-        self._env = Environment(loader=FileSystemLoader(self._path))
         self._extra_files = []
 
     def merge_context(self, context):
@@ -77,6 +78,18 @@ class PhishingTemplate(object):
         """
         context.update(self._context)
         self._context = context
+
+    def get_context(self):
+        """
+        Return the context of the template.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the context of the template
+        :rtype: dict
+        """
+
+        return self._context
 
     def get_display_name(self):
         """
@@ -140,6 +153,19 @@ class PhishingTemplate(object):
 
         return self._path
 
+    def get_path_static(self):
+        """
+        Return the path of the static template files.
+        JS, CSS, Image files lie there.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: the path of static template files
+        :rtype: str
+        """
+
+        return self._path_static
+
     def use_file(self, path):
         """
         Copies a file in the filesystem to the path 
@@ -155,8 +181,8 @@ class PhishingTemplate(object):
 
         if path is not None and os.path.isfile(path):
             filename = os.path.basename(path)
-            copyfile(path, self.get_path() + filename)
-            self._extra_files.append(self.get_path() + filename) 
+            copyfile(path, self.get_path_static() + filename)
+            self._extra_files.append(self.get_path_static() + filename)
             return filename
 
     def remove_extra_files(self):
@@ -172,10 +198,6 @@ class PhishingTemplate(object):
         for f in self._extra_files:
             if os.path.isfile(f):
                 os.remove(f)
-
-    def render(self, path):
-        t = self._env.get_template(path)
-        return t.render(self._context)
 
     def __str__(self):
         """
