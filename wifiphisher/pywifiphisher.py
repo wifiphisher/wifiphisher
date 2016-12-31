@@ -247,7 +247,7 @@ def targeting_cb(pkt):
 
     bssid = pkt[Dot11].addr3
     rssi  = -100
-
+    # Show signal power
     if pkt.type == 0 and pkt.subtype == 8:
         if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
             try:
