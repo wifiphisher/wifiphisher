@@ -246,6 +246,18 @@ def targeting_cb(pkt):
     global APs, count
 
     bssid = pkt[Dot11].addr3
+    rssi  = -100
+
+
+    if pkt.type == 0 and pkt.subtype == 8:
+        if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+            try:
+                extra = pkt.notdecoded
+                rssi = -(256 - ord(extra[-4:-3]))
+
+            except:
+                rssi = -500
+
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
                       "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
@@ -278,7 +290,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto)), rssi]
     target_APs()
 
 
@@ -290,8 +302,8 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-        .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+    header = ('{0:3}  {1:3}  {2:4}  {3:{width}}   {4:19}  {5:14}  {6:}'
+        .format('num', 'ch','power','ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -303,11 +315,13 @@ def target_APs():
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-               T + '{2:{width}} ' + W + ' - ' +
-               B + '{3:17}' + W + ' - {4:12} - ' +
-               R + ' {5:}' + W
+               B + '{2:3} ' + W + ' - ' +
+               T + '{3:{width}} ' + W + ' - ' +
+               B + '{4:17}' + W + ' - {5:12} - ' +
+               R + ' {6:}' + W
             ).format(ap,
                     APs[ap][0],
+                    APs[ap][4],
                     APs[ap][1],
                     mac,
                     crypto,
