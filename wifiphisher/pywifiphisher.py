@@ -104,8 +104,17 @@ def parse_args():
     parser.add_argument(
         "-pK",
         "--presharedkey",
-        help=("Add WPA/WPA2 protection on the rogue Access Point. " + 
+        help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
+
+    parser.add_argument(
+          "-nD",
+          "--noDmasq",
+          help=("To use dmasq itself for dhcp. " +
+                "Example : -nD"
+                ),
+          action='store_true')
+
 
     return parser.parse_args()
 
@@ -124,7 +133,7 @@ def check_args(args):
     not (args.nojamming and args.apinterface):
         sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
-    if args.nojamming and args.jamminginterface: 
+    if args.nojamming and args.jamminginterface:
         sys.exit('[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
 
@@ -161,7 +170,7 @@ def shutdown(template=None, network_manager=None):
         try:
             network_manager.reset_ifaces_to_managed()
         except:
-            print '[' + R + '!' + W + '] Failed to reset interface' 
+            print '[' + R + '!' + W + '] Failed to reset interface'
 
     # Remove any template extra files
     if template:
@@ -237,6 +246,18 @@ def targeting_cb(pkt):
     global APs, count
 
     bssid = pkt[Dot11].addr3
+    rssi  = -100
+    # Show signal power
+    if pkt.type == 0 and pkt.subtype == 8:
+        if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+            try:
+                extra = pkt.notdecoded
+                rssi = -(256 - ord(extra[-4:-3]))
+
+            except:
+                rssi = -500
+    ######
+
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
                       "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
@@ -269,7 +290,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto)), rssi]
     target_APs()
 
 
@@ -281,8 +302,8 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-        .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+    header = ('{0:3}  {1:3}  {2:4}  {3:{width}}   {4:19}  {5:14}  {6:}'
+        .format('num', 'ch','power','ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -294,11 +315,13 @@ def target_APs():
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-               T + '{2:{width}} ' + W + ' - ' +
-               B + '{3:17}' + W + ' - {4:12} - ' + 
-               R + ' {5:}' + W
+               B + '{2:3} ' + W + ' - ' +
+               T + '{3:{width}} ' + W + ' - ' +
+               B + '{4:17}' + W + ' - {5:12} - ' +
+               R + ' {6:}' + W
             ).format(ap,
                     APs[ap][0],
+                    APs[ap][4],
                     APs[ap][1],
                     mac,
                     crypto,
@@ -458,8 +481,10 @@ def dhcp_conf(interface):
     return '/tmp/dhcpd.conf'
 
 
-def dhcp(dhcpconf, mon_iface):
-    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
+def dhcp(dhcpconf, mon_iface,args):
+
+    if not args.noDmasq:
+        dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
         ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
@@ -889,7 +914,7 @@ def run():
         'target_ap_bssid': ap_mac,
         'target_ap_encryption': enctype,
         'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac),
-        'target_ap_logo_path': ap_logo_path 
+        'target_ap_logo_path': ap_logo_path
     })
 
     phishinghttp.serve_template(template)
@@ -900,7 +925,7 @@ def run():
     # Start AP
     start_ap(ap_iface.get_name(), channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface.get_name())
-    if not dhcp(dhcpconf, ap_iface.get_name()):
+    if not dhcp(dhcpconf, ap_iface.get_name(),args):
         print('[' + G + '+' + W +
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
