@@ -256,7 +256,7 @@ def targeting_cb(pkt):
 
             except:
                 rssi = -500
-    #####
+    ######
 
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
