@@ -106,19 +106,7 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
-<<<<<<< HEAD
-=======
 
-    parser.add_argument(
-          "-nD",
-          "--noDmasq",
-          help=("To use dmasq itself for dhcp. " +
-                "Example : -nD"
-                ),
-          action='store_true')
-
-
->>>>>>> 97a8145d7dadf03166ffb852f0f7ee848a62e3f4
     return parser.parse_args()
 
 def check_args(args):
@@ -256,14 +244,10 @@ def targeting_cb(pkt):
             try:
                 extra = pkt.notdecoded
                 rssi = -(256 - ord(extra[-4:-3]))
-
             except:
-<<<<<<< HEAD
                 rssi = -100
-=======
-                rssi = -500
-    ######
->>>>>>> 97a8145d7dadf03166ffb852f0f7ee848a62e3f4
+
+
 
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
@@ -309,8 +293,8 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:4}  {3:{width}}   {4:19}  {5:14}  {6:}'
-        .format('num', 'ch','power','ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:20} {6:3}'
+        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor', 'power'width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -321,20 +305,18 @@ def target_APs():
         crypto = APs[ap][3]
         vendor = mac_matcher.get_vendor_name(mac)
 
-        print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-                B + '{2:3} ' + W + ' - ' +
-                T + '{3:{width}} ' + W + ' - ' +
-                B + '{4:17}' + W + ' - {5:12} - ' +
-                R + ' {6:}' + W
-               ).format(ap,
-                        APs[ap][0],
-                        APs[ap][4],
-                        APs[ap][1],
-                        mac,
-                        crypto,
-                        vendor,
-                        width=max_name_size))
-
+          print ((G + '{0:2}' + W + ' - {1:2}  - ' +
+                T + '{2:{width}} ' + W + ' - ' +
+                B + '{3:17}' +  W  + ' - {4:12} - ' +
+                R + ' {5:20}' + B +  ' - {6:3} -' +
+                ).format(ap,
+                         APs[ap][0],
+                         APs[ap][1],
+                         mac,
+                         crypto,
+                         vendor,
+                         APs[ap][4],
+                         width=max_name_size))
 
 
 def copy_AP():
