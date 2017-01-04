@@ -106,6 +106,19 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
+<<<<<<< HEAD
+=======
+
+    parser.add_argument(
+          "-nD",
+          "--noDmasq",
+          help=("To use dmasq itself for dhcp. " +
+                "Example : -nD"
+                ),
+          action='store_true')
+
+
+>>>>>>> 97a8145d7dadf03166ffb852f0f7ee848a62e3f4
     return parser.parse_args()
 
 def check_args(args):
@@ -245,7 +258,12 @@ def targeting_cb(pkt):
                 rssi = -(256 - ord(extra[-4:-3]))
 
             except:
+<<<<<<< HEAD
                 rssi = -100
+=======
+                rssi = -500
+    ######
+>>>>>>> 97a8145d7dadf03166ffb852f0f7ee848a62e3f4
 
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
@@ -316,6 +334,7 @@ def target_APs():
                         crypto,
                         vendor,
                         width=max_name_size))
+
 
 
 def copy_AP():
