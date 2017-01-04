@@ -106,16 +106,6 @@ def parse_args():
         "--presharedkey",
         help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
-
-    parser.add_argument(
-          "-nD",
-          "--noDmasq",
-          help=("To use dmasq itself for dhcp. " +
-                "Example : -nD"
-                ),
-          action='store_true')
-
-
     return parser.parse_args()
 
 def check_args(args):
@@ -255,8 +245,7 @@ def targeting_cb(pkt):
                 rssi = -(256 - ord(extra[-4:-3]))
 
             except:
-                rssi = -500
-    ######
+                rssi = -100
 
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
@@ -315,18 +304,18 @@ def target_APs():
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-               B + '{2:3} ' + W + ' - ' +
-               T + '{3:{width}} ' + W + ' - ' +
-               B + '{4:17}' + W + ' - {5:12} - ' +
-               R + ' {6:}' + W
-            ).format(ap,
-                    APs[ap][0],
-                    APs[ap][4],
-                    APs[ap][1],
-                    mac,
-                    crypto,
-                    vendor,
-                    width=max_name_size))
+                B + '{2:3} ' + W + ' - ' +
+                T + '{3:{width}} ' + W + ' - ' +
+                B + '{4:17}' + W + ' - {5:12} - ' +
+                R + ' {6:}' + W
+               ).format(ap,
+                        APs[ap][0],
+                        APs[ap][4],
+                        APs[ap][1],
+                        mac,
+                        crypto,
+                        vendor,
+                        width=max_name_size))
 
 
 def copy_AP():
@@ -483,8 +472,7 @@ def dhcp_conf(interface):
 
 def dhcp(dhcpconf, mon_iface,args):
 
-    if not args.noDmasq:
-        dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
+    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
         ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
