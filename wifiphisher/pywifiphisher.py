@@ -316,7 +316,7 @@ def target_APs():
 
 
     header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:20} {6:3}'
-        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor1', 'power',width=max_name_size + 1))
+        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor', 'power',width=max_name_size + 1))
 
 
     print header
