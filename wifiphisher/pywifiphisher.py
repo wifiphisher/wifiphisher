@@ -294,7 +294,7 @@ def target_APs():
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
     header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:20} {6:3}'
-        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor', 'power'width=max_name_size + 1))
+        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor1', 'power',width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -305,10 +305,10 @@ def target_APs():
         crypto = APs[ap][3]
         vendor = mac_matcher.get_vendor_name(mac)
 
-          print ((G + '{0:2}' + W + ' - {1:2}  - ' +
+        print ((G + '{0:2}' + W + ' - {1:2}  - ' +
                 T + '{2:{width}} ' + W + ' - ' +
                 B + '{3:17}' +  W  + ' - {4:12} - ' +
-                R + ' {5:20}' + B +  ' - {6:3} -' +
+                R + ' {5:20}' + B +  ' - {6:3} '
                 ).format(ap,
                          APs[ap][0],
                          APs[ap][1],
