@@ -51,7 +51,7 @@ wifiphisher -aI wlan0 -jI wlan4 -p firmware-upgrade
 
 Use wlan0 for spawning the rogue Access Point and wlan4 for DoS attacks. Select the target network manually from the list and perform the "Firmware Upgrade" scenario. 
 
-Useful for manually selecting the wireless adapters. The <a href="https://wifiphisher.org/ps/firmware-upgrade/">"Firware Upgrade"</a> scenario is an easy way for obtaining the PSK from a password-protected network.
+Useful for manually selecting the wireless adapters. The <a href="https://wifiphisher.org/ps/firmware-upgrade/">"Firmware Upgrade"</a> scenario is an easy way for obtaining the PSK from a password-protected network.
 
 ***
 
