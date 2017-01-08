@@ -172,6 +172,8 @@ def shutdown(template=None, network_manager=None):
         os.remove('/tmp/wifiphisher-jammer.tmp')
     if os.path.isfile('/tmp/hostapd.conf'):
         os.remove('/tmp/hostapd.conf')
+    if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+        os.remove('/var/lib/misc/dnsmasq.leases')
 
     # Set all the used interfaces to managed (normal) mode and show any errors
     if network_manager:
