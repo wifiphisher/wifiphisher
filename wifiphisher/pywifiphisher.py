@@ -996,6 +996,6 @@ def run():
                         proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
                         print term.move(18,0) + proc
                     if phishinghttp.terminate and args.quitonsuccess:
-                        shutdown(template, network_manager)
+                        raise KeyboardInterrupt
     except KeyboardInterrupt:
         shutdown(template, network_manager)
