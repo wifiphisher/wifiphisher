@@ -191,6 +191,16 @@ class NetworkAdapter(object):
         return self._support_monitor_mode
 
     def set_channel(self, channel):
+        """
+        Set the device channel to the provided channel.
+        
+        :param self: A NetworkAdapter object
+        :param channel: A channel number
+        :type self: NetworkAdapter
+        :type channel: string
+        :return: None
+        :rtype: None
+        """
         card = pyw.getcard(self._name)
         pyw.chset(card, channel, None)
 
