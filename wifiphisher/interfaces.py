@@ -222,13 +222,12 @@ class NetworkManager(object):
         self.jam_iface = ""
 
         # Create, add and check compatibility for each interface
-        for interface in pyw.winterfaces():
+        for interface in pyw.interfaces():
+            print interface
             try:
                 self._interfaces[interface] = NetworkAdapter(interface)
             except pyric.error as e:
                 pass
-            # except pyric.error:
-            #    pass
 
     def up_ifaces(self, ifaces):
         for i in ifaces:
@@ -352,6 +351,11 @@ class NetworkManager(object):
         if interface_name == None:
             raise NoApInterfaceFoundError
         raise ApInterfaceInvalidError
+
+    def set_internet_iface(self, iface):
+        if pyw.iswireless(iface):
+            raise Exception
+        self.internet_iface = iface
 
     def set_ap_iface(self, iface):
         self.ap_iface = iface

