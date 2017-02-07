@@ -18,10 +18,10 @@ PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
 LOGOS_DIR = dir_of_data + "logos/"
 MAC_PREFIX_FILE = dir_of_data + "wifiphisher-mac-prefixes"
 POST_VALUE_PREFIX = "wfphshr"
-NETWORK_IP = "192.168.1.0"
+NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
-NETWORK_GW_IP = "192.168.1.1"
-DHCP_LEASE = "192.168.1.2,192.168.1.100,12h"
+NETWORK_GW_IP = "10.0.0.1"
+DHCP_LEASE = "10.0.0.2,10.0.0.100,12h"
 LINES_OUTPUT = 3
 DN = open(os.devnull, 'w')
 
