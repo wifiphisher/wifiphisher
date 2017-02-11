@@ -29,7 +29,7 @@ class Deauthentication(object):
 
         self._observed_clients = list()
         self._ap_bssid = ap_bssid
-        self._should_contineu = True
+        self._should_continue = True
         self._jamming_interface = jamming_interface
 
     def process_packet(self, packet):
@@ -81,8 +81,8 @@ class Deauthentication(object):
         :rtype: None
         """
 
-        # continue to find clients untill otherwise told
-        while self._should_contineu:
+        # continue to find clients until otherwise told
+        while self._should_continue:
             dot11.sniff(iface=self._jamming_interface, prn=self.process_packet,
                         count=1, store=0)
 
@@ -103,7 +103,7 @@ class Deauthentication(object):
         Stop the deauthentication process.
         """
 
-        self._should_contineu = False
+        self._should_continue = False
 
     def send_deauthentication_packets(self):
         """
@@ -113,10 +113,19 @@ class Deauthentication(object):
         :type self: Deauthentication
         :return: None
         :rtype: None
+        .. note: Information regarding IEEE 802.11 and for deauthentication
+                 which could be useful for maintenance purposes. Type could
+                 have values of 0 for managment, 1 for control, 2 for data.
+                 There are a lot of subtpyes but subtype 12 is for
+                 deauthentication packets. addr1, addr2, addr3 are destination
+                 address, sender address, sender transmited address
+                 respectivly.
+
+
         """
 
-        # continue to deauthentiate until otherwise set
-        while self._should_contineu:
+        # continue to deauthenticate until otherwise set
+        while self._should_continue:
             # added to reduce the stress on system and allow user to connect
             time.sleep(3)
             if self._observed_clients:
@@ -131,7 +140,7 @@ class Deauthentication(object):
 
                     scapy.sendrecv.sendp(packet, count=10, verbose=False)
 
-    def deauthentiate(self):
+    def deauthenticate(self):
         """
         Deauthenticate all the clients found on the target access point.
 
