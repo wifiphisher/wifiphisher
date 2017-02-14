@@ -876,10 +876,12 @@ def run():
                     print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name()
                     print term.move(5, term.width - 30) + "|" + "_"*29
                     print term.move(1, 0) + term.blue("Jamming the following clients: ")
-                    if deauthentication.get_clients():
-                        # show the 5 most recent devices
-                        for client in deauthentication.get_clients()[-5:]:
-                            print client
+                    if not args.nojamming:
+                        # only show clients when jamming
+                        if deauthentication.get_clients():
+                            # show the 5 most recent devices
+                            for client in deauthentication.get_clients()[-5:]:
+                                print client
                     print term.move(9,0) + term.blue("DHCP Leases: ")
                     if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                         proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
