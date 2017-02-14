@@ -254,6 +254,15 @@ def targeting_cb(pkt):
 
     bssid = pkt[Dot11].addr3
     p = pkt[Dot11Elt]
+    rssi  = -100
+    # Show signal power
+    if pkt.type == 0 and pkt.subtype == 8:
+        if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+            try:
+                extra = pkt.notdecoded
+                rssi = -(256 - ord(extra[-4:-3]))
+            except:
+                rssi = -100
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
                       "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
     essid, channel = None, None
@@ -289,7 +298,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto)), rssi]
     target_APs()
 
 
@@ -301,8 +310,8 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-              .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:20} {6:3}'
+        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor', 'power',width=max_name_size + 1))
 
     print header
     print '-' * len(header)
@@ -315,14 +324,15 @@ def target_APs():
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
                 T + '{2:{width}} ' + W + ' - ' +
-                B + '{3:17}' + W + ' - {4:12} - ' +
-                R + ' {5:}' + W
+                B + '{3:17}' +  W  + ' - {4:12} - ' +
+                R + ' {5:20}' + B +  ' - {6:3} '
                 ).format(ap,
                          APs[ap][0],
                          APs[ap][1],
                          mac,
                          crypto,
                          vendor,
+                         APs[ap][4],
                          width=max_name_size))
 
 
@@ -993,12 +1003,12 @@ def run():
                     print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
                     print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
                     print term.move(3, term.width - 30) + "|" + " Channel: " + channel
-                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name() 
-                    print term.move(5, term.width - 30) + "|" + "_"*29 
+                    print term.move(4, term.width - 30) + "|" + " AP interface: " + mon_iface.get_name()
+                    print term.move(5, term.width - 30) + "|" + "_"*29
                     print term.move(1,0) + term.blue("Jamming devices: ")
                     if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
                         proc = check_output(['tail', '-5', '/tmp/wifiphisher-jammer.tmp'])
-                        print term.move(4,0) + proc 
+                        print term.move(4,0) + proc
                     print term.move(9,0) + term.blue("DHCP Leases: ")
                     if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                         proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
