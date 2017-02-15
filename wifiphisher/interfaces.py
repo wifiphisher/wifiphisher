@@ -1,3 +1,4 @@
+#pylint: skip-file
 """
 This module was made to handle all the interface related operations for
 Wifiphisher.py
@@ -193,7 +194,7 @@ class NetworkAdapter(object):
     def set_channel(self, channel):
         """
         Set the device channel to the provided channel.
-        
+
         :param self: A NetworkAdapter object
         :param channel: A channel number
         :type self: NetworkAdapter

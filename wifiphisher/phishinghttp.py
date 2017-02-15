@@ -1,3 +1,4 @@
+#pylint: skip-file
 import tornado.ioloop
 import tornado.web
 import logging
@@ -9,7 +10,7 @@ from constants import *
 
 template = False
 terminate = False
-creds = [] 
+creds = []
 
 
 class DowngradeToHTTP(tornado.web.RequestHandler):

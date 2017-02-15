@@ -1,3 +1,4 @@
+#pylint: skip-file
 """
 This module handles all the phishing related operations for
 Wifiphisher.py
@@ -109,7 +110,7 @@ class PhishingTemplate(object):
 
         :param self: A PhishingTemplate object
         :type self: PhishingTemplate
-        :return: The path of the template 
+        :return: The path of the template
         :rtype: bool
         """
 
@@ -121,7 +122,7 @@ class PhishingTemplate(object):
 
         :param self: A PhishingTemplate object
         :type self: PhishingTemplate
-        :return: boolean if it needs payload 
+        :return: boolean if it needs payload
         :rtype: bool
         """
 
@@ -168,7 +169,7 @@ class PhishingTemplate(object):
 
     def use_file(self, path):
         """
-        Copies a file in the filesystem to the path 
+        Copies a file in the filesystem to the path
         of the template files.
 
         :param self: A PhishingTemplate object
