@@ -11,4 +11,4 @@ install:
   - python setup.py install
 
 script:
-  - pylint wifiphisher
+  - pylint --errors-only wifiphisher
