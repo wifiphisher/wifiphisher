@@ -155,12 +155,15 @@ def stopfilter(x):
     return False
 
 
-def shutdown(deauthentication, template=None, network_manager=None):
+def shutdown(deauthentication=None, template=None, network_manager=None):
     """
     Shutdowns program.
     """
-    # stop deauthentication
-    deauthentication.stop_deauthentication()
+
+    # if deauthentication object supplied
+    if deauthentication:
+        # stop deauthentication
+        deauthentication.stop_deauthentication()
 
     print "[" + G + "+" + W + "] Captured credentials:"
     for c in phishinghttp.creds:
@@ -825,7 +828,7 @@ def run():
         print('[' + G + '+' + W +
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
-        shutdown(template)
+        shutdown(template=template)
     subprocess.call('clear', shell=True)
     print ('[' + T + '*' + W + '] ' + T +
            essid + W + ' set up on channel ' +
