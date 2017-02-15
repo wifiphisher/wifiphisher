@@ -22,7 +22,7 @@ entry_points = {
 install_requires = [
 'PyRIC',
 'tornado',
-'blessings']
+'blessings>=1.6']
 )
 
 def get_dnsmasq():
