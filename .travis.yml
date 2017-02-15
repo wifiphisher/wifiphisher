@@ -7,6 +7,7 @@ before_install:
   - sudo apt-get install -y hostapd dnsmasq
 
 install:
+  - pip install pylint
   - python setup.py install
 
 script:
