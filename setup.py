@@ -13,15 +13,15 @@ import wifiphisher.constants as constants
 
 def get_dnsmasq():
     """
-    Try to install dnsmasq on host machine if not present.
+    Try to install dnsmasq on host machine if not present
+
     :return: None
     :rtype: None
     """
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
-        install = raw_input(("[" + constants.T + "*" + constants.W +
-                             "] dnsmasq not found " + "in /usr/bin/dnsmasq, " +
-                             "install now? [y/n] "))
+        install = raw_input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
+                             "in /usr/bin/dnsmasq, " + "install now? [y/n] "))
 
         if install == "y":
             if os.path.isfile("/usr/bin/pacman"):
@@ -36,33 +36,30 @@ def get_dnsmasq():
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
         dnsmasq_message = ("\n[" + constants.R + "-" + constants.W +
-                           "] Unable to install the \'dnsmasq\' package!\n" +
-                           "[" + constants.T + "*" + constants.W + "] This " +
-                           "process requires a persistent internet " +
-                           "connection!\nPlease follow the link below to " +
-                           " configure your sources.list\n" + constants.B +
-                           "http://docs.kali.org/general-use/kali-linux-" +
-                           "sources-list-repositories\n" + constants.W + "[" +
-                           constants.G + "+" + constants.W + "] Run apt-get " +
-                           "update for changes to take effect.\n" + "[" +
-                           constants.G + "+" + constants.W + "] Rerun the " +
-                           "script to install dnsmasq.\n[" + constants.R +
-                           "!" + constants.W + "] Closing")
+                           "] Unable to install the \'dnsmasq\' package!\n" + "[" + constants.T +
+                           "*" + constants.W + "] This process requires a persistent internet " +
+                           "connection!\nPlease follow the link below to configure your " +
+                           "sources.list\n" + constants.B + "http://docs.kali.org/general-use/" +
+                           "kali-linux-sources-list-repositories\n" + constants.W + "[" +
+                           constants.G + "+" + constants.W + "] Run apt-get update for changes " +
+                           "to take effect.\n" + "[" + constants.G + "+" + constants.W + "] " +
+                           "Rerun the script to install dnsmasq.\n[" + constants.R + "!" +
+                           constants.W + "] Closing")
 
         sys.exit(dnsmasq_message)
 
 
 def get_hostapd():
     """
-    Try to install hostapd on host system if not present.
+    Try to install hostapd on host system if not present
+
     :return: None
     :rtype: None
     """
 
     if not os.path.isfile("/usr/sbin/hostapd"):
-        install = raw_input(("[" + constants.T + "*" + constants.W +
-                             "] hostapd not found in /usr/sbin/hostapd, " +
-                             "install now? [y/n] "))
+        install = raw_input(("[" + constants.T + "*" + constants.W + "] hostapd not found in " +
+                             "/usr/sbin/hostapd, install now? [y/n] "))
 
         if install == "y":
             if os.path.isfile("/usr/bin/pacman"):
@@ -72,30 +69,27 @@ def get_hostapd():
             else:
                 os.system("apt-get -y install hostapd")
         else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] hostapd " +
-                      "not found in /usr/sbin/hostapd"))
+            sys.exit(("[" + constants.R + "-" + constants.W + "] hostapd not found in " +
+                      "/usr/sbin/hostapd"))
 
     if not os.path.isfile("/usr/sbin/hostapd"):
-        hostapd_message = ("\n[" + constants.R + "-" + constants.W +
-                           "] Unable to install the \'hostapd\' package!\n" +
-                           "[" + constants.T + "*" + constants.W + "] This " +
-                           "process requires a persistent internet " +
-                           "connection!\nPlease follow the link below to " +
-                           "configure your sources.list\n" + constants.B +
-                           "http://docs.kali.org/general-use/kali-linux-" +
-                           "sources-list-repositories\n" + constants.W +
-                           "[" + constants.G + "+" + constants.W + "] Run " +
-                           "apt-get update for changes to take effect.\n[" +
-                           constants.G + "+" + constants.W + "] Rerun the " +
-                           "script to install hostapd.\n" + "[" + constants.R +
-                           "!" + constants.W + "] Closing")
+        hostapd_message = ("\n[" + constants.R + "-" + constants.W + "] Unable to install the " +
+                           "\'hostapd\' package!\n[" + constants.T + "*" + constants.W + "] " +
+                           "This process requires a persistent internet connection!\nPlease " +
+                           "follow the link below to configure your sources.list\n" + constants.B +
+                           "http://docs.kali.org/general-use/kali-linux-sources-list-" +
+                           "repositories\n" + constants.W + "[" + constants.G + "+" + constants.W +
+                           "] Run apt-get update for changes to take effect.\n[" + constants.G +
+                           "+" + constants.W + "] Rerun the script to install hostapd.\n[" +
+                           constants.R + "!" + constants.W + "] Closing")
 
         sys.exit(hostapd_message)
 
 
 def get_ifconfig():
     """
-    Try to install ifconfig on host machine if not present.
+    Try to install ifconfig on host machine if not present
+
     :return: None
     :trype: None
     """
@@ -103,34 +97,28 @@ def get_ifconfig():
     # this is only useful for Arch Linux which does not contain
     # ifconfig by default
     if not find_executable("ifconfig"):
-        install = raw_input(("[" + constants.T + "*" + constants.W +
-                             "] ifconfig not found. " + "install now? [y/n] "))
+        install = raw_input(("[" + constants.T + "*" + constants.W + "] ifconfig not found. " +
+                             "install now? [y/n] "))
 
         if install == "y":
             if os.path.isfile("/usr/bin/pacman"):
                 os.system("pacman -S net-tools")
             else:
-                sys.exit(("\n[" + constants.R + "-" + constants.W +
-                          "] Don\'t know how to install ifconfig for your " +
-                          "distribution.\n[" + constants.G + "+" +
-                          constants.W + "] Rerun the script after installing" +
-                          " it manually.\n" + "[" + constants.R + "!" +
-                          constants.W + "] Closing"))
+                sys.exit(("\n[" + constants.R + "-" + constants.W + "] Don\'t know how to " +
+                          "install ifconfig for your distribution.\n[" + constants.G + "+" +
+                          constants.W + "] Rerun the script after installing it manually.\n[" +
+                          constants.R + "!" + constants.W + "] Closing"))
         else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] ifconfig " +
-                      "not found"))
+            sys.exit(("[" + constants.R + "-" + constants.W + "] ifconfig not found"))
 
     if not find_executable("ifconfig"):
-        ifconfig_message = ("\n[" + constants.R + "-" + constants.W +
-                            "] Unable to install the \"net-tools\" package!" +
-                            "\n[" + constants.T + "*" + constants.W + "] " +
-                            "This process requires a persistent internet " +
-                            "connection!\n[" + constants.G + "+" +
-                            constants.W + "] Run pacman -Syu to make sure " +
-                            "you are up to date first.\n[" + constants.G +
-                            "+" + constants.W + "] Rerun the script to " +
-                            "install net-tools.\n[" + constants.R + "!" +
-                            constants.W + "] Closing")
+        ifconfig_message = ("\n[" + constants.R + "-" + constants.W + "] Unable to install the " +
+                            "\"net-tools\" package!\n[" + constants.T + "*" + constants.W + "] " +
+                            "This process requires a persistent internet connection!\n[" +
+                            constants.G + "+" + constants.W + "] Run pacman -Syu to make sure " +
+                            "you are up to date first.\n[" + constants.G + "+" + constants.W +
+                            "] Rerun the script to " + "install net-tools.\n[" + constants.R +
+                            "!" + constants.W + "] Closing")
 
         sys.exit(ifconfig_message)
 
@@ -145,16 +133,14 @@ KEYWORDS = ["wifiphisher", "evil", "twin", "phishing"]
 PACKAGES = find_packages()
 INCLUDE_PACKAGE_DATA = True
 VERSION = "1.2"
-ENTRY_POINTS = {"console_scripts":
-                ["wifiphisher = wifiphisher.pywifiphisher:run"]}
+ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 
 
 # run setup
-setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL,
-      description=DESCRIPTION, license=LICENSE, keywords=KEYWORDS,
-      packages=PACKAGES, include_package_data=INCLUDE_PACKAGE_DATA,
-      version=VERSION, entry_points=ENTRY_POINTS,
+setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
+      license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
+      include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES)
 
 # Get hostapd, dnsmasq or ifconfig if needed
