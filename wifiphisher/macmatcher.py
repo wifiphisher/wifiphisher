@@ -1,3 +1,4 @@
+#pylint: skip-file
 """
 This module was made to match MAC address with vendors
 """

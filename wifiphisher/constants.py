@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-
+#pylint: skip-file
 import os
 
 dir_of_executable = os.path.dirname(__file__)

@@ -1,3 +1,4 @@
+#pylint: skip-file
 import subprocess
 from constants import *
 
@@ -15,7 +16,7 @@ class Fw():
         subprocess.call(
             ('iptables -A FORWARD -i %s -o %s -j ACCEPT'
             % (internal_interface, external_interface)),
-            shell=True)        
+            shell=True)
 
     def clear_rules(self):
         subprocess.call('iptables -F', shell=True)
