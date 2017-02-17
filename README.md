@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/sophron/wifiphisher.svg?branch=master)](https://travis-ci.org/sophron/wifiphisher)
 
-<p align="center"><img src="https://sophron.github.io/wifiphisher/wifiphisher.png" /></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
 <a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that mounts automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It is primarily a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
@@ -16,7 +16,7 @@ From the victim's perspective, the attack makes use in three phases:
 2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will eventually start connecting to the rogue access point. After this phase, the victim is MiTMed.
 3. **Victim is being served a realistic specially-customized phishing page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials or serves malwares. This page will be specifically crafted for the victim. For example, a router config-looking page will contain logos of the victim's vendor. The tool supports community-built templates for different phishing scenarios.
 
-<p align="center"><img width="70%" src="https://sophron.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
+<p align="center"><img width="70%" src="https://wifiphisher.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
 ## Requirements
 Following are the requirements for getting the most out of Wifiphisher:
@@ -30,12 +30,12 @@ Following are the requirements for getting the most out of Wifiphisher:
 To install the latest development version type the following commands:
 
 ```bash
-git clone https://github.com/sophron/wifiphisher.git # Download the latest revision
+git clone https://github.com/wifiphisher/wifiphisher.git # Download the latest revision
 cd wifiphisher # Switch to tool's directory
 sudo python setup.py install # Install any dependencies (Currently, hostapd, dnsmasq, PyRIC, blessings) 
 ```
 
-Alternatively, you can download the latest stable version from the <a href="https://github.com/sophron/wifiphisher/releases">Releases page</a>.
+Alternatively, you can download the latest stable version from the <a href="https://github.com/wifiphisher/wifiphisher/releases">Releases page</a>.
 
 ## Usage
 
@@ -95,28 +95,28 @@ Following are all the options along with their descriptions (also available with
 
 ## Screenshots
 
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss5.png" /><br /><i>Targeting an access point</i></p>
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss7.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/firmware-upgrade/">router configuration page</a></i></p>
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss6.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/oauth-login/">OAuth Login Page</a></i></p>
-<p align="center"><img src="https://sophron.github.io/wifiphisher/ss4.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/wifi_connect/">web-based network manager</a></i></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss5.png" /><br /><i>Targeting an access point</i></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss2.png" /><br /><i>A successful attack</i></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss7.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/firmware-upgrade/">router configuration page</a></i></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss6.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/oauth-login/">OAuth Login Page</a></i></p>
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss4.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/wifi_connect/">web-based network manager</a></i></p>
 
 ## Help needed
-If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/sophron/wifiphisher/issues">bug tracker</a> for some tasks to do.
+If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/wifiphisher/wifiphisher/issues">bug tracker</a> for some tasks to do.
 
-If you don't know how to code, you can help us by <a href="https://github.com/sophron/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the <a href="https://github.com/sophron/wifiphisher/wiki/Bug-reporting-guidelines">Bug Reporting Guidelines</a> and the <a href="https://github.com/sophron/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.  Note that the tool does not aim to be script-kiddie friendly. Make sure you do understand how the tool works before opening an issue.
+If you don't know how to code, you can help us by <a href="https://github.com/wifiphisher/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the <a href="https://github.com/wifiphisher/wifiphisher/wiki/Bug-reporting-guidelines">Bug Reporting Guidelines</a> and the <a href="https://github.com/wifiphisher/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.  Note that the tool does not aim to be script-kiddie friendly. Make sure you do understand how the tool works before opening an issue.
 
 ## Credits
 The script is based on an idea from <a
 href="https://github.com/DanMcInerney">Dan McInerney</a>.
 
-A full list of contributors lies <a href="https://github.com/sophron/wifiphisher/graphs/contributors">here</a>.
+A full list of contributors lies <a href="https://github.com/wifiphisher/wifiphisher/graphs/contributors">here</a>.
 
 ## License
 Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more information.
 
 ## Project Status
-Wifiphisher's current version is **1.2**. You can download the latest release from <a href="https://github.com/sophron/wifiphisher/releases/tag/v1.2">here</a>. Otherwise you can get the latest development version by cloning this repository. 
+Wifiphisher's current version is **1.2**. You can download the latest release from <a href="https://github.com/wifiphisher/wifiphisher/releases/tag/v1.2">here</a>. Otherwise you can get the latest development version by cloning this repository. 
 
 ## Disclaimer
 * Authors do not own the logos under the `wifiphisher/data/` directory. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, and research.
