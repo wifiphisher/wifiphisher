@@ -234,7 +234,6 @@ class NetworkManager(object):
 
         # Create, add and check compatibility for each interface
         for interface in pyw.interfaces():
-            print interface
             try:
                 self._interfaces[interface] = NetworkAdapter(interface)
             except pyric.error as e:
