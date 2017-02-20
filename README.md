@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/sophron/wifiphisher.svg?branch=master)](https://travis-ci.org/sophron/wifiphisher)
+[![Build Status](https://travis-ci.org/wifiphisher/wifiphisher.svg?branch=master)](https://travis-ci.org/wifiphisher/wifiphisher)
 
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
