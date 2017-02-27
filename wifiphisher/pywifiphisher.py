@@ -16,7 +16,7 @@ from blessings import Terminal
 from threading import Thread, Lock
 from subprocess import Popen, PIPE, check_output
 import logging
-import accesspoint
+import recon
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 from shutil import copyfile
@@ -680,7 +680,7 @@ def select_access_point(screen, interface):
     screen.nodelay(True)
 
     # start finding access points
-    access_point_finder = accesspoint.AccessPointFinder(interface)
+    access_point_finder = recon.AccessPointFinder(interface)
     access_point_finder.find_all_access_points()
 
     position = 1
