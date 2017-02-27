@@ -103,11 +103,11 @@ def parse_args():
               ),
         action='store_true')
     parser.add_argument(
-        "-ap",
-        "--ap-info", nargs=2, metavar=("essid", "channel"),
-        help=("Enter the ESSID of the rogue access point followed by it's channel" +
+        "-e",
+        "--essid",
+        help=("Enter the ESSID of the rogue Access Point. " +
               "This option will skip Access Point selection phase. " +
-              "Example: --ap-info Free WiFi 5"
+              "Example: --essid 'Free WiFi'"
               )
     )
     parser.add_argument(
@@ -1017,6 +1017,8 @@ def run():
             channel = access_point.get_channel()
             ap_mac = access_point.get_mac_address()
             enctype = access_point.get_encryption()
+            # TODO: must be removed after L1059 has been fixed
+            args.channel = channel
         else:
             shutdown()
     # get the correct template
