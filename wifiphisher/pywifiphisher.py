@@ -1000,9 +1000,9 @@ def run():
 
     print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
 
-    if args.ap_info:
-        essid = args.ap_info[0]
-        channel = args.ap_info[1]
+    if args.essid:
+        essid = args.essid
+        channel = str(CHANNEL)
         ap_mac = None
         enctype = None
     else:
