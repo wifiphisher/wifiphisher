@@ -6,11 +6,8 @@ available access points
 from __future__ import division
 import threading
 import time
-import logging
 import scapy.layers.dot11 as dot11
 import constants
-
-MODULE_LOGGER = logging.getLogger("wifiphisher.accesspoint")
 
 
 class AccessPoint(object):
@@ -38,9 +35,6 @@ class AccessPoint(object):
         self._encryption = encryption
         self._signal_strength = None
         self._clients = set()
-        self.logger = logging.getLogger("wifiphisher.accesspoint.AccessPoint")
-
-        self.logger.info("Creating AccessPoint object")
 
     def get_name(self):
         """
@@ -51,8 +45,6 @@ class AccessPoint(object):
         :return: Name of the access point
         :rtype: string
         """
-
-        self.logger.info("Returning name")
 
         return self._name
 
@@ -66,8 +58,6 @@ class AccessPoint(object):
         :rtype: string
         """
 
-        self.logger.info("Returning MAC address")
-
         return self._mac_address
 
     def get_channel(self):
@@ -79,8 +69,6 @@ class AccessPoint(object):
         :return: Channel of the access point
         :rtype: string
         """
-
-        self.logger.info("Returning channel")
 
         return self._channel
 
@@ -94,8 +82,6 @@ class AccessPoint(object):
         :rtype: string
         """
 
-        self.logger.info("Returning encryption type")
-
         return self._encryption
 
     def get_signal_strength(self):
@@ -107,8 +93,6 @@ class AccessPoint(object):
         :return: Access point's singnal strength
         :rtype: string
         """
-
-        self.logger.info("Returning signal strength")
 
         return self._signal_strength
 
@@ -124,8 +108,6 @@ class AccessPoint(object):
         :rtype: None
         """
 
-        self.logger.info("Setting Signal strength")
-
         self._signal_strength = power
 
     def add_client(self, client):
@@ -140,8 +122,6 @@ class AccessPoint(object):
         :rtype: None
         """
 
-        self.logger.info("Adding client")
-
         self._clients.add(client)
 
     def get_number_connected_clients(self):
@@ -153,8 +133,6 @@ class AccessPoint(object):
         :return: Number of connected clients
         :rtype: int
         """
-
-        self.logger.info("Returning number of clients")
 
         return len(self._clients)
 
@@ -176,14 +154,11 @@ class AccessPointFinder(object):
         self._observed_access_points = list()
         self._should_continue = True
         self._hidden_networks = list()
-        self.logger = logging.getLogger("wifiphisher.accesspoint.AccessPointFinder")
 
         # filter used to remove non-client addresses
         self._non_client_addresses = (constants.WIFI_BROADCAST, constants.WIFI_INVALID,
                                       constants.WIFI_IPV6MCAST1, constants.WIFI_IPV6MCAST2,
                                       constants.WIFI_SPANNINGTREE, constants.WIFI_MULTICAST)
-
-        self.logger.info("Creating AccessPointFinder object")
 
     def _process_packets(self, packet):
         """
@@ -283,7 +258,6 @@ class AccessPointFinder(object):
         .. note: Possible return values are WPA2, WPA, WEP and OPEN
         """
 
-        self.logger.info("Finding encryption type")
         encryption_info = packet.sprintf("%Dot11Beacon.cap%")
         elt_section = packet[dot11.Dot11Elt]
         encryption_type = None
@@ -309,8 +283,6 @@ class AccessPointFinder(object):
                 encryption_type = "WEP"
             else:
                 encryption_type = "OPEN"
-
-        self.logger.info("Found encryption type")
 
         return encryption_type
 
@@ -403,8 +375,6 @@ class AccessPointFinder(object):
         :rtype: int
         """
 
-        self.logger.info("Calculating signal strength")
-
         # calculate signal strength based on rssi value
         if rssi <= -100:
             signal_strength = 0
@@ -412,8 +382,6 @@ class AccessPointFinder(object):
             signal_strength = 100
         else:
             signal_strength = 2 * (rssi + 100)
-
-        self.logger.info("Finished Calculating signal strength")
 
         return signal_strength
 
@@ -429,8 +397,6 @@ class AccessPointFinder(object):
         :rtype: None
         """
 
-        self.logger.info("Started find clients")
-
         # find sender and receiver
         receiver = packet.addr1
         sender = packet.addr2
@@ -442,8 +408,6 @@ class AccessPointFinder(object):
             sender_identifier = sender[:8]
 
         else:
-            self.logger.info("Started find clients")
-
             return None
 
         # if a valid address is provided
@@ -465,8 +429,6 @@ class AccessPointFinder(object):
                 elif access_point_mac == sender:
                     access_point.add_client(receiver)
 
-        self.logger.info("Started find clients")
-
     def get_sorted_access_points(self):
         """
         Return all access points sorted based on signal strength
@@ -477,13 +439,9 @@ class AccessPointFinder(object):
         :rtype: None
         """
 
-        self.logger.info("Sorting access points")
-
         # sort access points in descending order based on
         # signal strength
         sorted_access_points = sorted(self._observed_access_points,
                                       key=lambda ap: ap.get_signal_strength(), reverse=True)
-
-        self.logger.info("Finished sorting access points")
 
         return sorted_access_points
