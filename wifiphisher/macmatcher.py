@@ -1,91 +1,124 @@
-#pylint: skip-file
 """
 This module was made to match MAC address with vendors
 """
 
-from constants import *
+import wifiphisher.constants as constants
 
 
 class MACMatcher(object):
     """
-    This class is using Organizationally Unique Identifiers (OUIs)
-    in order to match MAC addresses of devices to its vendord
+    This class handles Organizationally Unique Identifiers (OUIs).
+    The original data comes from http://standards.ieee.org/regauth/
+    oui/oui.tx
 
-    See http://standards.ieee.org/faqs/OUI.html
+    .. seealso:: http://standards.ieee.org/faqs/OUI.html
     """
 
-    def __init__(self, mac_prefix_file):
+    def __init__(self, mac_vendor_file):
         """
+        Setup the class with all the given arguments
+
+        :param self: A MACMatcher object
+        :param mac_vendor_file: The path of the vendor file
+        :type self: MACMatcher
+        :type mac_vendor_file: string
+        :return: None
+        :rtype: None
+        """
+
+        self._mac_to_vendor = {}
+        self._vendor_file = mac_vendor_file
+
+        # get the information in the vendor file
+        self._get_vendor_information()
+
+    def _get_vendor_information(self):
+        """
+        Read and process all the data in the vendor file
+
         :param self: A MACMatcher object
         :type self: MACMatcher
-        :param mac_prefix_file: path of max-prefixes file
-        :type mac_prefix_file: string
+        :return: None
+        :rtype: None
         """
 
-        self.mac_to_vendor = {}
-
-        with open(mac_prefix_file, 'r') as prefixes_file:
-            for line in prefixes_file:
-                # skip comments
+        # open the file with all the MAC addresses and
+        # vendor information
+        with open(self._vendor_file, 'r') as _file:
+            # check every line in the file
+            for line in _file:
+                # skip comment lines
                 if not line.startswith("#"):
-                    unpack = line.rstrip('\n').split('|')
-                    self.mac_to_vendor[unpack[0]] = unpack
+                    # separate vendor and MAC addresses and add it
+                    # to the dictionary
+                    separated_line = line.rstrip('\n').split('|')
+                    mac_identifier = separated_line[0]
+                    vendor = separated_line[1]
+                    logo = separated_line[2]
+                    self._mac_to_vendor[mac_identifier] = (vendor, logo)
 
     def get_vendor_name(self, mac_address):
         """
         Return the matched vendor name for the given MAC address
-        or empty if no match.
+        or Unknown if no match is found
 
         :param self: A MACMatcher object
+        :param mac_address: MAC address of device
         :type self: MACMatcher
-        :param mac_address: mac address represended as two
-                            hexadecimal digits separated by colons
         :type mac_address: string
-        :return: the vendor name of the device
-        :rtype: str
+        :return: The vendor name of the device if MAC address is found
+                 and Unknown otherwise
+        :rtype: string
         """
 
-        if mac_address:
-            # convert mac to match prefix file format
-            vendor_part = mac_address.replace(':', '').upper()[0:6]
+        # convert mac address to same format as file
+        # ex. 12:34:56:78:90:AB --> 123456
+        mac_identifier = mac_address.replace(':', '').upper()[0:6]
 
-            if vendor_part in self.mac_to_vendor:
-                return self.mac_to_vendor[vendor_part][1]
-
-        return False
+        # try to find the vendor and if not found return unknown
+        try:
+            return self._mac_to_vendor[mac_identifier]
+        except KeyError:
+            return "Unknown"
 
     def get_vendor_logo_path(self, mac_address):
         """
-        Return the the full path of the logo in the filesystem
-        for the given MAC address
-        or empty if no match.
+        Return the the full path of the logo in the filesystem for the
+        given MAC address or None if no match is found
 
         :param self: A MACMatcher object
+        :param mac_address: MAC address of the device
         :type self: MACMatcher
-        :param mac_address: mac address represended as two
-                            hexadecimal digits separated by colons
         :type mac_address: string
-        :return: the full path of the logo in the filesystem
-        :rtype: str
+        :return: The full path of the logo if MAC address if found and
+                 None otherwise
+        :rtype: string or None
         """
 
-        if mac_address:
-            # convert mac to match prefix file format
-            vendor_part = mac_address.replace(':', '').upper()[0:6]
+        # convert mac address to same format as file
+        # ex. 12:34:56:78:90:AB --> 123456
+        mac_identifier = mac_address.replace(':', '').upper()[0:6]
 
-            if vendor_part in self.mac_to_vendor and \
-                    len(self.mac_to_vendor[vendor_part]) > 2:
-                return LOGOS_DIR + self.mac_to_vendor[vendor_part][2]
-
-        return None
+        # check to see if vendor is available for the MAC address
+        if mac_identifier in self._mac_to_vendor:
+            # find the logo and it's path
+            logo = self._mac_to_vendor[mac_identifier][1]
+            logo_path = constants.LOGOS_DIR + logo
+            # return logo name if it was provided otherwise return None
+            if logo:
+                return logo_path
+            else:
+                return None
 
     def unbind(self):
         """
-        Unloads mac to vendor mapping from memory
-        You can not use MACMatcher instance once this method is called
+        Unloads mac to vendor mapping from memory and therefore you can
+        not use MACMatcher instance once this method is called
 
         :param self: A MACMatcher object
         :type self: MACMatcher
-
+        :return: None
+        :rtype: None
         """
-        self.mac_to_vendor = {}
+
+        del self._mac_to_vendor
