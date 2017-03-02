@@ -212,7 +212,7 @@ class AccessPointFinder(object):
         non_decodable_name = "<contains non-printable chars>"
 
         # find the signal strength
-        rssi = -(256 - ord(packet.notdecoded[-2:-1]))
+        rssi = -(256 - ord(packet.notdecoded[-4:-3]))
         new_signal_strength = self._calculate_signal_strength(rssi)
 
         # get the name of the access point
