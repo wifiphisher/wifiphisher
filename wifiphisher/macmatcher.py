@@ -7,8 +7,9 @@ import wifiphisher.constants as constants
 
 class MACMatcher(object):
     """
-    This class is using Organizationally Unique Identifiers (OUIs)
-    in order to match MAC addresses of device to its vendor
+    This class handles Organizationally Unique Identifiers (OUIs).
+    The original data comes from http://standards.ieee.org/regauth/
+    oui/oui.tx
 
     .. seealso:: http://standards.ieee.org/faqs/OUI.html
     """
