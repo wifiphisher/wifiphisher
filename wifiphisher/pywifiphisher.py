@@ -148,8 +148,8 @@ def check_args(args):
         sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
     if args.nojamming and args.jamminginterface:
-        sys.exit(
-            '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+        sys.exit('[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+
 
 
 def stopfilter(x):
@@ -263,6 +263,18 @@ def targeting_cb(pkt):
     global APs, count
 
     bssid = pkt[Dot11].addr3
+    rssi  = -100
+    # Show signal power
+    if pkt.type == 0 and pkt.subtype == 8:
+        if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+            try:
+                extra = pkt.notdecoded
+                rssi = -(256 - ord(extra[-4:-3]))
+            except:
+                rssi = -100
+
+
+
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
                       "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
@@ -299,7 +311,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto)), rssi]
     target_APs()
 
 
@@ -311,8 +323,10 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-              .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+
+    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:20} {6:3}'
+        .format('num', 'ch','ESSID', 'BSSID', 'encr', 'vendor', 'power',width=max_name_size + 1))
+
 
     print header
     print '-' * len(header)
@@ -325,14 +339,15 @@ def target_APs():
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
                 T + '{2:{width}} ' + W + ' - ' +
-                B + '{3:17}' + W + ' - {4:12} - ' +
-                R + ' {5:}' + W
+                B + '{3:17}' +  W  + ' - {4:12} - ' +
+                R + ' {5:20}' + B +  ' - {6:3} '
                 ).format(ap,
                          APs[ap][0],
                          APs[ap][1],
                          mac,
                          crypto,
                          vendor,
+                         APs[ap][4],
                          width=max_name_size))
 
 
@@ -497,7 +512,8 @@ def dhcp_conf(interface):
     return '/tmp/dhcpd.conf'
 
 
-def dhcp(dhcpconf, mon_iface):
+def dhcp(dhcpconf, mon_iface,args):
+
     dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
@@ -1070,7 +1086,7 @@ def run():
     # Start AP
     start_ap(ap_iface.get_name(), channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface.get_name())
-    if not dhcp(dhcpconf, ap_iface.get_name()):
+    if not dhcp(dhcpconf, ap_iface.get_name(),args):
         print('[' + G + '+' + W +
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
