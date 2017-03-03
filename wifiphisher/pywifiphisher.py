@@ -128,6 +128,15 @@ def parse_args():
               "credentials"),
         action='store_true')
 
+    parser.add_argument(
+          "-nD",
+          "--noDmasq",
+          help=("To use dmasq itself for dhcp. " +
+                "Example : -nD"
+                ),
+          action='store_true')
+
+
     return parser.parse_args()
 
 
@@ -148,8 +157,10 @@ def check_args(args):
         sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
     if args.nojamming and args.jamminginterface:
+
         sys.exit(
             '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+
 
 
 def stopfilter(x):
@@ -263,6 +274,17 @@ def targeting_cb(pkt):
     global APs, count
 
     bssid = pkt[Dot11].addr3
+    rssi  = -100
+    # Show signal power
+    if pkt.type == 0 and pkt.subtype == 8:
+        if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
+            try:
+                extra = pkt.notdecoded
+                rssi = -(256 - ord(extra[-4:-3]))
+
+            except:
+                rssi = -500
+
     p = pkt[Dot11Elt]
     cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
                       "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
@@ -299,7 +321,7 @@ def targeting_cb(pkt):
             if essid in APs[num][1]:
                 return
     count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
+    APs[count] = [channel, essid, bssid, '/'.join(list(crypto)), rssi]
     target_APs()
 
 
@@ -311,8 +333,9 @@ def target_APs():
 
     max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
 
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-              .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+    header = ('{0:3}  {1:3}  {2:4}  {3:{width}}   {4:19}  {5:14}  {6:}'
+        .format('num', 'ch','power','ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
+
 
     print header
     print '-' * len(header)
@@ -324,16 +347,20 @@ def target_APs():
         vendor = mac_matcher.get_vendor_name(mac)
 
         print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-                T + '{2:{width}} ' + W + ' - ' +
-                B + '{3:17}' + W + ' - {4:12} - ' +
-                R + ' {5:}' + W
-                ).format(ap,
-                         APs[ap][0],
-                         APs[ap][1],
-                         mac,
-                         crypto,
-                         vendor,
-                         width=max_name_size))
+
+               B + '{2:3} ' + W + ' - ' +
+               T + '{3:{width}} ' + W + ' - ' +
+               B + '{4:17}' + W + ' - {5:12} - ' +
+               R + ' {6:}' + W
+            ).format(ap,
+                    APs[ap][0],
+                    APs[ap][4],
+                    APs[ap][1],
+                    mac,
+                    crypto,
+                    vendor,
+                    width=max_name_size))
+
 
 
 def copy_AP():
@@ -497,8 +524,10 @@ def dhcp_conf(interface):
     return '/tmp/dhcpd.conf'
 
 
-def dhcp(dhcpconf, mon_iface):
-    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
+def dhcp(dhcpconf, mon_iface,args):
+
+    if not args.noDmasq:
+        dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
     Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
     Popen(
         ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
@@ -1056,12 +1085,14 @@ def run():
     ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
     template.merge_context({
+
         'target_ap_channel': args.channel or "",
         'target_ap_essid': essid or "",
         'target_ap_bssid': ap_mac or "",
         'target_ap_encryption': enctype or "",
         'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
         'target_ap_logo_path': ap_logo_path or ""
+
     })
 
     # We want to set this now for hostapd. Maybe the interface was in "monitor"
@@ -1070,7 +1101,7 @@ def run():
     # Start AP
     start_ap(ap_iface.get_name(), channel, essid, args)
     dhcpconf = dhcp_conf(ap_iface.get_name())
-    if not dhcp(dhcpconf, ap_iface.get_name()):
+    if not dhcp(dhcpconf, ap_iface.get_name(),args):
         print('[' + G + '+' + W +
               '] Could not set IP address on %s!' % ap_iface.get_name()
               )
