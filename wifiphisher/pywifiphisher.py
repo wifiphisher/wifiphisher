@@ -3,44 +3,31 @@
 #pylint: skip-file
 import subprocess
 import os
-import string
-import re
 import time
 import sys
 import argparse
 import fcntl
 import curses
-import pickle
 import deauth
 from blessings import Terminal
-from threading import Thread, Lock
+from threading import Thread
 from subprocess import Popen, PIPE, check_output
-import logging
 import recon
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-from scapy.all import *
 from shutil import copyfile
 import phishingpage
 import phishinghttp
 import macmatcher
 import interfaces
 import firewall
+import socket
+import struct
 from constants import *
 
 
 VERSION = "1.2GIT"
-conf.verb = 0
-count = 0  # for channel hopping Thread
-APs = {}  # for listing APs
-clients_APs = []
-hop_daemon_running = True
-sniff_daemon_running = True
-jamming_daemon_running = True
-terminate = False
-lock = Lock()
 args = 0
 mon_MAC = 0
-first_pass = 1
+APs = {}  # for listing APs
 
 
 def parse_args():
@@ -152,12 +139,6 @@ def check_args(args):
             '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
 
-def stopfilter(x):
-    if not sniff_daemon_running:
-        return True
-    return False
-
-
 def shutdown(deauthentication=None, template=None, network_manager=None):
     """
     Shutdowns program.
@@ -228,139 +209,6 @@ def set_route_localnet():
         stdout=DN,
         stderr=PIPE
     )
-
-
-def channel_hop(mon_iface):
-    chan = 0
-    while hop_daemon_running:
-        try:
-            if chan > 11:
-                chan = 0
-            chan = chan + 1
-            channel = chan
-            mon_iface.set_channel(channel)
-            time.sleep(1)
-        except KeyboardInterrupt:
-            sys.exit()
-
-
-def sniffing(interface, cb):
-    '''This exists for if/when I get deauth working
-    so that it's easy to call sniff() in a thread'''
-    try:
-        sniff(iface=interface, prn=cb, stop_filter=stopfilter,
-              store=False, lfilter=lambda p: (Dot11Beacon in p or Dot11ProbeResp in p))
-    except socket.error as e:
-        # Network is down
-        if e.errno == 100:
-            pass
-        else:
-            raise
-
-
-def targeting_cb(pkt):
-
-    global APs, count
-
-    bssid = pkt[Dot11].addr3
-    p = pkt[Dot11Elt]
-    cap = pkt.sprintf("{Dot11Beacon:%Dot11Beacon.cap%}"
-                      "{Dot11ProbeResp:%Dot11ProbeResp.cap%}").split('+')
-    essid, channel = None, None
-    crypto = set()
-    while isinstance(p, Dot11Elt):
-        if p.ID == 0:
-            try:
-                p.info.decode('utf8')
-            except UnicodeDecodeError:
-                essid = "<contains non-printable chars>"
-            else:
-                essid = p.info
-        elif p.ID == 3:
-            try:
-                channel = str(ord(p.info))
-            # TypeError: ord() expected a character, but string of length 2
-            # found
-            except Exception:
-                return
-        elif p.ID == 48:
-            crypto.add("WPA2")
-        elif p.ID == 221 and p.info.startswith('\x00P\xf2\x01\x01\x00'):
-            crypto.add("WPA")
-        p = p.payload
-    if not crypto:
-        if 'privacy' in cap:
-            crypto.add("WEP")
-        else:
-            crypto.add("OPEN")
-
-    if len(APs) > 0:
-        for num in APs:
-            if essid in APs[num][1]:
-                return
-    count += 1
-    APs[count] = [channel, essid, bssid, '/'.join(list(crypto))]
-    target_APs()
-
-
-def target_APs():
-    global APs, count, mac_matcher
-    subprocess.call('clear', shell=True)
-    print ('[' + G + '+' + W + '] Ctrl-C at any time to copy an access' +
-           ' point from below')
-
-    max_name_size = max(map(lambda ap: len(ap[1]), APs.itervalues()))
-
-    header = ('{0:3}  {1:3}  {2:{width}}   {3:19}  {4:14}  {5:}'
-              .format('num', 'ch', 'ESSID', 'BSSID', 'encr', 'vendor', width=max_name_size + 1))
-
-    print header
-    print '-' * len(header)
-
-    for ap in APs:
-
-        mac = APs[ap][2]
-        crypto = APs[ap][3]
-        vendor = mac_matcher.get_vendor_name(mac)
-
-        print ((G + '{0:2}' + W + ' - {1:2}  - ' +
-                T + '{2:{width}} ' + W + ' - ' +
-                B + '{3:17}' + W + ' - {4:12} - ' +
-                R + ' {5:}' + W
-                ).format(ap,
-                         APs[ap][0],
-                         APs[ap][1],
-                         mac,
-                         crypto,
-                         vendor,
-                         width=max_name_size))
-
-
-def copy_AP():
-    global APs, count
-    copy = None
-    while not copy:
-        try:
-            copy = raw_input(
-                ('\n[' + G + '+' + W + '] Choose the [' + G + 'num' + W +
-                 '] of the AP you wish to copy: ')
-            )
-            copy = int(copy)
-        except KeyboardInterrupt:
-            shutdown()
-        except:
-            copy = None
-            continue
-    try:
-        channel = APs[copy][0]
-        essid = APs[copy][1]
-        if str(essid) == "\x00":
-            essid = ' '
-        mac = APs[copy][2]
-        enctype = APs[copy][3]
-        return channel, essid, mac, enctype
-    except KeyError:
-        return copy_AP()
 
 
 def select_template(template_argument):
@@ -518,121 +366,6 @@ def dhcp(dhcpconf, mon_iface):
          (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP)),
         shell=True)
     return True
-
-
-def noise_filter(skip, addr1, addr2):
-    # Broadcast, broadcast, IPv6mcast, spanning tree, spanning tree, multicast,
-    # broadcast
-    ignore = [
-        'ff:ff:ff:ff:ff:ff',
-        '00:00:00:00:00:00',
-        '33:33:00:', '33:33:ff:',
-        '01:80:c2:00:00:00',
-        '01:00:5e:',
-        mon_MAC
-    ]
-    if skip:
-        ignore.append(skip)
-    for i in ignore:
-        if i in addr1 or i in addr2:
-            return True
-
-
-def cb(pkt):
-    '''
-    Look for dot11 packets that aren't to or from broadcast address,
-    are type 1 or 2 (control, data), and append the addr1 and addr2
-    to the list of deauth targets.
-    '''
-    global clients_APs, APs, args, sniff_daemon_running
-
-    if sniff_daemon_running:
-        # return these if's keeping clients_APs the same or just reset clients_APs?
-        # I like the idea of the tool repopulating the variable more
-
-        '''
-        We're adding the AP and channel to the deauth list at time of creation
-        rather than updating on the fly in order to avoid costly for loops
-        that require a lock.
-        '''
-
-        if pkt.haslayer(Dot11):
-            if pkt.addr1 and pkt.addr2:
-
-                # Filter out all other APs and clients if asked
-                if args.accesspoint:
-                    if args.accesspoint not in [pkt.addr1, pkt.addr2]:
-                        return
-
-                # Check if it's added to our AP list
-                if pkt.haslayer(Dot11Beacon) or pkt.haslayer(Dot11ProbeResp):
-                    APs_add(clients_APs, APs, pkt, args.channel)
-
-                # Ignore all the noisy packets like spanning tree
-                if noise_filter(args.skip, pkt.addr1, pkt.addr2):
-                    return
-
-                # Management = 1, data = 2
-                if pkt.type in [1, 2]:
-                    clients_APs_add(clients_APs, pkt.addr1, pkt.addr2)
-
-
-def APs_add(clients_APs, APs, pkt, chan_arg):
-    ssid = pkt[Dot11Elt].info
-    bssid = pkt[Dot11].addr3
-    try:
-        # Thanks to airoscapy for below
-        ap_channel = str(ord(pkt[Dot11Elt:3].info))
-        # Prevent 5GHz APs from being thrown into the mix
-        chans = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-        if ap_channel not in chans:
-            return
-
-        if chan_arg:
-            if ap_channel != chan_arg:
-                return
-
-    except Exception:
-        return
-
-    if len(APs) == 0:
-        with lock:
-            return APs.append([bssid, ap_channel, ssid])
-    else:
-        for b in APs:
-            if bssid in b[0]:
-                return
-        with lock:
-            return APs.append([bssid, ap_channel, ssid])
-
-
-def clients_APs_add(clients_APs, addr1, addr2):
-
-    if len(clients_APs) == 0:
-        if len(APs) == 0:
-            with lock:
-                return clients_APs.append([addr1, addr2, monchannel])
-        else:
-            AP_check(addr1, addr2)
-
-    # Append new clients/APs if they're not in the list
-    else:
-        for ca in clients_APs:
-            if addr1 in ca and addr2 in ca:
-                return
-
-        if len(APs) > 0:
-            return AP_check(addr1, addr2)
-        else:
-            with lock:
-                return clients_APs.append([addr1, addr2, monchannel])
-
-
-def AP_check(addr1, addr2):
-    for ap in APs:
-        if ap[0].lower() in addr1.lower() or ap[0].lower() in addr2.lower():
-            with lock:
-                return clients_APs.append([addr1, addr2, ap[1], ap[2]])
 
 
 def mon_mac(mon_iface):
@@ -930,7 +663,7 @@ def run():
            (VERSION, time.strftime("%Y-%m-%d %H:%M")))
 
     # Parse args
-    global args, APs, clients_APs, mon_MAC, mac_matcher, hop_daemon_running
+    global args, APs, mon_MAC, mac_matcher
     args = parse_args()
 
     # Check args
@@ -1097,8 +830,6 @@ def run():
 
     clients_APs = []
     APs = []
-    monitor_on = None
-    conf.iface = mon_iface.get_name()
     mon_MAC = mon_mac(mon_iface.get_name())
 
     if not args.nojamming:
