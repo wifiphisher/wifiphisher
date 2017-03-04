@@ -5,7 +5,7 @@ Wifiphisher.py
 """
 
 import os
-from constants import *
+from wifiphisher.common.constants import *
 from shutil import copyfile
 
 import ConfigParser

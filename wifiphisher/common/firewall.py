@@ -1,6 +1,6 @@
 #pylint: skip-file
 import subprocess
-from constants import *
+from wifiphisher.common.constants import *
 
 class Fw():
 

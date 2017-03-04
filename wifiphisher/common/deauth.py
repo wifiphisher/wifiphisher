@@ -8,7 +8,7 @@ Sends 3 DEAUTH Frames:
 import threading
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
-import wifiphisher.constants as constants
+import wifiphisher.common.constants as constants
 
 
 class Deauthentication(object):
@@ -58,7 +58,8 @@ class Deauthentication(object):
         :rtype: None
         """
 
-        packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, addr1=receiver, addr2=sender, addr3=sender)
+        packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
+                    addr1=receiver, addr2=sender, addr3=sender) \
                   / dot11.Dot11Deauth())
 
         self._deauthentication_packets.append(packet)

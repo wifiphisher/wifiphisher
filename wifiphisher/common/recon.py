@@ -7,7 +7,7 @@ from __future__ import division
 import threading
 import time
 import scapy.layers.dot11 as dot11
-import constants
+import wifiphisher.common.constants as constants
 
 
 class AccessPoint(object):

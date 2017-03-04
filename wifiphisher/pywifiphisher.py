@@ -8,20 +8,20 @@ import sys
 import argparse
 import fcntl
 import curses
-import deauth
+import socket
+import struct
 from blessings import Terminal
 from threading import Thread
 from subprocess import Popen, PIPE, check_output
-import recon
 from shutil import copyfile
-import phishingpage
-import phishinghttp
-import macmatcher
-import interfaces
-import firewall
-import socket
-import struct
-from constants import *
+from wifiphisher.common.constants import *
+import wifiphisher.common.deauth as deauth
+import wifiphisher.common.recon as recon
+import wifiphisher.common.phishingpage as phishingpage
+import wifiphisher.common.phishinghttp as phishinghttp
+import wifiphisher.common.macmatcher as macmatcher
+import wifiphisher.common.interfaces as interfaces
+import wifiphisher.common.firewall as firewall
 
 
 VERSION = "1.2GIT"
@@ -867,6 +867,7 @@ class WifiphisherEngine:
 
 
 def run():
+    print "??"
     try:
         print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
             (VERSION, time.strftime("%Y-%m-%d %H:%M")))

@@ -2,7 +2,7 @@
 This module was made to match MAC address with vendors
 """
 
-import wifiphisher.constants as constants
+import wifiphisher.common.constants as constants
 
 
 class MACMatcher(object):
