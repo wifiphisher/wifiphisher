@@ -174,7 +174,8 @@ def shutdown(deauthentication=None, template=None, network_manager=None):
             pass
  
     print '[' + R + '!' + W + '] Closing'
-    sys.exit(0)
+    for c in phishinghttp.creds:
+        sys.exit('[' + R + '+' + W + '] Captured credentials:' + R + c)
 
 
 def set_ip_fwd():
