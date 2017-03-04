@@ -776,13 +776,14 @@ def run():
     if ap_mac:
         ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
+    # TODO: temporary remove the ap vendor get vendor and logo path to fix #489
     template.merge_context({
         'target_ap_channel': channel or "",
         'target_ap_essid': essid or "",
         'target_ap_bssid': ap_mac or "",
         'target_ap_encryption': enctype or "",
-        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
-        'target_ap_logo_path': ap_logo_path or ""
+        'target_ap_vendor': "",
+        'target_ap_logo_path': ""
     })
 
     # We want to set this now for hostapd. Maybe the interface was in "monitor"
