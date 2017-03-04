@@ -786,7 +786,9 @@ def run():
 
     template.merge_context({'APs': APs_context})
 
-    ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
+    # only get logo path if MAC address is present
+    if ap_mac:
+        ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
     template.merge_context({
         'target_ap_channel': args.channel or "",
