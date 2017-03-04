@@ -71,6 +71,10 @@ class MACMatcher(object):
         :rtype: string
         """
 
+        # Don't bother if there's no MAC
+        if mac_address is None:
+            return None
+
         # convert mac address to same format as file
         # ex. 12:34:56:78:90:AB --> 123456
         mac_identifier = mac_address.replace(':', '').upper()[0:6]
@@ -95,6 +99,10 @@ class MACMatcher(object):
                  None otherwise
         :rtype: string or None
         """
+
+        # Don't bother if there's no MAC
+        if mac_address is None:
+            return None
 
         # convert mac address to same format as file
         # ex. 12:34:56:78:90:AB --> 123456

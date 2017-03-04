@@ -750,8 +750,6 @@ def run():
             channel = access_point.get_channel()
             ap_mac = access_point.get_mac_address()
             enctype = access_point.get_encryption()
-            # TODO: must be removed after L1059 has been fixed
-            args.channel = channel
         else:
             shutdown()
     # get the correct template
@@ -787,11 +785,12 @@ def run():
     template.merge_context({'APs': APs_context})
 
     # only get logo path if MAC address is present
+    ap_logo_path = False
     if ap_mac:
         ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
 
     template.merge_context({
-        'target_ap_channel': args.channel or "",
+        'target_ap_channel': channel or "",
         'target_ap_essid': essid or "",
         'target_ap_bssid': ap_mac or "",
         'target_ap_encryption': enctype or "",
