@@ -383,3 +383,14 @@ class NetworkManager(object):
         for k, i in self._interfaces.iteritems():
             if i.being_used:
                 self.set_interface_mode(i, "managed")
+
+    def on_exit(self):
+        """
+        Reset interfaces to managed on exit
+
+        :param self: A NetworkManager object
+        :return: None
+        :rtype: None 
+        """
+
+        self.reset_ifaces_to_managed()

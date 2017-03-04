@@ -144,11 +144,6 @@ def shutdown(deauthentication=None, template=None, network_manager=None):
     Shutdowns program.
     """
 
-    # if deauthentication object supplied
-    if deauthentication:
-        # stop deauthentication
-        deauthentication.stop_deauthentication()
-
     print "[" + G + "+" + W + "] Captured credentials:"
     for c in phishinghttp.creds:
         print c
@@ -161,30 +156,23 @@ def shutdown(deauthentication=None, template=None, network_manager=None):
     subprocess.call('iptables -X', shell=True)
     subprocess.call('iptables -t nat -F', shell=True)
     subprocess.call('iptables -t nat -X', shell=True)
-    subprocess.call('pkill airbase-ng', shell=True)
     subprocess.call('pkill dnsmasq', shell=True)
     subprocess.call('pkill hostapd', shell=True)
 
     if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
         os.remove('/tmp/wifiphisher-webserver.tmp')
-    if os.path.isfile('/tmp/wifiphisher-jammer.tmp'):
-        os.remove('/tmp/wifiphisher-jammer.tmp')
     if os.path.isfile('/tmp/hostapd.conf'):
         os.remove('/tmp/hostapd.conf')
     if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
         os.remove('/var/lib/misc/dnsmasq.leases')
 
-    # Set all the used interfaces to managed (normal) mode and show any errors
-    if network_manager:
+    # Shutdown each obj separately
+    for obj in ["network_manager", "template", "deauthentication"]:
         try:
-            network_manager.reset_ifaces_to_managed()
+            locals()[obj].on_exit()
         except:
-            print '[' + R + '!' + W + '] Failed to reset interface'
-
-    # Remove any template extra files
-    if template:
-        template.remove_extra_files()
-
+            pass
+ 
     print '[' + R + '!' + W + '] Closing'
     sys.exit(0)
 
@@ -211,7 +199,7 @@ def set_route_localnet():
     )
 
 
-def select_template(template_argument):
+def select_template(template_argument, template_manager):
     """
     Select a template based on whether the template argument is set or not. If
     the template argument is not set, it will interactively ask user for a
@@ -228,9 +216,6 @@ def select_template(template_argument):
         InvalidTemplate: In case the template argument entered by the user is
                          not available.
     """
-
-    # create a template manager object
-    template_manager = phishingpage.TemplateManager()
 
     # get all available templates
     templates = template_manager.get_templates()
@@ -752,8 +737,10 @@ def run():
             enctype = access_point.get_encryption()
         else:
             shutdown()
+    # create a template manager object
+    template_manager = phishingpage.TemplateManager()
     # get the correct template
-    template = select_template(args.phishingscenario)
+    template = select_template(args.phishingscenario, template_manager)
 
     print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
            " template")
@@ -833,6 +820,7 @@ def run():
     APs = []
     mon_MAC = mon_mac(mon_iface.get_name())
 
+    deauthentication = None
     if not args.nojamming:
         monchannel = channel
         # set the channel on the deauthenticating interface
@@ -874,4 +862,4 @@ def run():
                     if phishinghttp.terminate and args.quitonsuccess:
                         raise KeyboardInterrupt
     except KeyboardInterrupt:
-        shutdown(deauthentication, template, network_manager)
+        shutdown(deauthentication, template_manager, network_manager)

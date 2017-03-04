@@ -185,3 +185,14 @@ class Deauthentication(object):
         send_deauth_packets_thread = threading.Thread(
             target=self._send_deauthentication_packets)
         send_deauth_packets_thread.start()
+
+    def on_exit(self):
+        """
+        Stop deauthing on exit.
+
+        :param self: A Deauthentication object
+        :return: None
+        :rtype: None
+        """
+
+        self.stop_deauthentication()

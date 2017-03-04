@@ -294,3 +294,16 @@ class TemplateManager(object):
             # create a template object and add it to the database
             local_template = PhishingTemplate(template)
             self._templates[template] = local_template
+
+    def on_exit(self):
+        """
+        Delete any extra files on exit
+
+        :param self: A TemplateManager object
+        :type: self: TemplateManager
+        :return: None
+        :rtype: None
+        """
+
+        for templ_name, templ_obj in self._templates.iteritems():
+            templ_obj.remove_extra_files()
