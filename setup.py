@@ -8,7 +8,7 @@ import sys
 import os
 from distutils.spawn import find_executable
 from setuptools import setup, find_packages
-import wifiphisher.constants as constants
+import wifiphisher.common.constants as constants
 
 
 def get_dnsmasq():
