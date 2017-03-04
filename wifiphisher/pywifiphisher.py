@@ -152,10 +152,6 @@ def shutdown(deauthentication=None, template=None, network_manager=None):
     jamming_daemon_running = False
     sniff_daemon_running = False
 
-    subprocess.call('iptables -F', shell=True)
-    subprocess.call('iptables -X', shell=True)
-    subprocess.call('iptables -t nat -F', shell=True)
-    subprocess.call('iptables -t nat -X', shell=True)
     subprocess.call('pkill dnsmasq', shell=True)
     subprocess.call('pkill hostapd', shell=True)
 
@@ -167,7 +163,7 @@ def shutdown(deauthentication=None, template=None, network_manager=None):
         os.remove('/var/lib/misc/dnsmasq.leases')
 
     # Shutdown each obj separately
-    for obj in ["network_manager", "template", "deauthentication"]:
+    for obj in ["network_manager", "template", "deauthentication", "fw"]:
         try:
             locals()[obj].on_exit()
         except:
@@ -379,7 +375,7 @@ def sniff_dot11(mon_iface):
             raise
 
 
-def select_access_point(screen, interface):
+def select_access_point(screen, interface, mac_matcher):
     """
     Return the access point the user has selected
 
@@ -444,7 +440,7 @@ def select_access_point(screen, interface):
             total_ap_number = len(access_points)
 
         # display the information to the user
-        display_access_points((screen, box, access_points, total_ap_number, page_number, position))
+        display_access_points((screen, box, access_points, total_ap_number, page_number, position), mac_matcher)
 
         # check for key movement and store result
         key_movement_result = key_movement((key, position, page_number, max_row, access_points))
@@ -520,7 +516,7 @@ def key_movement(information):
     return (key, position, page_number)
 
 
-def display_access_points(information):
+def display_access_points(information, mac_matcher):
     """
     Display information in the box window
 
@@ -645,11 +641,14 @@ def kill_interfering_procs():
 class WifiphisherEngine:
 
     def __init__(self):
-        pass
+        self.mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
+        self.network_manager = interfaces.NetworkManager()
+        self.template_manager = phishingpage.TemplateManager()
+        self.fw = firewall.Fw()
 
     def start(self):
         # Parse args
-        global args, APs, mon_MAC, mac_matcher
+        global args, APs, mon_MAC
         args = parse_args()
 
         # Check args
@@ -663,41 +662,37 @@ class WifiphisherEngine:
         # Is anything binded to our HTTP(S) ports?
         # Maybe we should save current iptables rules somewhere
 
-        network_manager = interfaces.NetworkManager()
-        mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
-        fw = firewall.Fw()
-
         # get interfaces for monitor mode and AP mode and set the monitor interface
         # to monitor mode. shutdown on any errors
         try:
             if args.internetinterface:
-               internet_interface = network_manager.set_internet_iface(args.internetinterface)
+               internet_interface = self.network_manager.set_internet_iface(args.internetinterface)
             if not args.nojamming:
                 if args.jamminginterface and args.apinterface:
-                    mon_iface = network_manager.get_jam_iface(
+                    mon_iface = self.network_manager.get_jam_iface(
                         args.jamminginterface)
-                    ap_iface = network_manager.get_ap_iface(args.apinterface)
+                    ap_iface = self.network_manager.get_ap_iface(args.apinterface)
                 else:
-                    mon_iface, ap_iface = network_manager.find_interface_automatically()
-                network_manager.set_jam_iface(mon_iface.get_name())
-                network_manager.set_ap_iface(ap_iface.get_name())
+                    mon_iface, ap_iface = self.network_manager.find_interface_automatically()
+                self.network_manager.set_jam_iface(mon_iface.get_name())
+                self.network_manager.set_ap_iface(ap_iface.get_name())
                 # display selected interfaces to the user
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
                        "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
                        "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
             else:
                 if args.apinterface:
-                    ap_iface = network_manager.get_ap_iface(
+                    ap_iface = self.network_manager.get_ap_iface(
                         interface_name=args.apinterface)
                 else:
-                    ap_iface = network_manager.get_ap_iface()
+                    ap_iface = self.network_manager.get_ap_iface()
                 mon_iface = ap_iface
-                network_manager.set_ap_iface(ap_iface.get_name())
+                self.network_manager.set_ap_iface(ap_iface.get_name())
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                        "rogue Access Point").format(G, W, ap_iface.get_name())
 
             kill_interfering_procs()
-            network_manager.set_interface_mode(mon_iface, "monitor")
+            self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.NotEnoughInterfacesFoundError,
                 interfaces.JammingInterfaceInvalidError,
                 interfaces.ApInterfaceInvalidError,
@@ -708,16 +703,17 @@ class WifiphisherEngine:
             shutdown()
 
         if args.internetinterface:
-            fw.nat(ap_iface.get_name(), args.internetinterface)
+            self.fw.nat(ap_iface.get_name(), args.internetinterface)
             set_ip_fwd()
         else:
-            fw.redirect_requests_localhost()
+            self.fw.redirect_requests_localhost()
         set_route_localnet()
 
         if not args.internetinterface:
-            network_manager.up_ifaces([ap_iface, mon_iface])
+            self.network_manager.up_ifaces([ap_iface, mon_iface])
 
         print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
+        time.sleep(1)
 
         if args.essid:
             essid = args.essid
@@ -726,7 +722,7 @@ class WifiphisherEngine:
             enctype = None
         else:
             # let user choose access point
-            access_point = curses.wrapper(select_access_point, mon_iface)
+            access_point = curses.wrapper(select_access_point, mon_iface, self.mac_matcher)
 
             # if the user has chosen a access point continue
             # otherwise shutdown
@@ -739,9 +735,9 @@ class WifiphisherEngine:
             else:
                 shutdown()
         # create a template manager object
-        template_manager = phishingpage.TemplateManager()
+        self.template_manager = phishingpage.TemplateManager()
         # get the correct template
-        template = select_template(args.phishingscenario, template_manager)
+        template = select_template(args.phishingscenario, self.template_manager)
 
         print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
                " template")
@@ -767,7 +763,7 @@ class WifiphisherEngine:
                 'channel': APs[i][0] or "",
                 'essid': APs[i][1] or "",
                 'bssid': APs[i][2] or "",
-                'vendor': mac_matcher.get_vendor_name(APs[i][2]) or ""
+                'vendor': self.mac_matcher.get_vendor_name(APs[i][2]) or ""
             })
 
         template.merge_context({'APs': APs_context})
@@ -775,20 +771,20 @@ class WifiphisherEngine:
         # only get logo path if MAC address is present
         ap_logo_path = False
         if ap_mac:
-            ap_logo_path = template.use_file(mac_matcher.get_vendor_logo_path(ap_mac))
+            ap_logo_path = template.use_file(self.mac_matcher.get_vendor_logo_path(ap_mac))
 
         template.merge_context({
             'target_ap_channel': channel or "",
             'target_ap_essid': essid or "",
             'target_ap_bssid': ap_mac or "",
             'target_ap_encryption': enctype or "",
-            'target_ap_vendor': mac_matcher.get_vendor_name(ap_mac) or "",
+            'target_ap_vendor': self.mac_matcher.get_vendor_name(ap_mac) or "",
             'target_ap_logo_path': ap_logo_path or ""
         })
 
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
         # mode for network discovery before (e.g. when --nojamming is enabled).
-        network_manager.set_interface_mode(ap_iface, "managed")
+        self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
         start_ap(ap_iface.get_name(), channel, essid, args)
         dhcpconf = dhcp_conf(ap_iface.get_name())
@@ -815,7 +811,7 @@ class WifiphisherEngine:
             time.sleep(1.5)
 
         # We no longer need mac_matcher
-        mac_matcher.unbind()
+        self.mac_matcher.unbind()
 
         clients_APs = []
         APs = []
@@ -863,11 +859,10 @@ class WifiphisherEngine:
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
-            shutdown(deauthentication, template_manager, network_manager)
+            shutdown(deauthentication, self.template_manager, self.network_manager)
 
 
 def run():
-    print "??"
     try:
         print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
             (VERSION, time.strftime("%Y-%m-%d %H:%M")))

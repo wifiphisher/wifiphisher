@@ -41,3 +41,6 @@ class Fw():
             ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
              % (NETWORK_GW_IP, SSL_PORT)),
             shell=True)
+
+    def on_exit(self):
+        self.clear_rules()
