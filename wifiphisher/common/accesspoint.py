@@ -1,3 +1,4 @@
+import os
 import time
 import subprocess
 import wifiphisher.common.constants as constants
@@ -97,3 +98,14 @@ class AccessPoint(object):
                 raise Exception
         except KeyboardInterrupt:
             raise Exception
+
+    def on_exit(self):
+        subprocess.call('pkill dnsmasq', shell=True)
+        subprocess.call('pkill hostapd', shell=True)
+
+        if os.path.isfile('/tmp/hostapd.conf'):
+            os.remove('/tmp/hostapd.conf')
+        if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+            os.remove('/var/lib/misc/dnsmasq.leases')
+        if os.path.isfile('/tmp/dhcpd.conf'):
+            os.remove('/tmp/dhcpd.conf')

@@ -140,40 +140,6 @@ def check_args(args):
             '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
 
-def shutdown(deauthentication=None, template=None, network_manager=None):
-    """
-    Shutdowns program.
-    """
-
-    print "[" + G + "+" + W + "] Captured credentials:"
-    for c in phishinghttp.creds:
-        print c
-
-    global jamming_daemon_running, sniff_daemon_running
-    jamming_daemon_running = False
-    sniff_daemon_running = False
-
-    subprocess.call('pkill dnsmasq', shell=True)
-    subprocess.call('pkill hostapd', shell=True)
-
-    if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-        os.remove('/tmp/wifiphisher-webserver.tmp')
-    if os.path.isfile('/tmp/hostapd.conf'):
-        os.remove('/tmp/hostapd.conf')
-    if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-        os.remove('/var/lib/misc/dnsmasq.leases')
-
-    # Shutdown each obj separately
-    for obj in ["network_manager", "template", "deauthentication", "fw"]:
-        try:
-            locals()[obj].on_exit()
-        except:
-            pass
- 
-    print '[' + R + '!' + W + '] Closing'
-    sys.exit(0)
-
-
 def set_ip_fwd():
     """
     Set kernel variables.
@@ -567,6 +533,22 @@ class WifiphisherEngine:
         self.access_point = accesspoint.AccessPoint()
         self.fw = firewall.Fw()
 
+    def stop(self):
+        print "[" + G + "+" + W + "] Captured credentials:"
+        for cred in phishinghttp.creds:
+            print cred
+
+        self.network_manager.on_exit()
+        self.template_manager.on_exit()
+        self.access_point.on_exit()
+        self.fw.on_exit()
+
+        if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+            os.remove('/tmp/wifiphisher-webserver.tmp')
+     
+        print '[' + R + '!' + W + '] Closing'
+        sys.exit(0)
+
     def start(self):
         # Parse args
         global args, APs, mon_MAC
@@ -620,8 +602,8 @@ class WifiphisherEngine:
                 interfaces.NoApInterfaceFoundError,
                 interfaces.NoMonitorInterfaceFoundError) as err:
             print ("[{0}!{1}] " + str(err)).format(R, W)
-            time.sleep(2)
-            shutdown()
+            time.sleep(1)
+            self.stop()
 
         if args.internetinterface:
             self.fw.nat(ap_iface.get_name(), args.internetinterface)
@@ -654,7 +636,7 @@ class WifiphisherEngine:
                 ap_mac = access_point.get_mac_address()
                 enctype = access_point.get_encryption()
             else:
-                shutdown()
+                self.stop()
         # create a template manager object
         self.template_manager = phishingpage.TemplateManager()
         # get the correct template
@@ -716,10 +698,10 @@ class WifiphisherEngine:
             self.access_point.set_internet_interface(args.presharedkey)              
         print '[' + T + '*' + W + '] Starting the fake access point...'
         try:
-        self.access_point.start()
-        self.access_point.start_dhcp_dns()
+            self.access_point.start()
+            self.access_point.start_dhcp_dns()
         except:
-            shutdown()
+            self.stop()
 
         # With configured DHCP, we may now start the web server
         if not args.internetinterface:
@@ -781,7 +763,7 @@ class WifiphisherEngine:
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
-            shutdown(deauthentication, self.template_manager, self.network_manager)
+            self.stop()
 
 
 def run():
