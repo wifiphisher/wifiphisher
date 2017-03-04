@@ -22,6 +22,7 @@ import wifiphisher.common.phishinghttp as phishinghttp
 import wifiphisher.common.macmatcher as macmatcher
 import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.firewall as firewall
+import wifiphisher.common.accesspoint as accesspoint
 
 
 VERSION = "1.2GIT"
@@ -266,87 +267,6 @@ def select_template(template_argument, template_manager):
 
             # return the chosen template
             return templates[template_names[template_number]]
-
-
-def start_ap(mon_iface, channel, essid, args):
-    print '[' + T + '*' + W + '] Starting the fake access point...'
-    config = (
-        'interface=%s\n'
-        'driver=nl80211\n'
-        'ssid=%s\n'
-        'hw_mode=g\n'
-        'channel=%s\n'
-        'macaddr_acl=0\n'
-        'ignore_broadcast_ssid=0\n'
-    )
-    if args.presharedkey:
-        config += (
-            'wpa=2\n'
-            'wpa_passphrase=%s\n'
-        ) % args.presharedkey
-
-    with open('/tmp/hostapd.conf', 'w') as dhcpconf:
-        dhcpconf.write(config % (mon_iface, essid, channel))
-
-    hostapd_proc = Popen(['hostapd', '/tmp/hostapd.conf'],
-                         stdout=DN, stderr=DN)
-    try:
-        time.sleep(2)
-        if hostapd_proc.poll() != None:
-            # hostapd will exit on error
-            print('[' + R + '+' + W +
-                  '] Failed to start the fake access point! (hostapd error)\n' +
-                  '[' + R + '+' + W +
-                  '] Try a different wireless interface using -aI option.'
-                  )
-            shutdown()
-    except KeyboardInterrupt:
-        shutdown()
-
-
-def dhcp_conf(interface):
-
-    config = (
-        'no-resolv\n'
-        'interface=%s\n'
-        'dhcp-range=%s\n'
- #       'address=/#/%s'
-    )
-
-    with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
-        dhcpconf.write(config % (interface, DHCP_LEASE))
-
-    with open('/tmp/dhcpd.conf', 'a+') as dhcpconf:
-        # Instead of args we need to define MODES
-        if args.internetinterface:
-            dhcpconf.write("server=%s" % (PUBLIC_DNS,))
-        else:
-            dhcpconf.write("address=/#/%s" % (NETWORK_GW_IP,))
-
-    return '/tmp/dhcpd.conf'
-
-
-def dhcp(dhcpconf, mon_iface):
-    dhcp = Popen(['dnsmasq', '-C', dhcpconf], stdout=PIPE, stderr=DN)
-    Popen(['ifconfig', str(mon_iface), 'mtu', '1400'], stdout=DN, stderr=DN)
-    Popen(
-        ['ifconfig', str(mon_iface), 'up', NETWORK_GW_IP,
-         'netmask', NETWORK_MASK
-         ],
-        stdout=DN,
-        stderr=DN
-    )
-    # Give it some time to avoid "SIOCADDRT: Network is unreachable"
-    time.sleep(.5)
-    # Make sure that we have set the network properly.
-    proc = check_output(['ifconfig', str(mon_iface)])
-    if NETWORK_GW_IP not in proc:
-        return False
-    subprocess.call(
-        ('route add -net %s netmask %s gw %s' %
-         (NETWORK_IP, NETWORK_MASK, NETWORK_GW_IP)),
-        shell=True)
-    return True
 
 
 def mon_mac(mon_iface):
@@ -644,6 +564,7 @@ class WifiphisherEngine:
         self.mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
         self.network_manager = interfaces.NetworkManager()
         self.template_manager = phishingpage.TemplateManager()
+        self.access_point = accesspoint.AccessPoint()
         self.fw = firewall.Fw()
 
     def start(self):
@@ -786,18 +707,19 @@ class WifiphisherEngine:
         # mode for network discovery before (e.g. when --nojamming is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
-        start_ap(ap_iface.get_name(), channel, essid, args)
-        dhcpconf = dhcp_conf(ap_iface.get_name())
-        if not dhcp(dhcpconf, ap_iface.get_name()):
-            print('[' + G + '+' + W +
-                  '] Could not set IP address on %s!' % ap_iface.get_name()
-                  )
-            shutdown(template=template)
-        subprocess.call('clear', shell=True)
-        print ('[' + T + '*' + W + '] ' + T +
-               essid + W + ' set up on channel ' +
-               T + channel + W + ' via ' + T + mon_iface.get_name() +
-               W + ' on ' + T + str(ap_iface.get_name()) + W)
+        self.access_point.set_interface(ap_iface.get_name())        
+        self.access_point.set_channel(channel)
+        self.access_point.set_essid(essid)
+        if args.presharedkey:
+            self.access_point.set_psk(args.presharedkey)              
+        if args.internetinterface:
+            self.access_point.set_internet_interface(args.presharedkey)              
+        print '[' + T + '*' + W + '] Starting the fake access point...'
+        try:
+        self.access_point.start()
+        self.access_point.start_dhcp_dns()
+        except:
+            shutdown()
 
         # With configured DHCP, we may now start the web server
         if not args.internetinterface:
