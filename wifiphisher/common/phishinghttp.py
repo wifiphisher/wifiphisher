@@ -28,9 +28,9 @@ class ShowPhishingPageHandler(tornado.web.RequestHandler):
             self.render("index.html", **template.get_context())
             wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
             with open(wifi_webserver_tmp, "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "GET " + T +
-                               self.request.remote_ip + W + "\n"
-                               )
+                log_file.write('[' + T + '*' + W + '] ' + O + "GET" + W + " request from " + T +
+                               self.request.remote_ip + W + " for " + self.request.host + 
+                               self.request.path + "\n" )
                 log_file.close()
         # Ignore weird requests
         except:
