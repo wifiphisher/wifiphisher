@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/wifiphisher/wifiphisher.svg?branch=master)](https://travis-ci.org/wifiphisher/wifiphisher)
 ![Python Version](https://img.shields.io/badge/python-2.7-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL-blue.svg)
+[![Chat IRC](https://img.shields.io/badge/chat-IRC-ff69b4.svg)](https://webchat.freenode.net/?channels=%23wifiphisher)
 
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
