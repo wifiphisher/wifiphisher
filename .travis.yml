@@ -1,3 +1,5 @@
+sudo: required
+
 language: python
 
 python:
@@ -13,3 +15,17 @@ install:
 
 script:
   - pylint --errors-only wifiphisher
+
+branches:
+  only:
+  - master
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+
+  irc:
+    channels:
+      - "chat.freenode.net#wifiphisher"
+    use_notice: true
