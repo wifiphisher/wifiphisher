@@ -16,23 +16,63 @@ How to get Wifiphisher
 There are three ways to obtain Wifiphisher
 
 ^^^^^^^^^^^^
-1. Using Pip
+Using Pip
 ^^^^^^^^^^^^
-This method is the simplist and easiest way to obtain Wifiphisher. All you have to do is Simply
+
+This method is the simplest and easiest way to obtain Wifiphisher. All you have to do is Simply
 run the following command in the terminal
 
 .. code:: bash
 
  [sudo] pip install --upgrade wifiphisher
 
-.. note::
+.. image:: _static/getting_started/install_pip.gif
 
+.. note::
   Using this method is recommended
 
+.. warning::
+  ``pip`` must be installed on your system.
+
+.. seealso::
+  pip_ and ``pip --help`` for more information.
+
+.. _pip: https://pypi.python.org/pypi/pip/
+
 ^^^^^^^^^^^^
-2. Using git
+Using git
 ^^^^^^^^^^^^
+This method involves using the ``git clone`` command. Simply run the following command from the
+terminal
+
+.. code:: bash
+
+  git clone https://github.com/wifiphisher/wifiphisher.git
+
+.. image:: _static/getting_started/install_git.gif
+
+.. warning::
+  ``git`` must be installed on your system.
+
+.. seealso::
+  Git_ and ``git clone --help`` for more information.
+
+.. _Git: https://git-scm.com/
 
 ^^^^^^^^^^^^^^^^^^^^^^^
-3. Download from github
+Using browser
 ^^^^^^^^^^^^^^^^^^^^^^^
+This method involves downloading all the files using a browser.
+
+  #. Visit the projects page on Github_ |page|
+  #. Press the ``clone or download`` button |download|
+  #. Click the ``Download ZIP`` button |zip|
+
+  .. |page| image:: _static/getting_started/install_browser_page.gif
+    :scale: 60 %
+  .. |download| image:: _static/getting_started/install_browser_download.gif
+    :scale: 60 %
+  .. |zip| image:: _static/getting_started/install_browser_zip.gif
+    :scale: 50 %
+
+.. _Github: https://github.com/wifiphisher/wifiphisher
