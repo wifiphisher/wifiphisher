@@ -1,6 +1,7 @@
 #pylint: skip-file
 import tornado.ioloop
 import tornado.web
+import os.path
 import logging
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
@@ -22,10 +23,21 @@ class DowngradeToHTTP(tornado.web.RequestHandler):
 class ShowPhishingPageHandler(tornado.web.RequestHandler):
 
     def get(self, url):
+        client_request = self.request.path[1:]
         try:
-            if "/" in url:
-                self.redirect("/index")
-            self.render("index.html", **template.get_context())
+            if self.request.path == "/":
+                if os.path.exists(template.get_path() + "index.html"):
+                    self.render("index.html", **template.get_context())
+                elif os.path.exists(template.get_path() + "index.htm"):
+                    self.render("index.htm", **template.get_context())
+            else:
+                if os.path.exists(template.get_path() + client_request):
+                    self.render(client_request, **template.get_context())
+                else:
+                    if os.path.exists(template.get_path() + "index.html"):
+                        self.render("index.html", **template.get_context())
+                    elif os.path.exists(template.get_path() + "index.htm"):
+                        self.render("index.htm", **template.get_context())
             wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
             with open(wifi_webserver_tmp, "a+") as log_file:
                 log_file.write('[' + T + '*' + W + '] ' + O + "GET" + W + " request from " + T +
