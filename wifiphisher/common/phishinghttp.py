@@ -20,7 +20,7 @@ class DowngradeToHTTP(tornado.web.RequestHandler):
         self.redirect("http://10.0.0.1:8080/")
 
 
-class ShowPhishingPageHandler(tornado.web.RequestHandler):
+class CaptivePortalHandler(tornado.web.RequestHandler):
 
     def get(self, url):
         client_request = self.request.path[1:]
@@ -72,7 +72,7 @@ def runHTTPServer(ip, port, ssl_port, t):
     template = t
     app = tornado.web.Application(
         [
-            (r"/(.*)", ShowPhishingPageHandler)
+            (r"/(.*)", CaptivePortalHandler)
         ],
         template_path=template.get_path(),
         static_path=template.get_path_static(),
