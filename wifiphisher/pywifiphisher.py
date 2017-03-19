@@ -24,6 +24,9 @@ import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
 
+# Fixes UnicodeDecodeError for ESSIDs
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 VERSION = "1.2GIT"
 args = 0
