@@ -81,12 +81,8 @@ Following are all the options along with their descriptions (also available with
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
 |-h | --help| show this help message and exit |
-|-s SKIP| --skip SKIP|	Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA|
 |-jI JAMMINGINTERFACE| --jamminginterface JAMMINGINTERFACE|	Manually choose an interface that supports monitor mode for deauthenticating the victims. Example: -jI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
-|-t TIMEINTERVAL| --timeinterval TIMEINTERVAL|	Choose the time interval between DEAUTH packets being sent|
-|-dP DEAUTHPACKETS| --deauthpackets DEAUTHPACKETS|	Choose the number of packets to send in each deauth burst. Default value is 1; 1 packet to the client and 1 packet to the AP. Send 2 deauth packets to the client and 2 deauth packets to the AP: -dP 2|
-|-d| --directedonly|	Skip the deauthentication packets to the broadcast address of the access points and only send them to client/AP pairs|
 |-nJ| --nojamming|	Skip the deauthentication phase. When this option is used, only one wireless interface is required|
 |-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
