@@ -37,11 +37,7 @@ APs = {}  # for listing APs
 def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-s",
-        "--skip",
-        help="Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA"
-    )
+
     parser.add_argument(
         "-jI",
         "--jamminginterface",
@@ -548,7 +544,7 @@ class WifiphisherEngine:
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
-     
+
         print '[' + R + '!' + W + '] Closing'
         sys.exit(0)
 
@@ -692,13 +688,13 @@ class WifiphisherEngine:
         # mode for network discovery before (e.g. when --nojamming is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
-        self.access_point.set_interface(ap_iface.get_name())        
+        self.access_point.set_interface(ap_iface.get_name())
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
         if args.presharedkey:
-            self.access_point.set_psk(args.presharedkey)              
+            self.access_point.set_psk(args.presharedkey)
         if args.internetinterface:
-            self.access_point.set_internet_interface(args.presharedkey)              
+            self.access_point.set_internet_interface(args.presharedkey)
         print '[' + T + '*' + W + '] Starting the fake access point...'
         try:
             self.access_point.start()
