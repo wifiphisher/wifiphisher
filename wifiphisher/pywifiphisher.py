@@ -61,11 +61,7 @@ def parse_args():
               "Example: -iI ppp0"
               )
     )
-    parser.add_argument(
-        "-t",
-        "--timeinterval",
-        help=("Choose the time interval between DEAUTH packets being sent")
-    )
+
     parser.add_argument(
         "-dP",
         "--deauthpackets",
