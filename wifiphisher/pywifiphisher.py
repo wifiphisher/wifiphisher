@@ -75,13 +75,7 @@ def parse_args():
               "packets to the AP: -dP 2"
               )
     )
-    parser.add_argument(
-        "-d",
-        "--directedonly",
-        help=("Skip the deauthentication packets to the broadcast address of" +
-              "the access points and only send them to client/AP pairs"
-              ),
-        action='store_true')
+
     parser.add_argument(
         "-nJ",
         "--nojamming",
