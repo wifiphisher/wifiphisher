@@ -726,6 +726,8 @@ class WifiphisherEngine:
         mon_MAC = mon_mac(mon_iface.get_name())
 
         deauthentication = None
+
+        mon_iface_name = mon_iface.get_name()
         if not args.nojamming:
             monchannel = channel
             # set the channel on the deauthenticating interface
@@ -734,18 +736,25 @@ class WifiphisherEngine:
             # start deauthenticating all client on target access point
 
             deauthentication = deauth.Deauthentication(ap_mac,
-                                                       mon_iface.get_name())
+                                                       mon_iface_name)
             deauthentication.deauthenticate()
+        else :
+            mon_iface_name = False
 
         if template.has_attack():
             attack_name = template.get_attack_name()
             manage_attack = attacks.Manage(attack_name)
-            might = {"deauth-object":deauthentication, "deauth_iface":mon_iface.get_name(),
-                    "target_bssid":ap_mac, "ap_iface":}
-        #global give
-        #Passing in variables and objects we need in the attacks section
-        #give = attacks.Load(ap_mac, mon_iface.get_name(), deauthentication)
-        #give = give.get_loaded()
+            might = {"deauth-object":deauthentication, "deauth_iface":mon_iface_name,
+                    "target_bssid":ap_mac, "ap_iface":ap_iface}
+            needs = manage_attack.provide()
+            provide = []
+            for key, value in might :
+                for need in needs :
+                    if key == need :
+                        provide.append(might[need])
+
+            manage_attack.run(provide)
+
         # Main loop.
         try:
             term = Terminal()
