@@ -50,7 +50,7 @@ class ReceiveCredsHandler(tornado.web.RequestHandler):
                            )
             log_file.close()
         global terminate, creds
-        creds.insert(0, repr(self.request.body))
+        creds.insert(0, repr(tornado.escape.url_unescape(self.request.body)))
         terminate = True
 
 
