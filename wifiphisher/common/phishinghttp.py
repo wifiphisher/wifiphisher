@@ -28,8 +28,11 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             if self.request.path == "/":
                 if os.path.exists(template.get_path() + "index.html"):
                     self.render("index.html", **template.get_context())
-                elif os.path.exists(template.get_path() + "index.htm"):
-                    self.render("index.htm", **template.get_context())
+                else:
+                    log_file.write('[' + R + '!' + W + '] ' + R + 
+                        "Wifiphisher was unable to answer the request from " + T +
+                               self.request.remote_ip + R + " for " + W + self.request.full_url() +
+                               R + " (scenario is missing index.html)\n")
             else:
                 if os.path.exists(template.get_path() + client_request):
                     self.render(client_request, **template.get_context())
