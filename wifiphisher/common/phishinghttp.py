@@ -7,6 +7,7 @@ hn.setLevel(logging.DEBUG)
 logging.getLogger('tornado.access').disabled = True
 logging.getLogger('tornado.general').disabled = True
 from wifiphisher.common.constants import *
+import wifiphisher.common.attacks as attacks
 
 template = False
 terminate = False

@@ -23,6 +23,7 @@ import wifiphisher.common.macmatcher as macmatcher
 import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
+import wifiphisher.common.attacks as attacks
 
 # Fixes UnicodeDecodeError for ESSIDs
 reload(sys)
@@ -37,7 +38,11 @@ APs = {}  # for listing APs
 def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
-
+    parser.add_argument(
+        "-s",
+        "--skip",
+        help="Skip deauthing this MAC address. Example: -s 00:11:BB:33:44:AA"
+    )
     parser.add_argument(
         "-jI",
         "--jamminginterface",
@@ -61,7 +66,11 @@ def parse_args():
               "Example: -iI ppp0"
               )
     )
-
+    parser.add_argument(
+        "-t",
+        "--timeinterval",
+        help=("Choose the time interval between DEAUTH packets being sent")
+    )
     parser.add_argument(
         "-dP",
         "--deauthpackets",
@@ -71,7 +80,13 @@ def parse_args():
               "packets to the AP: -dP 2"
               )
     )
-
+    parser.add_argument(
+        "-d",
+        "--directedonly",
+        help=("Skip the deauthentication packets to the broadcast address of" +
+              "the access points and only send them to client/AP pairs"
+              ),
+        action='store_true')
     parser.add_argument(
         "-nJ",
         "--nojamming",
@@ -717,10 +732,20 @@ class WifiphisherEngine:
             mon_iface.set_channel(int(channel))
 
             # start deauthenticating all client on target access point
+
             deauthentication = deauth.Deauthentication(ap_mac,
                                                        mon_iface.get_name())
             deauthentication.deauthenticate()
 
+        if template.has_attack():
+            attack_name = template.get_attack_name()
+            manage_attack = attacks.Manage(attack_name)
+            might = {"deauth-object":deauthentication, "deauth_iface":mon_iface.get_name(),
+                    "target_bssid":ap_mac, "ap_iface":}
+        #global give
+        #Passing in variables and objects we need in the attacks section
+        #give = attacks.Load(ap_mac, mon_iface.get_name(), deauthentication)
+        #give = give.get_loaded()
         # Main loop.
         try:
             term = Terminal()
@@ -749,6 +774,10 @@ class WifiphisherEngine:
                         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                             proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
                             print term.move(18,0) + proc
+                        print term.move(25,0) + term.blue("Attack logs: ")
+                        if os.path.isfile('/tmp/wifiphisher-attacks.tmp'): #Reading attack logs
+                            proc = check_output(['tail', '-5', '/tmp/wifiphisher-attacks.tmp'])
+                            print term.move(26,0) + proc
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:

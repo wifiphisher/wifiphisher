@@ -28,7 +28,7 @@ def config_section_map(config_file, section):
         try:
             dict1[option] = config.get(section, option)
         except:
-            dict1[option] = None
+            dict1[option] = False
     return dict1
 
 
@@ -58,13 +58,18 @@ class PhishingTemplate(object):
 
         config_path = os.path.join(PHISHING_PAGES_DIR, name, 'config.ini')
         info = config_section_map(config_path, 'info')
+        attack = config_section_map(config_path, 'attack')
 
         self._name = name
         self._display_name = info['name']
         self._description = info['description']
         self._payload = False
+        self._attack = False
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
+
+        if attack :
+            self._attack = attack['attack-name']
 
         self._path = PHISHING_PAGES_DIR + self._name.lower() + "/"
         self._path_static = PHISHING_PAGES_DIR + self._name.lower() + "/static/"
@@ -129,6 +134,33 @@ class PhishingTemplate(object):
         if self._payload:
             return True
         return False
+
+    def has_attack(self):
+
+        """
+        Return whether the template use an attack.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: boolean if there's an attack
+        :rtype: bool
+        """
+
+        if self._attack:
+            return True
+        return False
+
+    def get_attack_name(self):
+        """
+        Return the name of the attack.
+
+        :param self: A PhishingTemplate object
+        :type self: PhishingTemplate
+        :return: attack name
+        :rtype: string
+        """
+
+        return self._attack
 
     def get_description(self):
         """
