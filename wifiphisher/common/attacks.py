@@ -75,7 +75,7 @@ class Manage(object):
 
         self.attack_name = self.attack
         if self.attack_name == "wps_pbc":
-            self.attack == WPS_PBC(self.needs, self.log_file)
+            self.attack == WPS_PBC(self.recv_needs, self.log_file)
 
         with open(self.log_file, "a+") as log_file: #Writing a log
             log_file.write('[' + T + '*' + W + '] ' + R + "ATTACK ACTIVATED : " +
@@ -248,7 +248,7 @@ class WPS_PBC(object):
         This function will prompt a log to the user,
         set the self.going to False to terminate the attack
         """
-        
+
         with open(self.log_file, "a+") as log_file:
             log_file.write('[' + T + '*' + W + '] ' + G + "The WPS button has been pressed :" +
                            Y + "You are now connected to "+self.bssid+" the fake AP is still running\n"+
@@ -268,7 +268,20 @@ class WPS_PBC(object):
         self.deauth_rest()
         self.going = False
 
+class DidNotProvide(Exception):
 
+    """
+    Exception class to raise if the needed variables and
+    objects are not provided
+    """
+
+    def __init__(self, needs, recv_needs):
+
+        message = ("Did not provide the right data for the attack to run, this is what "
+                    "you've provided :\n"+str(recv_needs)+" and this is what it was needed : \n"+
+                    str(needs))
+
+        Exception.__init__(self, message)
 class AttackAlreadyRunning(Exception):
 
     """
@@ -290,11 +303,9 @@ class NotValidAttack(Exception):
 
     def __init__(self, attack, attacks):
 
-        self.attack = attack
-        self.attacks = attacks
-        message = ("The attack : "+self.attack+" isn't valid, check if the template\n"
+        message = ("The attack : "+attack+" isn't valid, check if the template\n"
                     "you are using is passing the right parameter via post request"
-                    "the current attacks available are : \n"+str(self.attacks)+"\n"
+                    "the current attacks available are : \n"+str(attacks)+"\n"
                     "Make sure that in your post request after 'attack-mode=' you have "
                     "a valid attack")
 

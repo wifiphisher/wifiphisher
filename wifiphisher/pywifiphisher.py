@@ -751,7 +751,7 @@ class WifiphisherEngine:
             for key, value in might :
                 for need in needs :
                     if key == need :
-                        provide.append(might[need])
+                        provide.append(value)
 
             manage_attack.run(provide)
 
