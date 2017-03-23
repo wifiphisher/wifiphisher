@@ -1,5 +1,5 @@
 from wifiphisher.common.constants import *
-import time, threading, socket, fcntl, struct, json
+import time, threading, socket, fcntl, struct, subprocess
 
 
 class Manage(object):
@@ -73,13 +73,13 @@ class Manage(object):
             if not need or need == "" or need is None :
                 raise DidNotProvide(self.needs, self.recv_needs)
 
-        self.attack_name = self.attack
-        if self.attack_name == "wps_pbc":
-            self.attack == WPS_PBC(self.recv_needs, self.log_file)
+        attack_name = self.attack
+        if attack_name == "wps_pbc":
+            self.attack = WPS_PBC(self.recv_needs, self.log_file)
 
         with open(self.log_file, "a+") as log_file: #Writing a log
             log_file.write('[' + T + '*' + W + '] ' + R + "ATTACK ACTIVATED : " +
-                           G + self.attack_name)
+                           G + attack_name)
         self.attack.start() #Start the attack
 
 class WPS_PBC(object):
@@ -129,9 +129,8 @@ class WPS_PBC(object):
 
         """Launching the commands"""
 
-        subprocess.call([sup], shell=True)
-        subprocess.call([wpa_set], shell=True)
-        subprocess.call([iface_up], shell=True)
+        subprocess.Popen([sup], shell=True)
+        subprocess.Popen([wpa_set], shell=True)
 
     def start_listen(self):
 
@@ -172,7 +171,7 @@ class WPS_PBC(object):
         If the interface goes down
         """
 
-        subprocess.call(["sudo ifconfig "+self.iface+" up"], shell=True)
+        subprocess.Popen(["sudo ifconfig "+self.iface+" up"], shell=True)
 
     def check_if_connected(self):
 
@@ -251,7 +250,7 @@ class WPS_PBC(object):
 
         with open(self.log_file, "a+") as log_file:
             log_file.write('[' + T + '*' + W + '] ' + G + "The WPS button has been pressed :" +
-                           Y + "You are now connected to "+self.bssid+" the fake AP is still running\n"+
+                           C + "You are now connected to "+self.bssid+" the fake AP is still running\n"+
                            "but the deauthentication attack and the WPS_PBC attack are not running anymore")
         self.going = False
 
