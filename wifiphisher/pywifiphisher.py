@@ -61,17 +61,6 @@ def parse_args():
               "Example: -iI ppp0"
               )
     )
-
-    parser.add_argument(
-        "-dP",
-        "--deauthpackets",
-        help=("Choose the number of packets to send in each deauth burst. " +
-              "Default value is 1; 1 packet to the client and 1 packet to " +
-              "the AP. Send 2 deauth packets to the client and 2 deauth " +
-              "packets to the AP: -dP 2"
-              )
-    )
-
     parser.add_argument(
         "-nJ",
         "--nojamming",
