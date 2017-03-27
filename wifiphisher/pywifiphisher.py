@@ -745,7 +745,7 @@ class WifiphisherEngine:
             attack_name = template.get_attack_name()
             manage_attack = attacks.Manage(attack_name)
             might = {"deauth-object":deauthentication, "deauth_iface":mon_iface_name,
-                    "target_bssid":ap_mac, "ap_iface":ap_iface}
+                    "target_bssid":ap_mac, "ap_iface":ap_iface, "network_manager":self.network_manager}
             needs = manage_attack.provide()
             provide = []
             for key, value in might.iteritems() :
