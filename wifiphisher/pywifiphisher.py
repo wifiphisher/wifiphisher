@@ -774,18 +774,22 @@ class WifiphisherEngine:
                                 # show the 5 most recent devices
                                 for client in deauthentication.get_clients()[-5:]:
                                     print client
-                        print term.move(9,0) + term.blue("DHCP Leases: ")
+                        print term.move(6,0) + term.blue("DHCP Leases: ")
                         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                             proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
-                            print term.move(10,0) + proc
-                        print term.move(17,0) + term.blue("HTTP requests: ")
+                            print term.move(7,0) + proc
+                        print term.move(13,0) + term.blue("HTTP requests: ")
                         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                             proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+<<<<<<< HEAD
                             print term.move(18,0) + proc
                         print term.move(25,0) + term.blue("Attack logs: ")
                         if os.path.isfile('/tmp/wifiphisher-attacks.tmp'): #Reading attack logs
                             proc = check_output(['tail', '-5', '/tmp/wifiphisher-attacks.tmp'])
                             print term.move(26,0) + proc
+=======
+                            print term.move(14,0) + proc
+>>>>>>> upstream/master
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
