@@ -13,7 +13,7 @@ import wifiphisher.common.constants as constants
 class AccessPoint(object):
     """ This class represents an access point """
 
-    def __init__(self, ssid, bssid, channel, encryption):
+    def __init__(self, ssid, bssid, channel, encryption, capture_file=False):
         """
         Setup the class with all the given arguments
 
@@ -35,6 +35,10 @@ class AccessPoint(object):
         self._encryption = encryption
         self._signal_strength = None
         self._clients = set()
+
+        if capture_file:
+            with open(capture_file, "a") as f:
+                f.write(bssid + " " + ssid + "\n")
 
     def get_name(self):
         """
@@ -152,6 +156,7 @@ class AccessPointFinder(object):
 
         self._interface = ap_interface
         self._observed_access_points = list()
+        self._capture_file = False
         self._should_continue = True
         self._hidden_networks = list()
 
@@ -243,7 +248,8 @@ class AccessPointFinder(object):
 
         # with all the information gathered create and add the
         # access point
-        access_point = AccessPoint(name, mac_address, channel, encryption_type)
+        access_point = AccessPoint(name, mac_address, channel, \
+                                    encryption_type, capture_file=self._capture_file)
         access_point.set_signal_strength(new_signal_strength)
         self._observed_access_points.append(access_point)
 
@@ -302,6 +308,9 @@ class AccessPointFinder(object):
         while self._should_continue:
             dot11.sniff(iface=self._interface.get_name(), prn=self._process_packets, count=1,
                         store=0)
+
+    def capture_aps(self):
+        self._capture_file = constants.LOCS_DIR + "area_" + time.strftime("%Y%m%d_%H%M%S")
 
     def find_all_access_points(self):
         """

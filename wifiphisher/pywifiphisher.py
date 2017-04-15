@@ -61,17 +61,6 @@ def parse_args():
               "Example: -iI ppp0"
               )
     )
-
-    parser.add_argument(
-        "-dP",
-        "--deauthpackets",
-        help=("Choose the number of packets to send in each deauth burst. " +
-              "Default value is 1; 1 packet to the client and 1 packet to " +
-              "the AP. Send 2 deauth packets to the client and 2 deauth " +
-              "packets to the AP: -dP 2"
-              )
-    )
-
     parser.add_argument(
         "-nJ",
         "--nojamming",
@@ -104,6 +93,18 @@ def parse_args():
         help=("Stop the script after successfully retrieving one pair of "
               "credentials"),
         action='store_true')
+    parser.add_argument(
+        "-lC",
+        "--lure10-capture",
+        help=("Capture the BSSIDs of the APs that are discovered during "
+              "AP selection phase. This option is part of Lure10 attack."),
+        action='store_true')
+    parser.add_argument(
+        "-lE",
+        "--lure10-exploit",
+        help=("Fool the Windows Location Service of nearby Windows users "
+              "to believe it is within an area that was previously captured "
+              "with --lure10-capture. Part of the Lure10 attack."))
 
     return parser.parse_args()
 
@@ -128,6 +129,14 @@ def check_args(args):
         sys.exit(
             '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
+    if args.lure10_exploit and args.nojamming:
+        sys.exit(
+            '[' + R + '-' + W + '] --lure10-exploit (-lE) and --nojamming (-nJ) cannot work together.')
+
+    if args.lure10_exploit and not os.path.isfile(LOCS_DIR + args.lure10_exploit):
+        sys.exit(
+            '[' + R + '-' + W + '] Lure10 capture does not exist. Listing directory of captures: ' + str(os.listdir(LOCS_DIR)))
+
 
 def set_ip_fwd():
     """
@@ -136,7 +145,7 @@ def set_ip_fwd():
     Popen(
         ['sysctl', '-w', 'net.ipv4.ip_forward=1'],
         stdout=DN,
-        stderr=PIPE
+        tderr=PIPE
     )
 
 
@@ -270,6 +279,8 @@ def select_access_point(screen, interface, mac_matcher):
 
     # start finding access points
     access_point_finder = recon.AccessPointFinder(interface)
+    if args.lure10_capture:
+        access_point_finder.capture_aps()
     access_point_finder.find_all_access_points()
 
     position = 1
@@ -719,6 +730,8 @@ class WifiphisherEngine:
             # start deauthenticating all client on target access point
             deauthentication = deauth.Deauthentication(ap_mac,
                                                        mon_iface.get_name())
+            if args.lure10_exploit:
+                deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
             deauthentication.deauthenticate()
 
         # Main loop.

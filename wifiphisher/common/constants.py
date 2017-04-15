@@ -16,6 +16,7 @@ PUBLIC_DNS = "8.8.8.8"
 PEM = dir_of_data + 'cert/server.pem'
 PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
 LOGOS_DIR = dir_of_data + "logos/"
+LOCS_DIR = dir_of_data + "locs/"
 MAC_PREFIX_FILE = dir_of_data + "wifiphisher-mac-prefixes"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"

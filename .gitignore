@@ -1,3 +1,6 @@
+# Locations added by --lure-capture
+wifiphisher/data/locs/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
