@@ -76,6 +76,23 @@ Do not target any network. Simply spawn an open Wi-Fi network with ESSID "FREE W
 
 Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook.
 
+***
+
+```shell
+python bin/wifiphisher --lure10-capture --nojamming
+```
+
+Proceed with only one card (--nojamming) and capture the BSSIDs that are discovered during AP selection phase.
+
+***
+
+```shell
+python bin/wifiphisher --lure10-exploit area_20170414_123200 --essid "WiFiSense-Tagged-WLAN"
+```
+
+Make nearby Windows devices believe that are within the area that was previously captured with `--lure-capture` by fooling the Windows Location Service. Broadcast a WLAN that is tagged as WiFi-Sense in that area. This will result in automatic association of nearby Windows devices.
+
+
 Following are all the options along with their descriptions (also available with `wifiphisher -h`):
 
 | Short form | Long form | Explanation |
@@ -88,8 +105,8 @@ Following are all the options along with their descriptions (also available with
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
 |-pK PRESHAREDKEY| --presharedkey PRESHAREDKEY|	Add WPA/WPA2 protection on the rogue Access Point. Example: -pK s3cr3tp4ssw0rd|
 |-qS| --quitonsuccess|	Stop the script after successfully retrieving one pair of credentials.|
-
-
+|-lC| --lure10-capture| Capture the BSSIDs of the APs that are discovered during AP selection phase. This option is part of Lure10 attack.
+|-lE LURE10_EXPLOIT |--lure10-exploit LURE10_EXPLOIT| Fool the Windows Location Service of nearby Windows users to believe it is within an area that was previously captured with --lure10-capture. Part of the Lure10 attack.|
 
 
 ## Screenshots
