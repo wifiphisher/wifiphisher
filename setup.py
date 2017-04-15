@@ -132,7 +132,7 @@ LICENSE = "GPL"
 KEYWORDS = ["wifiphisher", "evil", "twin", "phishing"]
 PACKAGES = find_packages()
 INCLUDE_PACKAGE_DATA = True
-VERSION = "1.2"
+VERSION = "1.3"
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 

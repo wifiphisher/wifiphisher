@@ -28,7 +28,7 @@ import wifiphisher.common.accesspoint as accesspoint
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-VERSION = "1.2GIT"
+VERSION = "1.3"
 args = 0
 mon_MAC = 0
 APs = {}  # for listing APs

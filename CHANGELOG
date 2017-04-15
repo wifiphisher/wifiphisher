@@ -1,3 +1,18 @@
+Wifiphisher v1.3 [2016-04-15] 
+
+o Introduced --quitonsuccess (-qS) option. [@javaes]
+o Introduced Travis CI. [@d33tah]
+o Install pylint in Travis. [@blackHatMonkey] 
+o Web server migration to Tornado. Fixes various bugs and increases performance. [@sophron]
+o Remove DNS leases after the script restarts. [@laozi999]
+o Introduced --internetinterface (-iI) option to provide Internet connectivity to victims. [@sophron]
+o Added support for iOS and Android to our network manager imitation template. [@alexsalvetti]
+o Introduced a new deauthentication module. [@blackHatMonkey]
+o Introduced a new recon module, including new features in target AP selection phase. [@blackHatMonkey]
+o Code refactoring including a more modular design. [@sophron] 
+o Introduced accesspoint module serving as a hostapd wrapper. [@sophron]
+o Introducing Lure10, an attack for automatic association against Windows devices. [@sophron]
+
 Wifiphisher v1.2 [2016-12-04] 
 
 o Web server now starts after DHCP [@sophron]
@@ -20,10 +35,6 @@ o Introduced new OAuth template. [@sophron]
 o Introduced new "Wi-Fi Connect" template. [@dionyziz]
 
 Wifiphisher v1.1 [2015-07-01]
-
-The actual first release of the tool happened on Jan 5 2015. Bugs have been
-tackled since then. I consider this a maintenance release (1.1) after the major
-release (1.0) that happened back then.
 
 o Fixed compatibility with systems defaulting to python3. [@jaseg]
 o Fixed bug with undefined variable (#7). [@yasoob]
