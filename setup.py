@@ -21,7 +21,7 @@ def get_dnsmasq():
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
         install = raw_input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
-                             "in /usr/bin/dnsmasq, " + "install now? [y/n] "))
+                             "in /usr/sbin/dnsmasq, " + "install now? [y/n] "))
 
         if install == "y":
             if os.path.isfile("/usr/bin/pacman"):
