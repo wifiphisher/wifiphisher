@@ -46,8 +46,8 @@ class Deauthentication(object):
 
     def _craft_and_add_packet(self, sender, receiver):
         """
-        Craft a deauthentication packet and add it to the list of
-        deauthentication packets
+        Craft a deauthentication and a disassociation packet and add
+        them to the list of deauthentication packets
 
         :param self: A Deauthentication object
         :param sender: The MAC address of the sender
