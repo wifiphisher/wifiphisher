@@ -212,7 +212,11 @@ class AccessPointFinder(object):
         """
 
         elt_section = packet[dot11.Dot11Elt]
-        channel = str(ord(packet[dot11.Dot11Elt:3].info))
+        try:
+            channel = str(ord(packet[dot11.Dot11Elt:3].info))
+        except (TypeError, IndexError):
+            return
+
         mac_address = packet.addr3
         name = None
         encryption_type = None
