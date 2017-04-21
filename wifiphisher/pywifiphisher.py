@@ -259,14 +259,18 @@ def sniff_dot11(mon_iface):
             raise
 
 
-def select_access_point(screen, interface, mac_matcher):
+def select_access_point(screen, interface, mac_matcher, network_manager):
     """
     Return the access point the user has selected
 
     :param screen: A curses window object
     :param interface: An interface to be used for finding access points
+    :param mac_matcher: A MACMatcher object
+    :param network_manager: A NetworkManager object
     :type screen: _curses.curses.window
     :type interface: NetworkAdapter
+    :type mac_matcher: MACMatcher
+    :type network_manager: NetworkManager
     :return: Choosen access point
     :rtype: accesspoint.AccessPoint
     """
@@ -278,7 +282,7 @@ def select_access_point(screen, interface, mac_matcher):
     screen.nodelay(True)
 
     # start finding access points
-    access_point_finder = recon.AccessPointFinder(interface)
+    access_point_finder = recon.AccessPointFinder(interface, network_manager)
     if args.lure10_capture:
         access_point_finder.capture_aps()
     access_point_finder.find_all_access_points()
@@ -561,6 +565,8 @@ class WifiphisherEngine:
         if os.geteuid():
             sys.exit('[' + R + '-' + W + '] Please run as root')
 
+        self.network_manager.start()
+
         # TODO: We should have more checks here:
         # Is anything binded to our HTTP(S) ports?
         # Maybe we should save current iptables rules somewhere
@@ -569,51 +575,54 @@ class WifiphisherEngine:
         # to monitor mode. shutdown on any errors
         try:
             if args.internetinterface:
-               internet_interface = self.network_manager.set_internet_iface(args.internetinterface)
+                if (self.network_manager.is_interface_valid(args.internetinterface) and
+                        self.network_manager.is_interface_wired(args.internetinterface)):
+                    internet_interface = args.internetinterface
+                    self.network_manager.unblock_interface(internet_interface)
             if not args.nojamming:
                 if args.jamminginterface and args.apinterface:
-                    mon_iface = self.network_manager.get_jam_iface(
-                        args.jamminginterface)
-                    ap_iface = self.network_manager.get_ap_iface(args.apinterface)
+                    if self.network_manager.is_interface_valid(args.jamminginterface, "monitor"):
+                        mon_iface = args.jamminginterface
+                        self.network_manager.unblock_interface(mon_iface)
+                    if self.network_manager.is_interface_valid(args.apinterface, "AP"):
+                        ap_iface = args.apinterface
                 else:
-                    mon_iface, ap_iface = self.network_manager.find_interface_automatically()
-                self.network_manager.set_jam_iface(mon_iface.get_name())
-                self.network_manager.set_ap_iface(ap_iface.get_name())
+                    mon_iface, ap_iface = self.network_manager.get_interface_automatically()
+
                 # display selected interfaces to the user
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
                        "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
-                       "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
+                       "rogue Access Point").format(G, W, mon_iface, ap_iface)
             else:
                 if args.apinterface:
-                    ap_iface = self.network_manager.get_ap_iface(
-                        interface_name=args.apinterface)
+                    if self.network_manager.is_interface_valid(args.apinterface, "AP"):
+                        ap_iface = args.apinterface
                 else:
-                    ap_iface = self.network_manager.get_ap_iface()
+                    ap_iface = self.network_manager.get_interface(True, False)
                 mon_iface = ap_iface
-                self.network_manager.set_ap_iface(ap_iface.get_name())
+
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
-                       "rogue Access Point").format(G, W, ap_iface.get_name())
+                       "rogue Access Point").format(G, W, ap_iface)
+
+            # make sure interfaces are not blocked
+            self.network_manager.unblock_interface(ap_iface)
+            self.network_manager.unblock_interface(mon_iface)
 
             kill_interfering_procs()
             self.network_manager.set_interface_mode(mon_iface, "monitor")
-        except (interfaces.NotEnoughInterfacesFoundError,
-                interfaces.JammingInterfaceInvalidError,
-                interfaces.ApInterfaceInvalidError,
-                interfaces.NoApInterfaceFoundError,
-                interfaces.NoMonitorInterfaceFoundError) as err:
-            print ("[{0}!{1}] " + str(err)).format(R, W)
+        except (interfaces.InvalidInterfaceError,
+                interfaces.InvalidInternetInterfaceError,
+                interfaces.InterfaceCantBeFoundError) as err:
+            print ("[{0}!{1}] {2}").format(R, W, err)
             time.sleep(1)
             self.stop()
 
         if args.internetinterface:
-            self.fw.nat(ap_iface.get_name(), args.internetinterface)
+            self.fw.nat(ap_iface, args.internetinterface)
             set_ip_fwd()
         else:
             self.fw.redirect_requests_localhost()
         set_route_localnet()
-
-        if not args.internetinterface:
-            self.network_manager.up_ifaces([ap_iface, mon_iface])
 
         print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
         time.sleep(1)
@@ -625,7 +634,8 @@ class WifiphisherEngine:
             enctype = None
         else:
             # let user choose access point
-            access_point = curses.wrapper(select_access_point, mon_iface, self.mac_matcher)
+            access_point = curses.wrapper(select_access_point, mon_iface, self.mac_matcher,
+                                          self.network_manager)
 
             # if the user has chosen a access point continue
             # otherwise shutdown
@@ -688,8 +698,9 @@ class WifiphisherEngine:
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
         # mode for network discovery before (e.g. when --nojamming is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
+
         # Start AP
-        self.access_point.set_interface(ap_iface.get_name())
+        self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
         if args.presharedkey:
@@ -719,7 +730,7 @@ class WifiphisherEngine:
 
         clients_APs = []
         APs = []
-        mon_MAC = mon_mac(mon_iface.get_name())
+        mon_MAC = mon_mac(mon_iface
 
         deauthentication = None
         if not args.nojamming:
@@ -745,7 +756,7 @@ class WifiphisherEngine:
                         print term.move(1, term.width - 30) + "|" + " " + term.bold_blue("Wifiphisher " + VERSION)
                         print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
                         print term.move(3, term.width - 30) + "|" + " Channel: " + channel
-                        print term.move(4, term.width - 30) + "|" + " AP interface: " + ap_iface.get_name()
+                        print term.move(4, term.width - 30) + "|" + " AP interface: " + ap_iface
                         print term.move(5, term.width - 30) + "|" + "_"*29
                         print term.move(1, 0) + term.blue("Deauthenticating clients: ")
                         if not args.nojamming:

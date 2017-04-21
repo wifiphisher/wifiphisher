@@ -1,163 +1,147 @@
-#pylint: skip-file
 """
-This module was made to handle all the interface related operations for
-Wifiphisher.py
+This module was made to handle all the interface related operations of
+the program
 """
 
 import pyric
 import pyric.pyw as pyw
 
 
-class NotEnoughInterfacesFoundError(Exception):
-    """
-    Exception class to raise in case of a finding less than enough interfaces.
-    """
+class InvalidInterfaceError(Exception):
+    """ Exception class to raise in case of a invalid interface """
 
-    def __init__(self):
+    def __init__(self, interface_name, mode=None):
         """
         Construct the class.
 
-        :param self: A NotEnoughInterfacesFoundError object
-        :type self: NotEnoughInterfacesFoundError
+        :param self: A InvalidInterfaceError object
+        :param interface_name: Name of an interface
+        :type self: InvalidInterfaceError
+        :type interface_name: string
         :return: None
         :rtype: None
         """
 
-        message = ("There are not enough wireless interfaces for the tool to "
-                   "run! Please ensure that at least two wireless adapters "
-                   "are connected to the device and they are compatible " +
-                   "(drivers should support netlink). At "
-                   "least one must support Master (AP) mode and another "
-                   "must support Monitor mode.\n"
-                   "Otherwise, you may try --nojamming option that will turn "
-                   "off the deauthentication phase.")
+        message = "The provided interface \"{0}\" is invalid!".format(interface_name)
+
+        # provide more information if mode is given
+        if mode:
+            message += "Interface {0} doesn't support {1} mode".format(interface_name, mode)
+
         Exception.__init__(self, message)
 
 
-class NoApInterfaceFoundError(Exception):
+class InvalidValueError(Exception):
     """
-    Exception class to raise in case of a not finding a valid AP interface.
+    Exception class to raise in case of a invalid value is supplied
     """
 
-    def __init__(self):
+    def __init__(self, value, correct_value_type):
         """
         Construct the class.
 
-        :param self: A NoApInterfaceFoundError object
-        :type self: NoApInterfaceFoundError
+        :param self: A InvalidValueError object
+        :param value_type: The value supplied
+        :param correct_value_type: The correct value type
+        :type self: InvalidValueError
+        :type value_type: any
+        :type correct_value_type: any
         :return: None
         :rtype: None
         """
 
-        message = ("We have failed to find a wireless interface that supports"
-                   " AP mode! Please make sure that all the wireless adapters "
-                   "are connected and they are compatible.")
+        value_type = type(value)
+
+        message = ("Expected value type to be {0} while got {1}."
+                   .format(correct_value_type, value_type))
         Exception.__init__(self, message)
 
 
-class NoMonitorInterfaceFoundError(Exception):
+class InvalidInternetInterfaceError(Exception):
     """
-    Exception class to raise in case of a not finding a valid monitor
-    interface.
+    Exception class to raise in case of a invalid internet interface
+    is supplied
     """
 
-    def __init__(self):
+    def __init__(self, interface_name):
         """
         Construct the class.
 
-        :param self: A NoMonitorInterfaceFoundError object
-        :type self: NoMonitorInterfaceFoundError
+        :param self: A InvalidInternetInterfaceError object
+        :param interface_name: Name of an interface
+        :type self: InvalidValueError
+        :type interface_name: string
         :return: None
         :rtype: None
         """
 
-        message = ("We have failed to find a wireless interface that supports"
-                   " monitor mode! Please make sure that all the wireless "
-                   "adapters are connected and they are compatible.")
+        message = "{0} interface is not acceptable as an internet interface".format(interface_name)
         Exception.__init__(self, message)
 
 
-class JammingInterfaceInvalidError(Exception):
+class InterfaceCantBeFoundError(Exception):
     """
-    Exception class to raise in case of a invalid jamming interface.
+    Exception class to raise in case of a invalid value is supplied
     """
 
-    def __init__(self):
+    def __init__(self, interface_modes):
         """
         Construct the class.
 
-        :param self: A JammingInterfaceInvalidError object
-        :type self: JammingInterfaceInvalidError
+        :param self: A InterfaceCantBeFoundError object
+        :param interface_modes: Modes of interface required
+        :type self: InterfaceCantBeFoundError
+        :type interface_modes: tuple
         :return: None
         :rtype: None
+        .. note: For interface_modes the tuple should contain monitor
+            mode as first argument followed by AP mode
         """
 
-        message = ("We have failed to set the jamming interface(-jI)! This is "
-                   "either due to the fact that we were unable to find the "
-                   "given interface in the available interfaces or the given "
-                   "interface was incompatible.")
-        Exception.__init__(self, message)
+        monitor_mode = interface_modes[0]
+        ap_mode = interface_modes[1]
 
+        message = "Failed to find an interface with "
 
-class ApInterfaceInvalidError(Exception):
-    """
-    Exception class to raise in case of a invalid ap interface.
-    """
+        # add appropriate mode
+        if monitor_mode:
+            message += "monitor"
+        else:
+            message += "AP"
 
-    def __init__(self):
-        """
-        Construct the class.
+        message += " mode"
 
-        :param self: A ApInterfaceInvalidError object
-        :type self: ApInterfaceInvalidError
-        :return: None
-        :rtype: None
-        """
-
-        message = ("We have failed to set the access point interface (-aI)! "
-                   "This is either due to the fact that we were unable to find"
-                   " the given interface in the available interfaces or the "
-                   "given interface was incompatible.")
         Exception.__init__(self, message)
 
 
 class NetworkAdapter(object):
-    """
-    This class represents a newtrok interface (network adapter).
-    """
+    """ This class represents a network interface """
 
-    def __init__(self, name):
+    def __init__(self, name, card_obj):
         """
         Setup the class with all the given arguments.
 
         :param self: A NetworkAdapter object
         :param name: Name of the interface
+        :param card_obj: A pyric.pyw.Card object
         :type self: NetworkAdapter
         :type name: str
+        :type card_obj: pyric.pyw.Card
         :return: None
         :rtype: None
-        .. note: the availability of monitor mode and AP mode is set to False
-            by default
         """
 
         # Setup the fields
         self._name = name
-        self._support_ap_mode = False
-        self._support_monitor_mode = False
-        self.being_used = False
+        self._has_ap_mode = False
+        self._has_monitor_mode = False
+        self._is_wireless = False
+        self._card = card_obj
 
-        # Set monitor and AP mode if card supports it
-        card = pyw.getcard(name)
-        modes = pyw.devmodes(card)
-
-        if "monitor" in modes:
-            self._support_monitor_mode = True
-        if "AP" in modes:
-            self._support_ap_mode = True
-
-    def get_name(self):
+    @property
+    def name(self):
         """
-        Return the name of the interface.
+        Return the name of the interface
 
         :param self: A NetworkAdapter object
         :type self: NetworkAdapter
@@ -167,9 +151,10 @@ class NetworkAdapter(object):
 
         return self._name
 
+    @property
     def has_ap_mode(self):
         """
-        Return whether the interface supports AP mode.
+        Return whether the interface supports AP mode
 
         :param self: A NetworkAdapter object
         :type self: NetworkAdapter
@@ -177,11 +162,31 @@ class NetworkAdapter(object):
         :rtype: bool
         """
 
-        return self._support_ap_mode
+        return self._has_ap_mode
 
+    @has_ap_mode.setter
+    def has_ap_mode(self, value):
+        """
+        Set whether the interface supports AP mode
+
+        :param self: A NetworkAdapter object
+        :param value: A value representing AP mode support
+        :type self: NetworkAdapter
+        :type value: bool
+        :return: None
+        :rtype: None
+        :raises InvalidValueError: When the given value is not bool
+        """
+
+        if isinstance(value, bool):
+            self._has_ap_mode = value
+        else:
+            raise InvalidValueError(value, bool)
+
+    @property
     def has_monitor_mode(self):
         """
-        Return whether the interface supports monitor mode.
+        Return whether the interface supports monitor mode
 
         :param self: A NetworkAdapter object
         :type self: NetworkAdapter
@@ -189,21 +194,71 @@ class NetworkAdapter(object):
         :rtype: bool
         """
 
-        return self._support_monitor_mode
+        return self._has_monitor_mode
 
-    def set_channel(self, channel):
+    @has_monitor_mode.setter
+    def has_monitor_mode(self, value):
         """
-        Set the device channel to the provided channel.
+        Set whether the interface supports monitor mode
 
         :param self: A NetworkAdapter object
-        :param channel: A channel number
+        :param value: A value representing monitor mode support
         :type self: NetworkAdapter
-        :type channel: string
+        :type value: bool
         :return: None
         :rtype: None
+        :raises InvalidValueError: When the given value is not bool
         """
-        card = pyw.getcard(self._name)
-        pyw.chset(card, channel, None)
+
+        if isinstance(value, bool):
+            self._has_monitor_mode = value
+        else:
+            raise InvalidValueError(value, bool)
+
+    @property
+    def is_wireless(self):
+        """
+        Return whether the interface is wireless or not
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: True if interface is wireless and False otherwise
+        :rtype: bool
+        """
+
+        return self._is_wireless
+
+    @is_wireless.setter
+    def is_wireless(self, value):
+        """
+        Set adapters's wireless mode to True
+
+        :param self: A NetworkAdapter object
+        :param value: A value representing monitor mode support
+        :type self: NetworkAdapter
+        :type value: bool
+        :return: None
+        :rtype: None
+        :raises InvalidValueError: When the given value is not bool
+        """
+
+        if isinstance(value, bool):
+            self._is_wireless = value
+        else:
+            raise InvalidValueError(value, bool)
+
+    @property
+    def card(self):
+        """
+        Return the card object associated with the interface
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: The card object
+        :rtype: pyric.pyw.Card
+        """
+
+        return self._card
 
 
 class NetworkManager(object):
@@ -217,180 +272,219 @@ class NetworkManager(object):
         Setup the class with all the given arguments.
 
         :param self: A NetworkManager object
-        :param jamming_argument: The jamming argument given by user
-        :param ap_argument: The AP argument given by user
         :type self: NetworkManager
-        :type jamming_argument: str
-        :type ap_argument: str
         :return: None
         :rtype: None
-        .. seealso:: NetworkAdapter
         """
 
-        # Setup the fields
-        self._interfaces = {}
-        self.ap_iface = ""
-        self.jam_iface = ""
+        self._name_to_object = dict()
+        self._active = set()
 
-        # Create, add and check compatibility for each interface
-        for interface in pyw.interfaces():
-            try:
-                self._interfaces[interface] = NetworkAdapter(interface)
-            except pyric.error as e:
-                pass
-
-    def up_ifaces(self, ifaces):
-        for i in ifaces:
-            card = pyw.getcard(i.get_name())
-            pyw.up(card)
-
-    def set_interface_mode(self, interface, mode):
+    def is_interface_valid(self, interface_name, mode=None):
         """
-        Set the desired mode to the network interface.
+        Check if interface is valid
 
         :param self: A NetworkManager object
-        :param interface: A NetworkAdapter object
-        :param mode: The mode the interface should be set to
+        :param interface_name: Name of an interface
+        :param mode: The mode of the interface to be checked
         :type self: NetworkManager
-        :type interface: NetworkAdapter
-        :type mode: str
-        :return: None
+        :type interface_name: string
+        :type mode: string
+        :return None
         :rtype: None
-        :raises IfconfigCmdError: if an error is produced after executing
-            ifconfig command
-        .. note:: available modes are ad-hoc, managed, master, monitor,
-            repeater, secondary
-        .. seealso:: _ifconfig_cmd
+        :raises InvalidInterfaceError: If the name of interface is not valid
+        .. note: The available modes are monitor and AP
         """
 
-        # Get the card
-        card = pyw.getcard(interface.get_name())
+        # raise an error if interface can't be found
+        try:
+            interface_adapter = self._name_to_object[interface_name]
+        except KeyError:
+            raise InvalidInterfaceError(interface_name)
 
-        # Turn off, set the mode and turn on the interface
+        # raise an error if interface doesn't support the mode
+        if mode == "monitor" and not interface_adapter.has_monitor_mode:
+            raise InvalidInterfaceError(interface_name, mode)
+        elif mode == "AP" and not interface_adapter.has_ap_mode:
+            raise InvalidInterfaceError(interface_name, mode)
+
+    def set_interface_mode(self, interface_name, mode):
+        """
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :param mode: Mode of an interface
+        :type self: NetworkManager
+        :type interface_name: string
+        :type mode: string
+        :return: None
+        :rtype: None
+        .. note: Available modes are unspecified, ibss, managed, AP
+            AP VLAN, wds, monitor, mesh, p2p
+        """
+
+        card = self._name_to_object[interface_name].card
+
+        # set interface mode between brining it down and up
         pyw.down(card)
         pyw.modeset(card, mode)
         pyw.up(card)
 
-    def find_interface_automatically(self):
+    def get_interface(self, has_ap_mode=None, has_monitor_mode=None):
         """
-        Find and return an interface with monitor mode support followed by
-        an interface with AP mode support.
+        Return the name of a valid interface with modes supplied
+
+        :param self: A NetworkManager object
+        :param has_ap_mode: AP mode support
+        :param has_monitor_mode: Monitor mode support
+        :type self: NetworkManager
+        :type has_ap_mode: boolean
+        :type has_monitor_mode: boolean
+        :return: Name of valid interface
+        :rtype: string
+        .. raises InterfaceCantBeFoundError: When an interface with
+            supplied modes can't be found
+        """
+
+        # return an interface with supplied modes otherwise raise an error
+        for interface, adapter in self._name_to_object.iteritems():
+            if interface not in self._active:
+                if has_ap_mode and has_monitor_mode:
+                    if (adapter.has_ap_mode == has_ap_mode and
+                            adapter.has_monitor_mode == has_monitor_mode):
+                        self._active.add(interface)
+                        return interface
+                if has_ap_mode:
+                    if adapter.has_ap_mode:
+                        self._active.add(interface)
+                        return interface
+                if has_monitor_mode:
+                    if adapter.has_monitor_mode:
+                        self._active.add(interface)
+                        return interface
+
+        raise InterfaceCantBeFoundError((has_ap_mode, has_monitor_mode))
+
+    def get_interface_automatically(self):
+        """
+        Return a name of two interfaces
+        :param self: A NetworkManager object
+        :param self: NetworkManager
+        :return: Name of monitor interface followed by AP interface
+        :rtype: tuple
+        """
+
+        monitor_interface = self.get_interface(has_monitor_mode=True)
+        ap_interface = self.get_interface(has_ap_mode=True)
+
+        return (monitor_interface, ap_interface)
+
+    def is_interface_wired(self, interface_name):
+        """
+        Check whether the interface is wired or not
+
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :type self: NetworkManager
+        :type interface_name: string
+        :return: None
+        :rtype: None
+        :raises InvalidInternetInterfaceError: If interface is not wired
+        """
+
+        if self._name_to_object[interface_name].is_wireless:
+            raise InvalidInternetInterfaceError(interface_name)
+
+    def unblock_interface(self, interface_name):
+        """
+        Unblock interface if it is blocked
+
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :type self: NetworkManager
+        :type interface_name: string
+        :return: None
+        :rtype: None
+        """
+
+        card = self._name_to_object[interface_name].card
+
+        # unblock card if it is blocked
+        if pyw.isblocked(card):
+            pyw.unblock(card)
+
+    def set_interface_channel(self, interface_name, channel):
+        """
+        Set the channel for the interface
+
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :param channel: A channel number
+        :type self: NetworkManager
+        :type interface_name: string
+        :type channel: int
+        :return: None
+        :rtype: None
+        """
+
+        card = self._name_to_object[interface_name].card
+
+        pyw.chset(card, channel)
+
+    def start(self):
+        """
+        Start the network manager
 
         :param self: A NetworkManager object
         :type self: NetworkManager
-        :return: a tuple containing monitor interface fallowed by AP interface
-        :rtype: tuple
-        :raises NoApInterfaceFoundError: if no interface with AP mode is found
-        :raises NoMonitorInterfaceFoundError: if no interface with monitor mode
-            is found
-        .. seealso:: NetworkAdapter
-        .. warning:: The function returns NetworkAdapter objects and not str
+        :return: None
+        :rtype: None
         """
 
-        # Raise an error in case of less than two interfaces found
-        if len(self._interfaces) < 2:
-            raise NotEnoughInterfacesFoundError()
-
-        # Initialize list for comparison
-        ap_available = list()
-        monitor_available = list()
-
-        # Populate ap_available and monitor_available lists
-        for k, interface in self._interfaces.iteritems():
-            # Add all the interfaces with monitor mode
-            if interface.has_monitor_mode():
-                monitor_available.append(interface)
-            # Add all the interfaces with AP mode
-            if interface.has_ap_mode():
-                ap_available.append(interface)
-
-        # Raise error if no interface with AP mode is found
-        if len(ap_available) == 0:
-            raise NoApInterfaceFoundError()
-        # Raise error if no interface with monitor mode is found
-        if len(monitor_available) == 0:
-            raise NoMonitorInterfaceFoundError()
-        # Raise error if one card is supposed to do both
-        if len(monitor_available) == 1 and len(ap_available) == 1:
-            if monitor_available[0] == ap_available[0]:
-                raise NotEnoughInterfacesFoundError()
-
-        # We only have one AP mode interface. We don't want to use it for
-        # jamming.
-        if len(monitor_available) > 1 and \
-                len(ap_available) == 1 and \
-                ap_available[0] in monitor_available:
-            # Select an AP interface and remove it from available interfaces
-            ap_interface = ap_available[0]
-            ap_available.remove(ap_interface)
-            # Select the first available interface with monitor mode
-            for m in monitor_available:
-                if m != ap_interface:
-                    monitor_interface = m
-            return monitor_interface, ap_interface
-
-        # We only have one Monitor mode interface. We don't want to use it for AP.
-        # Covers all other cases too
-        monitor_interface = monitor_available[0]
-        # Select the first available interface with monitor mode
-        for a in ap_available:
-            if a != monitor_interface:
-                ap_interface = a
-
-        return monitor_interface, ap_interface
-
-    def get_jam_iface(self, interface_name):
-        for k, interface in self._interfaces.iteritems():
-            if k == interface_name and not interface.being_used:
-                if interface.has_monitor_mode():
-                    return interface
+        # populate our dictionary with all the available interfaces on the system
+        for interface in pyw.interfaces():
+            try:
+                card = pyw.getcard(interface)
+                adapter = NetworkAdapter(interface, card)
+                self._name_to_object[interface] = adapter
+                interface_property_detector(adapter)
+            # ignore devices that are not supported
+            except pyric.error as error:
+                if error[0] == 93:
+                    pass
                 else:
-                    raise JammingInterfaceInvalidError
-        raise JammingInterfaceInvalidError
-
-    def get_ap_iface(self, interface_name=None):
-        for k, interface in self._interfaces.iteritems():
-            if interface_name == None:
-                if interface.has_ap_mode():
-                    return interface
-            if k == interface_name and not interface.being_used:
-                if interface.has_ap_mode():
-                    return interface
-                else:
-                    raise ApInterfaceInvalidError
-        if interface_name == None:
-            raise NoApInterfaceFoundError
-        raise ApInterfaceInvalidError
-
-    def set_internet_iface(self, iface):
-        if pyw.iswireless(iface):
-            raise Exception
-        self.internet_iface = iface
-
-    def set_ap_iface(self, iface):
-        self.ap_iface = iface
-        iface_obj = self._interfaces[iface]
-        iface_obj.being_used = True
-        self._interfaces[iface] = iface_obj
-
-    def set_jam_iface(self, iface):
-        self.jam_iface = iface
-        iface_obj = self._interfaces[iface]
-        iface_obj.being_used = True
-        self._interfaces[iface] = iface_obj
-
-    def reset_ifaces_to_managed(self):
-        for k, i in self._interfaces.iteritems():
-            if i.being_used:
-                self.set_interface_mode(i, "managed")
+                    raise error
 
     def on_exit(self):
         """
-        Reset interfaces to managed on exit
+        Perform a clean up for the class
 
         :param self: A NetworkManager object
+        :type self: NetworkManager
         :return: None
-        :rtype: None 
+        :rtype: None
         """
 
-        self.reset_ifaces_to_managed()
+        for interface in self._active:
+            self.set_interface_mode(interface, "managed")
+
+
+def interface_property_detector(network_adapter):
+    """
+    Add appropriate properties of the interface such as supported modes
+    and wireless type(wireless)
+
+    :param network_adapter: A NetworkAdapter object
+    :type interface_name: NetworkAdapter
+    :return: None
+    :rtype: None
+    """
+
+    supported_modes = pyw.devmodes(network_adapter.card)
+
+    # check for monitor, AP and wireless mode support
+    if "monitor" in supported_modes:
+        network_adapter.has_monitor_mode = True
+    if "AP" in supported_modes:
+        network_adapter.has_ap_mode = True
+    if pyw.iswireless(network_adapter.name):
+        network_adapter.is_wireless = True

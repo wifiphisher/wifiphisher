@@ -144,17 +144,22 @@ class AccessPoint(object):
 class AccessPointFinder(object):
     """ This class finds all the available access point """
 
-    def __init__(self, ap_interface):
+    def __init__(self, ap_interface, network_manager):
         """
         Setup the class with all the given arguments
 
         :param self: An AccessPointFinder object
-        :param ap_interface: A NetworkAdapter object
+        :param ap_interface: Name of an AP supported interface
+        :param network_manager: A NetworkManager object
         :type self: AccessPointFinder
-        :type ap_interface: NetworkAdapter
+        :type ap_interface: string
+        :type: network_manager: NetworkManager
+        :return: None
+        :rtype: None
         """
 
         self._interface = ap_interface
+        self._network_manager = network_manager
         self._observed_access_points = list()
         self._capture_file = False
         self._should_continue = True
@@ -310,7 +315,7 @@ class AccessPointFinder(object):
 
         # continue to find clients until otherwise told
         while self._should_continue:
-            dot11.sniff(iface=self._interface.get_name(), prn=self._process_packets, count=1,
+            dot11.sniff(iface=self._interface, prn=self._process_packets, count=1,
                         store=0)
 
     def capture_aps(self):
@@ -375,7 +380,7 @@ class AccessPointFinder(object):
             for channel in range(1, 14):
                 # added this check to reduce shutdown time
                 if self._should_continue:
-                    self._interface.set_channel(channel)
+                    self._network_manager.set_interface_channel(self._interface, channel)
                     time.sleep(3)
                 else:
                     break
