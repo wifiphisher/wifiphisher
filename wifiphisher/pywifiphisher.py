@@ -736,11 +736,10 @@ class WifiphisherEngine:
         if not args.nojamming:
             monchannel = channel
             # set the channel on the deauthenticating interface
-            mon_iface.set_channel(int(channel))
+            self.network_manager.set_interface_channel(mon_iface, int(monchannel))
 
             # start deauthenticating all client on target access point
-            deauthentication = deauth.Deauthentication(ap_mac,
-                                                       mon_iface.get_name())
+            deauthentication = deauth.Deauthentication(ap_mac, mon_iface)
             if args.lure10_exploit:
                 deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
             deauthentication.deauthenticate()
