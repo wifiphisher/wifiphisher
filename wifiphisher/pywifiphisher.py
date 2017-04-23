@@ -730,7 +730,7 @@ class WifiphisherEngine:
 
         clients_APs = []
         APs = []
-        mon_MAC = mon_mac(mon_iface
+        mon_MAC = mon_mac(mon_iface)
 
         deauthentication = None
         if not args.nojamming:

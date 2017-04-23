@@ -290,8 +290,8 @@ class NetworkManager(object):
         :type self: NetworkManager
         :type interface_name: string
         :type mode: string
-        :return None
-        :rtype: None
+        :return True if there is no exception
+        :rtype: Bool
         :raises InvalidInterfaceError: If the name of interface is not valid
         .. note: The available modes are monitor and AP
         """
@@ -307,6 +307,7 @@ class NetworkManager(object):
             raise InvalidInterfaceError(interface_name, mode)
         elif mode == "AP" and not interface_adapter.has_ap_mode:
             raise InvalidInterfaceError(interface_name, mode)
+        return True
 
     def set_interface_mode(self, interface_name, mode):
         """
