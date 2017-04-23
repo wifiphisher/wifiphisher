@@ -290,8 +290,8 @@ class NetworkManager(object):
         :type self: NetworkManager
         :type interface_name: string
         :type mode: string
-        :return True if there is no exception
-        :rtype: Bool
+        :return: True if interface is valid
+        :rtype: bool
         :raises InvalidInterfaceError: If the name of interface is not valid
         .. note: The available modes are monitor and AP
         """
