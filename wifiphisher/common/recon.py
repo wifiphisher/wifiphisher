@@ -199,6 +199,22 @@ class AccessPointFinder(object):
         elif packet.haslayer(dot11.Dot11):
             self._find_clients(packet)
 
+    def _parse_rssi(self, packet):
+        """
+        Parse the rssi info from the packet
+
+        :param self: An AccessPointFinder object
+        :param packet: A scapy.layers.RadioTap object
+        :type self: AccessPointFinder
+        :type packet: scapy.layers.RadioTap
+        :return: rssi
+        :rtype: int
+        """
+        tmp = ord(packet.notdecoded[-4:-3])
+        tmp1 = ord(packet.notdecoded[-2:-1])
+        rssi = -(256 - max(tmp, tmp1))
+        return rssi
+
     def _create_ap_with_info(self, packet):
         """
         Create and add an access point using the extracted information
@@ -223,7 +239,7 @@ class AccessPointFinder(object):
         non_decodable_name = "<contains non-printable chars>"
 
         # find the signal strength
-        rssi = -(256 - ord(packet.notdecoded[-4:-3]))
+        rssi = self._parse_rssi(packet)
         new_signal_strength = self._calculate_signal_strength(rssi)
 
         # get the name of the access point
