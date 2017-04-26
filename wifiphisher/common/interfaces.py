@@ -6,7 +6,8 @@ Wifiphisher.py
 
 import pyric
 import pyric.pyw as pyw
-
+import random
+from constants import *
 
 class NotEnoughInterfacesFoundError(Exception):
     """
@@ -121,6 +122,53 @@ class ApInterfaceInvalidError(Exception):
         Exception.__init__(self, message)
 
 
+class  DeauthInterfaceMacAddrInvalidError(Exception):
+    """
+    Exception class to raise in case of specifying invalid mac address for
+    jamming interface
+    :param self: A DeauthInterfaceMacAddrInvalidError object
+    :type self: DeauthInterfaceMacAddrInvalidError
+    :return: None
+    :rtype: None
+    """
+
+    def __init__(self):
+        """
+        Construct the class.
+
+        :param self: A DeauthInterfaceMacAddrInvalidError object
+        :type self: DeauthInterfaceMacAddrInvalidError
+        :return: None
+        :rtype: None
+        """
+        message = ("We have failed to set the mac address for jamming interface (-iDM)! "
+               "This is due to the specified mac address may be invalid")
+        Exception.__init__(self, message)
+
+class  ApInterfaceMacAddrInvalidError(Exception):
+    """
+    Exception class to raise in case of specifying invalid mac address for
+    ap interface
+    :param self: An ApInterfaceMacAddrInvalidError object
+    :type self: ApInterfaceMacAddrInvalidError
+    :return: None
+    :rtype: None
+    """
+
+    def __init__(self):
+        """
+        Construct the class.
+
+        :param self: An ApInterfaceMacAddrInvalidError object
+        :type self: ApInterfaceMacAddrInvalidError
+        :return: None
+        :rtype: None
+        """
+
+        message = ("We have failed to set the mac address for ap interface (-iAM)! "
+               "This is due to the specified mac address may be invalid")
+        Exception.__init__(self, message)
+
 class NetworkAdapter(object):
     """
     This class represents a newtrok interface (network adapter).
@@ -145,15 +193,53 @@ class NetworkAdapter(object):
         self._support_ap_mode = False
         self._support_monitor_mode = False
         self.being_used = False
+        self._prev_mac = None
+        self._current_mac = None
 
         # Set monitor and AP mode if card supports it
         card = pyw.getcard(name)
         modes = pyw.devmodes(card)
+        mac = pyw.macget(card)
 
         if "monitor" in modes:
             self._support_monitor_mode = True
         if "AP" in modes:
             self._support_ap_mode = True
+        #set the current and prev mac to the origianl mac
+        self._prev_mac = mac
+        self._current_mac = mac
+
+    def _generate_random_address(self):
+        """
+        Make and return the randomized MAC address
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: A MAC address
+        :rtype str
+        """
+
+        mac_addr = DEFAULT_OUI + ":{:02x}:{:02x}:{:02x}".format(random.randint(0, 255),\
+                random.randint(0, 255), random.randint(0, 255))
+        return mac_addr
+
+    def randomize_interface_mac(self, mac=None):
+        """
+        Randomize the MACs for the network adapters
+
+        :param self: A NetworkAdapter object
+        :param mac: A MAC address 
+        :type self: NetworkAdapter
+        :type mac: string
+        :return: None
+        :rtype: None
+        """
+        mac_addr = self._generate_random_address() if mac is None else mac
+        card = pyw.getcard(self.get_name())
+        pyw.down(card)
+        pyw.macset(card, mac_addr)
+        self._current_mac = mac_addr
+   
 
     def get_name(self):
         """
@@ -166,6 +252,17 @@ class NetworkAdapter(object):
         """
 
         return self._name
+
+    def get_current_mac(self):
+        """
+        Return the MAC address of the interface.
+
+        :param self: A NetworkAdapter object
+        :type self: NetworkAdapter
+        :return: The mac address of the interface
+        :rtype: str
+        """
+        return self._current_mac
 
     def has_ap_mode(self):
         """
@@ -243,6 +340,7 @@ class NetworkManager(object):
         for i in ifaces:
             card = pyw.getcard(i.get_name())
             pyw.up(card)
+    
 
     def set_interface_mode(self, interface, mode):
         """
@@ -383,6 +481,58 @@ class NetworkManager(object):
         for k, i in self._interfaces.iteritems():
             if i.being_used:
                 self.set_interface_mode(i, "managed")
+    
+    def randomize_ap_interface_mac_addr(self, mac=None):
+        """
+        randomzie the mac address of ap interface
+
+        :param self: A NetworkManager object
+        :param mac: A mac address
+        :type self: NetworkManager
+        :type mac: str
+        :return: None
+        :raises ApInterfaceMacAddrInvalidError if specified mac addr is
+                invalid
+        :rtype: None 
+        """
+        try:
+            self._interfaces[self.ap_iface].randomize_interface_mac(mac)
+        except pyric.error:
+            raise ApInterfaceMacAddrInvalidError()
+
+    def randomize_deauth_interface_mac_addr(self, mac=None):
+        """
+        randomzie the mac address of deauth interface
+
+        :param self: A NetworkManager object
+        :param mac: A mac address
+        :type self: NetworkManager
+        :type mac: str
+        :return: None
+        :raises DeauthInterfaceMacAddrInvalidError if specified mac addr is
+                invalid
+        :rtype: None 
+        """
+        try:
+            self._interfaces[self.jam_iface].randomize_interface_mac(mac)
+        except pyric.error:
+            raise DeauthInterfaceMacAddrInvalidError()
+
+    def recover_mac_address_to_original(self):
+        """
+        Recover the mac addresses to original one on exit
+
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: None
+        :rtype: None 
+        """
+        for k, i in self._interfaces.iteritems():
+            if i._prev_mac != i._current_mac:
+                card = pyw.getcard(i.get_name())
+                pyw.down(card)
+                pyw.macset(card, i._prev_mac) 
+                pyw.up(card)
 
     def on_exit(self):
         """
@@ -392,5 +542,5 @@ class NetworkManager(object):
         :return: None
         :rtype: None 
         """
-
         self.reset_ifaces_to_managed()
+        self.recover_mac_address_to_original()

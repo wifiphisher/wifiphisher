@@ -107,6 +107,9 @@ Following are all the options along with their descriptions (also available with
 |-qS| --quitonsuccess|	Stop the script after successfully retrieving one pair of credentials.|
 |-lC| --lure10-capture| Capture the BSSIDs of the APs that are discovered during AP selection phase. This option is part of Lure10 attack.
 |-lE LURE10_EXPLOIT |--lure10-exploit LURE10_EXPLOIT| Fool the Windows Location Service of nearby Windows users to believe it is within an area that was previously captured with --lure10-capture. Part of the Lure10 attack.|
+|-iAM| --mac-ap-interface| Specify the MAC address of the AP interface. Example: -iAM 38:EC:11:00:00:00|
+|-iDM| --mac-deauth-interface| Specify the MAC address of the jamming interface. Example: -iDM E8:2A:EA:00:00:00|
+|-iNM| --no-mac-randomization| Do not change any MAC address.|
 
 
 ## Screenshots
