@@ -179,15 +179,17 @@ class AccessPointFinder(object):
 
         # check the type of the packet
         if packet.haslayer(dot11.Dot11Beacon):
-            # if the packet has no info (hidden ap) add MAC address of it to the list
-            # note \00 used for when ap is hidden and shows only the length of the name
-            # see issue #506
-            if not packet.info or "\00" in packet.info:
-                if packet.addr3 not in self._hidden_networks:
-                    self._hidden_networks.append(packet.addr3)
-            # otherwise get it's name and encryption
-            else:
-                self._create_ap_with_info(packet)
+            #check if the packet has info field to prevent processing malform beacon
+            if hasattr(packet.payload, 'info'):
+                # if the packet has no info (hidden ap) add MAC address of it to the list
+                # note \00 used for when ap is hidden and shows only the length of the name
+                # see issue #506
+                if not packet.info or "\00" in packet.info:
+                    if packet.addr3 not in self._hidden_networks:
+                        self._hidden_networks.append(packet.addr3)
+                # otherwise get it's name and encryption
+                else:
+                    self._create_ap_with_info(packet)
 
         # if packet is a probe response and it's hidden add the
         # access point
