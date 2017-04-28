@@ -127,12 +127,21 @@ def get_ifconfig():
 NAME = "wifiphisher"
 AUTHOR = "sophron"
 AUTHOR_EMAIL = "sophron@latthi.com"
+URL = "https://github.com/wifiphisher/wifiphisher"
 DESCRIPTION = "Automated phishing attacks against Wi-Fi networks"
 LICENSE = "GPL"
 KEYWORDS = ["wifiphisher", "evil", "twin", "phishing"]
-PACKAGES = find_packages()
+PACKAGES = find_packages(exclude=["docs", "tests"])
 INCLUDE_PACKAGE_DATA = True
 VERSION = "1.3"
+CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
+               "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+               "Natural Language :: English", "Operating System :: Unix",
+               "Programming Language :: Python :: 2", "Programming Language :: Python :: 2.7",
+               "Programming Language :: Python :: 2 :: Only", "Topic :: Security",
+               "Topic :: System :: Networking", "Intended Audience :: End Users/Desktop",
+               "Intended Audience :: System Administrators",
+               "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 
@@ -141,7 +150,7 @@ INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
       license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
-      install_requires=INSTALL_REQUIRES)
+      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL)
 
 # Get hostapd, dnsmasq or ifconfig if needed
 get_hostapd()
