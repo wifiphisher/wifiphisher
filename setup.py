@@ -21,7 +21,7 @@ def get_dnsmasq():
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
         install = raw_input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
-                             "in /usr/bin/dnsmasq, " + "install now? [y/n] "))
+                             "in /usr/sbin/dnsmasq, " + "install now? [y/n] "))
 
         if install == "y":
             if os.path.isfile("/usr/bin/pacman"):
@@ -86,53 +86,25 @@ def get_hostapd():
         sys.exit(hostapd_message)
 
 
-def get_ifconfig():
-    """
-    Try to install ifconfig on host machine if not present
-
-    :return: None
-    :trype: None
-    """
-
-    # this is only useful for Arch Linux which does not contain
-    # ifconfig by default
-    if not find_executable("ifconfig"):
-        install = raw_input(("[" + constants.T + "*" + constants.W + "] ifconfig not found. " +
-                             "install now? [y/n] "))
-
-        if install == "y":
-            if os.path.isfile("/usr/bin/pacman"):
-                os.system("pacman -S net-tools")
-            else:
-                sys.exit(("\n[" + constants.R + "-" + constants.W + "] Don\'t know how to " +
-                          "install ifconfig for your distribution.\n[" + constants.G + "+" +
-                          constants.W + "] Rerun the script after installing it manually.\n[" +
-                          constants.R + "!" + constants.W + "] Closing"))
-        else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] ifconfig not found"))
-
-    if not find_executable("ifconfig"):
-        ifconfig_message = ("\n[" + constants.R + "-" + constants.W + "] Unable to install the " +
-                            "\"net-tools\" package!\n[" + constants.T + "*" + constants.W + "] " +
-                            "This process requires a persistent internet connection!\n[" +
-                            constants.G + "+" + constants.W + "] Run pacman -Syu to make sure " +
-                            "you are up to date first.\n[" + constants.G + "+" + constants.W +
-                            "] Rerun the script to " + "install net-tools.\n[" + constants.R +
-                            "!" + constants.W + "] Closing")
-
-        sys.exit(ifconfig_message)
-
-
 # setup settings
 NAME = "wifiphisher"
 AUTHOR = "sophron"
 AUTHOR_EMAIL = "sophron@latthi.com"
+URL = "https://github.com/wifiphisher/wifiphisher"
 DESCRIPTION = "Automated phishing attacks against Wi-Fi networks"
 LICENSE = "GPL"
 KEYWORDS = ["wifiphisher", "evil", "twin", "phishing"]
-PACKAGES = find_packages()
+PACKAGES = find_packages(exclude=["docs", "tests"])
 INCLUDE_PACKAGE_DATA = True
-VERSION = "1.2"
+VERSION = "1.3"
+CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
+               "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+               "Natural Language :: English", "Operating System :: Unix",
+               "Programming Language :: Python :: 2", "Programming Language :: Python :: 2.7",
+               "Programming Language :: Python :: 2 :: Only", "Topic :: Security",
+               "Topic :: System :: Networking", "Intended Audience :: End Users/Desktop",
+               "Intended Audience :: System Administrators",
+               "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 
@@ -141,12 +113,11 @@ INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
       license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
-      install_requires=INSTALL_REQUIRES)
+      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL)
 
-# Get hostapd, dnsmasq or ifconfig if needed
+# Get hostapd or dnsmasq if needed
 get_hostapd()
 get_dnsmasq()
-get_ifconfig()
 
 print()
 print("                     _  __ _       _     _     _               ")

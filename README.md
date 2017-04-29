@@ -76,6 +76,23 @@ Do not target any network. Simply spawn an open Wi-Fi network with ESSID "FREE W
 
 Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook.
 
+***
+
+```shell
+python bin/wifiphisher --lure10-capture --nojamming
+```
+
+Proceed with only one card (--nojamming) and capture the BSSIDs that are discovered during AP selection phase.
+
+***
+
+```shell
+python bin/wifiphisher --lure10-exploit area_20170414_123200 --essid "WiFiSense-Tagged-WLAN"
+```
+
+Make nearby Windows devices believe that are within the area that was previously captured with `--lure-capture` by fooling the Windows Location Service. Broadcast a WLAN that is tagged as WiFi-Sense in that area. This will result in automatic association of nearby Windows devices.
+
+
 Following are all the options along with their descriptions (also available with `wifiphisher -h`):
 
 | Short form | Long form | Explanation |
@@ -88,8 +105,8 @@ Following are all the options along with their descriptions (also available with
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
 |-pK PRESHAREDKEY| --presharedkey PRESHAREDKEY|	Add WPA/WPA2 protection on the rogue Access Point. Example: -pK s3cr3tp4ssw0rd|
 |-qS| --quitonsuccess|	Stop the script after successfully retrieving one pair of credentials.|
-
-
+|-lC| --lure10-capture| Capture the BSSIDs of the APs that are discovered during AP selection phase. This option is part of Lure10 attack.
+|-lE LURE10_EXPLOIT |--lure10-exploit LURE10_EXPLOIT| Fool the Windows Location Service of nearby Windows users to believe it is within an area that was previously captured with --lure10-capture. Part of the Lure10 attack.|
 
 
 ## Screenshots
@@ -115,7 +132,7 @@ A full list of contributors lies <a href="https://github.com/wifiphisher/wifiphi
 Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more information.
 
 ## Project Status
-Wifiphisher's current version is **1.2**. You can download the latest release from <a href="https://github.com/wifiphisher/wifiphisher/releases/tag/v1.2">here</a>. Otherwise you can get the latest development version by cloning this repository.
+Wifiphisher's current version is **1.3**. You can download the latest release from <a href="https://github.com/wifiphisher/wifiphisher/releases/tag/v1.3">here</a>. Otherwise you can get the latest development version by cloning this repository.
 
 ## Disclaimer
 * Authors do not own the logos under the `wifiphisher/data/` directory. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, and research.
@@ -124,6 +141,4 @@ Wifiphisher's current version is **1.2**. You can download the latest release fr
 
 <b>Note</b>: <a href="htts://wifiphisher.org">wifiphisher.org</a> and this page are the only official pages for wifiphisher. Other sites may be delivering malware.
 
-[![alt text][1.1]][1]
-[1.1]: http://i.imgur.com/tXSoThF.png (Follow me)
-[1]: http://www.twitter.com/_sophron
+For Wifiphisher news, follow me on Twitter: http://www.twitter.com/_sophron

