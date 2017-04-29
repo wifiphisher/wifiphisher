@@ -392,5 +392,4 @@ class NetworkManager(object):
         :return: None
         :rtype: None 
         """
-
         self.reset_ifaces_to_managed()
