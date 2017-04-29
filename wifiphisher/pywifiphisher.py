@@ -770,6 +770,8 @@ class WifiphisherEngine:
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
+            if deauthentication != None:
+                deauthentication.on_exit()
             self.stop()
 
 

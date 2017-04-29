@@ -24,9 +24,15 @@ class Deauthentication(object):
         :param self: A Deauthentication object.
         :param ap_bssid: The MAC address of the selected access point.
         :param jamming_interface: The interface to be used for jamming.
+        :param send_deauth_thread: The thread used to send the deauth \
+                and disassoc frames
+        :param find_client_thread: The thread used to find the target\
+                deauth clients
         :type self: Deauthentication
         :type ap_bssid: string
         :type jamming_interface: string
+        :type send_deauth_thread: Thread
+        :type find_client_thread: Thread
         :return: None
         :rtype: None
         """
@@ -37,6 +43,10 @@ class Deauthentication(object):
         self._should_continue = True
         self._jamming_interface = jamming_interface
         self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
+        self._send_deauth_packets_thread = threading.Thread(\
+                target = self._send_deauthentication_packets)
+        self._find_client_thread = threading.Thread(\
+                target=self._find_clients)
 
         # create a socket for sending packets
         self._socket = linux.L2Socket(iface=self._jamming_interface)
@@ -205,13 +215,10 @@ class Deauthentication(object):
         """
 
         # start finding clients in a separate thread
-        find_clients_thread = threading.Thread(target=self._find_clients)
-        find_clients_thread.start()
+        self._find_client_thread.start()
 
         # start deauthenticating in a separate thread
-        send_deauth_packets_thread = threading.Thread(
-            target=self._send_deauthentication_packets)
-        send_deauth_packets_thread.start()
+        self._send_deauth_packets_thread.start()
 
     def on_exit(self):
         """
@@ -221,5 +228,7 @@ class Deauthentication(object):
         :return: None
         :rtype: None
         """
-
-        self.stop_deauthentication()
+        if self._should_continue:
+            self.stop_deauthentication()
+            self._send_deauth_packets_thread.join()
+            self._find_client_thread.join()
