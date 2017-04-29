@@ -340,8 +340,8 @@ class AccessPointFinder(object):
 
         :param self: An AccessPointFinder object
         :type self: AccessPointFinder
-        :return: None
-        :rtype: None
+        :return: An tuple of sniff and channel hop threads
+        :rtype: tuple
         """
 
         # start finding access points in a separate thread
