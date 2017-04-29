@@ -86,43 +86,6 @@ def get_hostapd():
         sys.exit(hostapd_message)
 
 
-def get_ifconfig():
-    """
-    Try to install ifconfig on host machine if not present
-
-    :return: None
-    :trype: None
-    """
-
-    # this is only useful for Arch Linux which does not contain
-    # ifconfig by default
-    if not find_executable("ifconfig"):
-        install = raw_input(("[" + constants.T + "*" + constants.W + "] ifconfig not found. " +
-                             "install now? [y/n] "))
-
-        if install == "y":
-            if os.path.isfile("/usr/bin/pacman"):
-                os.system("pacman -S net-tools")
-            else:
-                sys.exit(("\n[" + constants.R + "-" + constants.W + "] Don\'t know how to " +
-                          "install ifconfig for your distribution.\n[" + constants.G + "+" +
-                          constants.W + "] Rerun the script after installing it manually.\n[" +
-                          constants.R + "!" + constants.W + "] Closing"))
-        else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] ifconfig not found"))
-
-    if not find_executable("ifconfig"):
-        ifconfig_message = ("\n[" + constants.R + "-" + constants.W + "] Unable to install the " +
-                            "\"net-tools\" package!\n[" + constants.T + "*" + constants.W + "] " +
-                            "This process requires a persistent internet connection!\n[" +
-                            constants.G + "+" + constants.W + "] Run pacman -Syu to make sure " +
-                            "you are up to date first.\n[" + constants.G + "+" + constants.W +
-                            "] Rerun the script to " + "install net-tools.\n[" + constants.R +
-                            "!" + constants.W + "] Closing")
-
-        sys.exit(ifconfig_message)
-
-
 # setup settings
 NAME = "wifiphisher"
 AUTHOR = "sophron"
@@ -152,10 +115,9 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL)
 
-# Get hostapd, dnsmasq or ifconfig if needed
+# Get hostapd or dnsmasq if needed
 get_hostapd()
 get_dnsmasq()
-get_ifconfig()
 
 print()
 print("                     _  __ _       _     _     _               ")
