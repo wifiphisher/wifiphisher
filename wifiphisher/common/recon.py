@@ -340,8 +340,8 @@ class AccessPointFinder(object):
 
         :param self: An AccessPointFinder object
         :type self: AccessPointFinder
-        :return: None
-        :rtype: None
+        :return: An tuple of sniff and channel hop threads
+        :rtype: tuple
         """
 
         # start finding access points in a separate thread
@@ -351,6 +351,7 @@ class AccessPointFinder(object):
         # start channel hopping in a separate thread
         channel_hop_thread = threading.Thread(target=self._channel_hop)
         channel_hop_thread.start()
+        return sniff_packets_thread, channel_hop_thread
 
     def stop_finding_access_points(self):
         """
