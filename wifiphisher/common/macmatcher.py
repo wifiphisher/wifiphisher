@@ -4,7 +4,6 @@ This module was made to match MAC address with vendors
 
 import wifiphisher.common.constants as constants
 
-
 class MACMatcher(object):
     """
     This class handles Organizationally Unique Identifiers (OUIs).

@@ -105,6 +105,18 @@ def parse_args():
         help=("Fool the Windows Location Service of nearby Windows users "
               "to believe it is within an area that was previously captured "
               "with --lure10-capture. Part of the Lure10 attack."))
+    parser.add_argument(
+        "-iAM",
+        "--mac-ap-interface",
+        help=("Specify the MAC address of the AP interface"))
+    parser.add_argument(
+        "-iDM",
+        "--mac-deauth-interface",
+        help=("Specify the MAC addrress of the jamming interface"))
+    parser.add_argument(
+        "-iNM",
+        "--no-mac-randomization",
+        help=("Do not change any MAC address"), action='store_true')
 
     return parser.parse_args()
 
@@ -136,6 +148,12 @@ def check_args(args):
     if args.lure10_exploit and not os.path.isfile(LOCS_DIR + args.lure10_exploit):
         sys.exit(
             '[' + R + '-' + W + '] Lure10 capture does not exist. Listing directory of captures: ' + str(os.listdir(LOCS_DIR)))
+
+    if (args.mac_ap_interface and args.no_mac_randomization) or \
+            (args.mac_deauth_interface and args.no_mac_randomization):
+        sys.exit(
+            '[' + R + '-' + W + '] --no-mac-randomization (-iNM) cannot work together with --mac-ap-interface or '
+            '--mac-deauth-interface (-iDM)')
 
 
 def set_ip_fwd():
@@ -588,27 +606,55 @@ class WifiphisherEngine:
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
                        "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
                        "rogue Access Point").format(G, W, mon_iface.get_name(), ap_iface.get_name())
+                # randomize the mac addresses
+                if not args.no_mac_randomization:
+                    if not args.mac_ap_interface:
+                        self.network_manager.randomize_ap_interface_mac_addr()
+                    else:
+                        self.network_manager.randomize_ap_interface_mac_addr(args.mac_ap_interface)
+                    if not args.mac_deauth_interface:
+                        self.network_manager.randomize_deauth_interface_mac_addr()
+                    else:
+                        self.network_manager.randomize_deauth_interface_mac_addr(args.mac_deauth_interface)
             else:
                 if args.apinterface:
                     ap_iface = self.network_manager.get_ap_iface(
                         interface_name=args.apinterface)
                 else:
                     ap_iface = self.network_manager.get_ap_iface()
-                mon_iface = ap_iface
                 self.network_manager.set_ap_iface(ap_iface.get_name())
+                mon_iface = ap_iface
+
+                if not args.no_mac_randomization:
+                    if not args.mac_ap_interface:
+                        self.network_manager.randomize_ap_interface_mac_addr()
+                    else:
+                        self.network_manager.randomize_ap_interface_mac_addr(args.mac_ap_interface)
+
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                        "rogue Access Point").format(G, W, ap_iface.get_name())
-
+                # randomize the mac addresses
+                if not args.no_mac_randomization:
+                    ap_iface.randomize_interface_mac(args.mac_ap_interface)
             kill_interfering_procs()
             self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.NotEnoughInterfacesFoundError,
                 interfaces.JammingInterfaceInvalidError,
                 interfaces.ApInterfaceInvalidError,
                 interfaces.NoApInterfaceFoundError,
-                interfaces.NoMonitorInterfaceFoundError) as err:
+                interfaces.NoMonitorInterfaceFoundError,
+                interfaces.DeauthInterfaceMacAddrInvalidError,
+                interfaces.ApInterfaceMacAddrInvalidError) as err:
             print ("[{0}!{1}] " + str(err)).format(R, W)
             time.sleep(1)
             self.stop()
+
+        if not args.no_mac_randomization:
+            print ("[{0}+{1}] " + ap_iface.get_name() + ' mac address becomes '
+                     + ap_iface.get_current_mac()).format(G, W)
+            if not args.nojamming:
+                print ("[{0}+{1}] " + mon_iface.get_name() + ' mac address becomes '
+                     + mon_iface.get_current_mac()).format(G, W)
 
         if args.internetinterface:
             self.fw.nat(ap_iface.get_name(), args.internetinterface)
