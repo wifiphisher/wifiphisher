@@ -299,8 +299,7 @@ def select_access_point(screen, interface, mac_matcher):
     access_point_finder = recon.AccessPointFinder(interface)
     if args.lure10_capture:
         access_point_finder.capture_aps()
-    sniff_packet_thread, channel_hop_thread = access_point_finder.\
-            find_all_access_points()
+    access_point_finder.find_all_access_points()
 
     position = 1
     page_number = 1
@@ -366,15 +365,10 @@ def select_access_point(screen, interface, mac_matcher):
 
             # turn off access point discovery and return the result
             access_point_finder.stop_finding_access_points()
-            sniff_packet_thread.join()
-            channel_hop_thread.join()
             return access_points[position-1]
 
     # turn off access point discovery
     access_point_finder.stop_finding_access_points()
-    sniff_packet_thread.join()
-    channel_hop_thread.join()
-
 
 def key_movement(information):
     """
@@ -780,7 +774,7 @@ class WifiphisherEngine:
 
             # start deauthenticating all client on target access point
             deauthentication = deauth.Deauthentication(ap_mac,
-                                                       mon_iface.get_name())
+                                                       mon_iface.get_name(), ap_iface.get_current_mac())
             if args.lure10_exploit:
                 deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
             deauthentication.deauthenticate()

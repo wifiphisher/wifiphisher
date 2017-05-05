@@ -237,7 +237,12 @@ class NetworkAdapter(object):
         mac_addr = self._generate_random_address() if mac is None else mac
         card = pyw.getcard(self.get_name())
         pyw.down(card)
+        mode = pyw.modeget(card)
+        if mode != 'managed':
+            pyw.modeset(card, 'managed')
         pyw.macset(card, mac_addr)
+        #change to the original mode
+        pyw.modeset(card, mode)
         self._current_mac = mac_addr
    
 
