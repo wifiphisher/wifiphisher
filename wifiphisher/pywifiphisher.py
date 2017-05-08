@@ -15,7 +15,7 @@ from threading import Thread
 from subprocess import Popen, PIPE, check_output
 from shutil import copyfile
 from wifiphisher.common.constants import *
-import wifiphisher.common.deauth as deauth
+import wifiphisher.common.extensions as extensions
 import wifiphisher.common.recon as recon
 import wifiphisher.common.phishingpage as phishingpage
 import wifiphisher.common.phishinghttp as phishinghttp
@@ -555,6 +555,7 @@ class WifiphisherEngine:
         self.template_manager = phishingpage.TemplateManager()
         self.access_point = accesspoint.AccessPoint()
         self.fw = firewall.Fw()
+        self.em = None
 
     def stop(self):
         print "[" + G + "+" + W + "] Captured credentials:"
@@ -565,6 +566,8 @@ class WifiphisherEngine:
         self.template_manager.on_exit()
         self.access_point.on_exit()
         self.fw.on_exit()
+        if self.em:
+            self.em.on_exit()
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -778,12 +781,19 @@ class WifiphisherEngine:
             # set the channel on the deauthenticating interface
             mon_iface.set_channel(int(channel))
 
-            # start deauthenticating all client on target access point
-            deauthentication = deauth.Deauthentication(ap_mac,
-                                                       mon_iface.get_name())
-            if args.lure10_exploit:
-                deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
-            deauthentication.deauthenticate()
+            # Start Extension Manager
+            shared_data = {
+                'target_ap_channel': channel or "",
+                'target_ap_essid': essid or "",
+                'target_ap_bssid': ap_mac or "",
+                'target_ap_encryption': enctype or "",
+                'target_ap_logo_path': ap_logo_path or "",
+                'rogue_ap_mac': ap_mac,
+                'APs': APs_context, 
+                'args': args
+            }
+            self.em = extensions.ExtensionManager(mon_iface.get_name(), shared_data)
+            self.em.start_extensions()
 
         # Main loop.
         try:
@@ -800,19 +810,17 @@ class WifiphisherEngine:
                         print term.move(5, term.width - 30) + "|" + "_"*29
                         print term.move(1, 0) + term.blue("Deauthenticating clients: ")
                         if not args.nojamming:
-                            # only show clients when jamming
-                            if deauthentication.get_clients():
-                                # show the 5 most recent devices
-                                for client in deauthentication.get_clients()[-5:]:
-                                    print client
-                        print term.move(6,0) + term.blue("DHCP Leases: ")
+                            # show the 5 most recent entries
+                            for line in self.em.get_output()[-5:]:
+                                print line
+                        print term.move(7,0) + term.blue("DHCP Leases: ")
                         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                             proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
-                            print term.move(7,0) + proc
-                        print term.move(13,0) + term.blue("HTTP requests: ")
+                            print term.move(8,0) + proc
+                        print term.move(14,0) + term.blue("HTTP requests: ")
                         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                             proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
-                            print term.move(14,0) + proc
+                            print term.move(15,0) + proc
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:

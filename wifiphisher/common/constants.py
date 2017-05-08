@@ -9,6 +9,7 @@ path_to_project_root = os.path.abspath(
 dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
+EXTENSIONS = ["deauth", "lure10"]
 PORT = 8080
 SSL_PORT = 443
 CHANNEL = 6
