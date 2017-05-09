@@ -51,8 +51,8 @@ class Lure10(object):
         beacons = []
 
         if self.first:
-            if self.data["args"].lure10_exploit:
-                area_file = constants.LOCS_DIR + self.data["args"].lure10_exploit
+            if self.data.args.lure10_exploit:
+                area_file = constants.LOCS_DIR + self.data.args.lure10_exploit
                 with open(area_file) as f:
                     wlans = [x.strip() for x in f.readlines()]
                     for w in wlans:
@@ -85,7 +85,7 @@ class Lure10(object):
         :rtype: list
         """
 
-        if self.data["args"].lure10_exploit and self.first_output:
+        if self.data.args.lure10_exploit and self.first_output:
             return ["Lure10 - Sending " + \
                     str(self.beacons_num) + \
                    " beacons to spoof location service"]

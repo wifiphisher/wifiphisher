@@ -2,6 +2,7 @@ import os
 import importlib
 import constants
 import threading
+import collections
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 
@@ -52,6 +53,10 @@ class ExtensionManager():
         self._should_continue = True
         self._socket = linux.L2Socket(iface=self._interface)
         self._packets_to_send = [] 
+        # Convert shared_data from dict to named tuple
+        shared_data = collections.namedtuple('GenericDict', \
+                      shared_data.keys())(**shared_data)
+        print shared_data.target_ap_channel
         # Initialize all extensions with the shared data
         for m in constants.EXTENSIONS:
             mod = importlib.import_module("wifiphisher.extensions." + m)
@@ -115,7 +120,7 @@ class ExtensionManager():
     def _process_packet(self, pkt):
         """
         Gets the output of each extension.
-        Merges the outp outputs in a list and returns it.
+        Merges the outputs in a list and returns it.
 
         :param self: An ExtensionManager object
         :type self: ExtensionManager
