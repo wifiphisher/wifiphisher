@@ -33,10 +33,9 @@ class ExtensionManager():
       of strings the entry logs that need to be output.
     """
 
-    def __init__(self, interface, shared_data):
+    def __init__(self):
         """
-        Init the EM object. EM objects should be created 
-        when all shared data has been gathered.
+        Init the EM object. 
 
         :param self: An ExtensionManager object
         :type self: ExtensionManager
@@ -49,14 +48,40 @@ class ExtensionManager():
         """
 
         self._extensions = []
-        self._interface = interface
+        self._interface = None
+        self._socket = None
         self._should_continue = True
-        self._socket = linux.L2Socket(iface=self._interface)
         self._packets_to_send = [] 
+
+    def set_interface(self, interface):
+        """
+        Sets interface for EM.
+
+        :param interface: Interface name
+        :type interface: String
+        :return: None
+        :rtype: None
+        """
+
+        self._interface = interface
+        self._socket = linux.L2Socket(iface=self._interface)
+
+    def init_extensions(self, shared_data):
+        """
+        Init EM extensions. Should be run 
+        when all shared data has been gathered.
+
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager 
+        :param shared_data: Dictionary object
+        :type shared_data: Dictionary
+        :return: None
+        :rtype: None
+        """
+
         # Convert shared_data from dict to named tuple
         shared_data = collections.namedtuple('GenericDict', \
                       shared_data.keys())(**shared_data)
-        print shared_data.target_ap_channel
         # Initialize all extensions with the shared data
         for m in constants.EXTENSIONS:
             mod = importlib.import_module("wifiphisher.extensions." + m)

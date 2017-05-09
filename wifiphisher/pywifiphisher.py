@@ -555,7 +555,7 @@ class WifiphisherEngine:
         self.template_manager = phishingpage.TemplateManager()
         self.access_point = accesspoint.AccessPoint()
         self.fw = firewall.Fw()
-        self.em = None
+        self.em = extensions.ExtensionManager()
 
     def stop(self):
         print "[" + G + "+" + W + "] Captured credentials:"
@@ -566,8 +566,7 @@ class WifiphisherEngine:
         self.template_manager.on_exit()
         self.access_point.on_exit()
         self.fw.on_exit()
-        if self.em:
-            self.em.on_exit()
+        self.em.on_exit()
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -792,7 +791,8 @@ class WifiphisherEngine:
                 'APs': APs_context, 
                 'args': args
             }
-            self.em = extensions.ExtensionManager(mon_iface.get_name(), shared_data)
+            self.em.set_interface(mon_iface.get_name())
+            self.em.init_extensions(shared_data)
             self.em.start_extensions()
 
         # Main loop.
