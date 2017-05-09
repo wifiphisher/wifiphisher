@@ -144,8 +144,8 @@ class ExtensionManager():
 
     def _process_packet(self, pkt):
         """
-        Gets the output of each extension.
-        Merges the outputs in a list and returns it.
+        Pass each captured packet to each module.
+        Gets the packets to send.
 
         :param self: An ExtensionManager object
         :type self: ExtensionManager
