@@ -84,7 +84,7 @@ class ExtensionManager():
                       shared_data.keys())(**shared_data)
         # Initialize all extensions with the shared data
         for m in constants.EXTENSIONS:
-            mod = importlib.import_module("wifiphisher.extensions." + m)
+            mod = importlib.import_module(constants.EXTENSIONS_LOADPATH + m)
             Class = getattr(mod, m.title())
             obj = Class(shared_data)
             self._extensions.append(obj)

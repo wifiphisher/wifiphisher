@@ -10,6 +10,7 @@ dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
 EXTENSIONS = ["deauth", "lure10"]
+EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
 SSL_PORT = 443
 CHANNEL = 6
