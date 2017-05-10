@@ -1,15 +1,19 @@
-import os
+"""
+All logic regarding extensions management
+"""
+
 import importlib
-import constants
 import threading
 import collections
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
+import wifiphisher.common.constants as constants
 
-class ExtensionManager():
+
+class ExtensionManager(object):
     """
-    Extension Manager (EM) defines an API for modular 
-    architecture in Wifiphisher. 
+    Extension Manager (EM) defines an API for modular
+    architecture in Wifiphisher.
 
     All extensions that lie under "extensions" directory
     and are also defined in EXTENSIONS constant are loaded
@@ -19,7 +23,7 @@ class ExtensionManager():
 
     Each extension needs to be defined as a class that has
     the name of the filename in camelcase. For example,
-    deauth.py would have a Deauth() class. Currently, 
+    deauth.py would have a Deauth() class. Currently,
     extensions need to provide the following methods:
 
     * __init__(self, data): Basic initialization that
@@ -27,7 +31,7 @@ class ExtensionManager():
 
     * get_packet(self, pkt): Method to process individually
       each packet captured from the second card (monitor
-      mode). 
+      mode).
 
     * send_output(self): Method that returns in a list
       of strings the entry logs that need to be output.
@@ -35,14 +39,10 @@ class ExtensionManager():
 
     def __init__(self):
         """
-        Init the EM object. 
+        Init the EM object.
 
         :param self: An ExtensionManager object
         :type self: ExtensionManager
-        :param interface: String interface object
-        :type interface: String
-        :param shared_data: Dictionary object
-        :type shared_data: Dictionary
         :return: None
         :rtype: None
         """
@@ -51,7 +51,7 @@ class ExtensionManager():
         self._interface = None
         self._socket = None
         self._should_continue = True
-        self._packets_to_send = [] 
+        self._packets_to_send = []
 
     def set_interface(self, interface):
         """
@@ -68,11 +68,11 @@ class ExtensionManager():
 
     def init_extensions(self, shared_data):
         """
-        Init EM extensions. Should be run 
+        Init EM extensions. Should be run
         when all shared data has been gathered.
 
         :param self: An ExtensionManager object
-        :type self: ExtensionManager 
+        :type self: ExtensionManager
         :param shared_data: Dictionary object
         :type shared_data: Dictionary
         :return: None
@@ -80,20 +80,20 @@ class ExtensionManager():
         """
 
         # Convert shared_data from dict to named tuple
-        shared_data = collections.namedtuple('GenericDict', \
-                      shared_data.keys())(**shared_data)
+        shared_data = collections.namedtuple('GenericDict',
+                                             shared_data.keys())(**shared_data)
         # Initialize all extensions with the shared data
-        for m in constants.EXTENSIONS:
-            mod = importlib.import_module(constants.EXTENSIONS_LOADPATH + m)
-            Class = getattr(mod, m.title())
-            obj = Class(shared_data)
+        for extension in constants.EXTENSIONS:
+            mod = importlib.import_module(constants.EXTENSIONS_LOADPATH + extension)
+            ExtensionClass = getattr(mod, extension.title())
+            obj = ExtensionClass(shared_data)
             self._extensions.append(obj)
 
     def start_extensions(self):
         """
         Starts the two main daemons of EM:
 
-        1) Daemon that listens to every packet and 
+        1) Daemon that listens to every packet and
         forwards it to each extension for further processing.
         2) Daemon that receives special-crafted packets
         from extensions and broadcasts them in the air.
@@ -136,8 +136,8 @@ class ExtensionManager():
         """
 
         output = []
-        for m in self._extensions:
-            m_output = m.send_output()
+        for extension in self._extensions:
+            m_output = extension.send_output()
             if m_output and len(m_output) > 0:
                 output += m_output
         return output
@@ -155,8 +155,8 @@ class ExtensionManager():
         :rtype: None
         """
 
-        for m in self._extensions:
-            received_packets = m.get_packet(pkt)
+        for extension in self._extensions:
+            received_packets = extension.get_packet(pkt)
             if received_packets and len(received_packets) > 0:
                 self._packets_to_send += received_packets
 
@@ -166,7 +166,7 @@ class ExtensionManager():
         to _process_packet.
 
         :param self: An ExtensionManager object
-        :type self: ExtensionManager 
+        :type self: ExtensionManager
         :return: None
         :rtype: None
         """
@@ -182,7 +182,7 @@ class ExtensionManager():
         crafted by extensions.
 
         :param self: An ExtensionManager object
-        :type self: ExtensionManager 
+        :type self: ExtensionManager
         :return: None
         :rtype: None
         """
