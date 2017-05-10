@@ -52,6 +52,8 @@ class ExtensionManager(object):
         self._socket = None
         self._should_continue = True
         self._packets_to_send = []
+        self.listen_thread = threading.Thread(target=self._listen)
+        self.send_thread = threading.Thread(target=self._send)
 
     def set_interface(self, interface):
         """
@@ -105,12 +107,9 @@ class ExtensionManager(object):
         """
 
         # One daemon is listening for packets...
-        listen_thread = threading.Thread(target=self._listen)
-        listen_thread.start()
+        self.listen_thread.start()
         # ...another daemon is sending packets
-        send_thread = threading.Thread(
-            target=self._send)
-        send_thread.start()
+        self.send_thread.start()
 
     def on_exit(self):
         """
@@ -123,6 +122,8 @@ class ExtensionManager(object):
         """
 
         self._should_continue = False
+        self.listen_thread.join(5)
+        self.send_thread.join(5) 
 
     def get_output(self):
         """
@@ -160,6 +161,20 @@ class ExtensionManager(object):
             if received_packets and len(received_packets) > 0:
                 self._packets_to_send += received_packets
 
+    def _stopfilter(self, pkt):
+        """
+        A scapy filter to determine if we need to stop.
+
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
+        :param self: A Scapy packet object
+        :type self: Scapy Packet
+        :return: True or False
+        :rtype: Boolean
+        """
+
+        return not self._should_continue
+
     def _listen(self):
         """
         Listening thread. Listens for packets and forwards them
@@ -171,10 +186,15 @@ class ExtensionManager(object):
         :rtype: None
         """
 
-        # continue to find clients until told otherwise
-        while self._should_continue:
-            dot11.sniff(iface=self._interface, prn=self._process_packet,
-                        count=1, store=0)
+        try:
+            while self._should_continue:
+                # continue to find clients until told otherwise
+                dot11.sniff(iface=self._interface, prn=self._process_packet,
+                            count=1, store=0, stop_filter=self._stopfilter)
+        # Don't display "Network is down" if shutting down
+        except:
+            if not self._should_continue:
+                pass
 
     def _send(self):
         """
@@ -187,8 +207,16 @@ class ExtensionManager(object):
         :rtype: None
         """
 
-        while self._should_continue:
-            if len(self._packets_to_send) > 0:
-                while self._should_continue:
-                    for pkt in self._packets_to_send:
-                        self._socket.send(pkt)
+        try:
+            while self._should_continue:
+                if len(self._packets_to_send) > 0:
+                    while self._should_continue:
+                        for pkt in self._packets_to_send:
+                            self._socket.send(pkt)
+            time.sleep(1)
+            # Close socket
+            self._socket.close()
+        # Don't display "Network is down" if shutting down
+        except:
+            if not self._should_continue:
+                pass
