@@ -92,14 +92,3 @@ class Lure10(object):
                     str(self.beacons_num) +
                     " beacons to spoof location service"]
             self.first_output = False
-
-    def on_exit(self):
-        """
-        Do nothing on exit.
-
-        :param self: A Lure10 object
-        :return: None
-        :rtype: None
-        """
-
-        pass

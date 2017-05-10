@@ -139,14 +139,3 @@ class Deauth(object):
         """
 
         return ["DEAUTH/DISAS - " + c for c in self._observed_clients]
-
-    def on_exit(self):
-        """
-        Stop deauthing on exit.
-
-        :param self: A Deauthentication object
-        :return: None
-        :rtype: None
-        """
-
-        self._should_continue = False
