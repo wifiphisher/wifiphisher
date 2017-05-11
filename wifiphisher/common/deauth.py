@@ -43,10 +43,8 @@ class Deauthentication(object):
         self._should_continue = True
         self._jamming_interface = jamming_interface
         self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
-        self._send_deauth_packets_thread = threading.Thread(\
-                target = self._send_deauthentication_packets)
-        self._find_client_thread = threading.Thread(\
-                target=self._find_clients)
+        self._deauth_thread = None
+        self._find_client_thread = None
 
         # create a socket for sending packets
         self._socket = linux.L2Socket(iface=self._jamming_interface)
@@ -214,11 +212,14 @@ class Deauthentication(object):
         .. note: count has the default value of 20.
         """
 
+        self._deauth_thread = threading.Thread(target=self._send_deauthentication_packets)
+        self._find_client_thread = threading.Thread(target=self._find_clients)
+
         # start finding clients in a separate thread
         self._find_client_thread.start()
 
         # start deauthenticating in a separate thread
-        self._send_deauth_packets_thread.start()
+        self._deauth_thread.start()
 
     def on_exit(self):
         """
@@ -230,5 +231,5 @@ class Deauthentication(object):
         """
         if self._should_continue:
             self.stop_deauthentication()
-            self._send_deauth_packets_thread.join()
-            self._find_client_thread.join()
+            self._deauth_thread.join(10)
+            self._find_client_thread.join(10)

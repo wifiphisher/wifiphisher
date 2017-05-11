@@ -159,6 +159,8 @@ class AccessPointFinder(object):
         self._capture_file = False
         self._should_continue = True
         self._hidden_networks = list()
+        self._sniff_packets_thread = None
+        self._channel_hop_thread = None
 
         # filter used to remove non-client addresses
         self._non_client_addresses = (constants.WIFI_BROADCAST, constants.WIFI_INVALID,
@@ -345,13 +347,12 @@ class AccessPointFinder(object):
         """
 
         # start finding access points in a separate thread
-        sniff_packets_thread = threading.Thread(target=self._sniff_packets)
-        sniff_packets_thread.start()
+        self._sniff_packets_thread = threading.Thread(target=self._sniff_packets)
+        self._sniff_packets_thread.start()
 
         # start channel hopping in a separate thread
-        channel_hop_thread = threading.Thread(target=self._channel_hop)
-        channel_hop_thread.start()
-        return sniff_packets_thread, channel_hop_thread
+        self._channel_hop_thread = threading.Thread(target=self._channel_hop)
+        self._channel_hop_thread.start()
 
     def stop_finding_access_points(self):
         """
@@ -364,6 +365,9 @@ class AccessPointFinder(object):
         """
 
         self._should_continue = False
+        #wait for 10 second to join the threads
+        self._channel_hop_thread.join(10)
+        self._sniff_packets_thread.join(10)
 
     def get_all_access_points(self):
         """
