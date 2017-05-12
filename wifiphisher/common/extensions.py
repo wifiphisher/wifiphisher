@@ -122,8 +122,10 @@ class ExtensionManager(object):
         """
 
         self._should_continue = False
-        self.listen_thread.join(5)
-        self.send_thread.join(5) 
+        if self.listen_thread.is_alive():
+            self.listen_thread.join(5)
+        if self.send_thread.is_alive():
+            self.send_thread.join(5) 
 
     def get_output(self):
         """
