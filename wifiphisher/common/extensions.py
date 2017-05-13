@@ -2,6 +2,7 @@
 All logic regarding extensions management
 """
 
+import time
 import importlib
 import threading
 import collections
@@ -51,9 +52,34 @@ class ExtensionManager(object):
         self._interface = None
         self._socket = None
         self._should_continue = True
-        self._packets_to_send = []
+        self._packets_to_send = {str(k): [] for k in range(1, 12)}
+        self._packets_to_send["*"] = []
+        self._channels_to_hop = []
+        self._current_channel = "1"
         self.listen_thread = threading.Thread(target=self._listen)
         self.send_thread = threading.Thread(target=self._send)
+
+    def _channel_hop(self):
+        """
+        Change the interface's channel every three seconds
+
+        :param self: An AccessPointFinder object
+        :type self: AccessPointFinder
+        :return: None
+        :rtype: None
+        .. note: The channel range is between 1 to 13
+        """
+
+        # if the stop flag not set, change the channel
+        while self._should_continue:
+            for channel in self._channels_to_hop:
+                self._current_channel = channel
+                # added this check to reduce shutdown time
+                if self._should_continue:
+                    self._interface.set_channel(self._current_channel)
+                    time.sleep(3)
+                else:
+                    break
 
     def set_interface(self, interface):
         """
@@ -66,7 +92,7 @@ class ExtensionManager(object):
         """
 
         self._interface = interface
-        self._socket = linux.L2Socket(iface=self._interface)
+        self._socket = linux.L2Socket(iface=self._interface.get_name())
 
     def init_extensions(self, shared_data):
         """
@@ -86,7 +112,8 @@ class ExtensionManager(object):
                                              shared_data.keys())(**shared_data)
         # Initialize all extensions with the shared data
         for extension in constants.EXTENSIONS:
-            mod = importlib.import_module(constants.EXTENSIONS_LOADPATH + extension)
+            mod = importlib.import_module(
+                constants.EXTENSIONS_LOADPATH + extension)
             ExtensionClass = getattr(mod, extension.title())
             obj = ExtensionClass(shared_data)
             self._extensions.append(obj)
@@ -125,7 +152,24 @@ class ExtensionManager(object):
         if self.listen_thread.is_alive():
             self.listen_thread.join(5)
         if self.send_thread.is_alive():
-            self.send_thread.join(5) 
+            self.send_thread.join(5)
+
+    def get_channels(self):
+        """
+        Gets the channels from each extension.
+        Merges them to create a list of channels
+        to hop.
+
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
+        :return: None
+        :rtype: None
+        """
+
+        for extension in self._extensions:
+            channels_interested = extension.send_channels()
+            if channels_interested and len(channels_interested) > 0:
+                self._channels_to_hop += channels_interested
 
     def get_output(self):
         """
@@ -159,9 +203,10 @@ class ExtensionManager(object):
         """
 
         for extension in self._extensions:
-            received_packets = extension.get_packet(pkt)
+            channel_nums, received_packets = extension.get_packet(pkt)
             if received_packets and len(received_packets) > 0:
-                self._packets_to_send += received_packets
+                for c_num in channel_nums:
+                    self._packets_to_send[c_num] += received_packets
 
     def _stopfilter(self, pkt):
         """
@@ -189,12 +234,16 @@ class ExtensionManager(object):
         """
 
         try:
+            # continue to find clients until told otherwise
             while self._should_continue:
-                # continue to find clients until told otherwise
-                dot11.sniff(iface=self._interface, prn=self._process_packet,
-                            count=1, store=0, stop_filter=self._stopfilter)
+                dot11.sniff(
+                    iface=self._interface.get_name(),
+                    prn=self._process_packet,
+                    count=1,
+                    store=0,
+                    stop_filter=self._stopfilter)
         # Don't display "Network is down" if shutting down
-        except:
+        except OSError:
             if not self._should_continue:
                 pass
 
@@ -211,14 +260,14 @@ class ExtensionManager(object):
 
         try:
             while self._should_continue:
-                if len(self._packets_to_send) > 0:
-                    while self._should_continue:
-                        for pkt in self._packets_to_send:
-                            self._socket.send(pkt)
+                for pkt in self._packets_to_send[self._current_channel] + \
+                        self._packets_to_send["*"]:
+                    self._socket.send(pkt)
             time.sleep(1)
-            # Close socket
-            self._socket.close()
         # Don't display "Network is down" if shutting down
-        except:
+        except OSError:
             if not self._should_continue:
                 pass
+        finally:
+            # Close socket
+            self._socket.close()

@@ -13,6 +13,7 @@ path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
 sys.path.insert(0, path_to_project_root)
 os.chdir(path_to_project_root)
 
+import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.extensions as extensions
 import wifiphisher.common.constants as constants
 import scapy.layers.dot11 as dot11
@@ -28,7 +29,7 @@ class Extension1(object):
         self.data = shared_data
 
     def get_packet(self, pkt):
-        return [self.data.one]
+        return (["1"], [self.data.one])
 
     def send_output(self):
         return ["one", "two"]
@@ -45,7 +46,7 @@ class Extension2(object):
         self.vars = [2, 3, 4]
 
     def get_packet(self, pkt):
-        return self.vars
+        return (["1"], self.vars)
 
     def send_output(self):
         return ["three", "four", "five"]
@@ -73,7 +74,7 @@ class TestExtensionManager(unittest.TestCase):
     def test_single_extension(self):
         # Init an EM and pass some shared data
         em = extensions.ExtensionManager()
-        em.set_interface("wlan0")
+        em.set_interface(interfaces.NetworkAdapter("wlan0"))
         shared_data = {"one": 1, "two": 2}
         em.init_extensions(shared_data)
         # A deauth packet appears in the air
@@ -89,7 +90,8 @@ class TestExtensionManager(unittest.TestCase):
         em._process_packet(packet)
         # The extension1.py sent packet "1" and returned output
         # "one", "two". Validate with get_packet(), send_output()
-        assert em._packets_to_send == [1]
+        assert em._packets_to_send["1"] == [1]
+        assert em._packets_to_send["2"] == []
         assert em.get_output() == ["one", "two"]
 
     @mock.patch(
@@ -116,7 +118,7 @@ class TestExtensionManager(unittest.TestCase):
         em._process_packet(packet)
         # Packets to send have been merged from the two extensions
         # Validate with get_packet()
-        assert em._packets_to_send == [1, 2, 3, 4]
+        assert em._packets_to_send["1"] == [1, 2, 3, 4]
         # Output has also been merged in one list.
         # Validate with send_output()
         assert em.get_output() == ["one", "two", "three", "four", "five"]

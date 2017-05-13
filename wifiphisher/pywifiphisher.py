@@ -791,7 +791,7 @@ class WifiphisherEngine:
                 'APs': APs_context, 
                 'args': args
             }
-            self.em.set_interface(mon_iface.get_name())
+            self.em.set_interface(mon_iface)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
 

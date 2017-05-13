@@ -57,25 +57,21 @@ class Lure10(object):
                         # Frequency for channel 7
                         frequency = struct.pack("<h", 2407 + 7 * 5)
                         ap_rates = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
-                        frame = dot11.RadioTap(len=18, \
-                                   present='Flags+Rate+Channel+dBm_AntSignal+Antenna', \
-                                   notdecoded='\x00\x6c' + frequency + \
-                                   '\xc0\x00\xc0\x01\x00\x00') \
-                                   / dot11.Dot11(subtype=8, \
-                                       addr1='ff:ff:ff:ff:ff:ff', \
-                                       addr2=bssid, \
-                                       addr3=bssid) \
-                                   / dot11.Dot11Beacon(cap=0x2105) \
-                                   / dot11.Dot11Elt(ID='SSID', info="") \
-                                   / dot11.Dot11Elt(ID='Rates', info=ap_rates) \
-                                   / dot11.Dot11Elt(ID='DSset', \
-                                   info=chr(7))
+                        frame = dot11.RadioTap(len=18,
+                                               present='Flags+Rate+Channel+dBm_AntSignal+Antenna',
+                                               notdecoded='\x00\x6c' + frequency + '\xc0\x00\xc0\x01\x00\x00') / dot11.Dot11(subtype=8,
+                                                                                                                             addr1='ff:ff:ff:ff:ff:ff',
+                                                                                                                             addr2=bssid,
+                                                                                                                             addr3=bssid) / dot11.Dot11Beacon(cap=0x2105) / dot11.Dot11Elt(ID='SSID',
+                                                                                                                                                                                           info="") / dot11.Dot11Elt(ID='Rates',
+                                                                                                                                                                                                                     info=ap_rates) / dot11.Dot11Elt(ID='DSset',
+                                                                                                                                                                                                                                                     info=chr(7))
                         beacons.append(frame)
 
             self.beacons_num = len(beacons)
             self.first = False
 
-            return beacons
+        return (["*"], beacons)
 
     def send_output(self):
         """
@@ -92,3 +88,15 @@ class Lure10(object):
                     str(self.beacons_num) +
                     " beacons to spoof location service"]
             self.first_output = False
+
+    def send_channels(self):
+        """
+        Send all interested channels
+
+        :param self: A Lure10 object.
+        :type self: Lure10
+        :return: A list with all the channels interested.
+        :rtype: list
+        """
+
+        return [self._data.target_ap_channel]

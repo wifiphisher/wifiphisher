@@ -33,7 +33,7 @@ class Deauth(object):
         self._data = data
 
         # Craft and add deauth/disas packet to broadcast address
-        self._craft_packet(
+        self.packets_to_send = self._craft_packet(
             self._data.target_ap_bssid,
             constants.WIFI_BROADCAST)
 
@@ -110,9 +110,9 @@ class Deauth(object):
                     self._observed_clients.append(sender)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(sender,
-                                                      self._data.target_ap_bssid)
-                    deauth_pkts += self._craft_packet(
+                    self.packets_to_send += self._craft_packet(
+                        sender, self._data.target_ap_bssid)
+                    self.packets_to_send += self._craft_packet(
                         self._data.target_ap_bssid, sender)
 
                 # in case the sender is the access point
@@ -121,12 +121,12 @@ class Deauth(object):
                     self._observed_clients.append(receiver)
 
                     # create and add deauthentication packets for client
-                    deauth_pkts += self._craft_packet(
+                    self.packets_to_send += self._craft_packet(
                         receiver, self._data.target_ap_bssid)
-                    deauth_pkts += self._craft_packet(
+                    self.packets_to_send += self._craft_packet(
                         self._data.target_ap_bssid, receiver)
 
-        return deauth_pkts
+        return ([self._data.target_ap_channel], self.packets_to_send)
 
     def send_output(self):
         """
@@ -139,3 +139,15 @@ class Deauth(object):
         """
 
         return ["DEAUTH/DISAS - " + c for c in self._observed_clients]
+
+    def send_channels(self):
+        """
+        Send channes to subscribe.
+
+        :param self: A Deauthentication object.
+        :type self: Deauthentication
+        :return: A list with all interested channels.
+        :rtype: list
+        """
+
+        return [self._data.target_ap_channel]
