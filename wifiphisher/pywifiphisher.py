@@ -792,6 +792,10 @@ class WifiphisherEngine:
                 'args': args
             }
             self.em.set_interface(mon_iface)
+            extensions = constants.DEFAULT_EXTENSIONS
+            if args.lure10_exploit:
+                extensions.append(constants.LURE10_EXTENSION)
+            self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
 

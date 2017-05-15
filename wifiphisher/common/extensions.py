@@ -48,6 +48,7 @@ class ExtensionManager(object):
         :rtype: None
         """
 
+        self._extensions_str = []
         self._extensions = []
         self._interface = None
         self._socket = None
@@ -94,6 +95,18 @@ class ExtensionManager(object):
         self._interface = interface
         self._socket = linux.L2Socket(iface=self._interface.get_name())
 
+    def set_extensions(self, extensions):
+        """
+        Sets extensions for EM.
+
+        :param extensions: List of str extension names
+        :type extensions: List
+        :return: None
+        :rtype: None
+        """
+
+        self._extensions_str = extensions
+
     def init_extensions(self, shared_data):
         """
         Init EM extensions. Should be run
@@ -111,7 +124,7 @@ class ExtensionManager(object):
         shared_data = collections.namedtuple('GenericDict',
                                              shared_data.keys())(**shared_data)
         # Initialize all extensions with the shared data
-        for extension in constants.EXTENSIONS:
+        for extension in self._extensions_str:
             mod = importlib.import_module(
                 constants.EXTENSIONS_LOADPATH + extension)
             ExtensionClass = getattr(mod, extension.title())

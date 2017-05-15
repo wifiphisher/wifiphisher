@@ -67,14 +67,14 @@ class TestExtensionManager(unittest.TestCase):
             f.write(CONTENTS_EXTENSION_2)
             f.close()
 
-    @mock.patch("wifiphisher.common.constants.EXTENSIONS", ["extension1"])
+    @mock.patch("wifiphisher.common.constants.DEFAULT_EXTENSIONS", ["extension1"])
     @mock.patch(
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
         "tests.extensions.")
     def test_single_extension(self):
         # Init an EM and pass some shared data
         em = extensions.ExtensionManager()
-        em.set_interface(interfaces.NetworkAdapter("wlan0"))
+        em.set_extensions(constants.DEFAULT_EXTENSIONS)
         shared_data = {"one": 1, "two": 2}
         em.init_extensions(shared_data)
         # A deauth packet appears in the air
@@ -95,7 +95,7 @@ class TestExtensionManager(unittest.TestCase):
         assert em.get_output() == ["one", "two"]
 
     @mock.patch(
-        "wifiphisher.common.constants.EXTENSIONS", [
+        "wifiphisher.common.constants.DEFAULT_EXTENSIONS", [
             "extension1", "extension2"])
     @mock.patch(
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
@@ -103,6 +103,7 @@ class TestExtensionManager(unittest.TestCase):
     def test_multiple_extensions(self):
         # Init an EM and pass some shared data
         em = extensions.ExtensionManager()
+        em.set_extensions(constants.DEFAULT_EXTENSIONS)
         shared_data = {"one": 1, "two": 2}
         em.init_extensions(shared_data)
         # A deauth packet appears in the air
