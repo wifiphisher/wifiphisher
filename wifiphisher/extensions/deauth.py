@@ -90,8 +90,6 @@ class Deauth(object):
                  access point as they respond to the access point probes.
         """
 
-        deauth_pkts = []
-
         # check if the packet has a dot11 layer
         if packet.haslayer(dot11.Dot11):
             # get the sender and receiver

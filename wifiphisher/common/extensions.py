@@ -57,8 +57,9 @@ class ExtensionManager(object):
         self._packets_to_send["*"] = []
         self._channels_to_hop = []
         self._current_channel = "1"
-        self.listen_thread = threading.Thread(target=self._listen)
-        self.send_thread = threading.Thread(target=self._send)
+        self._listen_thread = threading.Thread(target=self._listen)
+        self._send_thread = threading.Thread(target=self._send)
+        self._channelhop_thread = threading.Thread(target=self._channel_hop)
 
     def _channel_hop(self):
         """
@@ -74,13 +75,21 @@ class ExtensionManager(object):
         # if the stop flag not set, change the channel
         while self._should_continue:
             for channel in self._channels_to_hop:
-                self._current_channel = channel
-                # added this check to reduce shutdown time
-                if self._should_continue:
-                    self._interface.set_channel(self._current_channel)
-                    time.sleep(3)
-                else:
-                    break
+                if self._current_channel != channel:
+                    self._current_channel = channel
+                    # added this check to reduce shutdown time
+                    if self._should_continue:
+                        try:
+                            self._socket.close()
+                            self._interface.set_channel(
+                                int(self._current_channel))
+                            self._socket = linux.L2Socket(
+                                iface=self._interface.get_name())
+                            time.sleep(1)
+                        except BaseException:
+                            continue
+                    else:
+                        break
 
     def set_interface(self, interface):
         """
@@ -147,9 +156,12 @@ class ExtensionManager(object):
         """
 
         # One daemon is listening for packets...
-        self.listen_thread.start()
+        self._listen_thread.start()
         # ...another daemon is sending packets
-        self.send_thread.start()
+        self._send_thread.start()
+        # daemon for channel hopping
+        self.get_channels()
+        self._channelhop_thread.start()
 
     def on_exit(self):
         """
@@ -162,10 +174,12 @@ class ExtensionManager(object):
         """
 
         self._should_continue = False
-        if self.listen_thread.is_alive():
-            self.listen_thread.join(5)
-        if self.send_thread.is_alive():
-            self.send_thread.join(5)
+        if self._listen_thread.is_alive():
+            self._listen_thread.join(3)
+        if self._send_thread.is_alive():
+            self._send_thread.join(3)
+        if self._channelhop_thread.is_alive():
+            self._send_thread.join(3)
 
     def get_channels(self):
         """
@@ -182,7 +196,9 @@ class ExtensionManager(object):
         for extension in self._extensions:
             channels_interested = extension.send_channels()
             if channels_interested and len(channels_interested) > 0:
-                self._channels_to_hop += channels_interested
+                # Append only new channels (no duplicates)
+                self._channels_to_hop += list(set(channels_interested) -
+                                              set(self._channels_to_hop))
 
     def get_output(self):
         """
@@ -275,7 +291,10 @@ class ExtensionManager(object):
             while self._should_continue:
                 for pkt in self._packets_to_send[self._current_channel] + \
                         self._packets_to_send["*"]:
-                    self._socket.send(pkt)
+                    try:
+                        self._socket.send(pkt)
+                    except BaseException:
+                        continue
             time.sleep(1)
         # Don't display "Network is down" if shutting down
         except OSError:
