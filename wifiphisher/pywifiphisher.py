@@ -774,7 +774,7 @@ class WifiphisherEngine:
 
             # start deauthenticating all client on target access point
             deauthentication = deauth.Deauthentication(ap_mac,
-                                                       mon_iface.get_name())
+                                                       mon_iface.get_name(), ap_iface.get_current_mac())
             if args.lure10_exploit:
                 deauthentication.add_lure10_beacons(LOCS_DIR + args.lure10_exploit)
             deauthentication.deauthenticate()
