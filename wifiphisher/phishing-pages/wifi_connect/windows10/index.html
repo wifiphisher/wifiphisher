@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <link rel='stylesheet' href='style.css' />
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    </head>
+    <body>
+        <div class='network-manager'>
+            <ul>
+                <li>
+                    <div class='wifi icon'>
+                        <div class='dot dot1'></div>
+                        <div class='small dot dot2'></div>
+                        <div class='small dot dot3'></div>
+                        <div class='small dot dot4'></div>
+                    </div>
+                    <div class='content'>
+                        <strong>PTCL_BB</strong>
+                        <span>Connected</span>
+                    </div>
+                </li>
+                <li class='selected'>
+                    <div class='wifi icon'>
+                        <div class='dot dot1'></div>
+                        <div class='small dot dot2'></div>
+                        <div class='small dot dot3'></div>
+                        <div class='small dot dot4'></div>
+                    </div>
+                    <div class='content'>
+                        <strong>eduroam</strong>
+                        <div class='disconnected'>
+                            <input id='automatic' type='checkbox' />
+                            <label for='automatic'>
+                                <div class='check'></div>
+                                Connect automatically
+                            </label>
+                            <button id='connect' class='connect'>Connect</button>
+                        </div>
+                        <div class='connected'>
+                            Enter the network security key
+                            <input id='password' type='password' />
+                            You can also connect by pushing the button on the
+                            router.
+
+                            <input id='share' type='checkbox' />
+                            <label for='share'>
+                                <div class='check'></div>
+                                Share network with my contacts
+                            </label>
+
+                            <button class='authenticate'>Next</button>
+                            <button class='cancel'>Cancel</button>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class='wifi icon'>
+                        <div class='dot dot1'></div>
+                        <div class='small dot dot2'></div>
+                        <div class='small dot dot3'></div>
+                        <div class='small dot dot4'></div>
+                    </div>
+                    <div class='content'>
+                        <strong>MY WIFI E2AF</strong>
+                    </div>
+                </li>
+            </ul>
+            <a href=''>Network settings</a>
+        </div>
+        <script src='behavior.js'></script>
+    </body>
+</html>

@@ -1,0 +1,148 @@
+.mac-wifi {
+  -webkit-user-select: none;
+  cursor: default;
+  font-family: "Helvetica Neue", sans-serif;
+  background-color: #ececec;
+  border-radius: 5px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  width: 452px;
+  height: 260px;
+  color: black;
+  position: absolute;
+}
+
+.mac-wifi .buttons {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 16px 18px 16px 16px;
+}
+
+.mac-wifi button {
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid #c5c5c5;
+  float: right;
+  font-size: 82%;
+  margin: 5px 5px 5px 7px;
+  outline: none;
+  width: 70px;
+  height: 21px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  font-weight: 400;
+}
+
+.mac-wifi button.action:enabled {
+  border: 1px solid #74aafd;
+  background-image: linear-gradient(#6cb3fa, #0a7eff);
+  color: white;
+}
+
+.mac-wifi button:focus:active {
+  background-image: linear-gradient(#4e98fa, #1469e1);
+  color: white;
+}
+
+.mac-wifi .password input:focus + .glow {
+  content: "";
+  display: block;
+  width: 248px;
+  height: 20px;
+  position: absolute;
+  left: 169px;
+  top: 115px;
+  border-radius: 4px;
+  border: 4px solid #94c2f3;
+  z-index: 1;
+}
+
+.mac-wifi input[type=password], .mac-wifi input[type=text] {
+  width: 250px;
+  height: 22px;
+  font-size: 80%;
+  padding: 0 0 0 2px;
+  border: 1px solid #ccc;
+  background-image: none !important; /* avoid LastPass icon */
+  position: relative;
+  z-index: 2;
+}
+
+.mac-wifi input[type=password]:focus, .mac-wifi input[type=text]:focus {
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.mac-wifi .title {
+  height: 20px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-top: 1px solid #cecece;
+  border-left: 1px solid #cecece;
+  border-right: 1px solid #cecece;
+  border-bottom: 1px solid #c0bfc0;
+  background-image: linear-gradient(white 1%, #e8e6e8 5%, #d2d0d2 100%);
+}
+
+.mac-wifi .icon {
+  float: left;
+  position: relative;
+  height: 200px;
+}
+
+.mac-wifi .content {
+  padding: 15px;
+  height: 207px;
+  border: 1px solid #aeaeae;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top: none;
+}
+
+.mac-wifi .checkmark {
+  margin: 0px 10px 0 67px;
+  font-size: 90%;
+}
+
+.mac-wifi .checkmark label {
+    padding: 0 0 0 3px;
+}
+
+.mac-wifi .description {
+  margin-left: 85px;
+}
+
+.mac-wifi strong {
+  user-select: none;
+  display: block;
+  margin: 11px 0 20px 0;
+  font-size: 90%;
+  line-height: 15px;
+  color: black;
+}
+
+.mac-wifi .password {
+  font-size: 110%;
+  margin: 40px 0 7px 0;
+  background-position: 150% 50% !important;
+}
+
+.mac-wifi .password label {
+  float: left;
+  font-size: 80%;
+  margin: 2px 9px 0 0;
+}
+
+.mac-wifi button[disabled] {
+  opacity: 0.4;
+}
+
+.mac-wifi .icon .question {
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+}
+
+.mac-wifi .icon .wifi-icon {
+  position: relative;
+  top: 7px;
+}

