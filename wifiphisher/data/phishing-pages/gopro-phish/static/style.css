@@ -1,0 +1,169 @@
+/*GENERAL*/
+html {
+  font-size: 62.5%; }
+body {
+  font-size: 1.5em;
+  line-height: 1.6;
+  font-weight: 400;
+  color: #222; }
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-weight: 300; }
+h1 { font-size: 4.0rem; line-height: 1.2;  letter-spacing: -.1rem;}
+h2 { font-size: 3.6rem; line-height: 1.25; letter-spacing: -.1rem; }
+h3 { font-size: 3.0rem; line-height: 1.3;  letter-spacing: -.1rem; }
+h4 { font-size: 2.4rem; line-height: 1.35; letter-spacing: -.08rem; }
+h5 { font-size: 1.8rem; line-height: 1.5;  letter-spacing: -.05rem; }
+h6 { font-size: 1.5rem; line-height: 1.6;  letter-spacing: 0; }
+@media (min-width: 550px) {
+  h1 { font-size: 5.0rem; }
+  h2 { font-size: 4.2rem; }
+  h3 { font-size: 3.6rem; }
+  h4 { font-size: 3.0rem; }
+  h5 { font-size: 2.4rem; }
+  h6 { font-size: 1.5rem; }
+}
+a {
+  color: #1EAEDB; }
+
+a:hover {
+  color: #0FA0CE; }
+
+.button,
+button,
+input[type="button"] {
+  display: inline-block;
+  height: 38px;
+  padding: 0 30px;
+  color: #bbb;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 38px;
+  letter-spacing: .1rem;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  box-sizing: border-box; }
+
+input[type="password"]{
+  height: 38px;
+  padding: 6px 10px;
+  background-color: #fff;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none; }
+
+input[type="password"]:focus{
+  border: 1px solid #33C3F0;
+  outline: 0; }
+
+label{
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600; }
+
+label > .label-body {
+  display: inline-block;
+  margin-left: .5rem;
+  font-weight: normal; }
+
+button,
+.button {
+  margin-bottom: 1rem; }
+input{
+  margin-bottom: 1.5rem; }
+
+form {
+  margin-bottom: 2.5rem; }
+
+@media (min-width: 400px) {}
+@media (min-width: 550px) {}
+@media (min-width: 750px) {}
+@media (min-width: 1000px) {}
+@media (min-width: 1200px) {}
+
+
+/* FONTS */
+@font-face {
+    font-family: light;
+    src: url("goproInc-light.woff");}
+
+@font-face {
+    font-family: medium;
+    src: url("goproInc-medium.woff");}
+
+body{
+  background-color: black;}
+
+/* INDEX */
+
+.needs{
+  color: white;
+  font-family: medium;
+  font-size: 5em;
+  padding-left: 2%;
+  padding-right: 2%;}
+
+.password-label{
+  color: white;
+  font-family: light;}
+
+.text-muted{
+  font-family: light;}
+
+#dialog{
+  display: none;}
+
+#dialog > h2{
+  color: #d80027;
+  font-family: light;
+  font-size: 1.3em;}
+
+@media only screen and (max-width: 800px){
+  .needs{
+    font-size: 200%;
+    padding-left: 0;
+    padding-right: 0;}
+
+  .logo{
+    width: 60%;
+    height: auto;}
+
+  #dialog > img{
+    width: 10%;
+    height: auto;}}
+
+
+/* LOADING */
+
+.progress{
+  width: 50%;}
+
+.patient{
+  color: white;
+  font-family: light;
+  font-size: 2em;
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+
+/* DONE */
+
+#timer{
+  color: white;
+  font-family: light;
+  padding-bottom: 2%;
+  padding-top: 5%;
+  font-size: 2em;
+}
