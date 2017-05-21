@@ -33,6 +33,21 @@ args = 0
 APs = {}  # for listing APs
 
 
+# logger for save terminal output while running the script 
+class Logger(object):
+	def __init__(self):
+		self.terminal = sys.stdout
+		self.log = open("logfile.log", "w")
+	
+	def write(self, message):
+        # writes on terminal
+		self.terminal.write(message)	
+
+        # writes to logfile and prevents the color strings to be wrote in the logfile
+		self.log.write(message.replace('\033[0m','').replace('\033[31m','').replace('\033[32m','').replace('\033[33m','').replace('\033[34m','').replace('\033[35m','').replace('\033[36m','').replace('\033[37m','').replace('\033[93m',''))
+
+sys.stdout = Logger()
+
 def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
