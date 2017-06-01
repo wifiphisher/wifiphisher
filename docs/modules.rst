@@ -7,11 +7,11 @@ Deauth Module
    :members:
 
 Interfaces Module
--------------
+------------------
 .. automodule:: interfaces
    :members:
 
 Firewall Module
--------------
+----------------
 .. automodule:: firewall
    :members:

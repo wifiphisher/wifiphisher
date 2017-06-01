@@ -13,7 +13,11 @@ Table Of Contents
    :maxdepth: 2
 
    getting_started.rst
+   users_guide.rst
+   api.rst
+   faq.rst
    modules.rst
+
 
 
 Indices and tables
@@ -22,4 +26,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
