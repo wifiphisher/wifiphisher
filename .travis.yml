@@ -9,7 +9,7 @@ python:
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y hostapd dnsmasq
+  - sudo apt-get install -y hostapd dnsmasq libdbus-1-dev libdbus-glib-1-dev
 
 install:
   - pip install pylint tox
@@ -17,6 +17,7 @@ install:
 
 script:
   - pylint --errors-only wifiphisher
+  - tox -e ALL
 
 branches:
   only:
