@@ -106,7 +106,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: System Administrators",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
-INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6"]
+INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6", "dbus-python"]
 
 
 # run setup

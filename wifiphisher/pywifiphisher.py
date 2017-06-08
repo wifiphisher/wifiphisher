@@ -493,7 +493,6 @@ def display_access_points(information, mac_matcher):
     screen.refresh()
     box.refresh()
 
-
 def kill_interfering_procs():
     # Kill any possible programs that may interfere with the wireless card
     # For systems with airmon-ng installed
@@ -563,8 +562,7 @@ class WifiphisherEngine:
         # to monitor mode. shutdown on any errors
         try:
             if args.internetinterface:
-                if (self.network_manager.is_interface_valid(args.internetinterface) and
-                        self.network_manager.is_interface_wired(args.internetinterface)):
+                if self.network_manager.is_interface_valid(args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
                     self.network_manager.unblock_interface(internet_interface)
             if not args.nojamming:
@@ -576,7 +574,6 @@ class WifiphisherEngine:
                         ap_iface = args.apinterface
                 else:
                     mon_iface, ap_iface = self.network_manager.get_interface_automatically()
-
                 # display selected interfaces to the user
                 print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
                        "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
@@ -616,12 +613,16 @@ class WifiphisherEngine:
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
 
-            kill_interfering_procs()
+            if not args.internetinterface:
+                kill_interfering_procs()
+
             self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InvalidInternetInterfaceError,
-                interfaces.InterfaceCantBeFoundError) as err:
+                interfaces.InterfaceCantBeFoundError,
+                interfaces.InterfaceManagedByNetworkManagerError) as err:
             print ("[{0}!{1}] {2}").format(R, W, err)
+
             time.sleep(1)
             self.stop()
 
@@ -634,7 +635,7 @@ class WifiphisherEngine:
                 print ("[{0}+{1}] {2} mac address becomes {3}".format(G, W, mon_iface, mon_mac))
 
         if args.internetinterface:
-            self.fw.nat(ap_iface.get_name(), args.internetinterface)
+            self.fw.nat(ap_iface, args.internetinterface)
             set_ip_fwd()
         else:
             self.fw.redirect_requests_localhost()
@@ -721,7 +722,7 @@ class WifiphisherEngine:
         if args.presharedkey:
             self.access_point.set_psk(args.presharedkey)
         if args.internetinterface:
-            self.access_point.set_internet_interface(args.presharedkey)
+            self.access_point.set_internet_interface(args.internetinterface)
         print '[' + T + '*' + W + '] Starting the fake access point...'
         try:
             self.access_point.start()

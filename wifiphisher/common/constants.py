@@ -45,3 +45,9 @@ P = '\033[35m'   # purple
 C = '\033[36m'   # cyan
 GR = '\033[37m'  # gray
 T = '\033[93m'   # tan
+
+#NM DBus Marcos
+NM_APP_PATH = 'org.freedesktop.NetworkManager'
+NM_MANAGER_OBJ_PATH = '/org/freedesktop/NetworkManager'
+NM_MANAGER_INTERFACE_PATH = 'org.freedesktop.NetworkManager'
+NM_DEV_INTERFACE_PATH = 'org.freedesktop.NetworkManager.Device'

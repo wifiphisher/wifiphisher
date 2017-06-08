@@ -2,6 +2,8 @@ sudo: required
 
 language: python
 
+dist: trusty
+
 python:
   - "2.7"
 
