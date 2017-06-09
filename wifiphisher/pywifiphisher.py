@@ -618,7 +618,6 @@ class WifiphisherEngine:
 
             self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
-                interfaces.InvalidInternetInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
                 interfaces.InterfaceManagedByNetworkManagerError) as err:
             print ("[{0}!{1}] {2}").format(R, W, err)
