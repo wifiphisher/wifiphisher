@@ -6,7 +6,7 @@ This module tries to install all the required software.
 from __future__ import print_function
 import sys
 import os
-from distutils.spawn import find_executable
+from ctypes.util import find_library
 from setuptools import setup, find_packages
 import wifiphisher.common.constants as constants
 
@@ -85,6 +85,46 @@ def get_hostapd():
 
         sys.exit(hostapd_message)
 
+
+def get_libdbus():
+    """
+    Try to install the libdbus
+    return: None
+    retype: None
+    """
+
+    # install the libdbus-1
+    if not find_library("dbus-1"):
+        install = raw_input(("[" + constants.T + "*" + constants.W + "] libdbus-1 not found " +
+                             "install now? [y/n] "))
+
+        if install == "y":
+            if os.path.isfile("/usr/bin/apt-get"):
+                os.system("apt-get -y install libdbus-1-dev")
+            else:
+                sys.exit(("[" + constants.R + "-" + constants.W + "] libdbus-1 not found. "
+                          "Please install libdbus-1 (i.e. using your package manager)"))
+        else:
+            sys.exit(("[" + constants.R + "-" + constants.W + "] libdbus-1 not found. "
+                      "Please install libdbus-1 (i.e. using your package manager)"))
+
+    # install the dbus-glib-1
+    if not find_library("dbus-glib-1"):
+        install = raw_input(("[" + constants.T + "*" + constants.W + "] dbus-glib-1 "
+                             "not found install now? [y/n] "))
+
+        if install == "y":
+            if os.path.isfile("/usr/bin/apt-get"):
+                os.system("apt-get -y install libdbus-glib-1-dev")
+            else:
+                sys.exit(("[" + constants.R + "-" + constants.W + "] libdbus-glib-1 not found. "
+                          "Please install libdbus-glib-1 (i.e. using your package manager)"))
+        else:
+            sys.exit(("[" + constants.R + "-" + constants.W + "] libdbus-glib-1 not found. "
+                      "Please install libdbus-glib-1 (i.e. using your package manager)"))
+
+# check the dbus related libraries first
+get_libdbus()
 
 # setup settings
 NAME = "wifiphisher"
