@@ -16,6 +16,7 @@ Table Of Contents
    users_guide.rst
    api.rst
    faq.rst
+   phishing_scenarios.rst
    modules.rst
 
 
