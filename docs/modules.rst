@@ -3,15 +3,15 @@ Module Documentaion
 
 Deauth Module
 -------------
-.. automodule:: deauth
+.. automodule:: wifiphisher.common.deauth
    :members:
 
 Interfaces Module
 ------------------
-.. automodule:: interfaces
+.. automodule:: wifiphisher.common.interfaces
    :members:
 
 Firewall Module
 ----------------
-.. automodule:: firewall
+.. automodule:: wifiphisher.common.firewall
    :members:
