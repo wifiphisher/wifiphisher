@@ -378,6 +378,21 @@ class TestNetworkManager(unittest.TestCase):
         message = "Failed to validate a valid interface"
         self.assertTrue(actual, message)
 
+    def test_is_interface_valid_invalid_interface_error(self):
+        """
+        Test is_interface_valid method when interface is already been chosen
+        """
+
+        interface_name = "wlan0"
+        interface_object = "Card Object"
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        self.network_manager._name_to_object[interface_name] = adapter
+        # mimic the card has been chosen
+        self.network_manager._active.add(interface_name)
+
+        with self.assertRaises(interfaces.InvalidInterfaceError):
+            self.network_manager.is_interface_valid(interface_name)
+
     def test_is_interface_valid_no_interface_error(self):
         """
         Tests is_interface_valid method when interface is non existent
