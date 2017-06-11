@@ -57,19 +57,25 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         :type self: tornado.web.RequestHandler
         :return: None
         :rtype: None
+        ..note: we only serve the Content-Type which starts with
+        "application/x-www-form-urlencoded" as a valid post request
         """
 
         global terminate
-        post_data = tornado.escape.url_unescape(self.request.body)
 
-        # log the data
-        log_file_path = "/tmp/wifiphisher-webserver.tmp"
-        with open(log_file_path, "a+") as log_file:
-            log_file.write("[{0}*{1}] {2}POST{1} request from {0}{3}{1} with {0}{4}{1}\n".format(
-                T, W, O, self.request.remote_ip, post_data))
+        # check if this is a valid phishing post request
+        if self.request.headers["Content-Type"].startswith(VALID_POST_CONTENT_TYPE):
 
-        creds.append(post_data)
-        terminate = True
+            post_data = tornado.escape.url_unescape(self.request.body)
+
+            # log the data
+            log_file_path = "/tmp/wifiphisher-webserver.tmp"
+            with open(log_file_path, "a+") as log_file:
+                log_file.write("[{0}*{1}] {2}POST{1} request from {0}{3}{1} with {0}{4}{1}\n"
+                               .format(T, W, O, self.request.remote_ip, post_data))
+
+            creds.append(post_data)
+            terminate = True
 
 
 def runHTTPServer(ip, port, ssl_port, t):
