@@ -142,6 +142,6 @@ Wifiphisher's current version is **1.3**. You can download the latest release fr
 
 * Usage of Wifiphisher for attacking infrastructures without prior mutual consistency can be considered as an illegal activity. It is the final user's responsibility to obey all applicable local, state and federal laws. Authors assume no liability and are not responsible for any misuse or damage caused by this program.
 
-<b>Note</b>: <a href="htts://wifiphisher.org">wifiphisher.org</a> and this page are the only official pages for wifiphisher. Other sites may be delivering malware.
+<b>Note</b>: Be aware of sites pretending to be related with the Wifiphisher Project. They may be delivering malware.
 
-For Wifiphisher news, follow me on Twitter: http://www.twitter.com/_sophron
+For Wifiphisher news, follow us on Twitter: https://www.twitter.com/wifiphisher
