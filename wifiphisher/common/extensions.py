@@ -38,7 +38,7 @@ class ExtensionManager(object):
       of strings the entry logs that need to be output.
     """
 
-    def __init__(self):
+    def __init__(self, network_manager):
         """
         Init the EM object.
 
@@ -48,6 +48,7 @@ class ExtensionManager(object):
         :rtype: None
         """
 
+        self._nm = network_manager
         self._extensions_str = []
         self._extensions = []
         self._interface = None
@@ -81,10 +82,10 @@ class ExtensionManager(object):
                     if self._should_continue:
                         try:
                             self._socket.close()
-                            self._interface.set_channel(
-                                int(self._current_channel))
+                            self._nm.set_interface_channel(
+                                self._interface, int(self._current_channel))
                             self._socket = linux.L2Socket(
-                                iface=self._interface.get_name())
+                                iface=self._interface)
                             time.sleep(1)
                         except BaseException:
                             continue
@@ -102,7 +103,7 @@ class ExtensionManager(object):
         """
 
         self._interface = interface
-        self._socket = linux.L2Socket(iface=self._interface.get_name())
+        self._socket = linux.L2Socket(iface=self._interface)
 
     def set_extensions(self, extensions):
         """
@@ -180,6 +181,7 @@ class ExtensionManager(object):
             self._send_thread.join(3)
         if self._channelhop_thread.is_alive():
             self._send_thread.join(3)
+        self._socket.close()
 
     def get_channels(self):
         """
@@ -262,19 +264,14 @@ class ExtensionManager(object):
         :rtype: None
         """
 
-        try:
-            # continue to find clients until told otherwise
-            while self._should_continue:
-                dot11.sniff(
-                    iface=self._interface.get_name(),
-                    prn=self._process_packet,
-                    count=1,
-                    store=0,
-                    stop_filter=self._stopfilter)
-        # Don't display "Network is down" if shutting down
-        except OSError:
-            if not self._should_continue:
-                pass
+        # continue to find clients until told otherwise
+        while self._should_continue:
+            dot11.sniff(
+                iface=self._interface,
+                prn=self._process_packet,
+                count=1,
+                store=0,
+                stop_filter=self._stopfilter)
 
     def _send(self):
         """
@@ -287,19 +284,11 @@ class ExtensionManager(object):
         :rtype: None
         """
 
-        try:
-            while self._should_continue:
-                for pkt in self._packets_to_send[self._current_channel] + \
-                        self._packets_to_send["*"]:
-                    try:
-                        self._socket.send(pkt)
-                    except BaseException:
-                        continue
-            time.sleep(1)
-        # Don't display "Network is down" if shutting down
-        except OSError:
-            if not self._should_continue:
-                pass
-        finally:
-            # Close socket
-            self._socket.close()
+        while self._should_continue:
+            for pkt in self._packets_to_send[self._current_channel] + \
+                    self._packets_to_send["*"]:
+                try:
+                    self._socket.send(pkt)
+                except BaseException:
+                    continue
+        time.sleep(1)

