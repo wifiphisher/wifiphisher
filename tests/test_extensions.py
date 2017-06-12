@@ -72,8 +72,10 @@ class TestExtensionManager(unittest.TestCase):
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
         "tests.extensions.")
     def test_single_extension(self):
+        # We need a NM to init EM
+        nm = interfaces.NetworkManager()
         # Init an EM and pass some shared data
-        em = extensions.ExtensionManager()
+        em = extensions.ExtensionManager(nm)
         em.set_extensions(constants.DEFAULT_EXTENSIONS)
         shared_data = {"one": 1, "two": 2}
         em.init_extensions(shared_data)
@@ -101,8 +103,10 @@ class TestExtensionManager(unittest.TestCase):
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
         "tests.extensions.")
     def test_multiple_extensions(self):
+        # We need a NM to init EM
+        nm = interfaces.NetworkManager()
         # Init an EM and pass some shared data
-        em = extensions.ExtensionManager()
+        em = extensions.ExtensionManager(nm)
         em.set_extensions(constants.DEFAULT_EXTENSIONS)
         shared_data = {"one": 1, "two": 2}
         em.init_extensions(shared_data)
