@@ -552,6 +552,9 @@ class WifiphisherEngine:
         if os.geteuid():
             sys.exit('[' + R + '-' + W + '] Please run as root')
 
+        if not args.internetinterface:
+            interfaces.toggle_networking(False)
+
         self.network_manager.start()
 
         # TODO: We should have more checks here:
