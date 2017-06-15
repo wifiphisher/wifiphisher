@@ -157,6 +157,10 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
         # setup network_manager object
         self.network_manager = mock.MagicMock()
         self.network_manager.GetDevices.return_value = ['wlan0', 'wlan1']
+        # setup for test enable_enable_network_manager
+        # Get returns the attribute of NetworkingEnabled
+        self.network_manager.Get.return_value = True
+        self.network_manager.Enable.return_value = None
 
         # setup device_0 object
         self.interface_0 = 'wlan0'
@@ -225,6 +229,20 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
                 return self.device_proxy_1
 
         return bus_side_effect
+
+    @mock.patch('dbus.Interface')
+    @mock.patch('dbus.SystemBus')
+    def test_toggle_networking_has_disable_nm_true(
+            self, fake_bus, fake_interface):
+        """
+        Test enable_network_manager disabling the NetworkManager
+        """
+        fake_bus.return_value = self.bus
+        fake_interface.side_effect = self.get_interface()
+        # disable the network manager
+        interfaces.toggle_networking(False)
+        message = "function attr has_disable_nm should be true"
+        self.assertTrue(interfaces.toggle_networking.has_disable_nm, message)
 
     @mock.patch('dbus.Interface')
     @mock.patch('dbus.SystemBus')

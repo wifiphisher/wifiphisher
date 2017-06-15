@@ -623,13 +623,79 @@ class NetworkManager(object):
                 mac_address = adapter.original_mac_address
                 self.set_interface_mac(interface, mac_address)
 
+        if (hasattr(toggle_networking, 'has_disable_nm') and
+                toggle_networking.has_disable_nm):
+            # recover the network manager if we have disabled it in the past
+            toggle_networking(True)
+
+
+def get_network_manager_objects(system_bus):
+    """
+    Get the required objects that implement the given interface_paths
+
+    :param system_bus: SystemBus used to control the NetworkManager
+    :type system_bus: dbus.SystemBus
+    :return tuple of network manager and property accesser
+    :rtype: tuple
+    """
+
+    # get the network manager proxy
+    network_manager_proxy = system_bus.get_object(
+        constants.NM_APP_PATH, constants.NM_MANAGER_OBJ_PATH)
+    # get the network manager object that implements the NM_MANAGER_INTERFACE
+    network_manager = dbus.Interface(
+        network_manager_proxy,
+        dbus_interface=constants.NM_MANAGER_INTERFACE_PATH)
+    # get the network manager prperty accesser
+    prop_accesser = dbus.Interface(
+        network_manager_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
+    return network_manager, prop_accesser
+
+
+def toggle_networking(nm_enable):
+    """
+    Enable or Disable the NetworkManager
+
+    :param enable: Enable the network manager if True and disable the
+    network manager if False
+    :type enable: bool
+    :return None
+    :rtype: None
+    .. note: Disable the network manager when we don't want to access
+    internet via it. If there is no network manager dbus-service alive
+    accessing the dbus will cause exception. This exception can be safely
+    pass since when network manager is not running, we don't need to disable
+    and recover it back.
+    """
+
+    bus = dbus.SystemBus()
+    toggle_networking.has_disable_nm = False
+    try:
+        network_manager, prop_accesser = get_network_manager_objects(bus)
+        # check if NetworkManager is enabled
+        is_nm_enable = prop_accesser.Get(
+            constants.NM_MANAGER_INTERFACE_PATH, 'NetworkingEnabled')
+
+        # if NetworkManager is not enable and we want to enable it
+        if not is_nm_enable and nm_enable:
+            network_manager.Enable(True)
+        # if NetworkManager is enable and we want to disable it
+        elif is_nm_enable and not nm_enable:
+            # function attribute used to recover the NetworkManager back
+            toggle_networking.has_disable_nm = True
+            network_manager.Enable(False)
+
+    # NetworkManager service is not running so the devices must be unmanaged
+    except dbus.exceptions.DBusException:
+        pass
+
 
 def is_managed_by_network_manager(interface_name):
     """
     Check if the interface is managed by NetworkManager
 
-    :param network_adapter: A NetworkAdapter object
-    :type interface_name: NetworkAdapter
+    :param interface_name: An interface name
+    :type interface_name: str
     :return if managed by NetworkManager return True
     :rtype: bool
     .. note: When the NetworkManager service is not running, using bus.get_object
@@ -646,14 +712,8 @@ def is_managed_by_network_manager(interface_name):
     bus = dbus.SystemBus()
     is_managed = False
     try:
-        # get the network manager proxy
-        network_manager_proxy = bus.get_object(
-            constants.NM_APP_PATH, constants.NM_MANAGER_OBJ_PATH)
-        # get the network manager object that implements the NM_MANAGER_INTERFACE
-        network_manager = dbus.Interface(
-            network_manager_proxy,
-            dbus_interface=constants.NM_MANAGER_INTERFACE_PATH)
-
+        # we only need the first returning value for network manager object
+        network_manager = get_network_manager_objects(bus)[0]
         # get all the wireless devices
         devices = network_manager.GetDevices()
         for dev_obj_path in devices:
