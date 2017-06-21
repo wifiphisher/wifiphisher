@@ -181,7 +181,12 @@ class ExtensionManager(object):
             self._send_thread.join(3)
         if self._channelhop_thread.is_alive():
             self._send_thread.join(3)
-        self._socket.close()
+        # Close socket if it's open
+        try:
+            self._socket.close()
+        except AttributeError:
+            pass
+            
 
     def get_channels(self):
         """
