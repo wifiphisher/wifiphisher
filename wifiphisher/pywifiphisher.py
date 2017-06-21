@@ -826,7 +826,6 @@ class WifiphisherEngine:
         clients_APs = []
         APs = []
 
-        deauthentication = None
         if not args.nojamming:
             # Start Extension Manager
             shared_data = {
@@ -879,8 +878,6 @@ class WifiphisherEngine:
                         if phishinghttp.terminate and args.quitonsuccess:
                             raise KeyboardInterrupt
         except KeyboardInterrupt:
-            if deauthentication is not None:
-                deauthentication.on_exit()
             self.stop()
 
 
