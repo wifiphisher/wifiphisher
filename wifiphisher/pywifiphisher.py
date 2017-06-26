@@ -112,7 +112,7 @@ def parse_args():
     parser.add_argument(
         "-iDM",
         "--mac-deauth-interface",
-        help=("Specify the MAC addrress of the jamming interface"))
+        help=("Specify the MAC address of the jamming interface"))
     parser.add_argument(
         "-iNM",
         "--no-mac-randomization",
@@ -316,11 +316,11 @@ class WifiphisherEngine:
 
         if not args.no_mac_randomization:
             ap_mac = self.network_manager.get_interface_mac(ap_iface)
-            print "[{0}+{1}] {2} mac address becomes is now {3} ".format(G, W, ap_iface, ap_mac)
+            print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, ap_iface, ap_mac)
 
             if not args.nojamming:
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
-                print ("[{0}+{1}] {2} mac address becomes {3}".format(G, W, mon_iface, mon_mac))
+                print ("[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, mon_iface, mon_mac))
 
         if args.internetinterface:
             self.fw.nat(ap_iface, args.internetinterface)
