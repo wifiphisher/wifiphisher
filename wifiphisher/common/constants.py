@@ -58,3 +58,6 @@ NM_DEV_INTERFACE_PATH = 'org.freedesktop.NetworkManager.Device'
 
 # Phishinghttp
 VALID_POST_CONTENT_TYPE = "application/x-www-form-urlencoded"
+#TUI
+MAIN_TUI_ATTRS = 'version essid channel ap_iface deauthentication phishinghttp args'
+AP_SEL_ATTRS = 'interface mac_matcher network_manager args'

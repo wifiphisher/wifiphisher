@@ -1,12 +1,13 @@
+import logging
 import tornado.ioloop
 import tornado.web
 import os.path
-import logging
+from wifiphisher.common.constants import *
+
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
 logging.getLogger('tornado.access').disabled = True
 logging.getLogger('tornado.general').disabled = True
-from wifiphisher.common.constants import *
 
 template = False
 terminate = False
@@ -46,8 +47,8 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
 
         log_file_path = "/tmp/wifiphisher-webserver.tmp"
         with open(log_file_path, "a+") as log_file:
-            log_file.write("[{0}*{1}]{2} GET {1} request from {0}{3}{1} for {0}{4}{1}\n".format(
-                T, W, O, self.request.remote_ip, self.request.full_url()))
+            log_file.write("GET request from {0} for {1}\n".format(
+                self.request.remote_ip, self.request.full_url()))
 
     def post(self):
         """
@@ -67,12 +68,11 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         if self.request.headers["Content-Type"].startswith(VALID_POST_CONTENT_TYPE):
 
             post_data = tornado.escape.url_unescape(self.request.body)
-
             # log the data
             log_file_path = "/tmp/wifiphisher-webserver.tmp"
             with open(log_file_path, "a+") as log_file:
-                log_file.write("[{0}*{1}] {2}POST{1} request from {0}{3}{1} with {0}{4}{1}\n"
-                               .format(T, W, O, self.request.remote_ip, post_data))
+                log_file.write("POST request from {0} with {1}\n".format(
+                    self.request.remote_ip, post_data))
 
             creds.append(post_data)
             terminate = True
