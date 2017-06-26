@@ -513,8 +513,8 @@ class TuiApSel(object):
         ap_info.box.border(0)
 
         # show the header
-        header = ("{0:30} {1:17} {2:2} {3:3} {4:7} {5:20}".format(
-            "ESSID", "BSSID", "CH", "PWR", "CLIENTS", "VENDOR"))
+        header = ("{0:30} {1:16} {2:3} {3:4} {4:5} {5:5} {6:20}".format(
+            "ESSID", "BSSID", "CH", "PWR", "ENCR", "CLIENTS", "VENDOR"))
         screen.addstr(1, 3,
                       ("Options:  [Esc] Quit  [Up Arrow] Move Up  "
                        "[Down Arrow] Move Down"))
@@ -536,11 +536,12 @@ class TuiApSel(object):
                     access_point.get_mac_address())
 
                 # the display format for showing access points
-                display_text = ("{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:20}"
+                display_text = ("{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:^5} {6:20}"
                                 .format(access_point.get_name(),
                                         access_point.get_mac_address(),
                                         access_point.get_channel(),
                                         access_point.get_signal_strength(),
+                                        access_point.get_encryption(),
                                         access_point.
                                         get_number_connected_clients(),
                                         vendor))
