@@ -4,6 +4,7 @@ the program
 """
 
 import random
+from collections import defaultdict
 import pyric
 import pyric.pyw as pyw
 import dbus
@@ -425,9 +426,41 @@ class NetworkManager(object):
         if interface_name in self._active:
             raise InvalidInterfaceError(interface_name)
 
-        # add the valid card to _active set
         self._active.add(interface_name)
         return True
+
+    def up_interface(self, interface_name):
+        """
+        Equivalent to ifconfig interface_name up
+
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :type self: NetworkManager
+        :type interface_name: str
+        :return: None
+        :rtype: None
+        ..note: Let the pywifiphisher decide when to up the
+        interface since some cards cannot up two virtual interface
+        with managed mode in the same time.
+        """
+
+        card = self._name_to_object[interface_name].card
+        pyw.up(card)
+
+    def down_interface(self, interface_name):
+        """
+        Equivalent to ifconfig interface_name down
+
+        :param self: A NetworkManager object
+        :param interface_name: Name of an interface
+        :type self: NetworkManager
+        :type interface_name: str
+        :return: None
+        :rtype: None
+        """
+
+        card = self._name_to_object[interface_name].card
+        pyw.down(card)
 
     def set_interface_mac(self, interface_name, mac_address):
         """
@@ -443,15 +476,13 @@ class NetworkManager(object):
         :rtype: None
         .. note: This method will set the interface to managed mode
         """
-
         card = self._name_to_object[interface_name].card
         self.set_interface_mode(interface_name, "managed")
 
+        self.down_interface(interface_name)
         # card must be turned off(down) before setting mac address
         try:
-            pyw.down(card)
             pyw.macset(card, mac_address)
-            pyw.up(card)
         # make sure to catch an invalid mac address
         except pyric.error as error:
             if error[0] == 22:
@@ -485,6 +516,7 @@ class NetworkManager(object):
         :rtype: None
         .. note: This method will set the interface to managed mode.
             Also the first 3 octets are always 00:00:00 by default
+            Only set the mac address when card is in down state
         """
 
         # generate a new mac address and set it to adapter's new address
@@ -508,14 +540,13 @@ class NetworkManager(object):
         :rtype: None
         .. note: Available modes are unspecified, ibss, managed, AP
             AP VLAN, wds, monitor, mesh, p2p
+            Only set the mode when card is in the down state
         """
 
         card = self._name_to_object[interface_name].card
-
+        self.down_interface(interface_name)
         # set interface mode between brining it down and up
-        pyw.down(card)
         pyw.modeset(card, mode)
-        pyw.up(card)
 
     def get_interface(self, has_ap_mode=False, has_monitor_mode=False):
         """
@@ -658,6 +689,111 @@ class NetworkManager(object):
                 mac_address = adapter.original_mac_address
                 self.set_interface_mac(interface, mac_address)
 
+
+def add_virtual_interface(card):
+    """
+    Add the virtual interface to the host system
+    :param card: A pyw.Card object
+    :type card: pyw.Card
+    :return name of the interface
+    :rtype str
+    :..note: when add the interface it is possible raising the
+    pyric.error causing by adding the duplicated wlan interface
+    name.
+    """
+
+    done_flag = True
+    number = 0
+    while done_flag:
+        try:
+            number += 1
+            name = 'wlan' + str(number)
+            pyw.down(card)
+            pyw.devadd(card, name, 'monitor')
+            done_flag = False
+        # catch if wlan1 is already exist
+        except pyric.error:
+            pass
+    return name
+
+def is_add_vif_required(args):
+    """
+    Return the card if only that card support both monitor and ap
+    :param args: Arguemnt from pywifiphisher
+    :type args: parse.args
+    :return: tuple of card and is_frequency_hop_allowed
+    :rtype: tuple
+    """
+
+    def get_perfect_card(phy_map_vifs, vif_score_tups):
+        """
+        Get the perfect card that both supports ap and monitor when we
+        have only one phy interface can do that
+        :param phy_map_vifs: phy number maps to the virtual interfaces
+        :param vif_score_tups: list of tuple containing card and score
+        :type phy_map_vifs: dict
+        :type vif_score_tups: list
+        :return tuple of card and single_perfect_phy_case
+        :rtype: tuple
+        """
+        # case 1 : one phy maps to one virtual interface
+        if len(phy_map_vifs) == 1 and len(phy_map_vifs.values()[0]) == 1:
+            # only take the first tuple
+            vif_score_tuple = vif_score_tups[0]
+            card = vif_score_tuple[0]
+            score = vif_score_tuple[1]
+            # if this card support both monitor and AP mode
+            if score == 2:
+                return card, True
+        # case 2 : one phy maps to multiple virtual interfaces
+        # we don't need to create one more virtual interface in this case
+        elif len(phy_map_vifs) == 1 and len(phy_map_vifs.values()[0]) > 1:
+            return None, True
+        # case 3 : we have multiple phy interfaces but only
+        # one card support both monitor and AP and the other
+        # ones just support the managed mode only
+        elif len(phy_map_vifs) > 1:
+            if vif_score_tups[0][1] == 2 and vif_score_tups[1][1] == 0:
+                return vif_score_tups[0][0], True
+        return None, False
+
+    # map the phy interface to virtual interfaces
+    # i.e. phy0 to wlan0
+    phy_to_vifs = defaultdict(list)
+    # use to store the phy number for the internet access
+    invalid_phy_number = None
+    if args.internetinterface:
+        card = pyw.getcard(args.internetinterface)
+        invalid_phy_number = card.phy
+
+    # map the phy# to the virtual interface tuples
+    for vif in [vif for vif in pyw.interfaces() if pyw.iswireless(vif)]:
+        # excluding the card that used for internet accessing
+        # setup basic card information
+        score = 0
+        card = pyw.getcard(vif)
+        phy_number = card.phy
+        if phy_number == invalid_phy_number:
+            continue
+
+        supported_modes = pyw.devmodes(card)
+
+        if "monitor" in supported_modes:
+            score += 1
+        if "AP" in supported_modes:
+            score += 1
+
+        phy_to_vifs[phy_number].append((card, score))
+
+    # each phy number map to a sublist containing (card, score)
+    vif_score_tuples = [sublist[0] for sublist in phy_to_vifs.values()]
+    # sort with score
+    vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
+
+    perfect_card, is_single_perfect_phy = get_perfect_card(phy_to_vifs,
+                                                           vif_score_tuples)
+
+    return perfect_card, is_single_perfect_phy
 
 def get_network_manager_objects(system_bus):
     """

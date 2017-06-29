@@ -583,9 +583,7 @@ class TestNetworkManager(unittest.TestCase):
 
         self.network_manager.set_interface_mode(interface_name, mode)
 
-        pyric.down.assert_called_once_with(interface_object)
         pyric.modeset.assert_called_once_with(interface_object, mode)
-        pyric.up.assert_called_once_with(interface_object)
 
     def test_get_interface_no_interface_error(self):
         """
@@ -1092,6 +1090,206 @@ class TestNetworkManager(unittest.TestCase):
         self.network_manager._active.add(interface_name)
 
         self.assertEqual(self.network_manager.get_interface_mac(interface_name), self.mac_address)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_up_interface(self, pyric):
+        """
+        Test interface up
+        """
+        interface_name = "wlan0"
+        interface_object = "Card Object"
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        self.network_manager._name_to_object[interface_name] = adapter
+        self.network_manager.up_interface(interface_name)
+        pyric.up.assert_called_once_with(adapter.card)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_down_interface(self, pyric):
+        """
+        Test interface down
+        """
+        interface_name = "wlan0"
+        interface_object = "Card Object"
+        adapter = interfaces.NetworkAdapter(interface_name, interface_object, self.mac_address)
+        self.network_manager._name_to_object[interface_name] = adapter
+        self.network_manager.down_interface(interface_name)
+        pyric.down.assert_called_once_with(adapter.card)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_add_virtual_interface_success(self, pyric):
+        """
+        Test add_virtual_interface correctly add vif
+        """
+
+        card = mock.Mock()
+        pyric.down.return_value = None
+        pyric.devadd.return_value = None
+        actual = interfaces.add_virtual_interface(card)
+        expected = 'wlan1'
+        self.assertEqual(actual, expected)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_add_virtual_interface_first_run_error_second_run_success(self, mock_pyric):
+        """
+        Test add_virtual_interface when the interface name already exist
+        This case should return pyric.error for the first time
+        """
+
+        card = mock.Mock()
+        exceptions = iter([pyric.error(22, "interface name exists")])
+
+        def side_effect(*args):
+            try:
+                raise next(exceptions)
+            except StopIteration:
+                return
+        mock_pyric.down.return_value = None
+        mock_pyric.devadd.side_effect = side_effect
+        expected = 'wlan2'
+        actual = interfaces.add_virtual_interface(card)
+        self.assertEqual(actual, expected)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_add_vif_required_one_phy_one_vif_tuple_card_true(self, pyric):
+        """
+        Test only has one card support both monitor and ap
+        This case should return tuple of card and this the single phy case
+        """
+        args = mock.Mock()
+        args.internetinterface = None
+        card = mock.Mock()
+        card.phy = "phy0"
+        pyric.interfaces.return_value = ["wlan0"]
+        pyric.iswireless.return_value = True
+        pyric.getcard.return_value = card
+        pyric.devmodes.return_value = ["monitor", "AP"]
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        self.assertEqual(actual_card, card)
+        self.assertEqual(is_single_perfect_card, True)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_add_vif_required_one_phy_two_vifs_tuple_none_true(self, pyric):
+        """
+        Test only has one card support both monitor and ap but the number of
+        virtual interfaces are already greater than 2
+        """
+
+        args = mock.Mock()
+        args.internetinterface = None
+        card = mock.Mock()
+        card.phy = "phy0"
+        pyric.interfaces.return_value = ["wlan0", "wlan1"]
+        pyric.iswireless.return_value = True
+        pyric.getcard.return_value = card
+        pyric.devmodes.return_value = ["monitor", "AP"]
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        self.assertEqual(actual_card, None)
+        self.assertEqual(is_single_perfect_card, True)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_add_vif_required_two_phy_two_vifs_tuple_card_true(self, pyric):
+        """
+        Test the system has two cards but only one phy supports both AP and
+        monitor
+        """
+
+        card0 = mock.Mock()
+        card0.phy = "phy0"
+        card1 = mock.Mock()
+        card1.phy = "phy1"
+        args = mock.Mock()
+        args.internetinterface = None
+
+        pyric.interfaces.return_value = ["wlan0", "wlan1"]
+        pyric.iswireless.return_value = True
+
+        def get_card_side_effect(value):
+            if value == "wlan0":
+                return card0
+            else:
+                return card1
+
+        def devmodes_side_effect(card):
+            if card.phy == "phy0":
+                return ["managed"]
+            else:
+                return ["monitor", "AP"]
+
+        pyric.getcard.side_effect = get_card_side_effect
+        pyric.devmodes.side_effect = devmodes_side_effect
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        self.assertEqual(actual_card, card1)
+        self.assertEqual(is_single_perfect_card, True)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_add_vif_required_two_phy_two_vifs_tuple_none_false(self, pyric):
+        """
+        Test the system has two cards and one card support AP and the other
+        support monitor mode
+        """
+
+        card0 = mock.Mock()
+        card0.phy = "phy0"
+        card1 = mock.Mock()
+        card1.phy = "phy1"
+        args = mock.Mock()
+        args.internetinterface = None
+
+        pyric.interfaces.return_value = ["wlan0", "wlan1"]
+        pyric.iswireless.return_value = True
+
+        def get_card_side_effect(value):
+            if value == "wlan0":
+                return card0
+            else:
+                return card1
+
+        def devmodes_side_effect(card):
+            if card.phy == "phy0":
+                return ["AP"]
+            else:
+                return ["monitor"]
+
+        pyric.getcard.side_effect = get_card_side_effect
+        pyric.devmodes.side_effect = devmodes_side_effect
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        self.assertEqual(actual_card, None)
+        self.assertEqual(is_single_perfect_card, False)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_add_vif_required_one_ap_one_internet_none_false(self, pyric):
+        """
+        Test the system has two cards and one card support AP the other card
+        support monitor but that card is used as internet access
+        """
+
+        card0 = mock.Mock()
+        card0.phy = "phy0"
+        card1 = mock.Mock()
+        card1.phy = "phy1"
+        args = mock.Mock()
+        args.internetinterface = "wlan1"
+
+        pyric.interfaces.return_value = ["wlan0", "wlan1"]
+        pyric.iswireless.return_value = True
+
+        def get_card_side_effect(value):
+            if value == "wlan0":
+                return card0
+            else:
+                return card1
+
+        def devmodes_side_effect(card):
+            if card.phy == "phy0":
+                return ["AP"]
+            else:
+                return ["monitor"]
+
+        pyric.getcard.side_effect = get_card_side_effect
+        pyric.devmodes.side_effect = devmodes_side_effect
+        actual_card, is_single_perfect_card = interfaces.is_add_vif_required(args)
+        self.assertEqual(actual_card, None)
+        self.assertEqual(is_single_perfect_card, False)
 
 
 class TestGenerateRandomAddress(unittest.TestCase):

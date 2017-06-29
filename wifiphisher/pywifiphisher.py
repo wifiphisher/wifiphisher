@@ -27,6 +27,7 @@ import wifiphisher.common.tui as tui
 import wifiphisher.extensions.handshakeverify as handshakeverify
 
 
+
 # Fixes UnicodeDecodeError for ESSIDs
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -82,7 +83,7 @@ def parse_args():
         "-dE",
         "--deauth-essid",
         help=("Deauth all the BSSIDs having same ESSID from AP selection or " +
-              "the ESSID given by -e option" 
+              "the ESSID given by -e option"
               ),
         action='store_true')
     parser.add_argument(
@@ -511,18 +512,29 @@ class WifiphisherEngine:
         4) AP-only 0x4
           1 card, 1 interface
           i) AP
-        5) Advanced w/ 1 vif 0x5
+        5) Advanced w/ 1 vif support AP/Monitor 0x5
           1 card, 2 interfaces
           i) AP, ii) Extensions
-        6) Advanced and Internet w/ 1 vif 0x6
+        6) Advanced and Internet w/ 1 vif support AP/Monitor 0x6
           2 cards, 3 interfaces
           i) AP, ii) Extensions, iii) Internet
         """
 
+        card, is_single_perfect_card = interfaces.is_add_vif_required(args)
         if not args.internetinterface and not args.nojamming:
-            self.op_mode = OP_MODE1
+            if not is_single_perfect_card:
+                self.op_mode = OP_MODE1
+            else:
+                if card is not None:
+                    interfaces.add_virtual_interface(card)
+                self.op_mode = OP_MODE5
         if args.internetinterface and not args.nojamming:
-            self.op_mode = OP_MODE2
+            if not is_single_perfect_card:
+                self.op_mode = OP_MODE2
+            else:
+                if card is not None:
+                    interfaces.add_virtual_interface(card)
+                self.op_mode = OP_MODE6
         if args.internetinterface and args.nojamming:
             self.op_mode = OP_MODE3
         if args.nojamming and not args.internetinterface:
@@ -542,12 +554,22 @@ class WifiphisherEngine:
         mode (a mode that leverages two network cards)
         """
 
-        return self.op_mode in [OP_MODE1, OP_MODE2]
+        return self.op_mode in [OP_MODE1, OP_MODE2, OP_MODE5, OP_MODE6]
 
     def deauth_enabled(self):
         """
         Returns True if we are operating in a mode
         that deauth is enabled.
+        """
+
+        return self.op_mode in [OP_MODE1, OP_MODE2, OP_MODE5, OP_MODE6]
+
+    def freq_hopping_enabled(self):
+        """
+        Returns True if we are separating the wireless cards
+        for jamming and lunching AP.
+        ..note: MODE5 and MODE6 only use one card to do deauth and
+        lunch ap so it is not allowed to do frequency hopping.
         """
 
         return self.op_mode in [OP_MODE1, OP_MODE2]
@@ -565,9 +587,11 @@ class WifiphisherEngine:
         # EM depends on Network Manager.
         # It has to shutdown first.
         self.em.on_exit()
+        # move the access_points.on_exit before the exit for
+        # network manager
+        self.access_point.on_exit()
         self.network_manager.on_exit()
         self.template_manager.on_exit()
-        self.access_point.on_exit()
         self.fw.on_exit()
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
@@ -591,6 +615,7 @@ class WifiphisherEngine:
         # Are you root?
         if os.geteuid():
             sys.exit('[' + R + '-' + W + '] Please run as root')
+
 
         self.network_manager.start()
 
@@ -706,6 +731,8 @@ class WifiphisherEngine:
             enctype = None
         else:
             # let user choose access point
+            # start the monitor adapter
+            self.network_manager.up_interface(mon_iface)
             ap_info_object = tui.ApSelInfo(mon_iface, self.mac_matcher,
                                            self.network_manager, args)
             ap_sel_object = tui.TuiApSel()
@@ -724,7 +751,7 @@ class WifiphisherEngine:
         # create a template manager object
         self.template_manager = phishingpage.TemplateManager()
         # get the correct template
-        tui_template_obj = tui.TuiTemplateSelection() 
+        tui_template_obj = tui.TuiTemplateSelection()
         template = tui_template_obj.gather_info(args.phishingscenario, self.template_manager)
         print ("[" + G + "+" + W + "] Selecting " +
                template.get_display_name() + " template")
@@ -782,6 +809,7 @@ class WifiphisherEngine:
         # mode for network discovery before (e.g. when --nojamming is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
+        self.network_manager.up_interface(ap_iface)
         self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
@@ -795,11 +823,11 @@ class WifiphisherEngine:
             self.access_point.start_dhcp_dns()
         except BaseException:
             self.stop()
-
         # If are on Advanced mode, start Extension Manager (EM)
         # We need to start EM before we boot the web server
         if self.advanced_enabled():
             shared_data = {
+                'is_freq_hop_allowed': self.freq_hopping_enabled(),
                 'target_ap_channel': channel or "",
                 'target_ap_essid': essid or "",
                 'target_ap_bssid': target_ap_mac or "",
@@ -809,6 +837,8 @@ class WifiphisherEngine:
                 'APs': APs_context,
                 'args': args
             }
+
+            self.network_manager.up_interface(mon_iface)
             self.em.set_interface(mon_iface)
             extensions = DEFAULT_EXTENSIONS
             if args.lure10_exploit:
@@ -818,7 +848,6 @@ class WifiphisherEngine:
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
-
         # With configured DHCP, we may now start the web server
         if not self.internet_sharing_enabled():
             # Start HTTP server in a background thread

@@ -226,6 +226,9 @@ class Deauth(object):
         :return: A list with all interested channels
         :rtype: list
         """
+        # we cannot do frequency hopping if users have only one card
+        if not self._data.is_freq_hop_allowed:
+            return [self._data.target_ap_channel]
 
         if self._data.target_ap_bssid and not self._data.args.deauth_essid:
             return [self._data.target_ap_channel]
