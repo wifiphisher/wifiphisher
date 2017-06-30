@@ -706,10 +706,10 @@ class TuiMain(object):
         screen.addstr(1, 0, "Deauthenticating clients: ",
                       self.blue_text)
 
-        if info.deauthentication:
+        if info.em:
             # start raw number from 2
             raw_num = 2
-            for client in info.deauthentication.get_clients()[-5:]:
+            for client in info.em.get_output()[-5:]:
                 screen.addstr(raw_num, 0, client)
                 raw_num += 1
 
