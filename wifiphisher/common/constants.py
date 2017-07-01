@@ -10,6 +10,7 @@ dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
 LURE10_EXTENSION = "lure10"
+HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
@@ -63,6 +64,9 @@ NM_DEV_INTERFACE_PATH = 'org.freedesktop.NetworkManager.Device'
 # Phishinghttp
 VALID_POST_CONTENT_TYPE = "application/x-www-form-urlencoded"
 
-#TUI
+# TUI
 MAIN_TUI_ATTRS = 'version essid channel ap_iface em phishinghttp args'
 AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
+
+# Fourway handshake extension
+CONST_A = "Pairwise key expansion"

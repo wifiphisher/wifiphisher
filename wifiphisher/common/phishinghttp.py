@@ -111,9 +111,14 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
 
         global terminate
 
+        # check the http POST request header contains the Content-Type
+        try:
+            content_type = self.request.headers["Content-Type"]
+        except KeyError:
+            return
+
         # check if this is a valid phishing post request
-        if self.request.headers["Content-Type"].startswith(
-                VALID_POST_CONTENT_TYPE):
+        if content_type.startswith(VALID_POST_CONTENT_TYPE):
             post_data = tornado.escape.url_unescape(self.request.body)
             # log the data
             log_file_path = "/tmp/wifiphisher-webserver.tmp"

@@ -24,6 +24,8 @@ import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
 import wifiphisher.common.tui as tui
+import wifiphisher.extensions.handshakeverify as handshakeverify
+
 
 # Fixes UnicodeDecodeError for ESSIDs
 reload(sys)
@@ -88,6 +90,11 @@ def parse_args():
         help=("Add WPA/WPA2 protection on the rogue Access Point. " +
               "Example: -pK s3cr3tp4ssw0rd"))
     parser.add_argument(
+        "-hC",
+        "--handshake-capture",
+        help=("Capture of the WPA/WPA2 handshakes for verifying passphrase" +
+              "Example : -hC capture.pcap"))
+    parser.add_argument(
         "-qS",
         "--quitonsuccess",
         help=("Stop the script after successfully retrieving one pair of "
@@ -135,6 +142,21 @@ def check_args(args):
             '-' +
             W +
             '] Pre-shared key must be between 8 and 63 printable characters.')
+
+    if args.handshake_capture and not os.path.isfile(
+            args.handshake_capture):
+        sys.exit('[' +
+                 R +
+                 '-' +
+                 W +
+                 '] handshake capture does not exist.')
+    elif args.handshake_capture and not handshakeverify.\
+            is_valid_handshake_capture(args.handshake_capture):
+        sys.exit('[' +
+                 R +
+                 '-' +
+                 W +
+                 '] handshake capture does not contain valid handshake')
 
     if ((args.jamminginterface and not args.apinterface) or
             (not args.jamminginterface and args.apinterface)) and \
@@ -737,6 +759,8 @@ class WifiphisherEngine:
             extensions = DEFAULT_EXTENSIONS
             if args.lure10_exploit:
                 extensions.append(LURE10_EXTENSION)
+            if args.handshake_capture:
+                extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()

