@@ -764,6 +764,7 @@ class WifiphisherEngine:
                                      args)
             tui_main_object = tui.TuiMain()
             curses.wrapper(tui_main_object.gather_info, main_info)
+            self.stop()
         except KeyboardInterrupt:
             self.stop()
 
