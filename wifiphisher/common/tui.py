@@ -182,29 +182,26 @@ class TuiTemplateSelection(object):
             try:
                 row_number = self.display_phishing_scenarios(
                     screen, templates, template_names)
-            except curses.error:
-                pass
 
-            # update the heightlight_number
-            self.key_movement()
-            self.key = screen.getch()
+                # update the heightlight_number
+                self.key_movement()
+                self.key = screen.getch()
 
-            # add two blank lines
-            row_number += 2
-            # display the words of chosen template
-            if self.key == ord("\n"):
-                try:
+                # add two blank lines
+                row_number += 2
+                # display the words of chosen template
+                if self.key == ord("\n"):
                     screen.addstr(row_number, 3, "YOU HAVE SELECTED " +
                                   template_names[self.heightlight_number],
                                   curses.A_BOLD)
-                except curses.error:
-                    pass
+                    screen.refresh()
+                    time.sleep(1)
+                    template_name = template_names[self.heightlight_number]
+                    template = templates[template_name]
+                    return template
                 screen.refresh()
-                time.sleep(1)
-                template_name = template_names[self.heightlight_number]
-                template = templates[template_name]
-                return template
-            screen.refresh()
+            except curses.error:
+                pass
 
 
 class ApDisplayInfo(object):
