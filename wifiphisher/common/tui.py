@@ -35,14 +35,64 @@ class TuiTemplateSelection(object):
         """
 
         self.green_text = None
-        # record the key which users keying
-        self.key = None
         # heightlight the phishing scenario
         self.heightlight_text = None
         # record current hightlight template number
         self.heightlight_number = 0
-        # total number of templates
-        self.number_of_templates = 0
+        # store the current page number
+        self.page_number = 0
+        # store the phishing contents of each scenario
+        self.sections = list()
+        # map the section to page number
+        self.sec_page_map = {}
+        # the window size for (y, x)
+        self.dimension = [0, 0]
+
+    def get_sections(self, template_names, templates):
+        """
+        Get all the phishing scenario contents and store them
+        in a list
+        :param self: A TuiTemplateSelection object
+        :param template_names: A list of string
+        :param templates: A dictionary
+        :type self: TuiTemplateSelection
+        :type template_names: list
+        :type templates: dict
+        :return None
+        :rtype: None
+        """
+
+        for name in template_names:
+            phishing_contents = " - " + str(templates[name])
+            # total line in the phishing contents
+            lines = phishing_contents.splitlines()
+            # split the line into 15 words per shorter line
+            short_lines = []
+            for line in lines:
+                for short_line in line_splitter(15, line):
+                    short_lines.append(short_line)
+            self.sections.append(short_lines)
+
+    def update_sec_page_map(self, last_row):
+        """
+        Update the page number for each section
+        :param self: A TuiTemplateSelection object
+        :param last_row: The last row of the window
+        :type self: TuiTemplateSelection
+        :type last_row: int
+        :return: None
+        :rtype: None
+        """
+
+        page_number = 0
+        row_number = 0
+        self.sec_page_map = {}
+        for number, section in enumerate(self.sections):
+            row_number += len(section)
+            if row_number > last_row:
+                row_number = 0
+                page_number += 1
+            self.sec_page_map[number] = page_number
 
     def gather_info(self, template_argument, template_manager):
         """
@@ -67,6 +117,9 @@ class TuiTemplateSelection(object):
         # get all the templates names for display
         template_names = list(templates.keys())
 
+        # get all the section contents
+        self.get_sections(template_names, templates)
+
         # check if the template argument is set and is correct
         if template_argument and template_argument in templates:
             # return the template name
@@ -80,70 +133,108 @@ class TuiTemplateSelection(object):
                                       template_names)
         return template
 
-    def key_movement(self):
+    def key_movement(self, screen, number_of_sections, key):
         """
         Check for key movement and hightlight the corresponding
         phishing scenario
 
         :param self: A TuiTemplateSelection object
+        :param number_of_sections: Number of templates
+        :param key: The char user keying
         :type self: TuiTemplateSelection
+        :type number_of_sections: int
+        :type key: str
+        :return: None
+        :rtype: None
         """
-        if self.key == curses.KEY_DOWN:
-            if self.heightlight_number < self.number_of_templates - 1:
+
+        if key == curses.KEY_DOWN:
+            if self.heightlight_number < number_of_sections - 1:
+                page_number = self.sec_page_map[self.heightlight_number+1]
+                if page_number > self.page_number:
+                    self.page_number += 1
+                    screen.erase()
                 self.heightlight_number += 1
-        elif self.key == curses.KEY_UP:
+        elif key == curses.KEY_UP:
             if self.heightlight_number > 0:
+                page_number = self.sec_page_map[self.heightlight_number-1]
+                if page_number < self.page_number:
+                    self.page_number -= 1
+                    screen.erase()
                 self.heightlight_number -= 1
 
-    def display_phishing_scenarios(self, screen, templates, template_names):
+    def display_phishing_scenarios(self, screen):
         """
         Display the phishing scenarios
         :param self: A TuiTemplateSelection object
         :type self: TuiTemplateSelection
         :param screen: A curses window object
         :type screen: _curses.curses.window
-        :param templates: A dictionay map page to PhishingTemplate
-        :type templates: dict
-        :param template_names: list of template names
-        :type template_names: list
         :return total row numbers used to display the phishing scenarios
         :rtype: int
         """
-        screen.addstr(0, 0,
-                      ("Options: [Up Arrow] Move Up  "
-                       "[Down Arrow] Move Down"))
 
-        screen.addstr(3, 0, "Available Phishing Scenarios:",
-                      curses.A_BOLD)
+        try:
+            max_window_height, max_window_len = screen.getmaxyx()
+            if self.dimension[0] != max_window_height or\
+                    self.dimension[1] != max_window_len:
+                screen.erase()
+            self.dimension[0] = max_window_height
+            self.dimension[1] = max_window_len
+            # add margins for changing the pages
+            self.update_sec_page_map(max_window_height - 20)
+            display_str = "Options: [Up Arrow] Move Up  [Down Arrow] Move Down"
+            screen.addstr(0, 0, display_string(max_window_len, display_str))
+            display_str = "Avaliable Phishing Scenarios:"
+            screen.addstr(3, 0, display_string(max_window_len,
+                                               display_str),
+                          curses.A_BOLD)
+        except curses.error:
+            return 0
+
         # add blank line
         row_num = 5
-        for number, name in enumerate(template_names):
-            screen.addstr(row_num, 0, str(number + 1), self.green_text)
-            phishing_contents = " - " + str(templates[name])
-            # total line in the phishing contents
-            lines = phishing_contents.splitlines()
-            # split the line into 15 words per shorter line
-            short_lines = []
-            for line in lines:
-                for short_line in line_splitter(15, line):
-                    short_lines.append(short_line)
+        first = False
+        for number, short_lines in enumerate(self.sections):
+            try:
 
-            # emphasize the phishing scenario
-            if number == self.heightlight_number:
-                screen.addstr(row_num, 2, short_lines[0],
-                              self.heightlight_text)
-            else:
-                screen.addstr(row_num, 2, short_lines[0], curses.A_BOLD)
-            row_num += 1
-            # add 8 spaces to the first line
-            screen.addstr(row_num, 8, short_lines[1])
-            row_num += 1
-            if len(short_lines) > 1:
-                for short_line in short_lines[2:]:
-                    screen.addstr(row_num, 0, short_line)
-                    row_num += 1
-            # add blank line between phishing scenarios
-            row_num += 1
+                # incase user shrink the window and the heightlight section
+                # is in the next page. for this case, just shift the
+                # heightlight section to the first scenario in the first
+                # page
+                if self.sec_page_map[self.heightlight_number] !=\
+                        self.page_number and not first:
+                    # heightlight the first scenario
+                    screen.addstr(row_num, 2, short_lines[0],
+                                  self.heightlight_text)
+                    self.heightlight_number = 0
+                    self.page_number = 0
+                    first = True
+
+                # display the sections belonged to the current page
+                if self.sec_page_map[number] != self.page_number:
+                    continue
+
+                screen.addstr(row_num, 0, str(number + 1), self.green_text)
+
+                # emphasize the phishing scenario
+                if number == self.heightlight_number:
+                    screen.addstr(row_num, 2, short_lines[0],
+                                  self.heightlight_text)
+                else:
+                    screen.addstr(row_num, 2, short_lines[0], curses.A_BOLD)
+                row_num += 1
+                # add 8 spaces to the first line
+                screen.addstr(row_num, 8, short_lines[1])
+                row_num += 1
+                if len(short_lines) > 1:
+                    for short_line in short_lines[2:]:
+                        screen.addstr(row_num, 0, short_line)
+                        row_num += 1
+                # add blank line between phishing scenarios
+                row_num += 1
+            except curses.error:
+                return row_num
 
         return row_num
 
@@ -171,7 +262,7 @@ class TuiTemplateSelection(object):
         self.heightlight_text = curses.color_pair(2) | curses.A_BOLD
 
         # setup number of templates
-        self.number_of_templates = len(templates)
+        number_of_sections = len(templates)
 
         # how many chars for user keying the template number
         screen.erase()
@@ -179,29 +270,27 @@ class TuiTemplateSelection(object):
             # display the four default phishing scenarios
             # catch the exception when screen size is smaller than
             # the text length
-            try:
-                row_number = self.display_phishing_scenarios(
-                    screen, templates, template_names)
+            row_number = self.display_phishing_scenarios(screen)
 
-                # update the heightlight_number
-                self.key_movement()
-                self.key = screen.getch()
-
-                # add two blank lines
-                row_number += 2
-                # display the words of chosen template
-                if self.key == ord("\n"):
+            # update the heightlight_number
+            key = screen.getch()
+            self.key_movement(screen, number_of_sections, key)
+            # add two blank lines
+            row_number += 2
+            # display the words of chosen template
+            if key == ord("\n"):
+                try:
                     screen.addstr(row_number, 3, "YOU HAVE SELECTED " +
                                   template_names[self.heightlight_number],
                                   curses.A_BOLD)
-                    screen.refresh()
-                    time.sleep(1)
-                    template_name = template_names[self.heightlight_number]
-                    template = templates[template_name]
-                    return template
+                except curses.error:
+                    pass
                 screen.refresh()
-            except curses.error:
-                pass
+                time.sleep(1)
+                template_name = template_names[self.heightlight_number]
+                template = templates[template_name]
+                return template
+            screen.refresh()
 
 
 class ApDisplayInfo(object):
@@ -209,40 +298,125 @@ class ApDisplayInfo(object):
     ApDisplayInfo class to store the information for ap selection
     """
 
-    def __init__(self, pos, page_number, max_h, max_l, box, max_row,
-                 key, mac_matcher):
+    def __init__(self, pos, page_number, box, box_info):
         """
         Construct the class
         :param self: ApDisplayInfo
-        :type self: ApDisplayInfo
         :param pos: position of the line in the ap selection page
-        :type pos: int
         :param page_number: page number of the ap selection
-        :type page_number: int
-        :param max_h: maximum window height of the ap selection terminal
-        :type max_h: int
-        :param max_l: maximum window length of the ap selection terminal
-        :type max_l: int
         :param box: the curses.newwin.box object containing ap information
-        :type box: curse.newwin.box
-        :param max_row: the maximum row numbers of the page
-        :type max_row: int
         :param key: the key user have keyed in
+        :param box_info: list of window height, window len, and max row number
+        :type self: ApDisplayInfo
+        :type pos: int
+        :type page_number: int
+        :type box: curse.newwin.box
         :type key: str
-        :param mac_matcher: mac_matcher object
-        :type mac_matcher: MACMatcher
         :return: None
         :rtype: None
         """
 
         self.pos = pos
         self.page_number = page_number
-        self.max_h = max_h
-        self.max_l = max_l
         self.box = box
-        self.max_row = max_row
-        self.mac_matcher = mac_matcher
-        self.key = key
+        # list of (max_win_height, max_win_len, max_row, key)
+        self._box_info = box_info
+
+    @property
+    def max_h(self):
+        """
+        The height of the terminal screen
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: the height of terminal screen
+        :rtype: int
+        """
+
+        return self._box_info[0]
+
+    @max_h.setter
+    def max_h(self, val):
+        """
+        Set the height of the terminal screen
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: None
+        :rtype: None
+        """
+
+        self._box_info[0] = val
+
+    @property
+    def max_l(self):
+        """
+        The width of the terminal screen
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: the width of terminal screen
+        :rtype: int
+        """
+
+        return self._box_info[1]
+
+    @max_l.setter
+    def max_l(self, val):
+        """
+        Set the width of the terminal screen
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: None
+        :rtype: None
+        """
+
+        self._box_info[1] = val
+
+    @property
+    def max_row(self):
+        """
+        Maximum row numbers used to contain the ap information
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: The row numbers of the box that contains the ap info
+        :rtype: int
+        """
+
+        return self._box_info[2]
+
+    @max_row.setter
+    def max_row(self, val):
+        """
+        Set maximum row numbers used to contain the ap information
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: None
+        :rtype: None
+        """
+
+        self._box_info[2] = val
+
+    @property
+    def key(self):
+        """
+        Get the key the users have keyed
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: The key
+        :rtype: int
+        """
+
+        return self._box_info[3]
+
+    @key.setter
+    def key(self, val):
+        """
+        Set the key the users have keyed
+        :param self: ApDisplayInfo
+        :type self: ApDisplayInfo
+        :return: None
+        :rtype: None
+        """
+
+        self._box_info[3] = val
 
 
 class TuiApSel(object):
@@ -259,12 +433,16 @@ class TuiApSel(object):
         :rtype: None
         """
 
-        self.exit_key = 27
         self.total_ap_number = 0
         self.access_points = list()
         self.access_point_finder = None
         self.highlight_text = None
         self.normal_text = None
+        self.mac_matcher = None
+        # when screen becomes too small we'll create a box with
+        # the size equal to the screen terminal. We need to renew
+        # the box when the screen terminal expands again.
+        self.renew_box = False
 
     def init_display_info(self, screen, info):
         """
@@ -283,18 +461,27 @@ class TuiApSel(object):
 
         # get window height, length and create a box inside
         max_window_height, max_window_length = screen.getmaxyx()
-        box = curses.newwin(max_window_height-9, max_window_length-5, 4, 3)
+        if max_window_height < 14 or max_window_length < 9:
+            box = curses.newwin(max_window_height,
+                                max_window_length, 0, 0)
+            self.renew_box = True
+        else:
+            box = curses.newwin(max_window_height-9,
+                                max_window_length-5, 4, 3)
         box.box()
 
         # calculate the box's maximum number of row's
         box_height = box.getmaxyx()[0]
         # subtracting 2 from the height for the border
-        max_row = box_height-2
+        max_row = box_height - 2
         key = 0
-        ap_info = ApDisplayInfo(position, page_number, max_window_height,
-                                max_window_length, box, max_row, key,
-                                info.mac_matcher)
+        box_info = [max_window_height, max_window_length, max_row,
+                    key]
 
+        ap_info = ApDisplayInfo(position, page_number, box,
+                                box_info)
+
+        self.mac_matcher = info.mac_matcher
         # start finding access points
         self.access_point_finder = recon.AccessPointFinder(
             info.interface, info.network_manager)
@@ -330,12 +517,10 @@ class TuiApSel(object):
         ap_info = self.init_display_info(screen, info)
 
         # show information until user presses Esc key
-        while ap_info.key != self.exit_key:
+        while ap_info.key != 27:
             # display info will modifiy the key value
-            try:
-                is_done = self.display_info(screen, ap_info)
-            except curses.error:
-                pass
+            is_done = self.display_info(screen, ap_info)
+
             if is_done:
                 # turn off access point discovery and return the result
                 self.access_point_finder.stop_finding_access_points()
@@ -344,8 +529,7 @@ class TuiApSel(object):
         # turn off access point discovery
         self.access_point_finder.stop_finding_access_points()
 
-    @staticmethod
-    def resize_window(screen, ap_info):
+    def resize_window(self, screen, ap_info):
         """
         Resize the window if the dimensions have been changed
 
@@ -359,11 +543,27 @@ class TuiApSel(object):
 
         if screen.getmaxyx() != (ap_info.max_h, ap_info.max_l):
             ap_info.max_h, ap_info.max_l = screen.getmaxyx()
-            ap_info.box.resize(ap_info.max_h-9, ap_info.max_l-5)
+            # sanity check for the box size (the height needed is 10 and
+            # the width needed is 6. Just create a box which is same as the
+            # base screen
+            if ap_info.max_h < 10 + 4 or ap_info.max_l < 6 + 3:
+                box = curses.newwin(ap_info.max_h, ap_info.max_l, 0, 0)
+                box.box()
+                ap_info.box = box
+                self.renew_box = True
+                return
+            elif self.renew_box:
+                screen.erase()
+                box = curses.newwin(ap_info.max_h - 9, ap_info.max_l - 5, 4, 3)
+                box.box()
+                ap_info.box = box
+                self.renew_box = False
+
+            ap_info.box.resize(ap_info.max_h - 9, ap_info.max_l - 5)
             # calculate the box's maximum number of row's
             box_height = ap_info.box.getmaxyx()[0]
             # subtracting 2 from the height for the border
-            ap_info.max_row = box_height-2
+            ap_info.max_row = box_height - 2
             # reset the page and position to avoid problems
             ap_info.pos = 1
             ap_info.page_number = 1
@@ -438,8 +638,8 @@ class TuiApSel(object):
         self.resize_window(screen, ap_info)
 
         # check if any new access points have been discovered
-        new_total_ap_number = self.access_point_finder.\
-            get_all_access_points()
+        new_total_ap_number = len(self.access_point_finder.
+                                  get_all_access_points())
 
         if new_total_ap_number != self.total_ap_number:
             self.access_points = self.access_point_finder.\
@@ -510,30 +710,45 @@ class TuiApSel(object):
         ap_info.box.border(0)
 
         # show the header
-        header = ("{0:30} {1:16} {2:3} {3:4} {4:5} {5:5} {6:20}".format(
-            "ESSID", "BSSID", "CH", "PWR", "ENCR", "CLIENTS", "VENDOR"))
-        screen.addstr(1, 3,
-                      ("Options:  [Esc] Quit  [Up Arrow] Move Up  "
-                       "[Down Arrow] Move Down"))
-        screen.addstr(3, 5, header)
+        header_fmt = "{0:30} {1:16} {2:3} {3:4} {4:5} {5:5} {6:20}"
+        header = header_fmt.format("ESSID", "BSSID", "CH",
+                                   "PWR", "ENCR", "CLIENTS",
+                                   "VENDOR")
+        opt_str = ("Options:  [Esc] Quit  [Up Arrow] Move Up  "
+                   "[Down Arrow] Move Down")
+
+        try:
+            window_l = screen.getmaxyx()[1]
+            screen.addstr(1, 3,
+                          display_string(window_l - 3, opt_str))
+            screen.addstr(3, 5,
+                          display_string(window_l - 5,
+                                         header))
+        except curses.error:
+            return
 
         # show all the items based on their position
         for item_position in page_boundary:
             # in case of no access points discovered yet
             if self.total_ap_number == 0:
-                ap_info.box.addstr(1, 1,
-                                   "No access point has been discovered yet!",
-                                   self.highlight_text)
-
+                display_str = "No access point has been discovered yet!"
+                try:
+                    ap_info.box.addstr(1, 1,
+                                       display_string(ap_info.max_l - 1,
+                                                      display_str),
+                                       self.highlight_text)
+                except curses.error:
+                    return
             # in case of at least one access point
             else:
                 # get the access point and it's vendor
                 access_point = self.access_points[item_position-1]
-                vendor = ap_info.mac_matcher.get_vendor_name(
+                vendor = self.mac_matcher.get_vendor_name(
                     access_point.get_mac_address())
 
                 # the display format for showing access points
-                display_text = ("{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:^5} {6:20}"
+                display_text = (("{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:^5}"
+                                 " {6:20}")
                                 .format(access_point.get_name(),
                                         access_point.get_mac_address(),
                                         access_point.get_channel(),
@@ -542,19 +757,27 @@ class TuiApSel(object):
                                         access_point.
                                         get_number_connected_clients(),
                                         vendor))
-
                 # shows whether the access point should be highlighted or not
                 # based on our current position
                 print_row_number = item_position - ap_info.max_row * (
                     ap_info.page_number - 1)
 
-                if item_position == ap_info.pos:
-                    ap_info.box.addstr(print_row_number, 2,
-                                       display_text, self.highlight_text)
-                else:
-                    ap_info.box.addstr(
-                        print_row_number,
-                        2, display_text, self.normal_text)
+                # bypass the addstr exception
+                try:
+
+                    if item_position == ap_info.pos:
+                        ap_info.box.addstr(print_row_number, 2,
+                                           display_string(ap_info.max_l - 2,
+                                                          display_text),
+                                           self.highlight_text)
+                    else:
+                        ap_info.box.addstr(
+                            print_row_number,
+                            2, display_string(ap_info.max_l - 2,
+                                              display_text),
+                            self.normal_text)
+                except curses.error:
+                    return
 
                 # stop if it is the last item in page
                 if item_position == self.total_ap_number:
@@ -606,12 +829,9 @@ class TuiMain(object):
         while True:
             # catch the exception when screen size is smaller than
             # the text length
-            try:
-                is_done = self.display_info(screen, info)
-                if is_done:
-                    return
-            except curses.error:
-                pass
+            is_done = self.display_info(screen, info)
+            if is_done:
+                return
 
     def print_http_requests(self, screen, start_row_num, http_output):
         """
@@ -689,27 +909,30 @@ class TuiMain(object):
         screen.erase()
 
         _, max_window_length = screen.getmaxyx()
-        # print the basic info on the right top corner
-        screen.addstr(0, max_window_length - 30, "|")
-        screen.addstr(1, max_window_length - 30, "|")
-        # continue from the "Wifiphisher"
-        screen.addstr(1, max_window_length - 29,
-                      " Wifiphisher " + info.version, self.blue_text)
+        try:
+            # print the basic info on the right top corner
+            screen.addstr(0, max_window_length - 30, "|")
+            screen.addstr(1, max_window_length - 30, "|")
+            # continue from the "Wifiphisher"
+            screen.addstr(1, max_window_length - 29,
+                          " Wifiphisher " + info.version, self.blue_text)
 
-        screen.addstr(2, max_window_length - 30,
-                      "|" + " ESSID: " + info.essid)
-        screen.addstr(3, max_window_length - 30,
-                      "|" + " Channel: " + info.channel)
-        screen.addstr(4, max_window_length - 30,
-                      "|" + " AP interface: " + info.ap_iface)
-        screen.addstr(5, max_window_length - 30,
-                      "|" + " Options: [Esc] Quit")
-        screen.addstr(6, max_window_length - 30, "|" + "_"*29)
+            screen.addstr(2, max_window_length - 30,
+                          "|" + " ESSID: " + info.essid)
+            screen.addstr(3, max_window_length - 30,
+                          "|" + " Channel: " + info.channel)
+            screen.addstr(4, max_window_length - 30,
+                          "|" + " AP interface: " + info.ap_iface)
+            screen.addstr(5, max_window_length - 30,
+                          "|" + " Options: [Esc] Quit")
+            screen.addstr(6, max_window_length - 30, "|" + "_"*29)
 
-        # make Deauthenticating clients to blue color
-        # print the deauthentication section
-        screen.addstr(1, 0, "Deauthenticating clients: ",
-                      self.blue_text)
+            # make Deauthenticating clients to blue color
+            # print the deauthentication section
+            screen.addstr(1, 0, "Deauthenticating clients: ",
+                          self.blue_text)
+        except curses.error:
+            pass
 
         if info.em:
             # start raw number from 2
@@ -717,20 +940,22 @@ class TuiMain(object):
             for client in info.em.get_output()[-5:]:
                 screen.addstr(raw_num, 0, client)
                 raw_num += 1
+        try:
+            # print the dhcp lease section
+            screen.addstr(7, 0, "DHCP Leases", self.blue_text)
+            if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
+                dnsmasq_output = check_output(['tail', '-5',
+                                               '/var/lib/misc/dnsmasq.leases'])
+                screen.addstr(8, 0, dnsmasq_output)
 
-        # print the dhcp lease section
-        screen.addstr(7, 0, "DHCP Leases", self.blue_text)
-        if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-            dnsmasq_output = check_output(['tail', '-5',
-                                           '/var/lib/misc/dnsmasq.leases'])
-            screen.addstr(8, 0, dnsmasq_output)
-
-        # print the http request section
-        screen.addstr(13, 0, "HTTP requests: ", self.blue_text)
-        if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-            http_output = check_output(['tail', '-5',
-                                        '/tmp/wifiphisher-webserver.tmp'])
-            self.print_http_requests(screen, 14, http_output)
+            # print the http request section
+            screen.addstr(13, 0, "HTTP requests: ", self.blue_text)
+            if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+                http_output = check_output(['tail', '-5',
+                                            '/tmp/wifiphisher-webserver.tmp'])
+                self.print_http_requests(screen, 14, http_output)
+        except curses.error:
+            pass
 
         # detect if users have pressed the Esc Key
         if screen.getch() == 27:
@@ -741,6 +966,20 @@ class TuiMain(object):
 
         screen.refresh()
         return is_done
+
+
+def display_string(w_len, target_line):
+    """
+    Display the line base on the max length of window length
+    :param w_len: length of window
+    :param target_line: the target display string
+    :type w_len: int
+    :type target_line: str
+    :return: The final displaying string
+    :rtype: str
+    """
+
+    return target_line if w_len >= len(target_line) else target_line[:w_len]
 
 
 def line_splitter(num_of_words, line):
