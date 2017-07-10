@@ -86,7 +86,8 @@ class ExtensionManager(object):
                                 self._interface, int(self._current_channel))
                             self._socket = linux.L2Socket(
                                 iface=self._interface)
-                            time.sleep(1)
+                            # extends the channel hopping time to sniff more frames
+                            time.sleep(3)
                         except BaseException:
                             continue
                     else:

