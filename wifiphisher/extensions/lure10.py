@@ -86,10 +86,12 @@ class Lure10(object):
         """
 
         if self.data.args.lure10_exploit and self.first_output:
+
+            self.first_output = False
+
             return ["Lure10 - Sending " +
                     str(self.beacons_num) +
                     " beacons to spoof location service"]
-            self.first_output = False
 
     def send_channels(self):
         """
