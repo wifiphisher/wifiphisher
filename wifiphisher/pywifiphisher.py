@@ -720,25 +720,9 @@ class WifiphisherEngine:
         except BaseException:
             self.stop()
 
-        # With configured DHCP, we may now start the web server
-        if not args.internetinterface:
-            # Start HTTP server in a background thread
-            print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
-            webserver = Thread(target=phishinghttp.runHTTPServer,
-                               args=(NETWORK_GW_IP, PORT, SSL_PORT, template))
-            webserver.daemon = True
-            webserver.start()
-
-            time.sleep(1.5)
-
-        # We no longer need mac_matcher
-        self.mac_matcher.unbind()
-
-        clients_APs = []
-        APs = []
-
+        # If are on Advanced mode, start Extension Manager (EM)
+        # We need to start EM before we boot the web server
         if not args.nojamming:
-            # Start Extension Manager
             shared_data = {
                 'target_ap_channel': channel or "",
                 'target_ap_essid': essid or "",
@@ -756,6 +740,23 @@ class WifiphisherEngine:
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
+
+        # With configured DHCP, we may now start the web server
+        if not args.internetinterface:
+            # Start HTTP server in a background thread
+            print '[' + T + '*' + W + '] Starting HTTP/HTTPS server at ports ' + str(PORT) + ", " + str(SSL_PORT)
+            webserver = Thread(target=phishinghttp.runHTTPServer,
+                               args=(NETWORK_GW_IP, PORT, SSL_PORT, template, self.em))
+            webserver.daemon = True
+            webserver.start()
+
+            time.sleep(1.5)
+
+        # We no longer need mac_matcher
+        self.mac_matcher.unbind()
+
+        clients_APs = []
+        APs = []
 
         # Main loop.
         try:
