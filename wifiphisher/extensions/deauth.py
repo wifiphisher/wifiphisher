@@ -181,5 +181,5 @@ class Deauth(object):
         :rtype: list
         """
         if self._is_frenzy:
-            return [str(k) for k in range(1, 12)]
+            return [str(k) for k in range(1, 14)]
         return [self._data.target_ap_channel]

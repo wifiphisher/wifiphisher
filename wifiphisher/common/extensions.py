@@ -54,7 +54,7 @@ class ExtensionManager(object):
         self._interface = None
         self._socket = None
         self._should_continue = True
-        self._packets_to_send = {str(k): [] for k in range(1, 12)}
+        self._packets_to_send = {str(k): [] for k in range(1, 14)}
         self._packets_to_send["*"] = []
         self._channels_to_hop = []
         self._current_channel = "1"
