@@ -770,8 +770,8 @@ class WifiphisherEngine:
 
 def run():
     try:
-        print ('[' + T + '*' + W + '] Starting Wifiphisher %s at %s' %
-               (VERSION, time.strftime("%Y-%m-%d %H:%M")))
+        print ('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
+               (VERSION, WEBSITE, time.strftime("%Y-%m-%d %H:%M")))
         engine = WifiphisherEngine()
         engine.start()
     except KeyboardInterrupt:

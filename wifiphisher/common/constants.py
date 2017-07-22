@@ -15,6 +15,7 @@ EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
 SSL_PORT = 443
 CHANNEL = 6
+WEBSITE = "https://wifiphisher.org"
 PUBLIC_DNS = "8.8.8.8"
 PEM = dir_of_data + 'cert/server.pem'
 PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
