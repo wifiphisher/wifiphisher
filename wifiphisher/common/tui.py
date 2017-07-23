@@ -586,11 +586,13 @@ class TuiMain(object):
         """
         Get the information from pywifiphisher and print them out
         :param self: A TuiMain object
-        :type self: TuiMain
         :param screen: A curses window object
-        :type screen: _curses.curses.window
         :param info: A namedtuple of printing information
+        :type self: TuiMain
+        :type screen: _curses.curses.window
         :type info: namedtuple
+        :return: None
+        :rtype: None
         """
 
         # setup curses
@@ -605,7 +607,9 @@ class TuiMain(object):
             # catch the exception when screen size is smaller than
             # the text length
             try:
-                self.display_info(screen, info)
+                is_done = self.display_info(screen, info)
+                if is_done:
+                    return
             except curses.error:
                 pass
 
@@ -672,17 +676,19 @@ class TuiMain(object):
         """
         Print the information of Victims on the terminal
         :param self: A TuiMain object
-        :type self: TuiMain
         :param screen: A curses window object
-        :type screen: _curses.curses.window
         :param info: A nameduple of printing information
+        :type self: TuiMain
+        :type screen: _curses.curses.window
         :type info: namedtuple
+        :return True if users have pressed the Esc key
+        :rtype: bool
         """
 
+        is_done = False
         screen.erase()
 
         _, max_window_length = screen.getmaxyx()
-
         # print the basic info on the right top corner
         screen.addstr(0, max_window_length - 30, "|")
         screen.addstr(1, max_window_length - 30, "|")
@@ -696,7 +702,9 @@ class TuiMain(object):
                       "|" + " Channel: " + info.channel)
         screen.addstr(4, max_window_length - 30,
                       "|" + " AP interface: " + info.ap_iface)
-        screen.addstr(5, max_window_length - 30, "|" + "_"*29)
+        screen.addstr(5, max_window_length - 30,
+                      "|" + " Options: [Esc] Quit")
+        screen.addstr(6, max_window_length - 30, "|" + "_"*29)
 
         # make Deauthenticating clients to blue color
         # print the deauthentication section
@@ -724,9 +732,15 @@ class TuiMain(object):
                                         '/tmp/wifiphisher-webserver.tmp'])
             self.print_http_requests(screen, 14, http_output)
 
+        # detect if users have pressed the Esc Key
+        if screen.getch() == 27:
+            is_done = True
+
         if info.phishinghttp.terminate and info.args.quitonsuccess:
-            raise KeyboardInterrupt
+            is_done = True
+
         screen.refresh()
+        return is_done
 
 
 def line_splitter(num_of_words, line):
