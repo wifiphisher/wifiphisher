@@ -172,6 +172,22 @@ class AccessPoint(object):
             self.hostapd_object.start(hostapd_config, hostapd_options)
         except KeyboardInterrupt:
             raise Exception
+        # when roguehostapd fail to start rollback to use the hostapd
+        # on the system
+        except BaseException:
+            hostapd_config.pop("karma_enable", None)
+            hostapd_options = {}
+            hostapd_config_obj = hostapd_controller.HostapdConfig()
+            hostapd_config_obj.write_configs(hostapd_config, hostapd_options)
+            self.hostapd_object = subprocess.Popen(['hostapd',
+                                                    hostapd_constants.\
+                HOSTAPD_CONF_PATH],
+                                                   stdout=constants.DN,
+                                                   stderr=constants.DN)
+            time.sleep(2)
+            if self.hostapd_object.poll() is not None:
+                raise Exception
+
 
     def on_exit(self):
         """
@@ -183,7 +199,13 @@ class AccessPoint(object):
         """
 
         subprocess.call('pkill dnsmasq', shell=True)
-        self.hostapd_object.stop()
+        try:
+            self.hostapd_object.stop()
+        except BaseException:
+            subprocess.call('pkill hostapd', shell=True)
+            if os.path.isfile(hostapd_constants.HOSTAPD_CONF_PATH):
+                os.remove(hostapd_constants.HOSTAPD_CONF_PATH)
+
         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
             os.remove('/var/lib/misc/dnsmasq.leases')
         if os.path.isfile('/tmp/dhcpd.conf'):
