@@ -629,6 +629,8 @@ class TuiMain(object):
         for request in requests:
             # match the information from the input string
             match = re.match(match_str, request)
+            if match is None:
+                continue
 
             # POST or GET
             request_type = match.group(1)
