@@ -145,4 +145,4 @@ Wifiphisher's current version is **1.3**. You can download the latest release fr
 
 <b>Note</b>: Be aware of sites pretending to be related with the Wifiphisher Project. They may be delivering malware.
 
-For Wifiphisher news, follow us on Twitter: https://www.twitter.com/wifiphisher
+For Wifiphisher news, follow us on <a href="https://www.twitter.com/wifiphisher">Twitter</a> or like us on <a href="https://www.facebook.com/Wifiphisher-129914317622032/">Facebook</a>.
