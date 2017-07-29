@@ -52,7 +52,6 @@ class Extension2(object):
         return ["three", "four", "five"]
 """
 
-
 class TestExtensionManager(unittest.TestCase):
 
     def setUp(self):

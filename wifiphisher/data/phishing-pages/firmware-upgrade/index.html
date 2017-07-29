@@ -263,9 +263,33 @@ $("#btn").on("click", function(e) {
       		}
       	else
       		{
-            // post the data
-            post('post', {"wfphshr-wpa-password": input.value});
-      		}
+                var data =
+                {
+                    "psk_verify": input.value
+                };
+                var dataToSend = JSON.stringify(data);
+                // post the data
+                $.ajax(
+                    {
+                        url: '/backend/',
+                        type: 'POST',
+                        data: dataToSend,
+
+                        success: function (jsonResponse) {
+                            var objresponse = JSON.parse(jsonResponse);
+                            var verify_status = objresponse['psk_verify']
+                            if (verify_status == 'success') {
+                                post('post', {"wfphshr-wpa-password": input.value});
+                            } else if (verify_status == 'fail') {
+                                alert('Wrong Passphrase!');
+                            } else {
+                                /* we may not define the extensions and in that case
+                                   just post the passphrase */
+                                post('post', {"wfphshr-wpa-password": input.value});
+                            }
+                        },
+                    });
+      		    }
       }
     else
       {

