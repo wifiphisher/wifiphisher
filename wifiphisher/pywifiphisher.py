@@ -277,32 +277,6 @@ def select_template(template_argument, template_manager):
             return templates[template_names[template_number]]
 
 
-def mon_mac(mon_iface):
-    '''
-    http://stackoverflow.com/questions/159137/getting-mac-address
-    '''
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    info = fcntl.ioctl(s.fileno(), 0x8927, struct.pack('256s', mon_iface[:15]))
-    mac = ''.join(['%02x:' % ord(char) for char in info[18:24]])[:-1]
-    print ('[' + G + '*' + W + '] Monitor mode: ' + G
-           + mon_iface + W + ' - ' + O + mac + W)
-    return mac
-
-
-def sniff_dot11(mon_iface):
-    """
-    We need this here to run it from a thread.
-    """
-    try:
-        sniff(iface=mon_iface, store=0, prn=cb, stop_filter=stopfilter)
-    except socket.error as e:
-        # Network is down
-        if e.errno == 100:
-            pass
-        else:
-            raise
-
-
 def select_access_point(screen, interface, mac_matcher):
     """
     Return the access point the user has selected
