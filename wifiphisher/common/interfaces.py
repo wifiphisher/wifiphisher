@@ -371,29 +371,33 @@ class NetworkManager(object):
             so that it will not be shutdown after the program exits.
         """
 
-        # raise an error if interface can't be found
         try:
             interface_adapter = self._name_to_object[interface_name]
+        except KeyError:
+            # if mode is internet and not wireless card bypass the check
             if mode == "internet":
-                self._exclude_shutdown.add(interface_name)
-
-            # raise an error if interface doesn't support the mode
-            if mode != "internet" and interface_adapter.is_managed_by_nm:
-                raise InterfaceManagedByNetworkManagerError(interface_name)
-            if mode == "monitor" and not interface_adapter.has_monitor_mode:
-                raise InvalidInterfaceError(interface_name, mode)
-            elif mode == "AP" and not interface_adapter.has_ap_mode:
-                raise InvalidInterfaceError(interface_name, mode)
-
-            # raise an error if interface is already in the _active set
-            if interface_name in self._active:
+                return True
+            else:
                 raise InvalidInterfaceError(interface_name)
 
-            # add the valid card to _active set
-            self._active.add(interface_name)
-            return True
-        except KeyError:
+        # add to _exclude_shutdown set if the card is internet adapter
+        if mode == "internet":
+            self._exclude_shutdown.add(interface_name)
+        # raise an error if interface doesn't support the mode
+        if mode != "internet" and interface_adapter.is_managed_by_nm:
+            raise InterfaceManagedByNetworkManagerError(interface_name)
+        if mode == "monitor" and not interface_adapter.has_monitor_mode:
+            raise InvalidInterfaceError(interface_name, mode)
+        elif mode == "AP" and not interface_adapter.has_ap_mode:
+            raise InvalidInterfaceError(interface_name, mode)
+
+        # raise an error if interface is already in the _active set
+        if interface_name in self._active:
             raise InvalidInterfaceError(interface_name)
+
+        # add the valid card to _active set
+        self._active.add(interface_name)
+        return True
 
     def set_interface_mac(self, interface_name, mac_address):
         """
@@ -755,6 +759,19 @@ def interface_property_detector(network_adapter):
     interface_name = network_adapter.name
     network_adapter.is_managed_by_nm = is_managed_by_network_manager(interface_name)
 
+def is_wireless_interface(interface_name):
+    """
+    Check if the interface is wireless interface
+
+    :param interface_name: Name of an interface
+    :type interface_name: str
+    :return: True if the interface is wireless interface
+    :rtype: bool
+    """
+
+    if pyw.iswireless(interface_name):
+        return True
+    return False
 
 def generate_random_address():
     """

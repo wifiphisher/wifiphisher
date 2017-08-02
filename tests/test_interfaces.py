@@ -1094,3 +1094,15 @@ class TestGenerateRandomAddress(unittest.TestCase):
         expected = "00:00:00:0a:64:c8"
         actual = interfaces.generate_random_address()
         self.assertEqual(actual, expected)
+
+
+class TestIsWirelessInterface(unittest.TestCase):
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_wireless_interface_false(self, pyric):
+        pyric.iswireless.return_value = False
+        is_wireless = True
+        interface = 'eth0'
+        is_wireless = interfaces.is_wireless_interface(interface)
+        message = interface +\
+            " Shows interface is wireless adapter when it is not"
+        self.assertFalse(is_wireless, message)
