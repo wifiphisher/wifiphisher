@@ -173,7 +173,7 @@ class Deauth(object):
 
     def send_channels(self):
         """
-        Send channes to subscribe.
+        Send channels to subscribe.
 
         :param self: A Deauthentication object.
         :type self: Deauthentication

