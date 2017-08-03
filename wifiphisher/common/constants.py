@@ -9,6 +9,7 @@ path_to_project_root = os.path.abspath(
 dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
+DEV = 1
 LURE10_EXTENSION = "lure10"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."

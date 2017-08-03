@@ -466,9 +466,14 @@ class WifiphisherEngine:
         self.em = extensions.ExtensionManager(self.network_manager)
 
     def stop(self):
+        if DEV:
+            print "[" + G + "+" + W + "] Show your support!"
+            print "[" + G + "+" + W + "] Follow us: https://twitter.com/wifiphisher"
+            print "[" + G + "+" + W + "] Like us: https://www.facebook.com/Wifiphisher"
         print "[" + G + "+" + W + "] Captured credentials:"
         for cred in phishinghttp.creds:
             print cred
+    
 
         # EM depends on Network Manager.
         # It has to shutdown first.
