@@ -1,14 +1,12 @@
-#pylint: skip-file
 """
 This module handles all the phishing related operations for
 Wifiphisher.py
 """
 
 import os
-from wifiphisher.common.constants import *
-from shutil import copyfile
-
 import ConfigParser
+from shutil import copyfile
+import wifiphisher.common.constants as constants
 
 
 def config_section_map(config_file, section):
@@ -27,7 +25,7 @@ def config_section_map(config_file, section):
     for option in options:
         try:
             dict1[option] = config.get(section, option)
-        except:
+        except KeyError:
             dict1[option] = None
     return dict1
 
@@ -48,7 +46,7 @@ class PhishingTemplate(object):
         Construct object.
 
         :param self: A PhishingTemplate object
-        :type self: PhishingScenario
+        :type self: PhishingTemplate
         :return: None
         :rtype: None
         .. todo:: Maybe add a category field
@@ -56,7 +54,7 @@ class PhishingTemplate(object):
 
         # setup all the variables
 
-        config_path = os.path.join(PHISHING_PAGES_DIR, name, 'config.ini')
+        config_path = os.path.join(constants.PHISHING_PAGES_DIR, name, 'config.ini')
         info = config_section_map(config_path, 'info')
 
         self._name = name
@@ -66,8 +64,75 @@ class PhishingTemplate(object):
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
 
-        self._path = PHISHING_PAGES_DIR + self._name.lower() + "/"
-        self._path_static = PHISHING_PAGES_DIR + self._name.lower() + "/static/"
+        self._path = constants.PHISHING_PAGES_DIR +\
+            self._name.lower() + "/"
+        self._path_static = constants.PHISHING_PAGES_DIR +\
+            self._name.lower() + "/static/"
+
+        self._context = config_section_map(config_path, 'context')
+        self._extra_files = []
+
+    @staticmethod
+    def update_config_file(payload_filename, config_path):
+        """
+        Update the configuration file
+
+        :param self: A PhishingTemplate object
+        :param payload_filename: the filename for the payload
+        :param config_path: the file path for the configuration
+        :type self: PhishingTemplate
+        :type payload_filename: str
+        :type config_path: str
+        :return: None
+        :rtype: None
+        """
+
+        original_config = ConfigParser.ConfigParser()
+        original_config.read(config_path)
+
+        # new config file object
+        config = ConfigParser.RawConfigParser()
+
+        # update the info section
+        config.add_section('info')
+        options = original_config.options('info')
+        for option in options:
+            if option != "payloadpath":
+                config.set('info', option,
+                           original_config.get('info', option))
+            else:
+                dirname = os.path.dirname(
+                    original_config.get('info', 'payloadpath'))
+                filepath = os.path.join(dirname, payload_filename)
+                config.set('info', option, filepath)
+
+        # update the context section
+        config.add_section('context')
+        dirname = os.path.dirname(
+            original_config.get('context', 'update_path'))
+        filepath = os.path.join(dirname, payload_filename)
+        config.set('context', 'update_path', filepath)
+        with open(config_path, 'wb') as configfile:
+            config.write(configfile)
+
+    def update_payload_path(self, filename):
+        """
+        :param self: A PhishingTemplate object
+        :filename: the filename for the payload
+        :type self: PhishingTemplate
+        :type filename: str
+        :return: None
+        :rtype: None
+        """
+
+        config_path = os.path.join(constants.PHISHING_PAGES_DIR,
+                                   self._name, 'config.ini')
+        self.update_config_file(filename, config_path)
+        # update payload attribute
+        info = config_section_map(config_path, 'info')
+        self._payload = False
+        if 'payloadpath' in info:
+            self._payload = info['payloadpath']
 
         self._context = config_section_map(config_path, 'context')
         self._extra_files = []
@@ -196,9 +261,9 @@ class PhishingTemplate(object):
         :rtype: None
         """
 
-        for f in self._extra_files:
-            if os.path.isfile(f):
-                os.remove(f)
+        for filename in self._extra_files:
+            if os.path.isfile(filename):
+                os.remove(filename)
 
     def __str__(self):
         """
@@ -210,7 +275,7 @@ class PhishingTemplate(object):
         :rtype: str
         """
 
-        return (self._display_name + "\n\t" + self._description + "\n")
+        return self._display_name + "\n\t" + self._description + "\n"
 
 
 class TemplateManager(object):
@@ -227,9 +292,9 @@ class TemplateManager(object):
         """
 
         # setup the templates
-        self._template_directory = PHISHING_PAGES_DIR
+        self._template_directory = constants.PHISHING_PAGES_DIR
 
-        page_dirs = os.listdir(PHISHING_PAGES_DIR)
+        page_dirs = os.listdir(constants.PHISHING_PAGES_DIR)
 
         self._templates = {}
 
@@ -305,5 +370,5 @@ class TemplateManager(object):
         :rtype: None
         """
 
-        for templ_name, templ_obj in self._templates.iteritems():
+        for templ_obj in self._templates.values():
             templ_obj.remove_extra_files()
