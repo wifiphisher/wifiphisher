@@ -512,7 +512,9 @@ class WifiphisherEngine:
                 if self.network_manager.is_interface_valid(
                         args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
-                    self.network_manager.unblock_interface(internet_interface)
+                    if interfaces.is_wireless_interface(
+                            internet_interface):
+                        self.network_manager.unblock_interface(internet_interface)
             if not args.nojamming:
                 if args.jamminginterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
