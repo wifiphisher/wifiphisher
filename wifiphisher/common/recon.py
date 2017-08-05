@@ -400,7 +400,7 @@ class AccessPointFinder(object):
 
         # if the stop flag not set, change the channel
         while self._should_continue:
-            for channel in range(1, 14):
+            for channel in constants.ALL_2G_CHANNELS:
                 # added this check to reduce shutdown time
                 if self._should_continue:
                     self._network_manager.set_interface_channel(self._interface, channel)
