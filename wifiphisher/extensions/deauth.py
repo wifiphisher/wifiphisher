@@ -112,6 +112,9 @@ class Deauth(object):
                 try:
                     # channel is in the third IE of Dot11Elt
                     channel = ord(packet[dot11.Dot11Elt][2].info)
+                    # check if this is valid channel
+                    if channel not in constants.ALL_2G_CHANNELS:
+                        return (channels, self.packets_to_send)
                     channels.append(str(channel))
                 except (TypeError, IndexError):
                     # just return empty channel and packet
@@ -126,7 +129,7 @@ class Deauth(object):
 
             # create a list of addresses that are not acceptable
             non_valid_list = self._non_client_addresses +\
-            self._observed_clients
+                self._observed_clients
 
             # if sender or receirver is valid and not already a
             # discovered client check to see if either one is a client
@@ -181,5 +184,5 @@ class Deauth(object):
         :rtype: list
         """
         if self._is_frenzy:
-            return [str(k) for k in range(1, 14)]
+            return [str(k) for k in constants.ALL_2G_CHANNELS]
         return [self._data.target_ap_channel]
