@@ -83,6 +83,20 @@ class Deauth(object):
 
         return [disassoc_packet, deauth_packet]
 
+    @staticmethod
+    def _extract_bssid(packet):
+        ds_value = packet.FCfield & 3
+        to_ds = ds_value & 0x1 != 0
+        from_ds = ds_value & 0x2 != 0
+        # station to ap
+        if to_ds == 1 and from_ds == 0:
+            return packet.addr1
+        # ap to station
+        elif to_ds == 0 and from_ds == 1:
+            return packet.addr2
+        elif to_ds == 0 and from_ds == 0:
+            return packet.addr3
+
     def get_packet(self, packet):
         """
         Process the Dot11 packets and add any desired clients to
@@ -107,7 +121,11 @@ class Deauth(object):
             receiver = packet.addr1
             sender = packet.addr2
             if self._is_frenzy:
-                bssid = packet.addr3
+                # discard the WDS frames
+                ds_value = packet.FCfield & 3
+                if ds_value == 3:
+                    return (channels, self.packets_to_send)
+                bssid = self._extract_bssid(packet)
                 # obtain the channel for this frame
                 try:
                     # channel is in the third IE of Dot11Elt
@@ -119,7 +137,6 @@ class Deauth(object):
                 except (TypeError, IndexError):
                     # just return empty channel and packet
                     return (channels, self.packets_to_send)
-
                 # Do not send deauth for out rogue AP
                 if bssid == self._data.rogue_ap_mac:
                     return (channels, self.packets_to_send)
