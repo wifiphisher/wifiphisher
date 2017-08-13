@@ -609,9 +609,9 @@ class WifiphisherEngine:
             time.sleep(1)
             self.stop()
 
+        rogue_ap_mac = self.network_manager.get_interface_mac(ap_iface)
         if not args.no_mac_randomization:
-            ap_mac = self.network_manager.get_interface_mac(ap_iface)
-            print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, ap_iface, ap_mac)
+            print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, ap_iface, rogue_ap_mac)
 
             if not args.nojamming:
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
@@ -630,7 +630,9 @@ class WifiphisherEngine:
         if args.essid:
             essid = args.essid
             channel = str(CHANNEL)
-            ap_mac = None
+            # We don't have target attacking MAC in frenzy mode
+            # That is we deauth all the BSSIDs that being sniffed
+            target_ap_mac = None
             enctype = None
         else:
             # let user choose access point
@@ -645,7 +647,7 @@ class WifiphisherEngine:
                 # store choosen access point's information
                 essid = access_point.get_name()
                 channel = access_point.get_channel()
-                ap_mac = access_point.get_mac_address()
+                target_ap_mac = access_point.get_mac_address()
                 enctype = access_point.get_encryption()
             else:
                 self.stop()
@@ -692,16 +694,16 @@ class WifiphisherEngine:
 
         # only get logo path if MAC address is present
         ap_logo_path = False
-        if ap_mac:
+        if target_ap_mac is not None:
             ap_logo_path = template.use_file(
-                self.mac_matcher.get_vendor_logo_path(ap_mac))
+                self.mac_matcher.get_vendor_logo_path(target_ap_mac))
 
         template.merge_context({
             'target_ap_channel': channel or "",
             'target_ap_essid': essid or "",
-            'target_ap_bssid': ap_mac or "",
+            'target_ap_bssid': target_ap_mac or "",
             'target_ap_encryption': enctype or "",
-            'target_ap_vendor': self.mac_matcher.get_vendor_name(ap_mac) or "",
+            'target_ap_vendor': self.mac_matcher.get_vendor_name(target_ap_mac) or "",
             'target_ap_logo_path': ap_logo_path or ""
         })
 
@@ -729,10 +731,10 @@ class WifiphisherEngine:
             shared_data = {
                 'target_ap_channel': channel or "",
                 'target_ap_essid': essid or "",
-                'target_ap_bssid': ap_mac or "",
+                'target_ap_bssid': target_ap_mac or "",
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
-                'rogue_ap_mac': ap_mac,
+                'rogue_ap_mac': rogue_ap_mac,
                 'APs': APs_context,
                 'args': args
             }
