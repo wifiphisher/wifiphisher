@@ -678,6 +678,7 @@ class WifiphisherEngine:
                 if not os.path.isfile(payload_path):
                     print '[' + R + '-' + W + '] Invalid file path!'
             print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
+            template.update_payload_path(os.path.basename(payload_path))
             copyfile(payload_path, PHISHING_PAGES_DIR +
                      template.get_payload_path())
 
