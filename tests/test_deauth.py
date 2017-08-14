@@ -691,7 +691,7 @@ class TestDeauth(unittest.TestCase):
 
         message = "Failed to send target AP's channel"
 
-        expected = self.target_channel
+        expected = [self.target_channel]
 
         self.assertEqual(expected, actual, message)
 
