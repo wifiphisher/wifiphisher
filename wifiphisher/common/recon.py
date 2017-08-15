@@ -168,9 +168,12 @@ class AccessPointFinder(object):
         self._network_manager = network_manager
 
         # filter used to remove non-client addresses
-        self._non_client_addresses = (constants.WIFI_BROADCAST, constants.WIFI_INVALID,
-                                      constants.WIFI_IPV6MCAST1, constants.WIFI_IPV6MCAST2,
-                                      constants.WIFI_SPANNINGTREE, constants.WIFI_MULTICAST)
+        self._non_client_addresses = (constants.WIFI_BROADCAST,
+                                      constants.WIFI_INVALID,
+                                      constants.WIFI_IPV6MCAST1,
+                                      constants.WIFI_IPV6MCAST2,
+                                      constants.WIFI_SPANNINGTREE,
+                                      constants.WIFI_MULTICAST)
 
     def _process_packets(self, packet):
         """
@@ -186,11 +189,13 @@ class AccessPointFinder(object):
 
         # check the type of the packet
         if packet.haslayer(dot11.Dot11Beacon):
-            #check if the packet has info field to prevent processing malform beacon
+            # check if the packet has info field to prevent processing
+            # malform beacon
             if hasattr(packet.payload, 'info'):
-                # if the packet has no info (hidden ap) add MAC address of it to the list
-                # note \00 used for when ap is hidden and shows only the length of the name
-                # see issue #506
+                # if the packet has no info (hidden ap) add MAC address of it
+                # to the list
+                # note \00 used for when ap is hidden and shows only the length
+                # of the name. see issue #506
                 if not packet.info or "\00" in packet.info:
                     if packet.addr3 not in self._hidden_networks:
                         self._hidden_networks.append(packet.addr3)
@@ -264,7 +269,8 @@ class AccessPointFinder(object):
             if mac_address == access_point.get_mac_address():
                 # find the current and calculate the difference
                 current_signal_strength = access_point.get_signal_strength()
-                signal_strength_difference = new_signal_strength - current_signal_strength
+                signal_strength_difference = new_signal_strength -\
+                    current_signal_strength
 
                 # update signal strength if more than 5% difference
                 if signal_strength_difference > 5:
@@ -277,8 +283,9 @@ class AccessPointFinder(object):
 
         # with all the information gathered create and add the
         # access point
-        access_point = AccessPoint(name, mac_address, channel, \
-                                    encryption_type, capture_file=self._capture_file)
+        access_point = AccessPoint(name, mac_address, channel,
+                                   encryption_type,
+                                   capture_file=self._capture_file)
         access_point.set_signal_strength(new_signal_strength)
         self._observed_access_points.append(access_point)
 
@@ -298,17 +305,24 @@ class AccessPointFinder(object):
         encryption_info = packet.sprintf("%Dot11Beacon.cap%")
         elt_section = packet[dot11.Dot11Elt]
         encryption_type = None
+        is_wps = False
 
         # extract information from packet
         while isinstance(elt_section, dot11.Dot11Elt):
             # check if encryption type is WPA2
             if elt_section.ID == 48:
                 encryption_type = "WPA2"
-                break
 
             # check if encryption type is WPA
-            elif elt_section.ID == 221 and elt_section.info.startswith("\x00P\xf2\x01\x01\x00"):
+            elif elt_section.ID == 221 and\
+                    elt_section.info.startswith("\x00P\xf2\x01\x01\x00"):
                 encryption_type = "WPA"
+            # check if WPS IE exists
+            if elt_section.ID == 221 and\
+                    elt_section.info.startswith("\x00P\xf2\x04"):
+                is_wps = True
+            # break if wps and security is found
+            if encryption_type and is_wps:
                 break
 
             # break down the packet
@@ -320,6 +334,9 @@ class AccessPointFinder(object):
                 encryption_type = "WEP"
             else:
                 encryption_type = "OPEN"
+
+        if encryption_type != "WEP" and is_wps:
+            encryption_type += "/WPS"
 
         return encryption_type
 
@@ -335,11 +352,12 @@ class AccessPointFinder(object):
 
         # continue to find clients until otherwise told
         while self._should_continue:
-            dot11.sniff(iface=self._interface, prn=self._process_packets, count=1,
-                        store=0)
+            dot11.sniff(iface=self._interface, prn=self._process_packets,
+                        count=1, store=0)
 
     def capture_aps(self):
-        self._capture_file = constants.LOCS_DIR + "area_" + time.strftime("%Y%m%d_%H%M%S")
+        self._capture_file = constants.LOCS_DIR + "area_" +\
+            time.strftime("%Y%m%d_%H%M%S")
 
     def find_all_access_points(self):
         """
@@ -352,7 +370,8 @@ class AccessPointFinder(object):
         """
 
         # start finding access points in a separate thread
-        self._sniff_packets_thread = threading.Thread(target=self._sniff_packets)
+        self._sniff_packets_thread = threading.Thread(
+            target=self._sniff_packets)
         self._sniff_packets_thread.start()
 
         # start channel hopping in a separate thread
@@ -370,7 +389,7 @@ class AccessPointFinder(object):
         """
 
         self._should_continue = False
-        #wait for 10 second to join the threads
+        # wait for 10 second to join the threads
         self._channel_hop_thread.join(10)
         self._sniff_packets_thread.join(10)
 
@@ -403,7 +422,8 @@ class AccessPointFinder(object):
             for channel in constants.ALL_2G_CHANNELS:
                 # added this check to reduce shutdown time
                 if self._should_continue:
-                    self._network_manager.set_interface_channel(self._interface, channel)
+                    self._network_manager.set_interface_channel(
+                        self._interface, channel)
                     time.sleep(3)
                 else:
                     break
@@ -454,7 +474,8 @@ class AccessPointFinder(object):
             return None
 
         # if a valid address is provided
-        if (receiver_identifier, sender_identifier) not in self._non_client_addresses:
+        if (receiver_identifier, sender_identifier) not in\
+                self._non_client_addresses:
 
             # if discovered access point is either sending or receving
             # add client if it's mac address is not in the MAC filter
@@ -485,6 +506,7 @@ class AccessPointFinder(object):
         # sort access points in descending order based on
         # signal strength
         sorted_access_points = sorted(self._observed_access_points,
-                                      key=lambda ap: ap.get_signal_strength(), reverse=True)
+                                      key=lambda ap: ap.get_signal_strength(),
+                                      reverse=True)
 
         return sorted_access_points

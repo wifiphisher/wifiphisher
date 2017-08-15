@@ -710,7 +710,7 @@ class TuiApSel(object):
         ap_info.box.border(0)
 
         # show the header
-        header_fmt = "{0:30} {1:16} {2:3} {3:4} {4:5} {5:5} {6:20}"
+        header_fmt = "{0:30} {1:16} {2:3} {3:4} {4:9} {5:5} {6:20}"
         header = header_fmt.format("ESSID", "BSSID", "CH",
                                    "PWR", "ENCR", "CLIENTS",
                                    "VENDOR")
