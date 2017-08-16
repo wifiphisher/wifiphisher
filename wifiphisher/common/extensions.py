@@ -134,6 +134,10 @@ class ExtensionManager(object):
         .. note: The channel range is between 1 to 13
         """
 
+        # set the current channel to the ap channel
+        self._nm.set_interface_channel(
+            self._interface, int(self._current_channel))
+
         # if the stop flag not set, change the channel
         while self._should_continue:
             for channel in self._channels_to_hop:
