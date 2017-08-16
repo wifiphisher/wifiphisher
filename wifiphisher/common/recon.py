@@ -168,12 +168,7 @@ class AccessPointFinder(object):
         self._network_manager = network_manager
 
         # filter used to remove non-client addresses
-        self._non_client_addresses = (constants.WIFI_BROADCAST,
-                                      constants.WIFI_INVALID,
-                                      constants.WIFI_IPV6MCAST1,
-                                      constants.WIFI_IPV6MCAST2,
-                                      constants.WIFI_SPANNINGTREE,
-                                      constants.WIFI_MULTICAST)
+        self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
 
     def _process_packets(self, packet):
         """
