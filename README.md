@@ -112,6 +112,7 @@ Following are all the options along with their descriptions (also available with
 |-iDM| --mac-deauth-interface| Specify the MAC address of the jamming interface. Example: -iDM E8:2A:EA:00:00:00|
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
+|-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|
 
 
 ## Screenshots

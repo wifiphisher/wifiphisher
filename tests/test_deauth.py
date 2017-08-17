@@ -1,6 +1,5 @@
 # pylint: skip-file
 """ This module tests the deauth module in extensions """
-
 import collections
 import unittest
 import mock
@@ -21,17 +20,26 @@ class TestDeauth(unittest.TestCase):
         self.packet = dot11.RadioTap() / dot11.Dot11() / essid / rates / dsset
 
         custom_tuple = collections.namedtuple("test",
-                                              "target_ap_bssid target_ap_channel rogue_ap_mac")
+                                              "target_ap_bssid target_ap_channel rogue_ap_mac args target_ap_essid")
 
         self.target_channel = "6"
         self.target_bssid = "BB:BB:BB:BB:BB:BB"
         self.rogue_mac = "CC:CC:CC:CC:CC:CC"
+        self.target_essid = "Evil"
+        self.args = mock.Mock()
+        self.args.deauth_essid = False
 
-        data0 = custom_tuple(self.target_bssid, self.target_channel, self.rogue_mac)
-        data1 = custom_tuple(None, self.target_channel, self.rogue_mac)
+        data0 = custom_tuple(self.target_bssid, self.target_channel, self.rogue_mac,
+                             self.args, self.target_essid)
+        data1 = custom_tuple(None, self.target_channel, self.rogue_mac,
+                             self.args, self.target_essid)
 
         self.deauth_obj0 = deauth.Deauth(data0)
         self.deauth_obj1 = deauth.Deauth(data1)
+
+        # test for --deauth-essid
+        self.deauth_obj0._deauth_bssids = set()
+        self.deauth_obj1._deauth_bssids = set()
 
     def test_craft_packet_normal_expected(self):
         """
@@ -56,25 +64,26 @@ class TestDeauth(unittest.TestCase):
         self.assertEqual(result[1].addr2, sender, message1)
         self.assertEqual(result[1].addr3, bssid, message1)
 
-    def test_get_packet_first_run_non_releavent_client_broadcast(self):
+    def test_get_packet_broadcast(self):
         """
-        Test get_packet method for the first time when given a packet which
-        is not related to the target access point and --essid is not used.
-        The expected result are the channel of the target AP followed
-        by the broadcast packet for the target AP
+        Test get_packet method for crafting the broadcast frame
         """
 
         # setup the packet
         sender = "00:00:00:00:00:00"
         receiver = "11:11:11:11:11:11"
-        bssid = "22:22:22:22:22:22:22"
-        self.packet.addr1 = receiver
-        self.packet.addr2 = sender
-        self.packet.addr3 = bssid
+        essid = dot11.Dot11Elt(ID='SSID', info="")
+        rates = dot11.Dot11Elt(ID='Rates', info="\x03\x12\x96\x18\x24\x30\x48\x60")
+        dsset = dot11.Dot11Elt(ID='DSset', info='\x06')
+        packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid / rates / dsset
+
+        packet.addr1 = receiver
+        packet.addr2 = sender
+        packet.addr3 = self.target_bssid
+        packet.FCfield = 0x0
 
         # run the method
-        result = self.deauth_obj0.get_packet(self.packet)
-
+        result = self.deauth_obj0.get_packet(packet)
         message0 = "Failed to return an correct channel"
         message1 = "Failed to return an correct packets"
 
@@ -129,7 +138,8 @@ class TestDeauth(unittest.TestCase):
         message1 = "Failed to return an correct packets"
 
         # check channel
-        self.assertEqual(result[0], [self.target_channel], message0)
+        # if the bssid is not in self._deauth_bssids, return empty channel
+        self.assertEqual(result[0], [], message0)
 
         # check the packets
         self.assertEqual(result[1], [], message1)
@@ -169,7 +179,8 @@ class TestDeauth(unittest.TestCase):
         message1 = "Failed to return an correct packets"
 
         # check channel
-        self.assertEqual(result[0], [self.target_channel], message0)
+        # return empty channel if the frame is invalid
+        self.assertEqual(result[0], [], message0)
 
         # check the packets
         self.assertEqual(result[1], [], message1)
@@ -195,6 +206,9 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr2 = sender0
         self.packet.addr3 = bssid0
 
+        # add target_bssid in the self._deauth_bssids
+        self.deauth_obj0._deauth_bssids.add(self.target_bssid)
+
         # run the method
         result0 = self.deauth_obj0.get_packet(self.packet)
 
@@ -214,39 +228,27 @@ class TestDeauth(unittest.TestCase):
         # check the packets for the first client
         # check the disassociation packet
         self.assertEqual(result0[1][0].subtype, 10, message1)
-        self.assertEqual(result0[1][0].addr1, constants.WIFI_BROADCAST, message1)
-        self.assertEqual(result0[1][0].addr2, self.target_bssid, message1)
+        self.assertEqual(result0[1][0].addr1, self.target_bssid, message1)
+        self.assertEqual(result0[1][0].addr2, receiver0, message1)
         self.assertEqual(result0[1][0].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
         self.assertEqual(result0[1][1].subtype, 12, message1)
-        self.assertEqual(result0[1][1].addr1, constants.WIFI_BROADCAST, message1)
-        self.assertEqual(result0[1][1].addr2, self.target_bssid, message1)
+        self.assertEqual(result0[1][1].addr1, self.target_bssid, message1)
+        self.assertEqual(result0[1][1].addr2, receiver0, message1)
         self.assertEqual(result0[1][1].addr3, self.target_bssid, message1)
 
         # check the disassociation packet
         self.assertEqual(result0[1][2].subtype, 10, message1)
-        self.assertEqual(result0[1][2].addr1, self.target_bssid, message1)
-        self.assertEqual(result0[1][2].addr2, receiver0, message1)
+        self.assertEqual(result0[1][2].addr1, receiver0, message1)
+        self.assertEqual(result0[1][2].addr2, self.target_bssid, message1)
         self.assertEqual(result0[1][2].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
         self.assertEqual(result0[1][3].subtype, 12, message1)
-        self.assertEqual(result0[1][3].addr1, self.target_bssid, message1)
-        self.assertEqual(result0[1][3].addr2, receiver0, message1)
+        self.assertEqual(result0[1][3].addr1, receiver0, message1)
+        self.assertEqual(result0[1][3].addr2, self.target_bssid, message1)
         self.assertEqual(result0[1][3].addr3, self.target_bssid, message1)
-
-        # check the disassociation packet
-        self.assertEqual(result0[1][4].subtype, 10, message1)
-        self.assertEqual(result0[1][4].addr1, receiver0, message1)
-        self.assertEqual(result0[1][4].addr2, self.target_bssid, message1)
-        self.assertEqual(result0[1][4].addr3, self.target_bssid, message1)
-
-        # check the deauthentication packet
-        self.assertEqual(result0[1][5].subtype, 12, message1)
-        self.assertEqual(result0[1][5].addr1, receiver0, message1)
-        self.assertEqual(result0[1][5].addr2, self.target_bssid, message1)
-        self.assertEqual(result0[1][5].addr3, self.target_bssid, message1)
 
         # check the packets for the second client
         # check the disassociation packet
@@ -288,6 +290,9 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr1 = receiver
         self.packet.addr2 = sender
         self.packet.addr3 = bssid
+
+        # add the bssid to the deauth_bssid set
+        self.deauth_obj1._deauth_bssids.add(bssid)
 
         # run the method
         result = self.deauth_obj1.get_packet(self.packet)
@@ -635,6 +640,7 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr3 = bssid
 
         # run the method
+        self.deauth_obj1._deauth_bssids.add(bssid)
         self.deauth_obj1.get_packet(self.packet)
         actual = self.deauth_obj1.send_output()
         expected = "DEAUTH/DISAS - {}".format(sender)
@@ -664,6 +670,7 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr3 = bssid0
 
         # run the method
+        self.deauth_obj1._deauth_bssids.add(bssid0)
         self.deauth_obj1.get_packet(self.packet)
 
         # change the packet details
@@ -671,10 +678,11 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr2 = sender1
         self.packet.addr3 = bssid1
 
+        # run the method again
+        self.deauth_obj1._deauth_bssids.add(bssid1)
         self.deauth_obj1.get_packet(self.packet)
 
         actual = self.deauth_obj1.send_output()
-
         expected0 = "DEAUTH/DISAS - {}".format(sender0)
         expected1 = "DEAUTH/DISAS - {}".format(receiver1)
 
@@ -709,10 +717,10 @@ class TestDeauth(unittest.TestCase):
 
         self.assertEqual(expected, actual, message)
 
-    def test_extract_bssid_to_ds_0_from_ds_1_addr1(self):
+    def test_extract_bssid_to_ds_0_from_ds_1_addr2(self):
         """
         Test _extract_bssid when to_ds is 1 and from_ds is 0.
-        The case should return packet.addr1
+        The case should return packet.addr2
         """
         # bit0 is to_ds and bit1 is from_ds
         self.packet.FCfield = 2
@@ -720,13 +728,13 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr2 = "22:22:22:22:22:22"
         self.packet.addr3 = "33:33:33:33:33:33"
 
-        message = "Fail to get correct BSSID as address 1"
+        message = "Fail to get correct BSSID as address 2"
         actual = self.deauth_obj0._extract_bssid(self.packet)
-        expected = self.packet.addr1
+        expected = self.packet.addr2
 
         self.assertEqual(expected, actual, message)
 
-    def test_extract_bssid_to_ds_1_from_ds_0_addr2(self):
+    def test_extract_bssid_to_ds_1_from_ds_0_addr1(self):
         """
         Test _extract_bssid when to_ds is 1 and from_ds is 0.
         The case should return packet.addr2
@@ -737,9 +745,9 @@ class TestDeauth(unittest.TestCase):
         self.packet.addr2 = "22:22:22:22:22:22"
         self.packet.addr3 = "33:33:33:33:33:33"
 
-        message = "Fail to get correct BSSID as address 2"
+        message = "Fail to get correct BSSID as address 1"
         actual = self.deauth_obj0._extract_bssid(self.packet)
-        expected = self.packet.addr2
+        expected = self.packet.addr1
 
         self.assertEqual(expected, actual, message)
 
@@ -793,3 +801,45 @@ class TestDeauth(unittest.TestCase):
 
         # check the packets
         self.assertEqual(result[1], [], message1)
+
+    def test_is_attacking_bssid_target_ap_bssid_true(self):
+        """
+        Get the target attacking bssid for the speficic ESSID
+        when --essid is not used
+        """
+        essid = dot11.Dot11Elt(ID='SSID', info="Evil")
+        packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
+        packet.addr3 = "99:99:99:99:99:99"
+        self.deauth_obj0._data.args.deauth_essid = True
+        result = self.deauth_obj0._is_attacking_bssid(packet)
+
+        expected = True
+        message = "Fail to check the attacking essid: " + self.target_essid
+        self.assertEqual(result, expected, message)
+
+    def test_is_attacking_bssid_target_ap_bssid_None_true(self):
+        """
+        Get the target attacking bssid for the speficic ESSID
+        when --essid is not used
+        """
+        essid = dot11.Dot11Elt(ID='SSID', info="Evil")
+        packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
+        packet.addr3 = "99:99:99:99:99:99"
+        self.deauth_obj1._data.args.deauth_essid = True
+        result = self.deauth_obj0._is_attacking_bssid(packet)
+
+        expected = True
+        message = "Fail to check the attacking essid: " + self.target_essid
+        self.assertEqual(result, expected, message)
+
+    def test_is_attacking_bssid_essid_non_decodable_error(self):
+        """
+        Assign essid to a constant when it is utf-8 non-decodable
+        """
+        essid = dot11.Dot11Elt(ID='SSID', info='\x99\x87\x33')
+        packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
+        packet.addr3 = "99:99:99:99:99:99"
+        result = self.deauth_obj0._is_attacking_bssid(packet)
+        expected = False
+        message = 'Fail to raise the UnicodeDecodeError for non-printable essid'
+        self.assertEqual(result, expected, message)
