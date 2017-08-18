@@ -10,7 +10,6 @@ import fcntl
 import curses
 import socket
 import struct
-import signal
 from threading import Thread
 from subprocess import Popen, PIPE, check_output
 from shutil import copyfile
@@ -450,31 +449,25 @@ def key_movement(information):
 
 
 def kill_interfering_procs():
-    """
-    Kill the interfering processes that may interfere the wireless card
-    :return None
-    :rtype None
-    ..note: The interfering processes are referenced by airmon-zc, and
-    we have removed the NetworkManager and knetworkmanager since we
-    use dbus to handle them.
-    """
-
-    # disable the networkmanager
-    interfaces.toggle_networking(False)
     # Kill any possible programs that may interfere with the wireless card
-    proc = Popen(['ps', '-A'], stdout=subprocess.PIPE)
-    output = proc.communicate()[0]
-    # total processes in the system
-    sys_procs = output.splitlines()
-    # loop each interfering processes and find if it is running
-    for interfering_proc in INTEFERING_PROCS:
-        for proc in sys_procs:
-            # kill all the processes name equal to interfering_proc
-            if interfering_proc in proc:
-                pid = int(proc.split(None, 1)[0])
-                print '[' + G + '+' + W + "] Sending SIGKILL to " +\
-                    interfering_proc
-                os.kill(pid, signal.SIGKILL)
+    # For systems with airmon-ng installed
+    if os.path.isfile('/usr/sbin/airmon-ng'):
+        proc = Popen(['airmon-ng', 'check', 'kill'], stdout=PIPE, stderr=DN)
+    # For ubuntu distros with nmcli
+    elif os.path.isfile('/usr/bin/nmcli') and \
+            os.path.isfile('/usr/sbin/rfkill'):
+        Popen(
+            ['nmcli', 'radio', 'wifi', 'off'],
+            stdout=PIPE,
+            stderr=DN
+        ).wait()
+        Popen(
+            ['rfkill', 'unblock', 'wlan'],
+            stdout=PIPE,
+            stderr=DN
+        ).wait()
+
+        time.sleep(1)
 
 
 class WifiphisherEngine:
@@ -524,7 +517,7 @@ class WifiphisherEngine:
             sys.exit('[' + R + '-' + W + '] Please run as root')
 
         if not args.internetinterface:
-            kill_interfering_procs()
+            interfaces.toggle_networking(False)
 
         self.network_manager.start()
 
@@ -600,6 +593,10 @@ class WifiphisherEngine:
             # make sure interfaces are not blocked
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
+
+            if not args.internetinterface:
+                kill_interfering_procs()
+
             self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
