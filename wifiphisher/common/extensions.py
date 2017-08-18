@@ -292,9 +292,14 @@ class ExtensionManager(object):
         output = []
         for extension in self._extensions:
             m_output = extension.send_output()
-            num_of_lines = len(m_output)
-            if m_output and num_of_lines > 0:
-                output += m_output
+            # catch the exception if m_output is None
+            try:
+                num_of_lines = len(m_output)
+                if num_of_lines > 0:
+                    output += m_output
+            except TypeError:
+                pass
+
         return output
 
     def _process_packet(self, pkt):
