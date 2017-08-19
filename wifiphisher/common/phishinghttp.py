@@ -87,6 +87,7 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             "text/javascript",
             "text/css",
             "image/",
+            "audio/",
             "video/"
         ]
 
