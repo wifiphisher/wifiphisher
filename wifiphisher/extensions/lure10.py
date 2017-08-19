@@ -28,7 +28,6 @@ class Lure10(object):
         """
 
         self.first_run = True
-        self.should_notify = False
         self.data = shared_data
 
     def get_packet(self, pkt):
@@ -46,17 +45,14 @@ class Lure10(object):
             this prototype is requirement
         """
 
+        beacons = list()
+        bssid = str()
+
         # only run this code once
         if self.first_run and self.data.args.lure10_exploit:
-
-            # setup our data structures inside the if for a better performance
-            beacons = list()
-            bssid = str()
-
             # locate the lure10 file
             area_file = constants.LOCS_DIR + self.data.args.lure10_exploit
 
-            # open the file
             with open(area_file) as _file:
                 for line in _file:
                     # remove any white space and store the bssid(fist word)
@@ -81,9 +77,8 @@ class Lure10(object):
 
                     # make sure this block is never executed again and the notification occurs
                     self.first_run = False
-                    self.should_notify = True
 
-            return (["*"], beacons)
+        return (["*"], beacons)
 
     def send_output(self):
         """
@@ -97,13 +92,8 @@ class Lure10(object):
             clutters
         """
 
-        # only run it once the packet crafting is done
-        if self.should_notify and self.data.args.lure10_exploit:
-
-            # make sure this block is not executed again
-            self.should_notify = False
-
-            return ["Lure10 - Spoofing location services"]
+        return (not self.first_run and self.data.args.lure10_exploit and
+                ["Lure10 - Spoofing location services"] or [])
 
     def send_channels(self):
         """
