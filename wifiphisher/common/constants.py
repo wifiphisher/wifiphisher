@@ -42,6 +42,32 @@ DEFAULT_OUI = '00:00:00'
 LINES_OUTPUT = 3
 DN = open(os.devnull, 'w')
 
+# Modes of operation
+# Advanced
+# 2 cards, 2 interfaces
+# i) AP, ii) EM
+OP_MODE1 = 0x1
+# Advanced and Internet
+# 3 cards, 3 interfaces
+# i) AP, ii) EM iii) Internet
+OP_MODE2 = 0x2
+# AP-only and Internet
+# 2 cards, 2 interfaces
+# i) AP, ii) Internet
+OP_MODE3 = 0x3
+# AP-only
+# 1 card, 1 interface
+# i) AP
+OP_MODE4 = 0x4
+# Advanced w/ 1 vif
+# 1 card, 2 interfaces
+# i) AP, ii) Extensions
+OP_MODE5 = 0x5
+# Advanced and Internet w/ 1 vif
+# 2 cards, 3 interfaces
+# i) AP, ii) Extensions, iii) Internet
+OP_MODE6 = 0x6
+
 # Console colors
 W = '\033[0m'    # white (normal)
 R = '\033[31m'   # red
