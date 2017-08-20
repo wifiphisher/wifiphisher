@@ -82,7 +82,7 @@ class Deauth(object):
                 (to_ds and not from_ds and packet.addr1) or
                 None)
 
-    def _is_attacking_bssid(self, packet):
+    def _is_target(self, packet):
         """
         Check if this is the target attacking bssid
         :param self: A Deauth object
@@ -155,7 +155,7 @@ class Deauth(object):
         bssid = self._extract_bssid(packet)
         # check beacon if this is our target deauthing BSSID
         if (packet.haslayer(dot11.Dot11Beacon) and bssid not in self._deauth_bssids
-                and self._is_attacking_bssid(packet)):
+                and self._is_target(packet)):
             # listen beacon to get the target attacking BSSIDs for the
             # specified ESSID
             packets_to_send += self._craft_packet(bssid,

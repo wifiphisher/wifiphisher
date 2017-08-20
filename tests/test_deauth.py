@@ -802,7 +802,7 @@ class TestDeauth(unittest.TestCase):
         # check the packets
         self.assertEqual(result[1], [], message1)
 
-    def test_is_attacking_bssid_target_ap_bssid_true(self):
+    def test_is_target_target_ap_bssid_true(self):
         """
         Get the target attacking bssid for the speficic ESSID
         when --essid is not used
@@ -811,13 +811,13 @@ class TestDeauth(unittest.TestCase):
         packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
         packet.addr3 = "99:99:99:99:99:99"
         self.deauth_obj0._data.args.deauth_essid = True
-        result = self.deauth_obj0._is_attacking_bssid(packet)
+        result = self.deauth_obj0._is_target(packet)
 
         expected = True
         message = "Fail to check the attacking essid: " + self.target_essid
         self.assertEqual(result, expected, message)
 
-    def test_is_attacking_bssid_target_ap_bssid_None_true(self):
+    def test_is_target_target_ap_bssid_None_true(self):
         """
         Get the target attacking bssid for the speficic ESSID
         when --essid is not used
@@ -826,20 +826,20 @@ class TestDeauth(unittest.TestCase):
         packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
         packet.addr3 = "99:99:99:99:99:99"
         self.deauth_obj1._data.args.deauth_essid = True
-        result = self.deauth_obj0._is_attacking_bssid(packet)
+        result = self.deauth_obj1._is_target(packet)
 
         expected = True
         message = "Fail to check the attacking essid: " + self.target_essid
         self.assertEqual(result, expected, message)
 
-    def test_is_attacking_bssid_essid_non_decodable_error(self):
+    def test_is_target_essid_non_decodable_error(self):
         """
         Assign essid to a constant when it is utf-8 non-decodable
         """
         essid = dot11.Dot11Elt(ID='SSID', info='\x99\x87\x33')
         packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
         packet.addr3 = "99:99:99:99:99:99"
-        result = self.deauth_obj0._is_attacking_bssid(packet)
+        result = self.deauth_obj0._is_target(packet)
         expected = False
         message = 'Fail to raise the UnicodeDecodeError for non-printable essid'
         self.assertEqual(result, expected, message)
