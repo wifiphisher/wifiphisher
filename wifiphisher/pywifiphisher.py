@@ -78,6 +78,13 @@ def parse_args():
               )
     )
     parser.add_argument(
+        "-dE",
+        "--deauth-essid",
+        help=("Deauth all the BSSIDs having same ESSID from AP selection or " +
+              "the ESSID given by -e option" 
+              ),
+        action='store_true')
+    parser.add_argument(
         "-p",
         "--phishingscenario",
         help=("Choose the phishing scenario to run." +
