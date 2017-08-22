@@ -68,6 +68,8 @@ OP_MODE5 = 0x5
 # i) AP, ii) Extensions, iii) Internet
 OP_MODE6 = 0x6
 
+AP_RATES = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
+
 # Console colors
 W = '\033[0m'    # white (normal)
 R = '\033[31m'   # red
