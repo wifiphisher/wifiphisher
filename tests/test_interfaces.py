@@ -504,6 +504,7 @@ class TestNetworkManager(unittest.TestCase):
         adapter.is_managed_by_nm = True
         adapter.has_monitor_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
+        self.network_manager.internet_access_enable = True
         with self.assertRaises(interfaces.InterfaceManagedByNetworkManagerError):
             self.network_manager.is_interface_valid(interface_name, "monitor")
 
@@ -534,6 +535,7 @@ class TestNetworkManager(unittest.TestCase):
         adapter.is_managed_by_nm = True
         adapter.has_ap_mode = True
         self.network_manager._name_to_object[interface_name] = adapter
+        self.network_manager.internet_access_enable = True
         self.assertRaises(
             interfaces.InterfaceManagedByNetworkManagerError,
             self.network_manager.is_interface_valid, interface_name, "AP")

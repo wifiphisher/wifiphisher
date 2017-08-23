@@ -413,7 +413,8 @@ class NetworkManager(object):
         if mode == "internet":
             self._exclude_shutdown.add(interface_name)
         # raise an error if interface doesn't support the mode
-        if mode != "internet" and interface_adapter.is_managed_by_nm:
+        if mode != "internet" and interface_adapter.is_managed_by_nm\
+                and self.internet_access_enable:
             raise InterfaceManagedByNetworkManagerError(interface_name)
         if mode == "monitor" and not interface_adapter.has_monitor_mode:
             raise InvalidInterfaceError(interface_name, mode)
