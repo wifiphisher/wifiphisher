@@ -41,6 +41,10 @@ NON_CLIENT_ADDRESSES = set([WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_I
 DEFAULT_OUI = '00:00:00'
 LINES_OUTPUT = 3
 DN = open(os.devnull, 'w')
+INTERFERING_PROCS = ["wpa_action", "wpa_supplicant", "wpa_cli", "dhclient",
+                    "ifplugd", "dhcdbd", "dhcpcd", "udhcpc",
+                    "avahi-autoipd", "avahi-daemon", "wlassistant",
+                    "wifibox", "NetworkManager", "knetworkmanager"]
 
 # Modes of operation
 # Advanced

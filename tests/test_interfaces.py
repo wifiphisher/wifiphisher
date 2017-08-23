@@ -232,20 +232,6 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
 
     @mock.patch('dbus.Interface')
     @mock.patch('dbus.SystemBus')
-    def test_toggle_networking_has_disable_nm_true(
-            self, fake_bus, fake_interface):
-        """
-        Test enable_network_manager disabling the NetworkManager
-        """
-        fake_bus.return_value = self.bus
-        fake_interface.side_effect = self.get_interface()
-        # disable the network manager
-        interfaces.toggle_networking(False)
-        message = "function attr has_disable_nm should be true"
-        self.assertTrue(interfaces.toggle_networking.has_disable_nm, message)
-
-    @mock.patch('dbus.Interface')
-    @mock.patch('dbus.SystemBus')
     def test_is_managed_by_networkmanager_is_managed_true(
             self, fake_bus, fake_interface):
         """
@@ -276,19 +262,6 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
         message = "the managed property should be true"
         self.assertFalse(is_managed, message)
 
-    @mock.patch("wifiphisher.common.interfaces.dbus.Interface")
-    def test_is_managed_by_network_manager_no_manager_false(self, my_dbus):
-        """
-        Test is_managed_by_network_manager function when there
-        is no network manager
-        """
-
-        my_dbus.side_effect = my_dbus.exceptions.DBusException
-        actual = interfaces.is_managed_by_network_manager("wlan0")
-
-        message = "NetworkManager is not running, the managed property should be false"
-        self.assertFalse(actual, message)
-
     @mock.patch("wifiphisher.common.interfaces.dbus")
     def test_is_managed_by_network_manager_unexpected_error_error(self, my_dbus):
         """
@@ -301,6 +274,23 @@ class TestIsManagedByNetworkManager(unittest.TestCase):
 
         with self.assertRaises(KeyError):
             interfaces.is_managed_by_network_manager("wlan0")
+
+    @mock.patch('dbus.Interface')
+    @mock.patch('dbus.SystemBus')
+    def test_is_managed_by_networkmanager_is_managed_false(
+            self, fake_bus, fake_interface):
+        """
+        Test is_managed_by_network_manager when dbus service is
+        not running. It should raise dbus.exceptions.DbusException
+        and we should just return False under this case.
+        """
+
+        fake_bus.return_value = self.bus
+        fake_interface.side_effect = dbus.exceptions.DBusException
+        is_managed = interfaces.is_managed_by_network_manager(self.interface_1)
+
+        message = "the managed property should be false"
+        self.assertFalse(is_managed, message)
 
 
 class TestInterfacePropertyDetector(unittest.TestCase):
@@ -381,6 +371,26 @@ class TestNetworkManager(unittest.TestCase):
 
         self.network_manager = interfaces.NetworkManager()
         self.mac_address = "00:00:00:00:00:00"
+
+    def test_internet_access_enable_error(self):
+        """
+        Test internet_access_enable by passing invalid arguement
+        """
+
+        network_manager = interfaces.NetworkManager()
+        with self.assertRaises(interfaces.InvalidValueError):
+            network_manager.internet_access_enable = 'invalid'
+
+    def test_is_interface_valid_mode_internet_true(self):
+        """
+        Test is_interface_valid when it is ethernet card thus
+        the card is not found in self._name_to_object
+        """
+        interface_name = 'eth0'
+        actual = self.network_manager.is_interface_valid(interface_name, mode="internet")
+        message = "Failed to validate a valid interface " + interface_name
+
+        self.assertTrue(actual, message)
 
     def test_is_interface_valid_valid_true(self):
         """ Tests is_interface_valid method when interface is valid """
@@ -688,6 +698,7 @@ class TestNetworkManager(unittest.TestCase):
         adapter.has_monitor_mode = True
         adapter.is_managed_by_nm = True
         self.network_manager._name_to_object[interface_name] = adapter
+        self.network_manager.internet_access_enable = True
 
         self.assertRaises(
             interfaces.InterfaceManagedByNetworkManagerError,
@@ -707,6 +718,7 @@ class TestNetworkManager(unittest.TestCase):
         adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
+        self.network_manager.internet_access_enable = True
         adapter_0.has_monitor_mode = True
         adapter_1.has_monitor_mode = True
         adapter_0.has_ap_mode = True
@@ -731,6 +743,7 @@ class TestNetworkManager(unittest.TestCase):
         adapter_1 = interfaces.NetworkAdapter(interface_name_1, interface_object, self.mac_address)
         self.network_manager._name_to_object[interface_name_0] = adapter_0
         self.network_manager._name_to_object[interface_name_1] = adapter_1
+        self.network_manager.internet_access_enable = True
         adapter_0.has_monitor_mode = True
         adapter_1.has_monitor_mode = True
         adapter_0.has_ap_mode = True
@@ -1106,3 +1119,14 @@ class TestIsWirelessInterface(unittest.TestCase):
         message = interface +\
             " Shows interface is wireless adapter when it is not"
         self.assertFalse(is_wireless, message)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_is_wireless_interface_true(self, pyric):
+        """
+        Test is_wireless_interface and the adatper is wireless card
+        """
+        pyric.iswireless.return_value = True
+        interface_name = 'wlan0'
+        actual = interfaces.is_wireless_interface(interface_name)
+        message = 'Fail to return true when the card is wireless card'
+        self.assertTrue(actual, message)
