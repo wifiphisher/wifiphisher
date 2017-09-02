@@ -1124,9 +1124,18 @@ class TestNetworkManager(unittest.TestCase):
         card = mock.Mock()
         pyric.down.return_value = None
         pyric.devadd.return_value = None
-        actual = interfaces.add_virtual_interface(card)
+        actual = self.network_manager.add_virtual_interface(card)
         expected = 'wlan1'
         self.assertEqual(actual, expected)
+
+    @mock.patch("wifiphisher.common.interfaces.pyw")
+    def test_remove_vifs_added(self, pyric):
+        card = mock.Mock()
+        self.network_manager._vifs_add = set()
+        self.network_manager._vifs_add.add(card)
+        pyric.devdel.return_value = None
+        self.network_manager.remove_vifs_added()
+        pyric.devdel.assert_called_once()
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
     def test_add_virtual_interface_first_run_error_second_run_success(self, mock_pyric):
@@ -1146,7 +1155,7 @@ class TestNetworkManager(unittest.TestCase):
         mock_pyric.down.return_value = None
         mock_pyric.devadd.side_effect = side_effect
         expected = 'wlan2'
-        actual = interfaces.add_virtual_interface(card)
+        actual = self.network_manager.add_virtual_interface(card)
         self.assertEqual(actual, expected)
 
     @mock.patch("wifiphisher.common.interfaces.pyw")

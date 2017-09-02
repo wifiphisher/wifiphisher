@@ -526,14 +526,14 @@ class WifiphisherEngine:
                 self.op_mode = OP_MODE1
             else:
                 if card is not None:
-                    interfaces.add_virtual_interface(card)
+                    self.network_manager.add_virtual_interface(card)
                 self.op_mode = OP_MODE5
         if args.internetinterface and not args.nojamming:
             if not is_single_perfect_card:
                 self.op_mode = OP_MODE2
             else:
                 if card is not None:
-                    interfaces.add_virtual_interface(card)
+                    self.network_manager.add_virtual_interface(card)
                 self.op_mode = OP_MODE6
         if args.internetinterface and args.nojamming:
             self.op_mode = OP_MODE3

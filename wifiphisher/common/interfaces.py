@@ -351,6 +351,7 @@ class NetworkManager(object):
         self._active = set()
         self._exclude_shutdown = set()
         self._internet_access_enable = False
+        self._vifs_add = set()
 
     @property
     def internet_access_enable(self):
@@ -646,6 +647,47 @@ class NetworkManager(object):
 
         pyw.chset(card, channel)
 
+    def add_virtual_interface(self, card):
+        """
+        Add the virtual interface to the host system
+        :param self: A NetworkManager object
+        :param card: A pyw.Card object
+        :type self: NetworkManager
+        :type card: pyw.Card
+        :return name of the interface
+        :rtype str
+        :..note: when add the interface it is possible raising the
+        pyric.error causing by adding the duplicated wlan interface
+        name.
+        """
+
+        done_flag = True
+        number = 0
+        while done_flag:
+            try:
+                number += 1
+                name = 'wlan' + str(number)
+                pyw.down(card)
+                monitor_card = pyw.devadd(card, name, 'monitor')
+                done_flag = False
+            # catch if wlan1 is already exist
+            except pyric.error:
+                pass
+        self._vifs_add.add(monitor_card)
+        return name
+
+    def remove_vifs_added(self):
+        """
+        Remove all the added virtual interfaces
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: None
+        :rtype: None
+        """
+
+        for card in self._vifs_add:
+            pyw.devdel(card)
+
     def start(self):
         """
         Start the network manager
@@ -688,33 +730,8 @@ class NetworkManager(object):
                 adapter = self._name_to_object[interface]
                 mac_address = adapter.original_mac_address
                 self.set_interface_mac(interface, mac_address)
-
-
-def add_virtual_interface(card):
-    """
-    Add the virtual interface to the host system
-    :param card: A pyw.Card object
-    :type card: pyw.Card
-    :return name of the interface
-    :rtype str
-    :..note: when add the interface it is possible raising the
-    pyric.error causing by adding the duplicated wlan interface
-    name.
-    """
-
-    done_flag = True
-    number = 0
-    while done_flag:
-        try:
-            number += 1
-            name = 'wlan' + str(number)
-            pyw.down(card)
-            pyw.devadd(card, name, 'monitor')
-            done_flag = False
-        # catch if wlan1 is already exist
-        except pyric.error:
-            pass
-    return name
+        # remove all the virtual added virtual interfaces
+        self.remove_vifs_added()
 
 def is_add_vif_required(args):
     """
