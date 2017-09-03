@@ -5,10 +5,12 @@ All logic regarding extensions management
 import time
 import importlib
 import threading
+import Queue
 import collections
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
+import wifiphisher.common.extensioncmds as extensioncmds
 
 
 def register_backend_funcs(func):
@@ -82,6 +84,8 @@ class ExtensionManager(object):
         self._send_thread = threading.Thread(target=self._send)
         self._channelhop_thread = threading.Thread(target=self._channel_hop)
         self._shared_data = None
+        self._cmd_process_thread = threading.Thread(
+            target=self._process_extension_command)
 
     def get_ui_funcs(self):
         """
@@ -159,6 +163,24 @@ class ExtensionManager(object):
                             continue
                     else:
                         break
+
+    def _process_extension_command(self):
+        """
+        Process the commands come from extension modules
+
+        :param self: A ExtensionManager object
+        :type self: ExtensionManager
+        :return: None
+        :rtype: None
+        """
+
+        while self._should_continue:
+            try:
+                # set Non-blocking for getting command
+                command = extensioncmds.EXTENSION_CMD_QUEUE.get(False)
+                command.execute(self)
+            except Queue.Empty:
+                pass
 
     def set_interface(self, interface):
         """
@@ -239,6 +261,8 @@ class ExtensionManager(object):
             self._channelhop_thread.start()
         else:
             self._current_channel = self._shared_data.target_ap_channel
+        # daemon for processing the commands from extension modules
+        self._cmd_process_thread.start()
 
     def on_exit(self):
         """
@@ -259,6 +283,8 @@ class ExtensionManager(object):
                 self._shared_data.is_freq_hop_allowed and
                 self._channelhop_thread.is_alive()):
             self._channelhop_thread.join(3)
+        if self._cmd_process_thread.is_alive():
+            self._cmd_process_thread.join(3)
         # Close socket if it's open
         try:
             self._socket.close()
@@ -284,6 +310,24 @@ class ExtensionManager(object):
                 # Append only new channels (no duplicates)
                 self._channels_to_hop += list(set(channels_interested) -
                                               set(self._channels_to_hop))
+
+    def clear_deauth_frames(self, old_channel, target_bssid):
+        """
+        Clear the deauth frames when the target BSSID change channel
+
+        :param self: An ExtensionManager object
+        :param old_channel: The previous channel
+        :param target_bssid: The target bssid
+        :type self: ExtensionManager
+        :type old_channel: str
+        :type target_bssid: str
+        :return: None
+        :rtype: None
+        """
+
+        # clear the unnecessary deauth frames due to channel change
+        self._packets_to_send[old_channel] = [pkt for pkt in self._packets_to_send[old_channel]
+                                              if pkt.addr3 != target_bssid]
 
     def get_output(self):
         """

