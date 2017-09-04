@@ -210,3 +210,6 @@ class AccessPoint(object):
             os.remove('/var/lib/misc/dnsmasq.leases')
         if os.path.isfile('/tmp/dhcpd.conf'):
             os.remove('/tmp/dhcpd.conf')
+        # sleep 2 seconds to wait all the hostapd process is
+        # killed
+        time.sleep(2)

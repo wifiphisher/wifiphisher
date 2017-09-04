@@ -20,7 +20,8 @@ class TestDeauth(unittest.TestCase):
         self.packet = dot11.RadioTap() / dot11.Dot11() / essid / rates / dsset
 
         custom_tuple = collections.namedtuple("test",
-                                              "target_ap_bssid target_ap_channel rogue_ap_mac args target_ap_essid")
+                                              ("target_ap_bssid target_ap_channel rogue_ap_mac args "
+                                               "target_ap_essid is_freq_hop_allowed"))
 
         self.target_channel = "6"
         self.target_bssid = "BB:BB:BB:BB:BB:BB"
@@ -30,9 +31,9 @@ class TestDeauth(unittest.TestCase):
         self.args.deauth_essid = False
 
         data0 = custom_tuple(self.target_bssid, self.target_channel, self.rogue_mac,
-                             self.args, self.target_essid)
+                             self.args, self.target_essid, True)
         data1 = custom_tuple(None, self.target_channel, self.rogue_mac,
-                             self.args, self.target_essid)
+                             self.args, self.target_essid, True)
 
         self.deauth_obj0 = deauth.Deauth(data0)
         self.deauth_obj1 = deauth.Deauth(data1)
