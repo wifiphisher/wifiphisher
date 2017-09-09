@@ -317,6 +317,38 @@ class TemplateManager(object):
 
         return self._templates
 
+    def is_valid_template(self, name):
+        """
+        Validate the template
+        :param self: A TemplateManager object
+        :param name: A directory name
+        :type self: A TemplateManager object
+        :return: tuple of is_valid and output string
+        :rtype: tuple
+        """
+        config = False
+        html = False
+        # template directory files
+        template = os.listdir(os.path.join(self._template_directory, name))
+        # check everyone file for...
+        for files in template:
+            # html
+            if files.find(".html", 0) != -1:
+                html = True
+            # config
+            elif files.find("config.ini", 0) != -1:
+                config = True
+        # and if we found them all return true and template directory name
+        if config and html:
+            return True, name
+        # if not then check what we (not) got
+        elif not config and not html:
+            return False, "Configuration files are not found in: "
+        elif not config:
+            return False, "No config file found in: "
+        elif not html:
+            return False, "No HTML files found in: "
+
     def find_user_templates(self):
         """
         Return all the user's templates available.
@@ -325,7 +357,6 @@ class TemplateManager(object):
         :type self: TemplateManager
         :return: all the local templates available
         :rtype: list
-        .. todo:: check to make sure directory contains HTML files
         """
 
         # a list to store file names in
@@ -336,8 +367,15 @@ class TemplateManager(object):
             # check to see if it is a directory and not in the database
             if (os.path.isdir(os.path.join(self._template_directory, name)) and
                     name not in self._templates):
-                # add it to the list
-                local_templates.append(name)
+                # check template
+                is_valid, output = self.is_valid_template(name)
+                # if template successfully validated, then...
+                if is_valid:
+                    # just add it to the list
+                    local_templates.append(name)
+                else:
+                    # but if not then display which problem occurred
+                    print "[" + constants.R + "!" + constants.W + "] " + output + name
 
         return local_templates
 
