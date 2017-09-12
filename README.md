@@ -26,8 +26,7 @@ From the victim's perspective, the attack makes use in three phases:
 Following are the requirements for getting the most out of Wifiphisher:
 
 * Kali Linux. Although people have made Wifiphisher work on other distros, Kali Linux is the officially supported distribution, thus all new features are primarily tested on this platform.
-* One wireless network adapter that supports AP mode. Drivers should support netlink.
-* One wireless network adapter that supports Monitor mode and is capable of injection. Again, drivers should support netlink. If a second wireless network adapter is not available, you may run the tool with the --nojamming option. This will turn off the de-authentication attack though.
+* One wireless network adapter that supports AP & Monitor mode and is capable of injection. For advanced mode, you need two cards; one that supports AP mode and another that supports Monitor mode. Drivers should support netlink.
 
 ## Installation
 
