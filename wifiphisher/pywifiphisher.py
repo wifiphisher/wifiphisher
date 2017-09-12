@@ -692,7 +692,9 @@ class WifiphisherEngine:
             # make sure interfaces are not blocked
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
-            self.network_manager.set_interface_mode(mon_iface, "monitor")
+            # set monitor mode only when --essid is not given
+            if self.advanced_enabled() or args.essid is None:
+                self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
                 interfaces.InterfaceManagedByNetworkManagerError) as err:
