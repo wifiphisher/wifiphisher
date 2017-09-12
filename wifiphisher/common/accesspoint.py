@@ -119,9 +119,14 @@ class AccessPoint(object):
                 dhcpconf.write("server=%s" % (constants.PUBLIC_DNS,))
             else:
                 dhcpconf.write("address=/#/%s" % (constants.NETWORK_GW_IP,))
-
-        subprocess.Popen(['dnsmasq', '-C', '/tmp/dhcpd.conf'],
-                         stdout=subprocess.PIPE, stderr=constants.DN)
+        # catch the exception if dnsmasq is not installed
+        try:
+            subprocess.Popen(['dnsmasq', '-C', '/tmp/dhcpd.conf'],
+                             stdout=subprocess.PIPE, stderr=constants.DN)
+        except OSError:
+            print ("[" + constants.R + "!" + constants.W + "] " +
+                   "dnsmasq is not installed!")
+            raise Exception
 
         subprocess.Popen(['ifconfig', str(self.interface), 'mtu', '1400'],
                          stdout=constants.DN, stderr=constants.DN)
@@ -179,15 +184,23 @@ class AccessPoint(object):
             hostapd_options = {}
             hostapd_config_obj = hostapd_controller.HostapdConfig()
             hostapd_config_obj.write_configs(hostapd_config, hostapd_options)
-            self.hostapd_object = subprocess.Popen(['hostapd',
-                                                    hostapd_constants.\
-                HOSTAPD_CONF_PATH],
-                                                   stdout=constants.DN,
-                                                   stderr=constants.DN)
-            time.sleep(2)
-            if self.hostapd_object.poll() is not None:
+
+            # handle exception if hostapd is not installed in system
+            try:
+                self.hostapd_object = subprocess.Popen(
+                    ['hostapd', hostapd_constants.HOSTAPD_CONF_PATH],
+                    stdout=constants.DN, stderr=constants.DN)
+            except OSError:
+                print ("[" + constants.R + "!" + constants.W + "] " +
+                       "hostapd is not installed!")
+                # just raise exception when hostapd is not installed
                 raise Exception
 
+            time.sleep(2)
+            if self.hostapd_object.poll() is not None:
+                print ("[" + constants.R + "!" + constants.W + "] " +
+                       "hostapd failed to lunch!")
+                raise Exception
 
     def on_exit(self):
         """
