@@ -6,8 +6,12 @@ available access points
 from __future__ import division
 import threading
 import time
+import logging
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
+
+
+logger = logging.getLogger(__name__)
 
 
 class AccessPoint(object):
@@ -353,6 +357,7 @@ class AccessPointFinder(object):
     def capture_aps(self):
         self._capture_file = constants.LOCS_DIR + "area_" +\
             time.strftime("%Y%m%d_%H%M%S")
+        logger.info("Create lure10-capture file %s", self._capture_file)
 
     def find_all_access_points(self):
         """

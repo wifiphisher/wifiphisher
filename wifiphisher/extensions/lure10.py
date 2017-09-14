@@ -6,9 +6,12 @@ to automatic association by fooling the Windows
 Location Service
 """
 
+import logging
 import wifiphisher.common.constants as constants
 import scapy.layers.dot11 as dot11
 
+
+logger = logging.getLogger(__name__)
 
 class Lure10(object):
     """
@@ -71,7 +74,8 @@ class Lure10(object):
                     # create a complete packet by combining the parts
                     complete_frame = (frame_part_0 / frame_part_1 / frame_part_2 / frame_part_3 /
                                       frame_part_4 / frame_part_5)
-
+                    logger.debug("Add lure10-beacon frame with BSSID %s",
+                                 bssid)
                     # add the frame to the list
                     beacons.append(complete_frame)
 

@@ -7,6 +7,7 @@ do the verification whether the password given by
 import binascii
 import hmac
 import hashlib
+import logging
 from collections import deque
 from pbkdf2 import PBKDF2
 import scapy.layers.dot11 as dot11
@@ -14,8 +15,11 @@ import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
 
 
+logger = logging.getLogger(__name__)
+
 # define the verification state
 DONE, FAIL, NOT_YET = range(3)
+
 
 def is_valid_handshake_capture(handshake_path):
     """
@@ -52,9 +56,11 @@ def is_valid_handshake_capture(handshake_path):
                     msg3.addr2 == ap_bssid and\
                     msg2.addr1 == ap_bssid and\
                     msg4.addr1 == ap_bssid:
+                logger.info("Get valid handshake frames")
                 return True
         else:
             break
+    logger.info("No valid handshake frames exists")
     return False
 
 
@@ -233,6 +239,7 @@ class Handshakeverify(object):
 
             # remove the head of the eapol
             if self._is_done == DONE:
+                logger.info("PSK:%s is correct", list_data[0])
                 return 'success'
             else:
                 pop_pkt = self._eapols.popleft()
@@ -244,6 +251,7 @@ class Handshakeverify(object):
         self._store_eapols = []
         # if captured the handshake but not done return fail
         if self._is_captured:
+            logger.info("PSK:%s is incorrect", list_data[0])
             return 'fail'
         return 'not-captured'
 

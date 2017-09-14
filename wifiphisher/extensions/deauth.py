@@ -5,8 +5,12 @@ Extension that sends 3 DEAUTH/DISAS Frames:
  1 to the broadcast address
 """
 
+import logging
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
+
+
+logger = logging.getLogger(__name__)
 
 
 class Deauth(object):
@@ -98,6 +102,8 @@ class Deauth(object):
             try:
                 essid = packet[dot11.Dot11Elt].info.decode("utf8")
             except UnicodeDecodeError:
+                logger.warning("Unable to decode the essid with with bssid {}"
+                               .format(packet.addr3))
                 return False
 
             # only compare essid when -dE is given
@@ -136,6 +142,7 @@ class Deauth(object):
             receiver = packet.addr1
             sender = packet.addr2
         except AttributeError:
+            logger.debug("Malformed frame doesn't contain address fields")
             return ([], [])
 
         # obtain the channel for this packet
@@ -150,6 +157,7 @@ class Deauth(object):
             channels.append(str(channel))
         except (TypeError, IndexError):
             # just return empty channel and packet
+            logger.debug("Malformed frame doesn't contain channel field")
             return ([], [])
 
         bssid = self._extract_bssid(packet)
@@ -161,6 +169,7 @@ class Deauth(object):
             packets_to_send += self._craft_packet(bssid,
                                                   constants.WIFI_BROADCAST,
                                                   bssid)
+            logger.info("Target deauth BSSID found: {0}".format(bssid))
             self._deauth_bssids.add(bssid)
 
         if bssid not in self._deauth_bssids:
@@ -170,6 +179,7 @@ class Deauth(object):
         if clients:
             self._observed_clients.add(clients[0])
             packets_to_send += clients[1]
+            logger.info("Client with BSSID {} is now getting deauthenticated".format(clients[0]))
 
         return (channels, packets_to_send)
 

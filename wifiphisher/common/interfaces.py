@@ -5,10 +5,13 @@ the program
 
 import random
 from collections import defaultdict
+import logging
 import pyric
 import pyric.pyw as pyw
 import dbus
 import wifiphisher.common.constants as constants
+
+logger = logging.getLogger("wifiphisher.interfaces")
 
 
 class InvalidInterfaceError(Exception):

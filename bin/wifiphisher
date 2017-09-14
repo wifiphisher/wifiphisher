@@ -3,6 +3,11 @@
 
 import sys
 import os
+import logging
+
+
+root_logger = logging.getLogger()
+root_logger.addHandler(logging.NullHandler())
 
 dir_of_executable = os.path.dirname(__file__)
 path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))

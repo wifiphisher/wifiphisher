@@ -35,7 +35,7 @@ WIFI_INVALID = "00:00:00:00:00:00"
 WIFI_IPV6MCAST1 = "33:33:00:"
 WIFI_IPV6MCAST2 = "33:33:ff:"
 WIFI_SPANNINGTREE = "01:80:c2:00:00:00"
-WIFI_MULTICAST =  "01:00:5e:"
+WIFI_MULTICAST = "01:00:5e:"
 NON_CLIENT_ADDRESSES = set([WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_IPV6MCAST1,
                         WIFI_IPV6MCAST2, WIFI_SPANNINGTREE, None])
 DEFAULT_OUI = '00:00:00'
@@ -84,6 +84,38 @@ P = '\033[35m'   # purple
 C = '\033[36m'   # cyan
 GR = '\033[37m'  # gray
 T = '\033[93m'   # tan
+
+# Logging configurations
+# possible values for debug levels are:
+# CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
+LOG_LEVEL = 'INFO'
+LOG_FILEPATH = 'wifiphisher.log'
+LOGGING_CONFIG = {
+    'version': 1,
+    # Defined the handlers
+    'handlers': {
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': LOG_LEVEL,
+            'formatter': 'detailed',
+            'filename': LOG_FILEPATH,
+            'backupCount': 3,
+        },
+    },
+    # fomatters for the handlers
+    'formatters': {
+        'detailed': {
+            'format': '%(asctime)s - %(name) 32s - %(levelname)s - %(message)s'
+        },
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['file', ],
+    },
+    "loggers": {
+    },
+    'disable_existing_loggers': False
+}
 
 # NM DBus Marcos
 NM_APP_PATH = 'org.freedesktop.NetworkManager'

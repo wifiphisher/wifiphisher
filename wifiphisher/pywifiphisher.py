@@ -3,6 +3,8 @@
 # pylint: skip-file
 import subprocess
 import os
+import logging
+import logging.config
 import time
 import sys
 import argparse
@@ -27,14 +29,11 @@ import wifiphisher.common.tui as tui
 import wifiphisher.extensions.handshakeverify as handshakeverify
 
 
+logger = logging.getLogger(__name__)
 
 # Fixes UnicodeDecodeError for ESSIDs
 reload(sys)
 sys.setdefaultencoding('utf8')
-
-VERSION = "1.3GIT"
-args = 0
-APs = {}  # for listing APs
 
 
 def parse_args():
@@ -132,8 +131,33 @@ def parse_args():
         "-iNM",
         "--no-mac-randomization",
         help=("Do not change any MAC address"), action='store_true')
+    parser.add_argument(
+        "--log-file",
+        help=("Log activity to file"),
+        action="store_true")
 
     return parser.parse_args()
+
+
+VERSION = "1.3GIT"
+args = parse_args()
+APs = {}  # for listing APs
+
+
+def setup_logging(args):
+    """
+    Setup the logging configurations
+    """
+    root_logger = logging.getLogger()
+    # logging setup
+    if args.log_file:
+        logging.config.dictConfig(LOGGING_CONFIG)
+        should_roll_over = False
+        # use root logger to rotate the log file
+        if os.path.getsize(LOG_FILEPATH) > 0:
+            should_roll_over = os.path.isfile(LOG_FILEPATH)
+        should_roll_over and root_logger.handlers[0].doRollover()
+        logger.info("Starting Wifiphisher")
 
 
 def check_args(args):
@@ -142,8 +166,8 @@ def check_args(args):
     """
 
     if args.presharedkey and \
-        (len(args.presharedkey) < 8
-         or len(args.presharedkey) > 64):
+        (len(args.presharedkey) < 8 or
+            len(args.presharedkey) > 64):
         sys.exit(
             '[' +
             R +
@@ -365,7 +389,6 @@ class WifiphisherEngine:
 
         return self.op_mode in [OP_MODE1, OP_MODE2]
 
-
     def stop(self):
         if DEV:
             print "[" + G + "+" + W + "] Show your support!"
@@ -373,6 +396,7 @@ class WifiphisherEngine:
             print "[" + G + "+" + W + "] Like us: https://www.facebook.com/Wifiphisher"
         print "[" + G + "+" + W + "] Captured credentials:"
         for cred in phishinghttp.creds:
+            logger.info("Creds: %s", cred)
             print cred
 
         # EM depends on Network Manager.
@@ -397,6 +421,9 @@ class WifiphisherEngine:
         global args, APs
         args = parse_args()
 
+        # setup the logging configuration
+        setup_logging(args)
+
         # Check args
         check_args(args)
 
@@ -405,8 +432,8 @@ class WifiphisherEngine:
 
         # Are you root?
         if os.geteuid():
+            logger.error("Non root user detected")
             sys.exit('[' + R + '-' + W + '] Please run as root')
-
 
         self.network_manager.start()
 
@@ -425,6 +452,8 @@ class WifiphisherEngine:
                     if interfaces.is_wireless_interface(
                             internet_interface):
                         self.network_manager.unblock_interface(internet_interface)
+                logger.info("Selecting %s interface for accessing internet",
+                            args.internetinterface)
             if self.advanced_enabled():
                 if args.jamminginterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
@@ -437,6 +466,8 @@ class WifiphisherEngine:
                 else:
                     mon_iface, ap_iface = self.network_manager.get_interface_automatically()
                 # display selected interfaces to the user
+                logger.info("Selecting {} for deauthentication and {} for rouge access point"
+                            .format(mon_iface, ap_iface))
                 print (
                     "[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
                     "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
@@ -476,11 +507,14 @@ class WifiphisherEngine:
                     "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                     "rogue Access Point").format(
                     G, W, ap_iface)
+                logger.info("Selecting {} interface for rouge access point"
+                            .format(ap_iface))
                 # randomize the mac addresses
                 if not args.no_mac_randomization:
                     self.network_manager.set_interface_mac_random(ap_iface)
 
             # make sure interfaces are not blocked
+            logger.info("Unblocking interfaces")
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
             # set monitor mode only when --essid is not given
@@ -489,6 +523,7 @@ class WifiphisherEngine:
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
                 interfaces.InterfaceManagedByNetworkManagerError) as err:
+            logger.exception("Setting {} to monitor mode".format(mon_iface))
             print ("[{0}!{1}] {2}").format(R, W, err)
 
             time.sleep(1)
@@ -496,14 +531,16 @@ class WifiphisherEngine:
 
         if not args.internetinterface:
             kill_interfering_procs()
+            logger.info("Killing all interfering processes")
 
         rogue_ap_mac = self.network_manager.get_interface_mac(ap_iface)
         if not args.no_mac_randomization:
+            logger.info("Changing {} MAC address to {}".format(ap_iface, rogue_ap_mac))
             print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, ap_iface, rogue_ap_mac)
-
-            if not self.advanced_enabled():
+            if self.advanced_enabled():
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
-                print ("[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(G, W, mon_iface, mon_mac))
+                logger.info("Changing {} MAC address to {}".format(mon_iface, mon_mac))
+                print ("[{0}+{1}] Changing {2} MAC addr to {3}".format(G, W, mon_iface, mon_mac))
 
         if self.internet_sharing_enabled():
             self.fw.nat(ap_iface, args.internetinterface)
@@ -546,6 +583,7 @@ class WifiphisherEngine:
         # get the correct template
         tui_template_obj = tui.TuiTemplateSelection()
         template = tui_template_obj.gather_info(args.phishingscenario, self.template_manager)
+        logger.info("Selecting {} template".format(template.get_display_name()))
         print ("[" + G + "+" + W + "] Selecting " +
                template.get_display_name() + " template")
 
