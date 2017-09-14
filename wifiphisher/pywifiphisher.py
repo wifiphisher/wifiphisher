@@ -465,6 +465,21 @@ def kill_interfering_procs():
     ..note: The interfering processes are referenced by airmon-zc.
     """
 
+    # stop the NetworkManager related services
+    # incase service is not installed catch OSError
+    try:
+        subprocess.Popen(['service', 'network-manager', 'stop'],
+                         stdout=subprocess.PIPE,
+                         stderr=DN)
+        subprocess.Popen(['service', 'NetworkManager', 'stop'],
+                         stdout=subprocess.PIPE,
+                         stderr=DN)
+        subprocess.Popen(['service', 'avahi-daemon', 'stop'],
+                         stdout=subprocess.PIPE,
+                         stderr=DN)
+    except OSError:
+        pass
+
     # Kill any possible programs that may interfere with the wireless card
     proc = Popen(['ps', '-A'], stdout=subprocess.PIPE)
     output = proc.communicate()[0]
