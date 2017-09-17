@@ -777,9 +777,10 @@ def is_add_vif_required(args):
     # map the phy interface to virtual interfaces
     # i.e. phy0 to wlan0
     phy_to_vifs = defaultdict(list)
-    # use to store the phy number for the internet access
+    # store the phy number for the internet access
     invalid_phy_number = None
-    if args.internetinterface:
+    # record the invalid_phy_number when it is wireless card
+    if args.internetinterface and pyw.iswireless(args.internetinterface):
         card = pyw.getcard(args.internetinterface)
         invalid_phy_number = card.phy
 
