@@ -2,6 +2,7 @@
 
 import io
 import collections
+from collections import defaultdict
 import unittest
 import mock
 import wifiphisher.extensions.lure10 as lure10
@@ -29,26 +30,30 @@ class TestLure10(unittest.TestCase):
 
     def test_get_packet_first_run_no_argument_empty(self):
         """
-        Test get_packet method on the first run when the lure10_exploit argument
-        is not given and the expected result is (["*"], [])
+        Test get_packet method on the first run when the
+        lure10_exploit argument is not given and the expected
+        result is defaultdict{"*": []}
         """
 
         actual = self._object1.get_packet(self.pkt)
 
-        expected = (["*"], [])
+        expected = defaultdict(list)
+        expected["*"] = []
 
         self.assertEqual(actual, expected)
 
     def test_get_packet_secon_run_no_argument_emtpy(self):
         """
-        Test get_packet method on the second run when the lure10_exploit argument
-        is not given and the expected result is (["*"], [])
+        Test get_packet method on the second run when the
+        lure10_exploit argument is not given and the expected
+        result is defaultdict{"*": []}
         """
 
         self._object1.get_packet(self.pkt)
         actual = self._object1.get_packet(self.pkt)
 
-        expected = (["*"], [])
+        expected = defaultdict(list)
+        expected["*"] = []
 
         self.assertEqual(actual, expected)
 
@@ -63,17 +68,20 @@ class TestLure10(unittest.TestCase):
 
         content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
-            result = list(self._object0.get_packet(self.pkt))
+            pkts_to_send = self._object0.get_packet(self.pkt)
 
-        self.assertEqual(result[1][0].subtype, 8)
-        self.assertEqual(result[1][0].addr1, constants.WIFI_BROADCAST)
-        self.assertEqual(result[1][0].addr2, bssid0)
-        self.assertEqual(result[1][0].addr3, bssid0)
+        result = pkts_to_send["*"]
 
-        self.assertEqual(result[1][1].subtype, 8)
-        self.assertEqual(result[1][1].addr1, constants.WIFI_BROADCAST)
-        self.assertEqual(result[1][1].addr2, bssid1)
-        self.assertEqual(result[1][1].addr3, bssid1)
+        # result is the frame list
+        self.assertEqual(result[0].subtype, 8)
+        self.assertEqual(result[0].addr1, constants.WIFI_BROADCAST)
+        self.assertEqual(result[0].addr2, bssid0)
+        self.assertEqual(result[0].addr3, bssid0)
+
+        self.assertEqual(result[1].subtype, 8)
+        self.assertEqual(result[1].addr1, constants.WIFI_BROADCAST)
+        self.assertEqual(result[1].addr2, bssid1)
+        self.assertEqual(result[1].addr3, bssid1)
 
     def test_get_packet_second_run_argument_empty(self):
         """
@@ -86,11 +94,12 @@ class TestLure10(unittest.TestCase):
 
         content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
-            self._object0.get_packet(self.pkt)
+            first_run_frames = self._object0.get_packet(self.pkt)
 
         actual = self._object0.get_packet(self.pkt)
-
-        expected = (["*"], [])
+        # the frames collected from second run should be same as
+        # in the first run
+        expected = first_run_frames
 
         self.assertEqual(actual, expected)
 

@@ -21,15 +21,18 @@ import scapy.layers.dot11 as dot11
 CONTENTS_EXTENSION_1 = """
 import os
 import importlib
+from collections import defaultdict
 import struct
 
 class Extension1(object):
 
     def __init__(self, shared_data):
         self.data = shared_data
+        self._packets_to_send = defaultdict(list)
 
     def get_packet(self, pkt):
-        return (["1"], [self.data.one])
+        self._packets_to_send["1"] = [self.data.one]
+        return self._packets_to_send
 
     def send_output(self):
         return ["one", "two"]
@@ -38,19 +41,41 @@ class Extension1(object):
 CONTENTS_EXTENSION_2 = """
 import os
 import importlib
+from collections import defaultdict
 import struct
 
 class Extension2(object):
 
     def __init__(self, shared_data):
-        self.vars = [2, 3, 4]
+        self._packets_to_send = defaultdict(list)
 
     def get_packet(self, pkt):
-        return (["1"], self.vars)
+        self._packets_to_send["1"] = [2, 3, 4]
+        return self._packets_to_send
 
     def send_output(self):
         return ["three", "four", "five"]
 """
+# add extension for testing the channel ["*"]
+CONTENTS_EXTENSION_3 = """
+import os
+import importlib
+from collections import defaultdict
+import struct
+
+class Extension3(object):
+
+    def __init__(self, shared_data):
+        self._packets_to_send = defaultdict(list)
+
+    def get_packet(self, pkt):
+        self._packets_to_send["*"] = [5, 6, 7, 8]
+        return self._packets_to_send
+
+    def send_output(self):
+        return []
+"""
+
 
 class TestExtensionManager(unittest.TestCase):
 
@@ -65,8 +90,12 @@ class TestExtensionManager(unittest.TestCase):
         with open("tests/extensions/extension2.py", "w") as f:
             f.write(CONTENTS_EXTENSION_2)
             f.close()
+        with open("tests/extensions/extension3.py", "w") as f:
+            f.write(CONTENTS_EXTENSION_3)
+            f.close()
 
-    @mock.patch("wifiphisher.common.constants.DEFAULT_EXTENSIONS", ["extension1"])
+    @mock.patch("wifiphisher.common.constants.DEFAULT_EXTENSIONS",
+                ["extension1"])
     @mock.patch(
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
         "tests.extensions.")
@@ -97,7 +126,7 @@ class TestExtensionManager(unittest.TestCase):
 
     @mock.patch(
         "wifiphisher.common.constants.DEFAULT_EXTENSIONS", [
-            "extension1", "extension2"])
+            "extension1", "extension2", "extension3"])
     @mock.patch(
         "wifiphisher.common.constants.EXTENSIONS_LOADPATH",
         "tests.extensions.")
@@ -123,6 +152,7 @@ class TestExtensionManager(unittest.TestCase):
         # Packets to send have been merged from the two extensions
         # Validate with get_packet()
         assert em._packets_to_send["1"] == [1, 2, 3, 4]
+        assert em._packets_to_send["*"] == [5, 6, 7, 8]
         # Output has also been merged in one list.
         # Validate with send_output()
         assert em.get_output() == ["one", "two", "three", "four", "five"]

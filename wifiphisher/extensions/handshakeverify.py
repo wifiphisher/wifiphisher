@@ -9,6 +9,7 @@ import hmac
 import hashlib
 import logging
 from collections import deque
+from collections import defaultdict
 from pbkdf2 import PBKDF2
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
@@ -92,6 +93,8 @@ class Handshakeverify(object):
         self._is_captured = False
         # check if the capture given by user is processed
         self._is_first = True
+        # channel map to frame list
+        self._packets_to_send = defaultdict(list)
 
     @staticmethod
     def _prf512(key, const_a, const_b):
@@ -304,7 +307,7 @@ class Handshakeverify(object):
             else:
                 break
 
-        return [["*"], []]
+        return self._packets_to_send
 
     def send_output(self):
         """
