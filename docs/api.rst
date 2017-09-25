@@ -128,3 +128,18 @@ Command Line Arguments
       .. code-block:: bash
 
         [sudo] wifiphisher --presharedkey s3cr3tp4ssw0rd
+
+
+.. _logging:
+.. function:: --log-file
+
+    Enable logging information to a file.
+
+    .. hint::
+        .. code-block:: bash
+
+            [sudo] wifiphisher --log-file
+
+    .. warning::
+        This argument will only keep the three most recent logs. This means that after the fifth
+        execution with the logging option it will overwrite the oldest log.
