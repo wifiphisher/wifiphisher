@@ -112,6 +112,7 @@ Following are all the options along with their descriptions (also available with
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
 |-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|
+||--log-file| Enable logging information to a file.|
 
 
 ## Screenshots
