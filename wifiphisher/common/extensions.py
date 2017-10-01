@@ -7,6 +7,7 @@ import importlib
 import threading
 import logging
 import collections
+from collections import defaultdict
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
@@ -78,8 +79,7 @@ class ExtensionManager(object):
         self._interface = None
         self._socket = None
         self._should_continue = True
-        self._packets_to_send = {str(k): [] for k in range(1, 14)}
-        self._packets_to_send["*"] = []
+        self._packets_to_send = defaultdict(list)
         self._channels_to_hop = []
         self._current_channel = "1"
         self._listen_thread = threading.Thread(target=self._listen)
@@ -210,6 +210,7 @@ class ExtensionManager(object):
         shared_data = collections.namedtuple('GenericDict',
                                              shared_data.keys())(**shared_data)
         self._shared_data = shared_data
+
         # Initialize all extensions with the shared data
         for extension in self._extensions_str:
             mod = importlib.import_module(
@@ -321,12 +322,14 @@ class ExtensionManager(object):
         :rtype: None
         """
 
+        # clear the _packets_to_send on every run of the
+        # sniffed frame
+        self._packets_to_send = defaultdict(list)
+        channels = [str(ch) for ch in constants.ALL_2G_CHANNELS] + ["*"]
         for extension in self._extensions:
-            channel_nums, received_packets = extension.get_packet(pkt)
-            num_of_packets = len(received_packets)
-            if received_packets and num_of_packets > 0:
-                for c_num in channel_nums:
-                    self._packets_to_send[c_num] += received_packets
+            ext_pkts = extension.get_packet(pkt)
+            for channel in channels:
+                self._packets_to_send[channel] += ext_pkts[channel]
 
     def _stopfilter(self, pkt):
         """
@@ -372,7 +375,6 @@ class ExtensionManager(object):
         :return: None
         :rtype: None
         """
-
         while self._should_continue:
             for pkt in self._packets_to_send[self._current_channel] + \
                     self._packets_to_send["*"]:

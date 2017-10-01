@@ -1,6 +1,7 @@
 # pylint: skip-file
 """ This module tests the deauth module in extensions """
 import collections
+from collections import defaultdict
 import unittest
 import mock
 import scapy.layers.dot11 as dot11
@@ -84,25 +85,28 @@ class TestDeauth(unittest.TestCase):
         packet.FCfield = 0x0
 
         # run the method
-        result = self.deauth_obj0.get_packet(packet)
+        pkts_to_send = self.deauth_obj0.get_packet(packet)
         message0 = "Failed to return an correct channel"
         message1 = "Failed to return an correct packets"
 
-        # check channel
-        self.assertEqual(result[0], [self.target_channel], message0)
+        # check channel: target channel should be one key of
+        # the result
+        self.assertEqual(self.target_channel in pkts_to_send, True,
+                         message0)
 
         # check the packets
         # check the disassoction packet
-        self.assertEqual(result[1][0].subtype, 10, message1)
-        self.assertEqual(result[1][0].addr1, constants.WIFI_BROADCAST, message1)
-        self.assertEqual(result[1][0].addr2, self.target_bssid, message1)
-        self.assertEqual(result[1][0].addr3, self.target_bssid, message1)
+        result = pkts_to_send[self.target_channel]
+        self.assertEqual(result[0].subtype, 10, message1)
+        self.assertEqual(result[0].addr1, constants.WIFI_BROADCAST, message1)
+        self.assertEqual(result[0].addr2, self.target_bssid, message1)
+        self.assertEqual(result[0].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result[1][1].subtype, 12, message1)
-        self.assertEqual(result[1][1].addr1, constants.WIFI_BROADCAST, message1)
-        self.assertEqual(result[1][1].addr2, self.target_bssid, message1)
-        self.assertEqual(result[1][1].addr3, self.target_bssid, message1)
+        self.assertEqual(result[1].subtype, 12, message1)
+        self.assertEqual(result[1].addr1, constants.WIFI_BROADCAST, message1)
+        self.assertEqual(result[1].addr2, self.target_bssid, message1)
+        self.assertEqual(result[1].addr3, self.target_bssid, message1)
 
     def test_get_packet_second_run_non_releavent_client_empty(self):
         """
@@ -211,70 +215,74 @@ class TestDeauth(unittest.TestCase):
         self.deauth_obj0._deauth_bssids.add(self.target_bssid)
 
         # run the method
-        result0 = self.deauth_obj0.get_packet(self.packet)
+        pkts_to_send0 = self.deauth_obj0.get_packet(self.packet)
+        result0 = pkts_to_send0[self.target_channel]
 
         # change the values for the next run
         self.packet.addr1 = receiver1
         self.packet.addr2 = sender1
         self.packet.addr3 = bssid1
 
-        result1 = self.deauth_obj0.get_packet(self.packet)
+        # result1 will accumulate the result from result 0
+        pkts_to_send1 = self.deauth_obj0.get_packet(self.packet)
+        result1 = pkts_to_send1[self.target_channel]
 
         message0 = "Failed to return an correct channel"
         message1 = "Failed to return an correct packets"
 
         # check channel
-        self.assertEqual(result0[0], [self.target_channel], message0)
+        self.assertEqual(self.target_channel in pkts_to_send0, True,
+                         message0)
 
         # check the packets for the first client
         # check the disassociation packet
-        self.assertEqual(result0[1][0].subtype, 10, message1)
-        self.assertEqual(result0[1][0].addr1, self.target_bssid, message1)
-        self.assertEqual(result0[1][0].addr2, receiver0, message1)
-        self.assertEqual(result0[1][0].addr3, self.target_bssid, message1)
+        self.assertEqual(result0[0].subtype, 10, message1)
+        self.assertEqual(result0[0].addr1, self.target_bssid, message1)
+        self.assertEqual(result0[0].addr2, receiver0, message1)
+        self.assertEqual(result0[0].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result0[1][1].subtype, 12, message1)
-        self.assertEqual(result0[1][1].addr1, self.target_bssid, message1)
-        self.assertEqual(result0[1][1].addr2, receiver0, message1)
-        self.assertEqual(result0[1][1].addr3, self.target_bssid, message1)
+        self.assertEqual(result0[1].subtype, 12, message1)
+        self.assertEqual(result0[1].addr1, self.target_bssid, message1)
+        self.assertEqual(result0[1].addr2, receiver0, message1)
+        self.assertEqual(result0[1].addr3, self.target_bssid, message1)
 
         # check the disassociation packet
-        self.assertEqual(result0[1][2].subtype, 10, message1)
-        self.assertEqual(result0[1][2].addr1, receiver0, message1)
-        self.assertEqual(result0[1][2].addr2, self.target_bssid, message1)
-        self.assertEqual(result0[1][2].addr3, self.target_bssid, message1)
+        self.assertEqual(result0[2].subtype, 10, message1)
+        self.assertEqual(result0[2].addr1, receiver0, message1)
+        self.assertEqual(result0[2].addr2, self.target_bssid, message1)
+        self.assertEqual(result0[2].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result0[1][3].subtype, 12, message1)
-        self.assertEqual(result0[1][3].addr1, receiver0, message1)
-        self.assertEqual(result0[1][3].addr2, self.target_bssid, message1)
-        self.assertEqual(result0[1][3].addr3, self.target_bssid, message1)
+        self.assertEqual(result0[3].subtype, 12, message1)
+        self.assertEqual(result0[3].addr1, receiver0, message1)
+        self.assertEqual(result0[3].addr2, self.target_bssid, message1)
+        self.assertEqual(result0[3].addr3, self.target_bssid, message1)
 
         # check the packets for the second client
         # check the disassociation packet
-        self.assertEqual(result1[1][0].subtype, 10, message1)
-        self.assertEqual(result1[1][0].addr1, sender1, message1)
-        self.assertEqual(result1[1][0].addr2, self.target_bssid, message1)
-        self.assertEqual(result1[1][0].addr3, self.target_bssid, message1)
+        self.assertEqual(result1[4].subtype, 10, message1)
+        self.assertEqual(result1[4].addr1, sender1, message1)
+        self.assertEqual(result1[4].addr2, self.target_bssid, message1)
+        self.assertEqual(result1[4].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result1[1][1].subtype, 12, message1)
-        self.assertEqual(result1[1][1].addr1, sender1, message1)
-        self.assertEqual(result1[1][1].addr2, self.target_bssid, message1)
-        self.assertEqual(result1[1][1].addr3, self.target_bssid, message1)
+        self.assertEqual(result1[5].subtype, 12, message1)
+        self.assertEqual(result1[5].addr1, sender1, message1)
+        self.assertEqual(result1[5].addr2, self.target_bssid, message1)
+        self.assertEqual(result1[5].addr3, self.target_bssid, message1)
 
         # check the disassociation packet
-        self.assertEqual(result1[1][2].subtype, 10, message1)
-        self.assertEqual(result1[1][2].addr1, self.target_bssid, message1)
-        self.assertEqual(result1[1][2].addr2, sender1, message1)
-        self.assertEqual(result1[1][2].addr3, self.target_bssid, message1)
+        self.assertEqual(result1[6].subtype, 10, message1)
+        self.assertEqual(result1[6].addr1, self.target_bssid, message1)
+        self.assertEqual(result1[6].addr2, sender1, message1)
+        self.assertEqual(result1[6].addr3, self.target_bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result1[1][3].subtype, 12, message1)
-        self.assertEqual(result1[1][3].addr1, self.target_bssid, message1)
-        self.assertEqual(result1[1][3].addr2, sender1, message1)
-        self.assertEqual(result1[1][3].addr3, self.target_bssid, message1)
+        self.assertEqual(result1[7].subtype, 12, message1)
+        self.assertEqual(result1[7].addr1, self.target_bssid, message1)
+        self.assertEqual(result1[7].addr2, sender1, message1)
+        self.assertEqual(result1[7].addr3, self.target_bssid, message1)
 
     def test_get_packet_essid_flag_client_client_packet(self):
         """
@@ -296,39 +304,40 @@ class TestDeauth(unittest.TestCase):
         self.deauth_obj1._deauth_bssids.add(bssid)
 
         # run the method
-        result = self.deauth_obj1.get_packet(self.packet)
+        pkts_to_send = self.deauth_obj1.get_packet(self.packet)
+        result = pkts_to_send[self.target_channel]
 
         message0 = "Failed to return an correct channel"
         message1 = "Failed to return an correct packets"
 
         # check channel
-        self.assertEqual(result[0], [self.target_channel], message0)
+        self.assertEqual(self.target_channel in pkts_to_send, True, message0)
 
         # check the packets
 
         # check the disassociation packet
-        self.assertEqual(result[1][0].subtype, 10, message1)
-        self.assertEqual(result[1][0].addr1, sender, message1)
-        self.assertEqual(result[1][0].addr2, receiver, message1)
-        self.assertEqual(result[1][0].addr3, bssid, message1)
+        self.assertEqual(result[0].subtype, 10, message1)
+        self.assertEqual(result[0].addr1, sender, message1)
+        self.assertEqual(result[0].addr2, receiver, message1)
+        self.assertEqual(result[0].addr3, bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result[1][1].subtype, 12, message1)
-        self.assertEqual(result[1][1].addr1, sender, message1)
-        self.assertEqual(result[1][1].addr2, receiver, message1)
-        self.assertEqual(result[1][1].addr3, bssid, message1)
+        self.assertEqual(result[1].subtype, 12, message1)
+        self.assertEqual(result[1].addr1, sender, message1)
+        self.assertEqual(result[1].addr2, receiver, message1)
+        self.assertEqual(result[1].addr3, bssid, message1)
 
         # check the disassociation packet
-        self.assertEqual(result[1][2].subtype, 10, message1)
-        self.assertEqual(result[1][2].addr1, receiver, message1)
-        self.assertEqual(result[1][2].addr2, sender, message1)
-        self.assertEqual(result[1][2].addr3, bssid, message1)
+        self.assertEqual(result[2].subtype, 10, message1)
+        self.assertEqual(result[2].addr1, receiver, message1)
+        self.assertEqual(result[2].addr2, sender, message1)
+        self.assertEqual(result[2].addr3, bssid, message1)
 
         # check the deauthentication packet
-        self.assertEqual(result[1][3].subtype, 12, message1)
-        self.assertEqual(result[1][3].addr1, receiver, message1)
-        self.assertEqual(result[1][3].addr2, sender, message1)
-        self.assertEqual(result[1][3].addr3, bssid, message1)
+        self.assertEqual(result[3].subtype, 12, message1)
+        self.assertEqual(result[3].addr1, receiver, message1)
+        self.assertEqual(result[3].addr2, sender, message1)
+        self.assertEqual(result[3].addr3, bssid, message1)
 
     def test_get_packet_essid_flag_our_own_ap_empty_list(self):
         """
