@@ -7,9 +7,19 @@ from __future__ import print_function
 import sys
 import os
 from ctypes.util import find_library
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 import wifiphisher.common.constants as constants
 
+
+class CleanCommand(Command):
+    """Custom clean command to tidy up the project root."""
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
 def get_dnsmasq():
     """
@@ -146,15 +156,15 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: System Administrators",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
-
 INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6", "dbus-python",
                     "pbkdf2", "roguehostapd"]
+CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
       license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
-      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL)
+      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
 # Get hostapd or dnsmasq if needed
 get_hostapd()
