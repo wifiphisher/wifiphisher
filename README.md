@@ -141,8 +141,6 @@ Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more i
 Wifiphisher's current version is **1.3**. You can download the latest release from <a href="https://github.com/wifiphisher/wifiphisher/releases/tag/v1.3">here</a>. Otherwise you can get the latest development version by cloning this repository.
 
 ## Disclaimer
-* Authors do not own the logos under the `wifiphisher/data/` directory. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, and research.
-
 * Usage of Wifiphisher for attacking infrastructures without prior mutual consistency can be considered as an illegal activity. It is the final user's responsibility to obey all applicable local, state and federal laws. Authors assume no liability and are not responsible for any misuse or damage caused by this program.
 
 <b>Note</b>: Be aware of sites pretending to be related with the Wifiphisher Project. They may be delivering malware.
