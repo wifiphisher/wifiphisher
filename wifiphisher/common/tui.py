@@ -185,7 +185,7 @@ class TuiTemplateSelection(object):
             self.update_sec_page_map(max_window_height - 20)
             display_str = "Options: [Up Arrow] Move Up  [Down Arrow] Move Down"
             screen.addstr(0, 0, display_string(max_window_len, display_str))
-            display_str = "Avaliable Phishing Scenarios:"
+            display_str = "Available Phishing Scenarios:"
             screen.addstr(3, 0, display_string(max_window_len,
                                                display_str),
                           curses.A_BOLD)
