@@ -131,7 +131,7 @@ def parse_args():
         "--no-mac-randomization",
         help=("Do not change any MAC address"), action='store_true')
     parser.add_argument(
-        "--log-file",
+        "--logging",
         help=("Log activity to file"),
         action="store_true")
 
@@ -149,7 +149,7 @@ def setup_logging(args):
     """
     root_logger = logging.getLogger()
     # logging setup
-    if args.log_file:
+    if args.logging:
         logging.config.dictConfig(LOGGING_CONFIG)
         should_roll_over = False
         # use root logger to rotate the log file
