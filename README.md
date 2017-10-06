@@ -113,6 +113,7 @@ Following are all the options along with their descriptions (also available with
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
 |-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|
+||--payload-path| Enable the payload path. Intended for use with scenarios that serve payloads.|
 
 
 ## Screenshots

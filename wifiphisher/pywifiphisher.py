@@ -134,6 +134,9 @@ def parse_args():
         "--logging",
         help=("Log activity to file"),
         action="store_true")
+    parser.add_argument(
+        "--payload-path",
+        help=("Payload path for scenarios serving a payload"))
 
     return parser.parse_args()
 
@@ -430,7 +433,7 @@ class WifiphisherEngine:
 
         # payload selection for browser plugin update
         if template.has_payload():
-            payload_path = False
+            payload_path = args.payload_path
             # copy payload to update directory
             while not payload_path or not os.path.isfile(payload_path):
                 # get payload path
