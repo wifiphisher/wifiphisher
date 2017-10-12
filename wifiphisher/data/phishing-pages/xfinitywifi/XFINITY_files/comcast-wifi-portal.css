@@ -1,0 +1,1832 @@
+@charset "UTF-8";
+/* line 5, ../../component/compass/reset/_utilities.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3,.h2,.h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+/* line 22, ../../component/compass/reset/_utilities.scss */
+html {
+  line-height: 1;
+}
+
+/* line 24, ../../component/compass/reset/_utilities.scss */
+ol, ul {
+  list-style: none;
+}
+
+/* line 26, ../../component/compass/reset/_utilities.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* line 28, ../../component/compass/reset/_utilities.scss */
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 30, ../../component/compass/reset/_utilities.scss */
+q, blockquote {
+  quotes: none;
+}
+/* line 103, ../../component/compass/reset/_utilities.scss */
+q:before, q:after, blockquote:before, blockquote:after {
+  content: "";
+  content: none;
+}
+
+/* line 32, ../../component/compass/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 116, ../../component/compass/reset/_utilities.scss */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+  display: block;
+}
+
+/* do not group these rules */
+*::-webkit-input-placeholder {
+    color: #6F6F6F;
+}
+*:-moz-placeholder {
+    /* FF 4-18 */
+    color: #6F6F6F;
+}
+*::-moz-placeholder {
+    /* FF 19+ */
+    color: #6F6F6F;
+}
+*:-ms-input-placeholder {
+    /* IE 10+ */
+    color: #6F6F6F;
+}
+/* fonts
+---------------------------------------------------*/
+/* default grid - desktop
+---------------------------------------------------*/
+/* breakpoints
+---------------------------------------------------*/
+/* ---------------------------------------
+  Grid
+-----------------------------------------*/
+/* ---------------------------------------
+  Fonts
+-----------------------------------------*/
+/*
+  ~1. at-breakpoint
+  ~2. grid
+    ~2.1 grid-padding
+    ~2.2 span-columns
+    ~2.3 omega
+    ~2.4 offset-left
+    ~2.5 row
+  ~3. clearfix
+*/
+/* ~1. at-breakpoint
+---------------------------------------------------*/
+/* ~2. grid
+---------------------------------------------------*/
+/* ~2.1 grid-padding
+---------------------------------------------------*/
+/* ~2.2 span-columns
+---------------------------------------------------*/
+/* ~2.3 omega
+---------------------------------------------------*/
+/* ~2.4 offset-left
+---------------------------------------------------*/
+/* ~2.5 row
+---------------------------------------------------*/
+/* ~3. clearfix
+---------------------------------------------------*/
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 100;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 200;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Xfinity Sans';
+  src: url("XFINITYSans-Thin.eot");
+  /* Legacy iOS */
+  font-weight: 700;
+  font-style: normal;
+}
+/* line 10, utils/_selectric.scss */
+.selectric-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+/* line 15, utils/_selectric.scss */
+.selectric-responsive {
+  width: 100%;
+}
+
+/* line 19, utils/_selectric.scss */
+.selectric {
+  border: 1px solid #DDD;
+  background: #F8F8F8;
+  position: relative;
+}
+/* line 24, utils/_selectric.scss */
+.selectric .label {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 38px 0 10px;
+  font-size: 12px;
+  line-height: 38px;
+  color: #444;
+  height: 38px;
+}
+/* line 36, utils/_selectric.scss */
+.selectric .button {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 38px;
+  height: 38px;
+  color: #BBB;
+  text-align: center;
+  font: 0/0 a;
+  *font: 20px/38px Lucida Sans Unicode, Arial Unicode MS, Arial;
+}
+/* line 48, utils/_selectric.scss */
+.selectric .button:after {
+  content: " ";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+  border-top-color: #BBB;
+  border-bottom: none;
+}
+
+/* line 65, utils/_selectric.scss */
+.selectric-hover .selectric {
+  border-color: #c4c4c4;
+}
+/* line 68, utils/_selectric.scss */
+.selectric-hover .selectric .button {
+  color: #a2a2a2;
+}
+/* line 71, utils/_selectric.scss */
+.selectric-hover .selectric .button:after {
+  border-top-color: #a2a2a2;
+}
+
+/* line 77, utils/_selectric.scss */
+.selectric-open {
+  z-index: 9999;
+}
+/* line 80, utils/_selectric.scss */
+.selectric-open .selectric {
+  border-color: #c4c4c4;
+}
+/* line 84, utils/_selectric.scss */
+.selectric-open .selectric-items {
+  display: block;
+}
+
+/* line 89, utils/_selectric.scss */
+.selectric-disabled {
+  filter: alpha(opacity=50);
+  opacity: 0.5;
+  cursor: default;
+  user-select: none;
+}
+
+/* line 96, utils/_selectric.scss */
+.selectric-hide-select {
+  position: relative;
+  overflow: hidden;
+  width: 0;
+  height: 0;
+}
+/* line 102, utils/_selectric.scss */
+.selectric-hide-select select {
+  position: absolute;
+  left: -100%;
+  display: none;
+}
+
+/* line 109, utils/_selectric.scss */
+.selectric-input {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 1px !important;
+  height: 1px !important;
+  outline: none !important;
+  border: none !important;
+  *font: 0/0 a !important;
+  background: none !important;
+}
+
+/* line 125, utils/_selectric.scss */
+.selectric-temp-show {
+  position: absolute !important;
+  visibility: hidden !important;
+  display: block !important;
+}
+
+/* Items box */
+/* line 132, utils/_selectric.scss */
+.selectric-items {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #F8F8F8;
+  border: 1px solid #c4c4c4;
+  z-index: -1;
+  box-shadow: 0 0 10px -6px;
+}
+/* line 142, utils/_selectric.scss */
+.selectric-items .selectric-scroll {
+  height: 100%;
+  overflow: auto;
+}
+/* line 147, utils/_selectric.scss */
+.selectric-above .selectric-items {
+  top: auto;
+  bottom: 100%;
+}
+/* line 152, utils/_selectric.scss */
+.selectric-items ul, .selectric-items li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 20px;
+  min-height: 20px;
+}
+/* line 161, utils/_selectric.scss */
+.selectric-items li {
+  display: block;
+  padding: 8px;
+  border-top: 1px solid #FFF;
+  border-bottom: 1px solid #EEE;
+  color: #666;
+  cursor: pointer;
+}
+/* line 169, utils/_selectric.scss */
+.selectric-items li.selected {
+  background: #EFEFEF;
+  color: #444;
+}
+/* line 174, utils/_selectric.scss */
+.selectric-items li:hover {
+  background: #F0F0F0;
+  color: #444;
+}
+/* line 180, utils/_selectric.scss */
+.selectric-items .disabled {
+  filter: alpha(opacity=50);
+  opacity: 0.5;
+  cursor: default !important;
+  background: none !important;
+  color: #666 !important;
+  user-select: none;
+}
+/* line 190, utils/_selectric.scss */
+.selectric-items .selectric-group .selectric-group-label {
+  font-weight: bold;
+  padding-left: 10px;
+  cursor: default;
+  user-select: none;
+  background: none;
+  color: #444;
+}
+/* line 199, utils/_selectric.scss */
+.selectric-items .selectric-group.disabled li {
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+/* line 204, utils/_selectric.scss */
+.selectric-items .selectric-group li {
+  padding-left: 25px;
+}
+
+/* line 3, common/_layout.scss */
+.container {
+  zoom: 1;
+  margin: 0 3%;
+  max-width: 1032px;
+}
+/* line 136, utils/_responsive.scss */
+.container:before, .container:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.container:after {
+  clear: both;
+}
+@media print, screen and (min-width: 768px) and (max-width: 1024px) {
+  /* line 3, common/_layout.scss */
+  .container {
+    margin: 0 14.5%;
+  }
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 3, common/_layout.scss */
+  .container {
+    margin: 0 14.5%;
+  }
+}
+@media (min-width: 1454px) {
+  /* line 3, common/_layout.scss */
+  .container {
+    margin: 0 auto;
+  }
+}
+
+/* line 13, common/_layout.scss */
+.content {
+  zoom: 1;
+  display: block;
+  position: relative;
+  width: 100%;
+}
+/* line 136, utils/_responsive.scss */
+.content:before, .content:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.content:after {
+  clear: both;
+}
+
+/* line 12, common/_global.scss */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* line 16, common/_global.scss */
+html {
+  height: 100%;
+}
+
+/* line 20, common/_global.scss */
+body {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  font-family: 'Xfinity Sans';
+  font-weight: normal;
+  background-color: #f7f7f7;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #3b3b3b;
+  font-size: 14px;
+  height: 100%;
+  line-height: 1.5em;
+}
+
+/* ---------------------------------------
+  Typography
+-----------------------------------------*/
+/* line 40, common/_global.scss */
+h1 {
+  font-size: 36px;
+  font-family: 'Xfinity Sans';
+  font-weight: 200;
+  line-height: 1.2em;
+}
+
+/* line 46, common/_global.scss */
+h2, .h2 {
+  font-size: 24px;
+  font-weight: 200;
+}
+/* line 50, common/_global.scss */
+h2.eyebrow {
+  font-family: "Conv_Gotham-Book";
+  font-size: 24px;
+}
+
+/* line 56, common/_global.scss */
+h3, .h3 {
+  font-size: 20px;
+  font-weight: 700;
+}
+@media print, screen and (min-width: 768px) and (max-width: 1024px) {
+  /* line 56, common/_global.scss */
+  h3, .h3  {
+    font-size: 28px;
+  }
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 56, common/_global.scss */
+  h3, .h3  {
+    font-size: 26px;
+  }
+}
+
+/* line 61, common/_global.scss */
+h4 {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* line 66, common/_global.scss */
+a {
+  color: #1262be;
+  text-decoration: none;
+}
+
+/* line 71, common/_global.scss */
+strong {
+  font-weight: 700;
+}
+
+/* line 75, common/_global.scss */
+p {
+  line-height: 1.5em;
+}
+
+/* ---------------------------------------
+  Common Elements
+-----------------------------------------*/
+/* line 83, common/_global.scss */
+button,
+.button {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  font-family: 'Xfinity Sans';
+  font-weight: 700;
+  -webkit-transition: all 0.25s linear;
+  -moz-transition: all 0.25s linear;
+  -o-transition: all 0.25s linear;
+  transition: all 0.25s linear;
+  border: 0;
+  cursor: pointer;
+  display: block;
+  font-size: 14px;
+  padding: 17px 10px 13px;
+  text-align: center;
+  -webkit-appearance: none;
+  width: 100%;
+}
+
+/* line 98, common/_global.scss */
+button {
+  background: #1471da;
+  color: #fff;
+}
+/* line 102, common/_global.scss */
+button:hover {
+  background: #105db3;
+}
+
+@media screen and (min-width: 0) and (max-width: 767px) {
+  /* line 107, common/_global.scss */
+  .mobile-hidden {
+    display: none;
+  }
+}
+@media print, screen and (min-width: 768px) and (max-width: 1024px) {
+  /* line 107, common/_global.scss */
+  .mobile-hidden {
+    display: none;
+  }
+}
+
+@media print, screen and (min-width: 1025px) {
+  /* line 117, common/_global.scss */
+  .desktop-hidden {
+    display: none;
+  }
+}
+
+/* line 123, common/_global.scss */
+.desktop-visible {
+  display: none;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 123, common/_global.scss */
+  .desktop-visible {
+    display: block;
+  }
+}
+
+/* line 131, common/_global.scss */
+label.hidden-label {
+  display: block;
+  height: 0px;
+  text-indent: -10000px;
+  width: 0px;
+}
+
+/* line 138, common/_global.scss */
+input[type="checkbox"] {
+  display: block;
+  -moz-transform: scale(2); /* FF */
+}
+
+/* line 142, common/_global.scss */
+input[type="checkbox"] + label {
+  zoom: 1;
+  display: inline-block;
+}
+/* line 136, utils/_responsive.scss */
+input[type="checkbox"] + label:before, input[type="checkbox"] + label:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+input[type="checkbox"] + label:after {
+  clear: both;
+}
+
+/* line 147, common/_global.scss */
+input[type="checkbox"] + label span.custom-checkbox {
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  border: 1px solid #fff;
+  display: inline-block;
+  height: 25px;
+  width: 25px;
+}
+
+/* line 155, common/_global.scss */
+input[type="checkbox"]:checked + label span.custom-checkbox {
+  background-image: url(../images/checkmark.png);
+  background-position: -7px -6px;
+  background-repeat: no-repeat;
+}
+
+.terms_custom_checkbox{
+  -webkit-appearance: none;
+  background-color: #fafafa !important;
+  border: 1px solid #666666 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
+  padding: 12px;
+  border-radius: 2px;
+  display: inline-block;
+  position: relative;
+  margin: 10px 0px 0px 0px;
+
+}
+
+.terms_custom_checkbox:active, .terms_custom_checkbox:checked:active {
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
+}
+
+.terms_custom_checkbox:checked {
+  background-color: #e9ecee;
+  border: 1px solid #adb8c0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05), inset 15px 10px -12px rgba(255,255,255,0.1);
+  color: #666666;
+}
+
+.terms_custom_checkbox:checked:after {
+  content: '\2714';
+  font-size: 20px;
+  position: absolute;
+  top: 0px;
+  left: 5px;
+  color: #666666;
+}
+
+.terms_custom_ckspan{
+  /* width:5%; */
+}
+
+.terms_custom_span{
+  /* width: % !important;
+  float: right !important; */
+}
+
+
+/* line 1, common/_header.scss */
+.header {
+  background: #000;
+  padding: 19px 0 11px;
+  text-align: center;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 1, common/_header.scss */
+  .header {
+    padding: 21px 0 14px;
+  }
+}
+
+/* line 11, common/_header.scss */
+.hero {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 10px;
+  min-height: 303px;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+}
+/* line 23, common/_header.scss */
+.hero.hero-short {
+  min-height: 268px;
+}
+/* line 27, common/_header.scss */
+.hero .xfinity-wifi-logo {
+  display: inline-block;
+}
+/* line 32, common/_header.scss */
+.hero .company-logo-section .company-logo {
+  margin-top: 30px;
+}
+/* line 36, common/_header.scss */
+.hero .company-logo-section h1 {
+  margin-top: 22px;
+}
+/* line 40, common/_header.scss */
+.hero .company-logo-section p {
+  margin-top: 12px;
+}
+/* line 45, common/_header.scss */
+.hero h1 {
+  margin-top: 42px;
+}
+/* line 48, common/_header.scss */
+.hero h1 em {
+  font-weight: normal;
+}
+/* line 53, common/_header.scss */
+.hero p {
+  font-size: 20px;
+  font-weight: 200;
+  margin-top: 20px;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 11, common/_header.scss */
+  .hero {
+    height: 350px;
+    position: relative;
+  }
+  /* line 63, common/_header.scss */
+  .hero.hero-short {
+    height: 333px;
+  }
+  /* line 67, common/_header.scss */
+  .hero .container {
+    text-align: left;
+  }
+  /* line 71, common/_header.scss */
+  .hero .header-content {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 40.14757%;
+    float: left;
+    bottom: 30px;
+    max-width: 632px;
+    position: absolute;
+  }
+  /* line 79, common/_header.scss */
+  .hero .company-logo-section h1 {
+    margin-top: 13px;
+  }
+  /* line 84, common/_header.scss */
+  .hero p {
+    margin-top: 12px;
+  }
+}
+
+/* line 1, common/_footer.scss */
+footer {
+  display: inline-block;
+  margin-top: 30px;
+  padding-bottom: 30px;
+  text-align: center;
+  width: 100%;
+}
+/* line 8, common/_footer.scss */
+footer .footer-content {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  margin-top: 5%;
+  width: 100%;
+  float: left;
+}
+/* line 12, common/_footer.scss */
+footer .language-selector {
+  zoom: 1;
+  text-align: center;
+}
+/* line 136, utils/_responsive.scss */
+footer .language-selector:before, footer .language-selector:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+footer .language-selector:after {
+  clear: both;
+}
+/* line 16, common/_footer.scss */
+footer .language-selector div {
+  border-left: 1px solid #a7a7a7;
+  display: inline-block;
+  padding: 0 6px;
+}
+/* line 21, common/_footer.scss */
+footer .language-selector div:first-child {
+  border: 0;
+}
+/* line 25, common/_footer.scss */
+footer .language-selector div a {
+  display: inline-block;
+}
+/* line 32, common/_footer.scss */
+footer a._active {
+  color: #a6a6a6;
+}
+/* line 37, common/_footer.scss */
+footer p {
+  margin-top: 25px;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 1, common/_footer.scss */
+  footer {
+    margin-top: 150px;
+    padding-bottom: 80px;
+  }
+  /* line 45, common/_footer.scss */
+  footer .footer-content {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 82.89931%;
+    float: left;
+    margin-left: 8.55035%;
+  }
+}
+
+/* line 1, component/_app-module.scss */
+.app-module {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 65.79861%;
+  float: left;
+  margin-right: 0;
+  padding-top: 52px;
+  position: relative;
+}
+/* line 7, component/_app-module.scss */
+.app-module img {
+  position: absolute;
+  right: -40px;
+  top: 350px;
+  width: 75%;
+}
+/* line 14, component/_app-module.scss */
+.app-module .app-module-container {
+  width: 360px;
+  position: relative;
+}
+/* line 19, component/_app-module.scss */
+.app-module h3, .app-module .h3 {
+  font-size: 22px;
+  font-weight: 200;
+  line-height: 30px;
+}
+/* line 25, component/_app-module.scss */
+.app-module h2, .app-module .h2 {
+  font-size: 76px;
+  line-height: 82px;
+  margin-top: 13px;
+}
+.middle-page-text {
+  font-size: 30px;
+  font-weight: normal;
+  line-height: 50px;
+  margin-top: 13px;
+}
+/* line 31, component/_app-module.scss */
+.app-module p {
+  font-size: 16px;
+  font-weight: 200;
+  margin-top: 8px;
+}
+/* line 37, component/_app-module.scss */
+.app-module a {
+  font-weight: normal;
+}
+
+/* line 1, component/_customer-portal.scss */
+.customer-portal-wrapper {
+  zoom: 1;
+}
+/* line 136, utils/_responsive.scss */
+.customer-portal-wrapper:before, .customer-portal-wrapper:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.customer-portal-wrapper:after {
+  clear: both;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 4, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-sidebar {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 31.59722%;
+    float: left;
+    float: right;
+    margin-top: -223px;
+    position: relative;
+  }
+}
+/* line 14, component/_customer-portal.scss */
+.customer-portal-wrapper.customer-portal-row .customer-portal {
+  padding-bottom: 6px;
+}
+/* line 18, component/_customer-portal.scss */
+.customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 100%;
+  float: left;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #d0d0d0;
+  margin-top: 16px;
+  padding-bottom: 13px;
+  padding-top: 16px;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 13, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 82.89931%;
+    float: left;
+    margin-left: 8.55035%;
+    padding-bottom: 30px;
+    right: auto;
+  }
+  /* line 33, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .customer-block {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 48.69792%;
+    float: left;
+  }
+  /* line 36, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .customer-block:last-child {
+    float: right;
+    margin-right: 0;
+  }
+  /* line 40, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .customer-block .customer-block-content {
+    padding-top: 30px;
+  }
+  /* line 43, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .customer-block .customer-block-content .custom-checkbox-text {
+    width: 60%;
+  }
+  /* line 49, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact {
+    zoom: 1;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 100%;
+    float: left;
+    margin-top: 23px;
+    padding-bottom: 12px;
+    padding-top: 0;
+  }
+  /* line 136, utils/_responsive.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact:before, .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact:after {
+    content: "\0020";
+    display: block;
+    height: 0;
+    overflow: hidden;
+  }
+  /* line 143, utils/_responsive.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact:after {
+    clear: both;
+  }
+  /* line 56, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact .xfinity-wifi-info {
+    border-left: 1px solid #d0d0d0;
+    float: left;
+    padding: 10px 5% 8px;
+    text-align: left;
+    width: 33.33%;
+  }
+  /* line 63, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact .xfinity-wifi-info:first-child {
+    border: 0;
+  }
+  /* line 67, component/_customer-portal.scss */
+  .customer-portal-wrapper.customer-portal-row .xfinity-wifi-contact .xfinity-wifi-info p {
+    display: inline;
+  }
+}
+/* line 75, component/_customer-portal.scss */
+.customer-portal-wrapper .information-sharing {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 100%;
+  float: left;
+  text-align: center;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 75, component/_customer-portal.scss */
+  .customer-portal-wrapper .information-sharing {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 82.89931%;
+    float: left;
+    margin-left: 8.55035%;
+    margin-top: 20px;
+  }
+}
+
+/* line 87, component/_customer-portal.scss */
+.customer-portal {
+  zoom: 1;
+}
+/* line 136, utils/_responsive.scss */
+.customer-portal:before, .customer-portal:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.customer-portal:after {
+  clear: both;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 87, component/_customer-portal.scss */
+  .customer-portal {
+    position: relative;
+    width: 100%;
+  }
+}
+/* line 95, component/_customer-portal.scss */
+.customer-portal .customer-block {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  color: #666;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  margin-bottom: 10px;
+}
+/* line 102, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-header {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px 3px 0 0;
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+  padding: 27px 13px 23px;
+  position: relative;
+}
+/* line 108, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-header:before {
+  -webkit-transition: all 0.25s linear;
+  -moz-transition: all 0.25s linear;
+  -o-transition: all 0.25s linear;
+  transition: all 0.25s linear;
+ /* background: url(dropdown-arrow.png);*/
+  background: url(dropdown-arrow.png);
+  bottom: 0;
+  content: '';
+  display: block;
+  height: 36px;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  width: 35px;
+}
+/* line 121, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-header h2 {
+  text-align: center;
+}
+/* line 125, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-header h4 {
+  color: #3b3b3b;
+  padding-left: 45px;
+}
+/* line 130, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-header p {
+  font-weight: 200;
+}
+.customer-portal .customer-block .customer-block-header button{
+   background-color: #FFFFFF  !important;
+   color: #3b3b3b ;
+   margin: 0px 0px 0px 40px;
+   width: 90%;
+   text-align: left;
+   font-size: 14px;
+   display: inline-block;
+   height: 25px;
+   padding: 0px 0px 0px 0px;
+ }
+
+.customer-portal .customer-block .customer-block-header button:hover{
+   background-color: #FFFFFF  !important;
+}
+/* line 137, component/_customer-portal.scss */
+.customer-portal .customer-block._active .customer-block-header:before {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+/* line 143, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+  background: #f7f7f7;
+  border-top: 1px solid #d0d0d0;
+  display: none;
+  padding: 20px 20px 30px;
+}
+/* line 150, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content p {
+  color: #3b3b3b;
+}
+/* line 154, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .customer-block-text {
+  margin-bottom: 17px;
+}
+/* line 159, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content form a {
+  color: #1262be;
+  display: block;
+  margin: 10px 0 0;
+  text-decoration: none;
+}
+/* line 167, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .form-element {
+  margin-top: 17px;
+}
+/* line 170, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .form-element:first-child {
+  margin-top: 0;
+}
+/* line 175, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content input[type="email"],
+.customer-portal .customer-block .customer-block-content input[type="number"],
+.customer-portal .customer-block .customer-block-content input[type="password"],
+.customer-portal .customer-block .customer-block-content input[type="text"] {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0px 1px 2px -2px #999;
+  -moz-box-shadow: inset 0px 1px 2px -2px #999;
+  box-shadow: inset 0px 1px 2px -2px #999;
+  font-family: 'Xfinity Sans';
+  font-weight: normal;
+  border: 1px solid #d0d0d0;
+  font-size: 16px;
+  padding: 17px 15px 13px;
+  width: 100%;
+}
+#friendlyname {
+  font-size: 13.5px;
+  padding-left:5px;
+}
+/* line 188, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .residential-select {
+  margin-top: 17px;
+}
+/* line 192, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content button {
+  margin-top: 30px;
+}
+/* line 196, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .button {
+  background: transparent;
+  border: 1px solid #1471da;
+  color: #1262be;
+  margin-top: 22px;
+  margin-bottom: 6px;
+  text-decoration: none;
+}
+/* line 203, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .button:hover {
+  background: #1471da;
+  color: #fff;
+}
+/* line 210, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .selectric .label {
+  margin-top: 5px;
+}
+/* line 214, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .selectric .button {
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  border: 0;
+  border-left: 1px solid #d0d0d0;
+  margin: 0;
+  padding-right: 30px;
+}
+/* line 221, component/_customer-portal.scss */
+.customer-portal .customer-block .customer-block-content .selectric .button:hover {
+  background: transparent;
+}
+/* line 228, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement {
+  padding-top: 20px;
+}
+@media print, screen and (max-width: 1025px) {
+  .customer-portal .customer-block {
+    padding-top: 0;
+  }
+}
+/* line 231, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement .custom-checkbox {
+  border-color: #666;
+}
+/* line 235, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement input[type="checkbox"]:checked + label span.custom-checkbox {
+  /*background-image: url(/public/images/checkmark-grey.png);*/
+    background-image: url(../images/checkmark-grey.png);
+}
+/* line 241, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement label {
+  zoom: 1;
+  width: 100%;
+}
+/* line 136, utils/_responsive.scss */
+.customer-portal .customer-block .agreement label:before, .customer-portal .customer-block .agreement label:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.customer-portal .customer-block .agreement label:after {
+  clear: both;
+}
+/* line 246, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement span {
+  float: left;
+}
+/* line 250, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement .custom-checkbox-text {
+  margin: 3px 0 0 11px;
+  width: 85%;
+}
+/* line 254, component/_customer-portal.scss */
+.customer-portal .customer-block .agreement .custom-checkbox-text a {
+  display: inline;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 250, component/_customer-portal.scss */
+  .customer-portal .customer-block .agreement .custom-checkbox-text {
+    width: 90%;
+  }
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 95, component/_customer-portal.scss */
+  .customer-portal .customer-block {
+    -webkit-box-shadow: 3px 3px 1px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 3px 3px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 3px 1px rgba(0, 0, 0, 0.1);
+    border: 0;
+    min-width: 290px;
+    width: 100%;
+  }
+  /* line 270, component/_customer-portal.scss */
+  .customer-portal .customer-block .customer-block-header {
+    cursor: default;
+    padding-left: 35px;
+    padding-right: 35px;
+  }
+  /* line 275, component/_customer-portal.scss */
+  .customer-portal .customer-block .customer-block-header:before {
+    display: none;
+  }
+  /* line 279, component/_customer-portal.scss */
+  .customer-portal .customer-block .customer-block-header h4 {
+    padding: 0;
+    text-align: left;
+  }
+  /* line 285, component/_customer-portal.scss */
+  .customer-portal .customer-block .customer-block-content {
+    background: #fdfdfd;
+    display: block;
+    padding: 13px 35px 40px;
+  }
+  /* line 290, component/_customer-portal.scss */
+  .customer-portal .customer-block .customer-block-content input[type="email"],
+  .customer-portal .customer-block .customer-block-content input[type="number"],
+  .customer-portal .customer-block .customer-block-content input[type="password"],
+  .customer-portal .customer-block .customer-block-content input[type="text"] {
+    padding: 14px 15px 10px;
+  }
+  /* line 299, component/_customer-portal.scss */
+  .customer-portal .customer-block.header-block .customer-block-header {
+    background: #f7f7f7;
+  }
+  /* line 304, component/_customer-portal.scss */
+  .customer-portal .customer-block.header-block .customer-block-content p {
+    margin-top: 9px;
+  }
+  /* line 311, component/_customer-portal.scss */
+  .customer-portal .customer-block.plain-header .customer-block-header {
+    background: #fdfdfd;
+    border: 0;
+    padding-bottom: 0;
+    padding-top: 42px;
+  }
+  /* line 318, component/_customer-portal.scss */
+  .customer-portal .customer-block.plain-header .customer-block-content {
+    border: 0;
+  }
+  /* line 324, component/_customer-portal.scss */
+  .customer-portal .customer-block .agreement .custom-checkbox-text {
+    margin-top: 0;
+    width: 83%;
+  }
+}
+
+/* line 333, component/_customer-portal.scss */
+.xfinity-wifi-contact {
+  font-weight: 200;
+  padding-top: 6px;
+  text-align: center;
+}
+/* line 338, component/_customer-portal.scss */
+.xfinity-wifi-contact a {
+  font-weight: normal;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 343, component/_customer-portal.scss */
+  .xfinity-wifi-contact .xfinity-wifi-info {
+    margin-top: 10px;
+  }
+  /* line 347, component/_customer-portal.scss */
+  .xfinity-wifi-contact a {
+    color: #3b3b3b;
+    cursor: default;
+  }
+}
+
+@media print, screen and (min-width: 1025px) {
+  /* line 5, component/_signin.scss */
+  .customer-portal .signin .signin-form p {
+    font-weight: 700;
+  }
+}
+
+@media print, screen and (min-width: 1025px) {
+  /* line 5, component/_signup.scss */
+  .customer-portal .signup .customer-block-content .button {
+    margin-top: 30px;
+  }
+}
+
+/* line 1, component/_select.scss */
+.selectric {
+  background-image: -webkit-linear-gradient(#ffffff, #eeeeee);
+  background-image: -moz-linear-gradient(#ffffff, #eeeeee);
+  background-image: -o-linear-gradient(#ffffff, #eeeeee);
+  background-image: linear-gradient(#ffffff, #eeeeee);
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  border: 1px solid #d0d0d0;
+  margin-top: 0;
+}
+/* line 7, component/_select.scss */
+.selectric .label {
+  font-family: 'Xfinity Sans';
+  font-weight: 200;
+  font-size: 16px;
+  margin-top: 5px;
+}
+/* line 13, component/_select.scss */
+.selectric .button {
+  border: 0;
+  height: 100%;
+  margin: 0;
+}
+/* line 18, component/_select.scss */
+.selectric .button:before {
+ /*background-image: url(public/images/select-arrow.png);*/
+   background-image: url(../images/select-arrow.png);
+  content: '';
+  display: block;
+  height: 16px;
+  position: absolute;
+  top: 15px;
+  width: 20px;
+}
+/* line 30, component/_select.scss */
+.selectric .button:after {
+  display: none;
+}
+/* line 34, component/_select.scss */
+.selectric .button:hover {
+  background: transparent;
+}
+
+/* line 40, component/_select.scss */
+.selectric-items {
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  top: 0;
+  width: 100% !important;
+  z-index: 10;
+}
+/* line 47, component/_select.scss */
+.selectric-items li {
+  font-family: 'Xfinity Sans';
+  font-weight: 200;
+  border-bottom: 0;
+  border-top: 1px solid #d0d0d0;
+  color: #3b3b3b;
+  font-size: 14px;
+}
+/* line 54, component/_select.scss */
+.selectric-items li:first-child {
+  border-top: 0;
+}
+/* line 58, component/_select.scss */
+.selectric-items li:hover {
+  background: #1471da;
+  color: #fff;
+}
+
+@media print, screen and (min-width: 1025px) {
+  /* line 2, pages/_universal.scss */
+  .universal .customer-portal {
+    margin-top: -56px;
+  }
+}
+
+/* line 1, pages/_studio-xfinity.scss */
+.studio-xfinity {
+  color: #fff;
+  text-align: center;
+}
+/* line 5, pages/_studio-xfinity.scss */
+.studio-xfinity main {
+  height: 100%;
+}
+/* line 9, pages/_studio-xfinity.scss */
+.studio-xfinity .container {
+  display: inline-table;
+  height: 100%;
+  position: relative;
+}
+/* line 15, pages/_studio-xfinity.scss */
+.studio-xfinity .studio-xfinity-content {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 82.89931%;
+  float: left;
+  margin-left: 8.55035%;
+  display: table-cell;
+  float: none;
+  padding: 30px 0;
+  vertical-align: middle;
+}
+/* line 24, pages/_studio-xfinity.scss */
+.studio-xfinity header {
+  margin-bottom: 13px;
+}
+/* line 28, pages/_studio-xfinity.scss */
+.studio-xfinity .eyebrow {
+  color: #929293;
+}
+/* line 31, pages/_studio-xfinity.scss */
+.studio-xfinity .eyebrow em {
+  color: #fff;
+}
+/* line 36, pages/_studio-xfinity.scss */
+.studio-xfinity h1 {
+  font-size: 38px;
+  margin-top: 30px;
+}
+/* line 41, pages/_studio-xfinity.scss */
+.studio-xfinity p {
+  font-size: 18px;
+  font-weight: 200;
+}
+/* line 46, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement {
+  margin-top: 34px;
+}
+/* line 49, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement .xfinity-wifi-agreement-checkbox {
+  zoom: 1;
+}
+/* line 136, utils/_responsive.scss */
+.studio-xfinity .xfinity-wifi-agreement .xfinity-wifi-agreement-checkbox:before, .studio-xfinity .xfinity-wifi-agreement .xfinity-wifi-agreement-checkbox:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.studio-xfinity .xfinity-wifi-agreement .xfinity-wifi-agreement-checkbox:after {
+  clear: both;
+}
+/* line 53, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement .label-wrapper {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 82.89931%;
+  float: left;
+  margin-left: 8.55035%;
+  margin-bottom: 22px;
+  text-align: center;
+}
+/* line 60, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement label {
+  zoom: 1;
+}
+/* line 136, utils/_responsive.scss */
+.studio-xfinity .xfinity-wifi-agreement label:before, .studio-xfinity .xfinity-wifi-agreement label:after {
+  content: "\0020";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+/* line 143, utils/_responsive.scss */
+.studio-xfinity .xfinity-wifi-agreement label:after {
+  clear: both;
+}
+/* line 63, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement label span {
+  float: left;
+  text-align: left;
+}
+/* line 68, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement label .custom-checkbox-text {
+  line-height: 20px;
+  margin: 3px 0 0 15px;
+  width: 80%;
+}
+/* line 74, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement label a {
+  -webkit-transition: color 0.25s linear;
+  -moz-transition: color 0.25s linear;
+  -o-transition: color 0.25s linear;
+  transition: color 0.25s linear;
+  color: #fff;
+  text-decoration: underline;
+}
+/* line 79, pages/_studio-xfinity.scss */
+.studio-xfinity .xfinity-wifi-agreement label a:hover {
+  color: #1262be;
+}
+@media print, screen and (min-width: 768px) and (max-width: 1024px) {
+  /* line 89, pages/_studio-xfinity.scss */
+  .studio-xfinity .xfinity-wifi-agreement label .custom-checkbox-text {
+    width: auto;
+  }
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 97, pages/_studio-xfinity.scss */
+  .studio-xfinity header {
+    margin-bottom: 32px;
+  }
+  /* line 101, pages/_studio-xfinity.scss */
+  .studio-xfinity h1 {
+    font-size: 76px;
+    margin-top: 45px;
+  }
+  /* line 106, pages/_studio-xfinity.scss */
+  .studio-xfinity p {
+    font-size: 32px;
+  }
+  /* line 111, pages/_studio-xfinity.scss */
+  .studio-xfinity .xfinity-wifi-agreement .label-wrapper {
+    margin-bottom: 22px;
+    text-align: center;
+  }
+  /* line 117, pages/_studio-xfinity.scss */
+  .studio-xfinity .xfinity-wifi-agreement label .custom-checkbox-text {
+    font-size: 16px;
+    font-weight: 200;
+    width: auto;
+  }
+  /* line 124, pages/_studio-xfinity.scss */
+  .studio-xfinity .xfinity-wifi-agreement button {
+    margin: 12px auto 0;
+    padding-left: 60px;
+    padding-right: 60px;
+    width: auto;
+  }
+}
+
+/* line 2, pages/_error.scss */
+.error .content,.error .content_info {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-right: 2.60417%;
+  width: 82.89931%;
+  float: left;
+  margin-left: 8.55035%;
+  margin-top: 30px;
+  padding-top: 60px;
+}
+/* line 8, pages/_error.scss */
+.error .content:before {
+  /*background-image: url(public/images/error.png);*/
+  background-image: url(../images/error.png);
+  background-repeat: no-repeat;
+  content: '';
+  height: 33px;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 38px;
+}
+
+/* line 8, pages/_error.scss */
+.error .content_info:before {
+  /*background-image: url(public/images/error.png);*/
+  background-image: none;
+  background-repeat: no-repeat;
+  content: '';
+  height: 33px;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 38px;
+}
+/* line 23, pages/_error.scss */
+.error .content * {
+  display: inline-block;
+}
+/* line 30, pages/_error.scss */
+.error h1 {
+  margin: 15px 0;
+  text-align: center;
+}
+/* line 35, pages/_error.scss */
+.error p {
+  margin: 10px 0;
+}
+/* line 39, pages/_error.scss */
+.error footer {
+  margin-top: 40px;
+}
+.content_info h2{
+  line-height: 30px;
+  margin-top: 30px;
+}
+.content_info h3{
+  line-height: 33px;
+  margin-top: 30px;
+}
+.content_info ul{
+    list-style: disc;
+  list-style-type: disc;
+}
+.content_info ul li{
+  display: list-item;
+  margin-left: 20px
+}
+.error .content_error ul{
+    display: block;
+      list-style: disc;
+  list-style-type: disc;
+}
+.error .content_error p{
+    display: block;
+}
+
+.content_error ul li{
+  display: list-item !important;
+  margin-left: 20px;
+}
+@media print, screen and (min-width: 1025px) {
+  /* line 44, pages/_error.scss */
+  .error .content, .error .content_info {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    margin-right: 2.60417%;
+    width: 48.69792%;
+    float: left;
+    margin-left: 25.65104%;
+    margin-top: 65px;
+    padding-top: 0;
+  }
+  /* line 50, pages/_error.scss */
+  .error .content:before, .error .content_info:before {
+    left: -60px;
+    right: auto;
+    top: 13px;
+  }
+  /* line 56, pages/_error.scss */
+  .error .content h1, .error .content_info h1 {
+    text-align: left;
+  }
+  /* line 60, pages/_error.scss */
+  .error .content a, .error .content_info a {
+    color: #3b3b3b;
+    cursor: default;
+  }
+  /* line 66, pages/_error.scss */
+  .error footer {
+    bottom: 0;
+    padding-bottom: 35px;
+    /*position: absolute;*/
+  }
+  .error .content_error a {
+    color:#1262be;
+  }
+}
+.error_box {
+  color:#CC0000;
+  font-weight: bold;
+}
+
+.start-shopping{
+  font-size: 18px;
+  /*height:75px;*/
+  width:270px !important;
+  margin-top:25px;
+    font-weight: bold !important;
+    color: #333333;
+    background: #f9d14f !important;
+    /*padding: 15px 30px;
+    padding-bottom: 15px !important;
+    padding: 1px 29px;*/
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    display: inline-block;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    border: 0px;
+    cursor: pointer;
+}
+
+#not_customer
+{
+    width: 350px !important;
+    height: 75px !important;
+    opacity: 0.1 !important;
+    z-index: 1000 !important;
+    position: absolute !important;
+    bottom: 0px !important;
+    left: 1px !important;
+}
+
+#wawa_span{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left: 0;
+  z-index: 1;
+}
+
+#wawa_id {
+  color: #3b3b3b;
+}
+
+.wawa_heading{
+  color:black;
+}
+
+/* style for contact us */
+.contact-us {
+  margin-left: 30%;
+  margin-right: 30%;
+  text-align: center;
+}
+.strong {
+  font-weight: bold;
+}
+@media print, screen and (max-width: 414px){
+  /* line 107, common/_global.scss */
+  .contact-us {
+    margin-left: 0%;
+    margin-right: 0%;
+    text-align: center;
+  }
+}
+@media (min-width: 769px){
+  /* line 107, common/_global.scss */
+  .img-width {
+    margin-right: 20% !important;
+  }
+}
