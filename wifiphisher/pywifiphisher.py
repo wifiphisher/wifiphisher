@@ -56,6 +56,13 @@ def parse_args():
               )
     )
     parser.add_argument(
+		"-cP",
+		"--captiveportal",
+		help=("You can choose if you want to use captiveportal or not. " +
+			  "It also requires --internetinterface -iI "
+			  ),
+                action='store_true')
+    parser.add_argument(
         "-iI",
         "--internetinterface",
         help=("Choose an interface that is connected on the Internet" +
