@@ -148,12 +148,10 @@ def parse_oui_file(oui_file):
     :rtype: dict
     :Example:
 
-    # assuming somefile.txt contains:
-    # 45a23b|Fake Inc.
-    >>> oui_file = "somefile.txt"
-    >>> my_dict = parse_oui_file(oui_file)
-    >>> my_dict
-    {"45a23b": "Fake Inc."}
+        >>> oui_file = "somefile.txt"
+        >>> my_dict = parse_oui_file(oui_file)
+        >>> my_dict
+        {"45a23b": "Fake Inc."}
     """
 
     file_handler = open(oui_file, "r")
