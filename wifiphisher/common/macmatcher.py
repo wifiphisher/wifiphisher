@@ -130,3 +130,32 @@ class MACMatcher(object):
         """
 
         del self._mac_to_vendor
+
+
+def parse_oui_file(oui_file):
+    """
+    Return a dictionary containing the vendors information parsed
+    from the oui_file
+
+    :param oui_file: Location of the oui_file
+    :type oui_file: str
+    :return: dictionary containing parsed vendors
+    :rtype: dict
+    :Example:
+
+        >>> oui_file = "somefile.txt"
+        >>> my_dict = parse_oui_file(oui_file)
+        >>> my_dict
+        {"45a23b": "Fake Inc."}
+    """
+
+    file_handler = open(oui_file, "r")
+
+    not_a_comment = lambda entry: not entry.startswith("#")
+    split = lambda string: string.rstrip().split("|")
+
+    vendor_information = dict(map(split, filter(not_a_comment, file_handler.readlines())))
+
+    file_handler.close()
+
+    return vendor_information
