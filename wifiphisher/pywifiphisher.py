@@ -50,6 +50,7 @@ def parse_args():
     parser.add_argument(
         "-aI",
         "--apinterface",
+        type=opmode.validate_ap_interface,
         help=("Manually choose an interface that supports AP mode for  " +
               "spawning an AP. " +
               "Example: -aI wlan0"
