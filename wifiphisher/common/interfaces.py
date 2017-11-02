@@ -931,6 +931,7 @@ def generate_random_address():
                                                                          random.randint(0, 255))
     return mac_address
 
+
 def does_have_mode(interface, mode):
     """
     Return whether the provided interface has the mode

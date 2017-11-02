@@ -1339,3 +1339,33 @@ class TestIsWirelessInterface(unittest.TestCase):
         actual = interfaces.is_wireless_interface(interface_name)
         message = 'Fail to return true when the card is wireless card'
         self.assertTrue(actual, message)
+
+
+@mock.patch("wifiphisher.common.interfaces.pyric.pyw")
+def test_does_have_mode_has_mode(pyric):
+    """
+    Test does_have_mode function when the interface has the requested
+    mode
+    """
+    pyric.getcard.return_value = None
+    pyric.devmodes.return_value = ["AP", "monitor"]
+
+    name = "wlan0"
+    mode = "AP"
+
+    assert interfaces.does_have_mode(name, mode) == True
+
+
+@mock.patch("wifiphisher.common.interfaces.pyric.pyw")
+def test_does_have_mode_has_not_mode(pyric):
+    """
+    Test does_have_mode function when the interface doesn't have the
+    requested mode
+    """
+    pyric.getcard.return_value = None
+    pyric.devmodes.return_value = ["AP"]
+
+    name = "wlan0"
+    mode = "monitor"
+
+    assert interfaces.does_have_mode(name, mode) == False 
