@@ -1352,8 +1352,9 @@ def test_does_have_mode_has_mode(pyric):
 
     name = "wlan0"
     mode = "AP"
+    message = "Failed to return True when interface had mode available"
 
-    assert interfaces.does_have_mode(name, mode) == True
+    assert interfaces.does_have_mode(name, mode) == True, message
 
 
 @mock.patch("wifiphisher.common.interfaces.pyric.pyw")
@@ -1367,5 +1368,6 @@ def test_does_have_mode_has_not_mode(pyric):
 
     name = "wlan0"
     mode = "monitor"
+    message = "Failed to return False when interface didn't have mode available"
 
-    assert interfaces.does_have_mode(name, mode) == False 
+    assert interfaces.does_have_mode(name, mode) == False, message
