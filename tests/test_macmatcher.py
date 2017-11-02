@@ -20,7 +20,7 @@ def test_parse_oui_file(mock_open):
     assert actual == expected, message
 
 
-def test_get_vendor_1():
+def test_get_vendor_mac_is_known():
     """
     Test get_vendor function when MAC address is known
     """
@@ -34,7 +34,7 @@ def test_get_vendor_1():
     assert result == vendor_name, message
 
 
-def test_get_vendor_2():
+def test_get_vendor_mac_is_unknown():
     """
     Test get_vendor function when MAC address is unknown
     """
