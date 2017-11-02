@@ -7,6 +7,8 @@ resources of the host system
 import sys
 import os
 import logging
+import argparse
+import pyric
 import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.constants as constants
 import wifiphisher.extensions.handshakeverify as handshakeverify
@@ -263,3 +265,18 @@ class OpMode(object):
 
         return self.op_mode in [constants.OP_MODE1,
                                 constants.OP_MODE2]
+
+
+def validate_ap_interface(interface):
+    """
+    Validate the given interface
+
+    :param interface: Name of an interface
+    :type interface: str
+    :return: None
+    :rtype: None
+    :raises: argparse.ArgumentTypeError in case of invalid interface
+    """
+    if not(pyric.pyw.isinterface(interface) and interfaces.does_have_mode(interface, "AP")):
+        raise argparse.ArgumentTypeError("Provided interface ({}) either doesn't exist or "
+                                         " supports AP mode".format(interface))
