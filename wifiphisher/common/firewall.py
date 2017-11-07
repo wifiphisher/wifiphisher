@@ -44,3 +44,30 @@ class Fw():
 
     def on_exit(self):
         self.clear_rules()
+
+
+def run_command(command):
+    """
+    Run the given command and return status of completion and any
+    possible errors
+
+    :param command: The command that should be run
+    :type command: list
+    :return: A tuple containing completion status followed by an error
+        or None
+    :rtype: (bool, None or str)
+    :Example:
+
+        >>> command = ["ls", "-l"]
+        >>> run_command(command)
+        (True, None)
+
+        >>> command = ["ls", "---"]
+        >>> run_command(command)
+        (False, "ls: cannot access ' ---': No such file or directory")
+
+    :raises OSError: In case the command does not exist
+    """
+    _, error = subprocess.Popen(command, stderr=subprocess.PIPE).communicate()
+
+    return (error and (False, error)) or (True, None)
