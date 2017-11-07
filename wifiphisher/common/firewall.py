@@ -71,3 +71,29 @@ def run_command(command):
     _, error = subprocess.Popen(command, stderr=subprocess.PIPE).communicate()
 
     return (error and (False, error)) or (True, None)
+
+
+def clear_rules():
+    """
+    Clear(reset) all the firewall rules back to default state and
+    return a tuple containing completion status followed by the first
+    error that occurred or None
+
+    :return: A tuple containing completion status followed by an error
+        or None
+    :rtype: (bool, None or str)
+    :Example:
+
+        >>> clear_rules()
+        (True, None)
+
+        >>> clear_rules()
+        (False, "SOME ERROR HAPPENED")
+    """
+    iptables = "iptables"
+    commands = [[iptables, "-F"], [iptables, "-X"], [iptables, "-t", "nat", "-F"],
+                [iptables, "-t", "nat", "-X"]]
+
+    error = filter(lambda result: result[1], map(run_command, commands))[0]
+
+    return (error[1] and (False, error[1])) or (True, None)
