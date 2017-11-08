@@ -1,50 +1,5 @@
-#pylint: skip-file
 import subprocess
-from wifiphisher.common.constants import *
 import wifiphisher.common.constants as constants
-
-class Fw():
-
-    def __init__(self):
-        pass
-
-    def nat(self, internal_interface, external_interface):
-        subprocess.call(
-            ('iptables -t nat -A POSTROUTING -o %s -j MASQUERADE'
-            % (external_interface,)),
-            shell=True)
-
-        subprocess.call(
-            ('iptables -A FORWARD -i %s -o %s -j ACCEPT'
-            % (internal_interface, external_interface)),
-            shell=True)
-
-    def clear_rules(self):
-        subprocess.call('iptables -F', shell=True)
-        subprocess.call('iptables -X', shell=True)
-        subprocess.call('iptables -t nat -F', shell=True)
-        subprocess.call('iptables -t nat -X', shell=True)
-
-    def redirect_requests_localhost(self):
-        subprocess.call(
-            ('iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination %s:%s'
-             % (NETWORK_GW_IP, PORT)),
-            shell=True)
-        subprocess.call(
-            ('iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination %s:%s'
-             % (NETWORK_GW_IP, 53)),
-            shell=True)
-        subprocess.call(
-            ('iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination %s:%s'
-             % (NETWORK_GW_IP, 53)),
-            shell=True)
-        subprocess.call(
-            ('iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT --to-destination %s:%s'
-             % (NETWORK_GW_IP, SSL_PORT)),
-            shell=True)
-
-    def on_exit(self):
-        self.clear_rules()
 
 
 def run_command(command):
@@ -92,8 +47,8 @@ def clear_rules():
         (False, "SOME ERROR HAPPENED")
     """
     iptables = "iptables"
-    commands = [[iptables, "-F"], [iptables, "-X"], [iptables, "-t", "nat", "-F"],
-                [iptables, "-t", "nat", "-X"]]
+    commands = [[iptables, "-F"], [iptables, "-X"],
+                [iptables, "-t", "nat", "-F"], [iptables, "-t", "nat", "-X"]]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
 
@@ -117,10 +72,14 @@ def redirect_to_localhost():
         (False, "SOME ERROR HAPPNED")
     """
     base = "iptables -t nat -A PREROUTING -p {} --dport {} -j DNAT --to-destination {}:{}"
-    commands = [base.format("tcp", 80, constants.NETWORK_GW_IP, constants.PORT).split(),
-                base.format("tcp", 53, constants.NETWORK_GW_IP, 53).split(),
-                base.format("tcp", constants.SSL_PORT, constants.NETWORK_GW_IP, constants.SSL_PORT).split(),
-                base.format("udp", 53, constants.NETWORK_GW_IP, 53).split()]
+    commands = [
+        base.format("tcp", 80, constants.NETWORK_GW_IP,
+                    constants.PORT).split(),
+        base.format("tcp", 53, constants.NETWORK_GW_IP, 53).split(),
+        base.format("tcp", constants.SSL_PORT, constants.NETWORK_GW_IP,
+                    constants.SSL_PORT).split(),
+        base.format("udp", 53, constants.NETWORK_GW_IP, 53).split()
+    ]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
 
@@ -146,9 +105,12 @@ def enable_internet(in_interface, out_interface):
         >>> enable_internet("wlan1", "wlan2")
         (False, "SOME ERROR HAPPENED")
     """
-    commands = ["iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(out_interface).split(),
-                "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(in_interface, out_interface).split()]
-
+    commands = [
+        "iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(
+            out_interface).split(),
+        "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(
+            in_interface, out_interface).split()
+    ]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
 
