@@ -46,9 +46,14 @@ def clear_rules():
         >>> clear_rules()
         (False, "SOME ERROR HAPPENED")
     """
-    iptables = "iptables"
-    commands = [[iptables, "-F"], [iptables, "-X"],
-                [iptables, "-t", "nat", "-F"], [iptables, "-t", "nat", "-X"]]
+    base0 = "iptables -{}"
+    base1 = "iptables -t nat -{}"
+    commands = [
+        base0.format("F").split(),
+        base0.format("X").split(),
+        base1.format("F").split(),
+        base1.format("X").split()
+    ]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
 
