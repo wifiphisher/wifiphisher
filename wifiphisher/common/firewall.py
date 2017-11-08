@@ -83,7 +83,8 @@ def redirect_to_localhost():
         base.format("tcp", 53, constants.NETWORK_GW_IP, 53).split(),
         base.format("tcp", constants.SSL_PORT, constants.NETWORK_GW_IP,
                     constants.SSL_PORT).split(),
-        base.format("udp", 53, constants.NETWORK_GW_IP, 53).split()
+        base.format("udp", 53, constants.NETWORK_GW_IP, 53).split(),
+        "sysctl -w net.ipv4.conf.all.route_localnet=1".split()
     ]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
