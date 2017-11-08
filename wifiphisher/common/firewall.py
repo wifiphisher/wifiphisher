@@ -114,7 +114,8 @@ def enable_internet(in_interface, out_interface):
         "iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(
             out_interface).split(),
         "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(
-            in_interface, out_interface).split()
+            in_interface,
+            out_interface).split(), "sysctl -w net.ipv4.ip_forward=1".split()
     ]
 
     error = filter(lambda result: result[1], map(run_command, commands))[0]
