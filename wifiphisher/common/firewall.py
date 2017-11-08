@@ -125,3 +125,31 @@ def redirect_to_localhost():
     error = filter(lambda result: result[1], map(run_command, commands))[0]
 
     return (error[1] and (False, error[1])) or (True, None)
+
+
+def enable_internet(in_interface, out_interface):
+    """
+    Enable internet by forwarding connection to out_interface
+
+    :param in_interface: Name of an interface for input
+    :param out_interface: Name of an interface for output
+    :type in_interface: str
+    :type out_interface: str
+    :return: A tuple containing completion status followed by an error
+        or None
+    :rtype: (bool, None or str)
+    :Example:
+
+        >>> enable_internet("wlan0", "eth0")
+        (True, None)
+
+        >>> enable_internet("wlan1", "wlan2")
+        (False, "SOME ERROR HAPPENED")
+    """
+    commands = ["iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(out_interface).split(),
+                "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(in_interface, out_interface).split()]
+
+
+    error = filter(lambda result: result[1], map(run_command, commands))[0]
+
+    return (error[1] and (False, error[1])) or (True, None)
