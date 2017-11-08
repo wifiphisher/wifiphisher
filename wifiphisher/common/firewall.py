@@ -55,9 +55,9 @@ def clear_rules():
         base1.format("X").split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))[0]
+    error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (error[1] and (False, error[1])) or (True, None)
+    return (len(error) > 1 and (False, error[0][1])) or (True, None)
 
 
 def redirect_to_localhost():
@@ -87,9 +87,9 @@ def redirect_to_localhost():
         "sysctl -w net.ipv4.conf.all.route_localnet=1".split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))[0]
+    error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (error[1] and (False, error[1])) or (True, None)
+    return (len(error) > 1 and (False, error[0][1])) or (True, None)
 
 
 def enable_internet(in_interface, out_interface):
@@ -119,6 +119,6 @@ def enable_internet(in_interface, out_interface):
             out_interface).split(), "sysctl -w net.ipv4.ip_forward=1".split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))[0]
+    error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (error[1] and (False, error[1])) or (True, None)
+    return (len(error) > 1 and (False, error[0][1])) or (True, None)
