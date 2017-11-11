@@ -238,11 +238,15 @@ class AccessPointFinder(object):
         :type packet: scapy.layers.RadioTap
         :return: None
         :rtype: None
+        :note: return when the frame is malformed or the channel is not
+        in the 2G channel list
         """
 
         elt_section = packet[dot11.Dot11Elt]
         try:
             channel = str(ord(packet[dot11.Dot11Elt:3].info))
+            if int(channel) not in constants.ALL_2G_CHANNELS:
+                return
         except (TypeError, IndexError):
             return
 
