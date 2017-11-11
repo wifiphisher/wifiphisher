@@ -24,7 +24,8 @@ def run_command(command):
 
     :raises OSError: In case the command does not exist
     """
-    _, error = subprocess.Popen(command, stderr=subprocess.PIPE).communicate()
+    _, error = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     return (error and (False, error)) or (True, None)
 
