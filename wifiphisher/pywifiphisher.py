@@ -368,7 +368,7 @@ class WifiphisherEngine:
         if (self.opmode.internet_sharing_enabled() and
                 not enable_internet_result[0]):
             message = ("Failed to enable internet with the following error:\n{}"
-                       .format(enable_internet_result[1])
+                       .format(enable_internet_result[1]))
             print(message)
             logger.error(message)
             self.stop()
