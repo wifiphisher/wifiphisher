@@ -364,10 +364,23 @@ class WifiphisherEngine:
                 logger.info("Changing {} MAC address to {}".format(mon_iface, mon_mac))
                 print ("[{0}+{1}] Changing {2} MAC addr to {3}".format(G, W, mon_iface, mon_mac))
 
-        if self.opmode.internet_sharing_enabled():
-            firewall.enable_internet(ap_iface, args.internetinterface)
+        enable_internet_result = firewall.enable_internet(ap_iface, args.internetinterface)
+        if (self.opmode.internet_sharing_enabled() and
+                not enable_internet_result[0]):
+            message = ("Failed to enable internet with the following error:\n{}"
+                       .format(enable_internet_result[1])
+            print(message)
+            logger.error(message)
+            self.stop()
         else:
-            firewall.redirect_to_localhost()
+            redirect_to_localhost_result = firewall.redirect_to_localhost()
+
+            if not redirect_to_localhost_result[0]:
+                message = ("Failed to redirect all request to local host:\n{}"
+                           .format(redirect_to_localhost_result[1]))
+                print(message)
+                logger.error(message)
+                self.stop()
 
         print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
         time.sleep(1)
