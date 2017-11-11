@@ -25,12 +25,11 @@ def run_command(command):
 
     :raises OSError: In case the command does not exist
     """
-    result = collections.namedtuple("Result", "status, error_message")
-
     _, error = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    return (error and result(False, error)) or result(True, None)
+    return ((error and constants.RESULT(False, error))
+            or constants.RESULT(True, None))
 
 
 def clear_rules():

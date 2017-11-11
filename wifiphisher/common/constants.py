@@ -135,3 +135,4 @@ AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
 CONST_A = "Pairwise key expansion"
 
 RESULT = collections.namedtuple("Result", "status, error_message")
+RESULT_NO_ERROR = RESULT(True, None)
