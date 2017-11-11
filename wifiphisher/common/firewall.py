@@ -1,4 +1,5 @@
 import subprocess
+import collections
 import wifiphisher.common.constants as constants
 
 
@@ -9,25 +10,27 @@ def run_command(command):
 
     :param command: The command that should be run
     :type command: list
-    :return: A tuple containing completion status followed by an error
+    :return: A namedtuple containing completion status followed by an error
         or None
-    :rtype: (bool, None or str)
+    :rtype: namedtuple(status=bool, error_message=None or str)
     :Example:
 
         >>> command = ["ls", "-l"]
         >>> run_command(command)
-        (True, None)
+        Result(True, None)
 
         >>> command = ["ls", "---"]
         >>> run_command(command)
-        (False, "ls: cannot access ' ---': No such file or directory")
+        Result(False, "ls: cannot access ' ---': No such file or directory")
 
     :raises OSError: In case the command does not exist
     """
+    result = collections.namedtuple("Result", "status, error_message")
+
     _, error = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    return (error and (False, error)) or (True, None)
+    return (error and result(False, error)) or result(True, None)
 
 
 def clear_rules():
