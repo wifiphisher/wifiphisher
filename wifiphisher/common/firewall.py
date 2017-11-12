@@ -67,16 +67,16 @@ def redirect_to_localhost():
     Configure firewall such that all request are redirected to local
     host
 
-    :return: A tuple containing completion status followed by an error
+    :return: A namedtuple containing completion status followed by an error
         or None
-    :rtype: (bool, None or str)
+    :rtype: Result(status=bool, error_message=None or str)
     :Example:
 
         >>> redirect_to_localhost()
-        (True, None)
+        Result(True, None)
 
         >>> redirect_to_localhost()
-        (False, "SOME ERROR HAPPNED")
+        Result(False, "SOME ERROR HAPPNED")
     """
     base = "iptables -t nat -A PREROUTING -p {} --dport {} -j DNAT --to-destination {}:{}"
     commands = [
@@ -91,7 +91,7 @@ def redirect_to_localhost():
 
     error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (len(error) > 1 and (False, error[0][1])) or (True, None)
+    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
 
 
 def enable_internet(in_interface, out_interface):
@@ -102,16 +102,16 @@ def enable_internet(in_interface, out_interface):
     :param out_interface: Name of an interface for output
     :type in_interface: str
     :type out_interface: str
-    :return: A tuple containing completion status followed by an error
+    :return: A namedtuple containing completion status followed by an error
         or None
-    :rtype: (bool, None or str)
+    :rtype: Result(status=bool, error_message=None or str)
     :Example:
 
         >>> enable_internet("wlan0", "eth0")
-        (True, None)
+        Result(True, None)
 
         >>> enable_internet("wlan1", "wlan2")
-        (False, "SOME ERROR HAPPENED")
+        Result(False, "SOME ERROR HAPPENED")
     """
     commands = [
         "iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(
@@ -123,4 +123,4 @@ def enable_internet(in_interface, out_interface):
 
     error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (len(error) > 1 and (False, error[0][1])) or (True, None)
+    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
