@@ -366,18 +366,18 @@ class WifiphisherEngine:
 
         enable_internet_result = firewall.enable_internet(ap_iface, args.internetinterface)
         if (self.opmode.internet_sharing_enabled() and
-                not enable_internet_result[0]):
+                not enable_internet_result.status):
             message = ("Failed to enable internet with the following error:\n{}"
-                       .format(enable_internet_result[1]))
+                       .format(enable_internet_result.error_message))
             print(message)
             logger.error(message)
             self.stop()
         else:
             redirect_to_localhost_result = firewall.redirect_to_localhost()
 
-            if not redirect_to_localhost_result[0]:
+            if not redirect_to_localhost_result.status:
                 message = ("Failed to redirect all request to local host:\n{}"
-                           .format(redirect_to_localhost_result[1]))
+                           .format(redirect_to_localhost_result.error_message))
                 print(message)
                 logger.error(message)
                 self.stop()
