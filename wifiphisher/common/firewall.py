@@ -12,17 +12,16 @@ def run_command(command):
     :return: A namedtuple containing completion status followed by an error
         or None
     :rtype: namedtuple(status=bool, error_message=None or str)
+    :raises OSError: In case the command does not exist
     :Example:
 
         >>> command = ["ls", "-l"]
         >>> run_command(command)
-        Result(True, None)
+        Result(status=True, error_message=None)
 
         >>> command = ["ls", "---"]
         >>> run_command(command)
-        Result(False, "ls: cannot access ' ---': No such file or directory")
-
-    :raises OSError: In case the command does not exist
+        Result(status=False, error_message="ls: cannot access ' ---'")
     """
     _, error = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -43,10 +42,10 @@ def clear_rules():
     :Example:
 
         >>> clear_rules()
-        Result(True, None)
+        Result(status=True, error_message=None)
 
         >>> clear_rules()
-        Result(False, "SOME ERROR HAPPENED")
+        Result(status=False, error_message="SOME ERROR HAPPENED")
     """
     base0 = "iptables -{}"
     base1 = "iptables -t nat -{}"
@@ -73,10 +72,10 @@ def redirect_to_localhost():
     :Example:
 
         >>> redirect_to_localhost()
-        Result(True, None)
+        Result(status=True, error_message=None)
 
         >>> redirect_to_localhost()
-        Result(False, "SOME ERROR HAPPNED")
+        Result(status=False, error_message="SOME ERROR HAPPNED")
     """
     base = "iptables -t nat -A PREROUTING -p {} --dport {} -j DNAT --to-destination {}:{}"
     commands = [
