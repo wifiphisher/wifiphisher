@@ -26,8 +26,8 @@ def run_command(command):
     _, error = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    return ((error and constants.RESULT(False, error))
-            or constants.RESULT_NO_ERROR)
+    return (constants.RESULT(False, error)
+            if error else constants.RESULT_NO_ERROR)
 
 
 def clear_rules():
@@ -56,9 +56,9 @@ def clear_rules():
         base1.format("X").split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))
+    error = list(filter(lambda result: result[1], map(run_command, commands)))
 
-    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
+    return error[0] if error else constants.RESULT_NO_ERROR
 
 
 def redirect_to_localhost():
@@ -88,9 +88,9 @@ def redirect_to_localhost():
         "sysctl -w net.ipv4.conf.all.route_localnet=1".split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))
+    error = list(filter(lambda result: result[1], map(run_command, commands)))
 
-    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
+    return error[0] if error else constants.RESULT_NO_ERROR
 
 
 def enable_internet(in_interface, out_interface):
@@ -120,6 +120,6 @@ def enable_internet(in_interface, out_interface):
             out_interface).split(), "sysctl -w net.ipv4.ip_forward=1".split()
     ]
 
-    error = filter(lambda result: result[1], map(run_command, commands))
+    error = list(filter(lambda result: result[1], map(run_command, commands)))
 
-    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
+    return error[0] if error else constants.RESULT_NO_ERROR
