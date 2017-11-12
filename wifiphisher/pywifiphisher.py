@@ -229,7 +229,13 @@ class WifiphisherEngine:
         self.access_point.on_exit()
         self.network_manager.on_exit()
         self.template_manager.on_exit()
-        firewall.clear_rules()
+
+        clear_rules_result = firewall.clear_rules()
+        if not clear_rules_result.status:
+            message = ("Failed to reset the routing rules:\n{}"
+                       .format(clear_rules_result.error_message))
+            print(message)
+            logger.error(message)
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
