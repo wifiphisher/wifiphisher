@@ -161,27 +161,6 @@ def setup_logging(args):
         should_roll_over and root_logger.handlers[0].doRollover()
         logger.info("Starting Wifiphisher")
 
-def set_ip_fwd():
-    """
-    Set kernel variables.
-    """
-    Popen(
-        ['sysctl', '-w', 'net.ipv4.ip_forward=1'],
-        stdout=DN,
-        stderr=PIPE
-    )
-
-
-def set_route_localnet():
-    """
-    Set kernel variables.
-    """
-    Popen(
-        ['sysctl', '-w', 'net.ipv4.conf.all.route_localnet=1'],
-        stdout=DN,
-        stderr=PIPE
-    )
-
 
 def kill_interfering_procs():
     """
@@ -229,7 +208,6 @@ class WifiphisherEngine:
         self.network_manager = interfaces.NetworkManager()
         self.template_manager = phishingpage.TemplateManager()
         self.access_point = accesspoint.AccessPoint()
-        self.fw = firewall.Fw()
         self.em = extensions.ExtensionManager(self.network_manager)
         self.opmode = opmode.OpMode()
 
@@ -251,7 +229,13 @@ class WifiphisherEngine:
         self.access_point.on_exit()
         self.network_manager.on_exit()
         self.template_manager.on_exit()
-        self.fw.on_exit()
+
+        clear_rules_result = firewall.clear_rules()
+        if not clear_rules_result.status:
+            message = ("Failed to reset the routing rules:\n{}"
+                       .format(clear_rules_result.error_message))
+            print(message)
+            logger.error(message)
 
         if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
             os.remove('/tmp/wifiphisher-webserver.tmp')
@@ -386,12 +370,23 @@ class WifiphisherEngine:
                 logger.info("Changing {} MAC address to {}".format(mon_iface, mon_mac))
                 print ("[{0}+{1}] Changing {2} MAC addr to {3}".format(G, W, mon_iface, mon_mac))
 
-        if self.opmode.internet_sharing_enabled():
-            self.fw.nat(ap_iface, args.internetinterface)
-            set_ip_fwd()
+        enable_internet_result = firewall.enable_internet(ap_iface, args.internetinterface)
+        if (self.opmode.internet_sharing_enabled() and
+                not enable_internet_result.status):
+            message = ("Failed to enable internet with the following error:\n{}"
+                       .format(enable_internet_result.error_message))
+            print(message)
+            logger.error(message)
+            self.stop()
         else:
-            self.fw.redirect_requests_localhost()
-        set_route_localnet()
+            redirect_to_localhost_result = firewall.redirect_to_localhost()
+
+            if not redirect_to_localhost_result.status:
+                message = ("Failed to redirect all request to local host:\n{}"
+                           .format(redirect_to_localhost_result.error_message))
+                print(message)
+                logger.error(message)
+                self.stop()
 
         print '[' + T + '*' + W + '] Cleared leases, started DHCP, set up iptables'
         time.sleep(1)
