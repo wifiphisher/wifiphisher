@@ -1,5 +1,4 @@
 import subprocess
-import collections
 import wifiphisher.common.constants as constants
 
 
@@ -29,7 +28,7 @@ def run_command(command):
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     return ((error and constants.RESULT(False, error))
-            or constants.RESULT(True, None))
+            or constants.RESULT_NO_ERROR)
 
 
 def clear_rules():
@@ -40,14 +39,14 @@ def clear_rules():
 
     :return: A tuple containing completion status followed by an error
         or None
-    :rtype: (bool, None or str)
+    :rtype: namedtuple(status=bool, error_message=None or str)
     :Example:
 
         >>> clear_rules()
-        (True, None)
+        Result(True, None)
 
         >>> clear_rules()
-        (False, "SOME ERROR HAPPENED")
+        Result(False, "SOME ERROR HAPPENED")
     """
     base0 = "iptables -{}"
     base1 = "iptables -t nat -{}"
@@ -60,7 +59,7 @@ def clear_rules():
 
     error = filter(lambda result: result[1], map(run_command, commands))
 
-    return (len(error) > 1 and (False, error[0][1])) or (True, None)
+    return (len(error) > 1 and error[0]) or constants.RESULT_NO_ERROR
 
 
 def redirect_to_localhost():
