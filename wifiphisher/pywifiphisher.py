@@ -137,6 +137,10 @@ def parse_args():
     parser.add_argument(
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
+    parser.add_argument("-cM",
+                        "--channel-monitor",
+                        help="Monitor if target access point changes the channel.",
+                        action='store_true')
 
     return parser.parse_args()
 
@@ -160,6 +164,7 @@ def setup_logging(args):
             should_roll_over = os.path.isfile(LOG_FILEPATH)
         should_roll_over and root_logger.handlers[0].doRollover()
         logger.info("Starting Wifiphisher")
+
 
 def set_ip_fwd():
     """

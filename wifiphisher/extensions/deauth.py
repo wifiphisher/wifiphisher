@@ -35,7 +35,7 @@ class Deauth(object):
         self._should_continue = True
         self._data = data
         # the bssids having the same ESSID
-        self._deauth_bssids = set()
+        self._deauth_bssids = dict()
         # channel mapping to the frames list
         self._packets_to_send = defaultdict(list)
 
@@ -170,8 +170,15 @@ class Deauth(object):
                                                   constants.WIFI_BROADCAST,
                                                   bssid)
             logger.info("Target deauth BSSID found: {0}".format(bssid))
-            self._deauth_bssids.add(bssid)
-
+            # remember the channel of the given bssid
+            self._deauth_bssids[bssid] = str(channel)
+        elif bssid in self._deauth_bssids:
+            # the bssid is already in the deauth set and we need to check
+            # if the channel of the target AP has been changed
+            if str(channel) != self._deauth_bssids[bssid]:
+                logger.info("BSSID: {0} changes channel to {1}".format(bssid, channel))
+                self._update_target_ap_frames(str(channel),
+                                              str(self._deauth_bssids[bssid]), bssid)
         if bssid not in self._deauth_bssids:
             return self._packets_to_send
 
@@ -184,6 +191,32 @@ class Deauth(object):
         self._packets_to_send[str(channel)] += packets_to_send
 
         return self._packets_to_send
+
+    def _update_target_ap_frames(self, new_channel, old_channel, bssid):
+        """
+        :param self: A Deauth object
+        :param new_channel: New channel for the target AP
+        :param old_channel: Old channel for the target AP
+        :type self: Deauth
+        :param bssid: Address of the bssid
+        :type new_channel: str
+        :type old_channel: str 
+        :type bssid: str
+        :return: None
+        :rtype: None
+        """
+        old_channel_list = []
+        new_channel_list = []
+        for pkt in self._packets_to_send[old_channel]:
+            if pkt.addr3 != bssid:
+                old_channel_list.append(pkt)
+            else:
+                new_channel_list.append(pkt)
+        self._packets_to_send[old_channel] = old_channel_list
+        # append the frames of target AP to the new channel
+        self._packets_to_send[new_channel].extend(new_channel_list)
+        # update the channel of bssid
+        self._deauth_bssids[bssid] = new_channel
 
     def _add_clients(self, sender, receiver, bssid):
         """
@@ -242,6 +275,7 @@ class Deauth(object):
         if not self._data.is_freq_hop_allowed:
             return [self._data.target_ap_channel]
 
-        if self._data.target_ap_bssid and not self._data.args.deauth_essid:
+        if self._data.target_ap_bssid and not self._data.args.deauth_essid\
+                and not self._data.args.channel_monitor:
             return [self._data.target_ap_channel]
         return map(str, constants.ALL_2G_CHANNELS)
