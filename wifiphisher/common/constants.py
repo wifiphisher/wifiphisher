@@ -22,6 +22,7 @@ WEBSITE = "https://wifiphisher.org"
 PUBLIC_DNS = "8.8.8.8"
 PEM = dir_of_data + 'cert/server.pem'
 PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
+SCENARIO_HTML_DIR = "html/"
 LOGOS_DIR = dir_of_data + "logos/"
 LOCS_DIR = dir_of_data + "locs/"
 MAC_PREFIX_FILE = dir_of_data + "wifiphisher-mac-prefixes"
