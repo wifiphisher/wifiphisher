@@ -555,8 +555,16 @@ class WifiphisherEngine:
 
 def run():
     try:
-        print('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
-              (VERSION, WEBSITE, time.strftime("%Y-%m-%d %H:%M")))
+        today = time.strftime("%Y-%m-%d %H:%M")
+        print ('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
+               (VERSION, WEBSITE, today))
+        if BIRTHDAY in today:
+            print '[' + T + '*' + W + \
+            '] Wifiphisher was first released on this day in 2015! ' \
+            'Happy birthday!'
+        if NEW_YEAR in today:
+            print '[' + T + '*' + W + \
+            '] Happy new year!'
         engine = WifiphisherEngine()
         engine.start()
     except KeyboardInterrupt:
