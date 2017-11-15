@@ -930,3 +930,26 @@ def generate_random_address():
                                                                          random.randint(0, 255),
                                                                          random.randint(0, 255))
     return mac_address
+
+
+def does_have_mode(interface, mode):
+    """
+    Return whether the provided interface has the mode
+
+    :param interface: Name of the interface
+    :param mode: Mode of operation
+    :type interface: str
+    :type mode: str
+    :return: True if interface has the mode and False otherwise
+    :rtype: bool
+    :Example:
+
+        >>> does_have_mode("wlan0", "AP")
+        True
+
+        >>> does_have_mode("wlan1", "monitor")
+        False
+    """
+    card = pyric.pyw.getcard(interface)
+
+    return mode in pyric.pyw.devmodes(card)
