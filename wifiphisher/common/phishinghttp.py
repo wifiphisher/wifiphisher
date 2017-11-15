@@ -3,6 +3,7 @@ import json
 from tornado.escape import json_decode
 import tornado.ioloop
 import tornado.web
+import mimetypes
 import os.path
 import wifiphisher.common.uimethods as uimethods
 import wifiphisher.common.extensions as extensions
@@ -83,9 +84,17 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
 
         requested_file = self.request.path[1:]
         template_directory = template.get_path()
+        accepted_filetypes = [
+            "text/html",
+            "text/javascript",
+            "text/css",
+            "image/",
+            "audio/",
+            "video/"
+        ]
 
         # choose the correct file to serve
-        if os.path.isfile(template_directory + requested_file):
+        if any(filetype in mimetypes.guess_type(template_directory + requested_file) for filetype in accepted_filetypes):
             render_file = requested_file
         else:
             render_file = "index.html"
