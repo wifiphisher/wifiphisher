@@ -10,7 +10,6 @@ import logging
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -286,9 +285,12 @@ class AccessPointFinder(object):
 
         # with all the information gathered create and add the
         # access point
-        access_point = AccessPoint(name, mac_address, channel,
-                                   encryption_type,
-                                   capture_file=self._capture_file)
+        access_point = AccessPoint(
+            name,
+            mac_address,
+            channel,
+            encryption_type,
+            capture_file=self._capture_file)
         access_point.set_signal_strength(new_signal_strength)
         self._observed_access_points.append(access_point)
 
@@ -355,8 +357,11 @@ class AccessPointFinder(object):
 
         # continue to find clients until otherwise told
         while self._should_continue:
-            dot11.sniff(iface=self._interface, prn=self._process_packets,
-                        count=1, store=0)
+            dot11.sniff(
+                iface=self._interface,
+                prn=self._process_packets,
+                count=1,
+                store=0)
 
     def capture_aps(self):
         self._capture_file = constants.LOCS_DIR + "area_" +\
@@ -509,8 +514,9 @@ class AccessPointFinder(object):
 
         # sort access points in descending order based on
         # signal strength
-        sorted_access_points = sorted(self._observed_access_points,
-                                      key=lambda ap: ap.get_signal_strength(),
-                                      reverse=True)
+        sorted_access_points = sorted(
+            self._observed_access_points,
+            key=lambda ap: ap.get_signal_strength(),
+            reverse=True)
 
         return sorted_access_points

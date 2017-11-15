@@ -29,11 +29,13 @@ class InvalidInterfaceError(Exception):
         :rtype: None
         """
 
-        message = "The provided interface \"{0}\" is invalid!".format(interface_name)
+        message = "The provided interface \"{0}\" is invalid!".format(
+            interface_name)
 
         # provide more information if mode is given
         if mode:
-            message += "Interface {0} doesn't support {1} mode".format(interface_name, mode)
+            message += "Interface {0} doesn't support {1} mode".format(
+                interface_name, mode)
 
         Exception.__init__(self, message)
 
@@ -79,8 +81,8 @@ class InvalidValueError(Exception):
 
         value_type = type(value)
 
-        message = ("Expected value type to be {0} while got {1}."
-                   .format(correct_value_type, value_type))
+        message = ("Expected value type to be {0} while got {1}.".format(
+            correct_value_type, value_type))
         Exception.__init__(self, message)
 
 
@@ -123,6 +125,7 @@ class InterfaceManagedByNetworkManagerError(Exception):
     """
     Exception class to raise in case of NetworkManager controls the AP or deauth interface
     """
+
     def __init__(self, interface_name):
         """
         Construct the class.
@@ -575,10 +578,11 @@ class NetworkManager(object):
         possible_adapters = list()
         for interface, adapter in self._name_to_object.iteritems():
             # check to make sure interface is not active and not already in the possible list
-            if (interface not in self._active) and (adapter not in possible_adapters):
+            if (interface not in self._active) and (
+                    adapter not in possible_adapters):
                 # in case of perfect match case
-                if (adapter.has_ap_mode == has_ap_mode and
-                        adapter.has_monitor_mode == has_monitor_mode):
+                if (adapter.has_ap_mode == has_ap_mode
+                        and adapter.has_monitor_mode == has_monitor_mode):
                     possible_adapters.insert(0, adapter)
 
                 # in case of requested AP mode and interface has AP mode (Partial match)
@@ -589,8 +593,8 @@ class NetworkManager(object):
                     possible_adapters.append(adapter)
 
         for adapter in possible_adapters:
-            if ((not adapter.is_managed_by_nm and self.internet_access_enable) or
-                    (not self.internet_access_enable)):
+            if ((not adapter.is_managed_by_nm and self.internet_access_enable)
+                    or (not self.internet_access_enable)):
                 chosen_interface = adapter.name
                 self._active.add(chosen_interface)
                 return chosen_interface
@@ -736,6 +740,7 @@ class NetworkManager(object):
         # remove all the virtual added virtual interfaces
         self.remove_vifs_added()
 
+
 def is_add_vif_required(args):
     """
     Return the card if only that card support both monitor and ap
@@ -811,10 +816,11 @@ def is_add_vif_required(args):
     # sort with score
     vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
 
-    perfect_card, is_single_perfect_phy = get_perfect_card(phy_to_vifs,
-                                                           vif_score_tuples)
+    perfect_card, is_single_perfect_phy = get_perfect_card(
+        phy_to_vifs, vif_score_tuples)
 
     return perfect_card, is_single_perfect_phy
+
 
 def get_network_manager_objects(system_bus):
     """
@@ -837,6 +843,7 @@ def get_network_manager_objects(system_bus):
     prop_accesser = dbus.Interface(
         network_manager_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
     return network_manager, prop_accesser
+
 
 def is_managed_by_network_manager(interface_name):
     """
@@ -869,11 +876,14 @@ def is_managed_by_network_manager(interface_name):
             device_proxy = bus.get_object(constants.NM_APP_PATH, dev_obj_path)
 
             # get the device object that implements the PROPERTIES_IFACE interface
-            device = dbus.Interface(device_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
+            device = dbus.Interface(
+                device_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
 
             # check if the device is the target interface
-            if device.Get(constants.NM_DEV_INTERFACE_PATH, 'Interface') == interface_name:
-                is_managed = device.Get(constants.NM_DEV_INTERFACE_PATH, 'Managed')
+            if device.Get(constants.NM_DEV_INTERFACE_PATH,
+                          'Interface') == interface_name:
+                is_managed = device.Get(constants.NM_DEV_INTERFACE_PATH,
+                                        'Managed')
                 break
     except dbus.exceptions.DBusException:
         # NetworkManager service is not running so the devices must be unmanaged
@@ -901,7 +911,9 @@ def interface_property_detector(network_adapter):
         network_adapter.has_ap_mode = True
 
     interface_name = network_adapter.name
-    network_adapter.is_managed_by_nm = is_managed_by_network_manager(interface_name)
+    network_adapter.is_managed_by_nm = is_managed_by_network_manager(
+        interface_name)
+
 
 def is_wireless_interface(interface_name):
     """
@@ -917,6 +929,7 @@ def is_wireless_interface(interface_name):
         return True
     return False
 
+
 def generate_random_address():
     """
     Make and return the randomized MAC address
@@ -926,9 +939,8 @@ def generate_random_address():
     .. warning: The first 3 octets are 00:00:00 by default
     """
 
-    mac_address = constants.DEFAULT_OUI + ":{:02x}:{:02x}:{:02x}".format(random.randint(0, 255),
-                                                                         random.randint(0, 255),
-                                                                         random.randint(0, 255))
+    mac_address = constants.DEFAULT_OUI + ":{:02x}:{:02x}:{:02x}".format(
+        random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
     return mac_address
 
 

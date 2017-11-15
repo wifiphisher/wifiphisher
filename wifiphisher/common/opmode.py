@@ -13,7 +13,6 @@ import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.constants as constants
 import wifiphisher.extensions.handshakeverify as handshakeverify
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -66,87 +65,55 @@ class OpMode(object):
         if args.presharedkey and \
             (len(args.presharedkey) < 8 or
              len(args.presharedkey) > 64):
-            sys.exit(
-                '[' +
-                constants.R +
-                '-' +
-                constants.W +
-                '] Pre-shared key must be between 8 and 63 printable'
-                'characters.')
+            sys.exit('[' + constants.R + '-' + constants.W +
+                     '] Pre-shared key must be between 8 and 63 printable'
+                     'characters.')
 
         if args.handshake_capture and not os.path.isfile(
                 args.handshake_capture):
-            sys.exit('[' +
-                     constants.R +
-                     '-' +
-                     constants.W +
+            sys.exit('[' + constants.R + '-' + constants.W +
                      '] handshake capture does not exist.')
         elif args.handshake_capture and not handshakeverify.\
                 is_valid_handshake_capture(args.handshake_capture):
-            sys.exit('[' +
-                     constants.R +
-                     '-' +
-                     constants.W +
+            sys.exit('[' + constants.R + '-' + constants.W +
                      '] handshake capture does not contain valid handshake')
 
         if ((args.jamminginterface and not args.apinterface) or
                 (not args.jamminginterface and args.apinterface)) and \
                 not (args.nojamming and args.apinterface):
-            sys.exit(
-                '[' +
-                constants.R +
-                '-' +
-                constants.W +
-                '] --apinterface (-aI) and --jamminginterface (-jI)'
-                '(or --nojamming (-nJ)) are used in conjuction.')
+            sys.exit('[' + constants.R + '-' + constants.W +
+                     '] --apinterface (-aI) and --jamminginterface (-jI)'
+                     '(or --nojamming (-nJ)) are used in conjuction.')
 
         if args.nojamming and args.jamminginterface:
-            sys.exit(
-                '[' +
-                constants.R +
-                '-' +
-                constants.W +
-                '] --nojamming (-nJ) and --jamminginterface (-jI)'
-                'cannot work together.')
+            sys.exit('[' + constants.R + '-' + constants.W +
+                     '] --nojamming (-nJ) and --jamminginterface (-jI)'
+                     'cannot work together.')
 
         if args.lure10_exploit and args.nojamming:
-            sys.exit(
-                '[' +
-                constants.R +
-                '-' +
-                constants.W +
-                '] --lure10-exploit (-lE) and --nojamming (-nJ)'
-                'cannot work together.')
+            sys.exit('[' + constants.R + '-' + constants.W +
+                     '] --lure10-exploit (-lE) and --nojamming (-nJ)'
+                     'cannot work together.')
 
-        if args.lure10_exploit and not os.path.isfile(
-                constants.LOCS_DIR + args.lure10_exploit):
-            sys.exit('[' +
-                     constants.R +
-                     '-' +
-                     constants.W +
+        if args.lure10_exploit and not os.path.isfile(constants.LOCS_DIR +
+                                                      args.lure10_exploit):
+            sys.exit('[' + constants.R + '-' + constants.W +
                      '] Lure10 capture does not exist. Listing directory'
                      'of captures: ' + str(os.listdir(constants.LOCS_DIR)))
 
         if (args.mac_ap_interface and args.no_mac_randomization) or \
                 (args.mac_deauth_interface and args.no_mac_randomization):
             sys.exit(
-                '[' +
-                constants.R +
-                '-' +
-                constants.W +
+                '[' + constants.R + '-' + constants.W +
                 '] --no-mac-randomization (-iNM) cannot work together with'
                 '--mac-ap-interface or --mac-deauth-interface (-iDM)')
 
         # if args.deauth_essid is set we need the second card to
         # do the frequency hopping
         if args.deauth_essid and self._is_one_phy_interface:
-            print(
-                '[' +
-                constants.R +
-                '!' +
-                constants.W +
-                '] Only one card was found. Wifiphisher will deauth only '
-                'on the target AP channel')
+            print('[' + constants.R + '!' + constants.W +
+                  '] Only one card was found. Wifiphisher will deauth only '
+                  'on the target AP channel')
 
     def set_opmode(self, args, network_manager):
         """
@@ -191,8 +158,7 @@ class OpMode(object):
                 logger.info("Starting OP_MODE1 (0x1)")
             else:
                 if self._perfect_card is not None:
-                    network_manager.add_virtual_interface(
-                        self._perfect_card)
+                    network_manager.add_virtual_interface(self._perfect_card)
                 self.op_mode = constants.OP_MODE5
                 logger.info("Starting OP_MODE5 (0x5)")
         if args.internetinterface and not args.nojamming:
@@ -201,8 +167,7 @@ class OpMode(object):
                 logger.info("Starting OP_MODE2 (0x2)")
             else:
                 if self._perfect_card is not None:
-                    network_manager.add_virtual_interface(
-                        self._perfect_card)
+                    network_manager.add_virtual_interface(self._perfect_card)
                 self.op_mode = constants.OP_MODE6
                 logger.info("Starting OP_MODE6 (0x6)")
 
@@ -233,10 +198,10 @@ class OpMode(object):
         :rtype: bool
         """
 
-        return self.op_mode in [constants.OP_MODE1,
-                                constants.OP_MODE2,
-                                constants.OP_MODE5,
-                                constants.OP_MODE6]
+        return self.op_mode in [
+            constants.OP_MODE1, constants.OP_MODE2, constants.OP_MODE5,
+            constants.OP_MODE6
+        ]
 
     def deauth_enabled(self):
         """
@@ -247,10 +212,10 @@ class OpMode(object):
         :rtype: bool
         """
 
-        return self.op_mode in [constants.OP_MODE1,
-                                constants.OP_MODE2,
-                                constants.OP_MODE5,
-                                constants.OP_MODE6]
+        return self.op_mode in [
+            constants.OP_MODE1, constants.OP_MODE2, constants.OP_MODE5,
+            constants.OP_MODE6
+        ]
 
     def freq_hopping_enabled(self):
         """
@@ -263,8 +228,7 @@ class OpMode(object):
         lunch ap so it is not allowed to do frequency hopping.
         """
 
-        return self.op_mode in [constants.OP_MODE1,
-                                constants.OP_MODE2]
+        return self.op_mode in [constants.OP_MODE1, constants.OP_MODE2]
 
 
 def validate_ap_interface(interface):
@@ -277,6 +241,8 @@ def validate_ap_interface(interface):
     :rtype: None
     :raises: argparse.ArgumentTypeError in case of invalid interface
     """
-    if not(pyric.pyw.isinterface(interface) and interfaces.does_have_mode(interface, "AP")):
-        raise argparse.ArgumentTypeError("Provided interface ({}) either doesn't exist or "
-                                         " supports AP mode".format(interface))
+    if not (pyric.pyw.isinterface(interface)
+            and interfaces.does_have_mode(interface, "AP")):
+        raise argparse.ArgumentTypeError(
+            "Provided interface ({}) either doesn't exist or "
+            " supports AP mode".format(interface))

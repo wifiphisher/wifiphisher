@@ -105,39 +105,40 @@ class AccessPoint(object):
         :rtype: None
         """
 
-        config = (
-            'no-resolv\n'
-            'interface=%s\n'
-            'dhcp-range=%s\n'
-        )
+        config = ('no-resolv\n' 'interface=%s\n' 'dhcp-range=%s\n')
 
         with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
             dhcpconf.write(config % (self.interface, constants.DHCP_LEASE))
 
         with open('/tmp/dhcpd.conf', 'a+') as dhcpconf:
             if self.internet_interface:
-                dhcpconf.write("server=%s" % (constants.PUBLIC_DNS,))
+                dhcpconf.write("server=%s" % (constants.PUBLIC_DNS, ))
             else:
-                dhcpconf.write("address=/#/%s" % (constants.NETWORK_GW_IP,))
+                dhcpconf.write("address=/#/%s" % (constants.NETWORK_GW_IP, ))
         # catch the exception if dnsmasq is not installed
         try:
-            subprocess.Popen(['dnsmasq', '-C', '/tmp/dhcpd.conf'],
-                             stdout=subprocess.PIPE, stderr=constants.DN)
+            subprocess.Popen(
+                ['dnsmasq', '-C', '/tmp/dhcpd.conf'],
+                stdout=subprocess.PIPE,
+                stderr=constants.DN)
         except OSError:
-            print ("[" + constants.R + "!" + constants.W + "] " +
-                   "dnsmasq is not installed!")
+            print("[" + constants.R + "!" + constants.W + "] " +
+                  "dnsmasq is not installed!")
             raise Exception
 
-        subprocess.Popen(['ifconfig', str(self.interface), 'mtu', '1400'],
-                         stdout=constants.DN, stderr=constants.DN)
+        subprocess.Popen(
+            ['ifconfig', str(self.interface), 'mtu', '1400'],
+            stdout=constants.DN,
+            stderr=constants.DN)
 
         subprocess.Popen(
-            ['ifconfig', str(self.interface), 'up', constants.NETWORK_GW_IP,
-             'netmask', constants.NETWORK_MASK
+            [
+                'ifconfig',
+                str(self.interface), 'up', constants.NETWORK_GW_IP, 'netmask',
+                constants.NETWORK_MASK
             ],
             stdout=constants.DN,
-            stderr=constants.DN
-        )
+            stderr=constants.DN)
         # Give it some time to avoid "SIOCADDRT: Network is unreachable"
         time.sleep(1)
         # Make sure that we have set the network properly.
@@ -159,14 +160,17 @@ class AccessPoint(object):
             "ssid": self.essid,
             "interface": self.interface,
             "channel": self.channel,
-            "karma_enable": 1}
+            "karma_enable": 1
+        }
         if self.psk:
             hostapd_config['wpa_passphrase'] = self.psk
 
         # create the option dictionary
-        hostapd_options = {'debug_level': hostapd_constants.HOSTAPD_DEBUG_OFF,
-                           'mute': True,
-                           "eloop_term_disable": True}
+        hostapd_options = {
+            'debug_level': hostapd_constants.HOSTAPD_DEBUG_OFF,
+            'mute': True,
+            "eloop_term_disable": True
+        }
 
         try:
             self.hostapd_object = hostapd_controller.Hostapd()
@@ -185,17 +189,18 @@ class AccessPoint(object):
             try:
                 self.hostapd_object = subprocess.Popen(
                     ['hostapd', hostapd_constants.HOSTAPD_CONF_PATH],
-                    stdout=constants.DN, stderr=constants.DN)
+                    stdout=constants.DN,
+                    stderr=constants.DN)
             except OSError:
-                print ("[" + constants.R + "!" + constants.W + "] " +
-                       "hostapd is not installed!")
+                print("[" + constants.R + "!" + constants.W + "] " +
+                      "hostapd is not installed!")
                 # just raise exception when hostapd is not installed
                 raise Exception
 
             time.sleep(2)
             if self.hostapd_object.poll() is not None:
-                print ("[" + constants.R + "!" + constants.W + "] " +
-                       "hostapd failed to lunch!")
+                print("[" + constants.R + "!" + constants.W + "] " +
+                      "hostapd failed to lunch!")
                 raise Exception
 
     def on_exit(self):

@@ -36,15 +36,18 @@ WIFI_IPV6MCAST1 = "33:33:00:"
 WIFI_IPV6MCAST2 = "33:33:ff:"
 WIFI_SPANNINGTREE = "01:80:c2:00:00:00"
 WIFI_MULTICAST = "01:00:5e:"
-NON_CLIENT_ADDRESSES = set([WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_IPV6MCAST1,
-                        WIFI_IPV6MCAST2, WIFI_SPANNINGTREE, None])
+NON_CLIENT_ADDRESSES = set([
+    WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_IPV6MCAST1,
+    WIFI_IPV6MCAST2, WIFI_SPANNINGTREE, None
+])
 DEFAULT_OUI = '00:00:00'
 LINES_OUTPUT = 3
 DN = open(os.devnull, 'w')
-INTERFERING_PROCS = ["wpa_action", "wpa_supplicant", "wpa_cli", "dhclient",
-                    "ifplugd", "dhcdbd", "dhcpcd", "udhcpc",
-                    "avahi-autoipd", "avahi-daemon", "wlassistant",
-                    "wifibox", "NetworkManager", "knetworkmanager"]
+INTERFERING_PROCS = [
+    "wpa_action", "wpa_supplicant", "wpa_cli", "dhclient", "ifplugd", "dhcdbd",
+    "dhcpcd", "udhcpc", "avahi-autoipd", "avahi-daemon", "wlassistant",
+    "wifibox", "NetworkManager", "knetworkmanager"
+]
 
 # Modes of operation
 # Advanced
@@ -75,15 +78,15 @@ OP_MODE6 = 0x6
 AP_RATES = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
 
 # Console colors
-W = '\033[0m'    # white (normal)
-R = '\033[31m'   # red
-G = '\033[32m'   # green
-O = '\033[33m'   # orange
-B = '\033[34m'   # blue
-P = '\033[35m'   # purple
-C = '\033[36m'   # cyan
+W = '\033[0m'  # white (normal)
+R = '\033[31m'  # red
+G = '\033[32m'  # green
+O = '\033[33m'  # orange
+B = '\033[34m'  # blue
+P = '\033[35m'  # purple
+C = '\033[36m'  # cyan
 GR = '\033[37m'  # gray
-T = '\033[93m'   # tan
+T = '\033[93m'  # tan
 
 # Logging configurations
 # possible values for debug levels are:
@@ -110,10 +113,11 @@ LOGGING_CONFIG = {
     },
     'root': {
         'level': 'DEBUG',
-        'handlers': ['file', ],
+        'handlers': [
+            'file',
+        ],
     },
-    "loggers": {
-    },
+    "loggers": {},
     'disable_existing_loggers': False
 }
 
