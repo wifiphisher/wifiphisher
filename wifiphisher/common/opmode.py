@@ -109,6 +109,14 @@ class OpMode(object):
                 '] --nojamming (-nJ) and --jamminginterface (-jI)'
                 'cannot work together.')
 
+	if args.captiveportal and not args.internetinterface:
+            sys.exit(
+                 '[' +
+                 constants.R +
+                 '-' +
+                 constants.W +
+                '] --captiveportal (-cP) and --internetinterfaces (iI) must work together in order to work')
+        
         if args.lure10_exploit and args.nojamming:
             sys.exit(
                 '[' +
