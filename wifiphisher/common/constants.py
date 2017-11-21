@@ -12,6 +12,7 @@ dir_of_data = path_to_project_root + '/data/'
 DEV = 1
 LURE10_EXTENSION = "lure10"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
+WPSPBC = "wpspbc"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080

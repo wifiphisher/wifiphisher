@@ -125,11 +125,12 @@ def parse_args():
     parser.add_argument(
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
-    parser.add_argument(
-        "-cM",
-        "--channel-monitor",
-        help="Monitor if target access point changes the channel.",
-        action='store_true')
+    parser.add_argument("-cM", "--channel-monitor",
+                        help="Monitor if target access point changes the channel.",
+                        action="store_true")
+    parser.add_argument("-wE", "--wpspbc-exploit",
+                        help="Monitor if the wps pbc button is being pressed.",
+                        action="store_true")
 
     return parser.parse_args()
 
@@ -520,6 +521,8 @@ class WifiphisherEngine:
                 extensions.append(LURE10_EXTENSION)
             if args.handshake_capture:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
+            if args.wpspbc_exploit:
+                extensions.append(WPSPBC)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
