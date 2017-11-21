@@ -273,8 +273,8 @@ def validate_ap_interface(interface):
 
     :param interface: Name of an interface
     :type interface: str
-    :return: None
-    :rtype: None
+    :return: the ap interface
+    :rtype: str
     :raises: argparse.ArgumentTypeError in case of invalid interface
     """
     if not(pyric.pyw.iswireless(interface) and \
@@ -285,3 +285,4 @@ def validate_ap_interface(interface):
                                         either does not exist or "
                                          " does not support AP mode" \
                                         .format(interface))
+    return interface
