@@ -1166,6 +1166,7 @@ class TestNetworkManager(unittest.TestCase):
         """
         args = mock.Mock()
         args.internetinterface = None
+        args.wpspbc_assoc_interface = None
         card = mock.Mock()
         card.phy = "phy0"
         pyric.interfaces.return_value = ["wlan0"]
@@ -1185,6 +1186,7 @@ class TestNetworkManager(unittest.TestCase):
 
         args = mock.Mock()
         args.internetinterface = None
+        args.wpspbc_assoc_interface = None
         card = mock.Mock()
         card.phy = "phy0"
         pyric.interfaces.return_value = ["wlan0", "wlan1"]
@@ -1208,6 +1210,8 @@ class TestNetworkManager(unittest.TestCase):
         card1.phy = "phy1"
         args = mock.Mock()
         args.internetinterface = None
+        args.wpspbc_assoc_interface = None
+        card = mock.Mock()
 
         pyric.interfaces.return_value = ["wlan0", "wlan1"]
         pyric.iswireless.return_value = True

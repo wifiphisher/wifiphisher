@@ -129,8 +129,11 @@ def parse_args():
                         help="Monitor if target access point changes the channel.",
                         action="store_true")
     parser.add_argument("-wE", "--wpspbc-exploit",
-                        help="Monitor if the wps pbc button is being pressed.",
+                        help="Monitor if the button on a WPS-PBC Registrar is pressed.",
                         action="store_true")
+    parser.add_argument("-wAI", "--wpspbc-assoc-interface",
+                        help="The WLAN interface used for associating to the WPS AccessPoint.",
+                        )
 
     return parser.parse_args()
 
@@ -289,6 +292,12 @@ class WifiphisherEngine:
                             internet_interface)
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
+            # check if the interface for WPS is valid
+            if self.opmode.assoc_enabled():
+                if self.network_manager.is_interface_valid(
+                        args.wpspbc_assoc_interface, "WPS"):
+                    logger.info("Selecting %s interface for WPS association",
+                                args.wpspbc_assoc_interface)
             if self.opmode.advanced_enabled():
                 if args.jamminginterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
@@ -489,6 +498,10 @@ class WifiphisherEngine:
         self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
+        if args.wpspbc_assoc_interface:
+            wps_mac = self.network_manager.get_interface_mac(
+                args.wpspbc_assoc_interface)
+            self.access_point.add_deny_macs([wps_mac])
         if args.presharedkey:
             self.access_point.set_psk(args.presharedkey)
         if self.opmode.internet_sharing_enabled():

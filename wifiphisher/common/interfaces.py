@@ -403,7 +403,7 @@ class NetworkManager(object):
         has been chosen in the set _active
         :raises InterfaceManagedByNetworkManagerError: If the card is managed and
                 is being used as deauth/ap mode
-        .. note: The available modes are monitor, AP and internet
+        .. note: The available modes are monitor, AP, WPS and internet
             The internet adapter should be put in the _exclude_shutdown set
             so that it will not be shutdown after the program exits.
         """
@@ -418,7 +418,7 @@ class NetworkManager(object):
                 raise InvalidInterfaceError(interface_name)
 
         # add to _exclude_shutdown set if the card is internet adapter
-        if mode == "internet":
+        if mode == "internet" or mode == "WPS":
             self._exclude_shutdown.add(interface_name)
         # raise an error if interface doesn't support the mode
         if mode != "internet" and interface_adapter.is_managed_by_nm\
@@ -786,11 +786,15 @@ def is_add_vif_required(args):
     # i.e. phy0 to wlan0
     phy_to_vifs = defaultdict(list)
     # store the phy number for the internet access
-    invalid_phy_number = None
+    invalid_phy_number = list()
     # record the invalid_phy_number when it is wireless card
     if args.internetinterface and pyw.iswireless(args.internetinterface):
         card = pyw.getcard(args.internetinterface)
-        invalid_phy_number = card.phy
+        invalid_phy_number.append(card.phy)
+
+    if args.wpspbc_assoc_interface:
+        card = pyw.getcard(args.wpspbc_assoc_interface)
+        invalid_phy_number.append(card.phy)
 
     # map the phy# to the virtual interface tuples
     for vif in [vif for vif in pyw.interfaces() if pyw.iswireless(vif)]:
@@ -799,7 +803,7 @@ def is_add_vif_required(args):
         score = 0
         card = pyw.getcard(vif)
         phy_number = card.phy
-        if phy_number == invalid_phy_number:
+        if phy_number in invalid_phy_number:
             continue
 
         supported_modes = pyw.devmodes(card)

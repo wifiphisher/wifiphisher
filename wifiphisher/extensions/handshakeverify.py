@@ -344,3 +344,13 @@ class Handshakeverify(object):
         """
 
         return []
+
+    def on_exit(self):
+        """
+        Free all the resources regarding to this module
+        :param self: A Handshakeverify object.
+        :type self: Handshakeverify
+        :return: None
+        :rtype: None
+        """
+        pass

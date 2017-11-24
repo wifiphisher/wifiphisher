@@ -115,7 +115,8 @@ Following are all the options along with their descriptions (also available with
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|
 |-cM|--channel-monitor|Monitor if the target access point changes the channel.|
 ||--payload-path| Enable the payload path. Intended for use with scenarios that serve payloads.|
-|-wE|--wpspbc-exploit|Monitor if the wps pbc button is being pressed.|
+|-wE|--wpspbc-exploit|Monitor if the button on a WPS-PBC Registrar side is pressed.|
+|-wAI|--wpspbc-assoc-interface|The WLAN interface used for associating to the WPS AccessPoint.|
 
 
 ## Screenshots

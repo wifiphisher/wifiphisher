@@ -11,9 +11,10 @@ from collections import defaultdict
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
+import wifiphisher.extensions.deauth as deauth_extension
 
 logger = logging.getLogger(__name__)
-IS_DEAUTH_CONT = True
+is_deauth_cont = True
 
 
 def register_backend_funcs(func):
@@ -54,6 +55,8 @@ class ExtensionManager(object):
 
     * send_output(self): Method that returns in a list
       of strings the entry logs that we need to output.
+
+    * on_exit(self): Method that frees all the used resources
 
     * each extension can define the backend method as follows:
       ex:
@@ -269,6 +272,9 @@ class ExtensionManager(object):
             self._socket.close()
         except AttributeError:
             pass
+        # Clean resources used by extension modules
+        for extension in self._extensions:
+            extension.on_exit()
 
     def get_channels(self):
         """
@@ -365,21 +371,6 @@ class ExtensionManager(object):
                 store=0,
                 stop_filter=self._stopfilter)
 
-    @staticmethod
-    def _is_deauth_frame(packet):
-        """
-        Determine if the sending frame is deauth frame
-        :param self: An ExtensionManager object
-        :param packet: A scapy.layers.RadioTap object
-        :type self: ExtensionManager
-        :type packet: scapy.layers.RadioTap
-        :return: None
-        :rtype: None
-        """
-        if packet.subtype == 10 or packet.subtype == 12:
-            return True
-        return False
-
     def _send(self):
         """
         Sending thread. Continously broadcasting packets
@@ -394,8 +385,7 @@ class ExtensionManager(object):
             for pkt in self._packets_to_send[self._current_channel] + \
                     self._packets_to_send["*"]:
                 try:
-                    #if not self._is_deauth_frame() or IS_DEAUTH_CONT:
-                    if IS_DEAUTH_CONT or not self._is_deauth_frame(pkt):
+                    if is_deauth_cont or not deauth_extension.is_deauth_frame(pkt):
                         logger.debug("Send pkt with A1:%s A2:%s subtype:%s in channel:%s",
                                      pkt.addr1, pkt.addr2, pkt.subtype,
                                      self._current_channel)
