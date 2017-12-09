@@ -48,6 +48,7 @@ INTERFERING_PROCS = [
     "wpa_action", "wpa_supplicant", "wpa_cli", "dhclient", "ifplugd", "dhcdbd",
     "dhcpcd", "udhcpc", "avahi-autoipd", "avahi-daemon", "wlassistant",
     "wifibox", "NetworkManager", "knetworkmanager"
+]
 NEW_YEAR = "01-01"
 BIRTHDAY = "01-05"
 
