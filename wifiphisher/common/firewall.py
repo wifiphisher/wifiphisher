@@ -2,20 +2,20 @@
 import subprocess
 from wifiphisher.common.constants import *
 
-class Fw():
 
+class Fw():
     def __init__(self):
         pass
 
     def nat(self, internal_interface, external_interface):
         subprocess.call(
-            ('iptables -t nat -A POSTROUTING -o %s -j MASQUERADE'
-            % (external_interface,)),
+            ('iptables -t nat -A POSTROUTING -o %s -j MASQUERADE' %
+             (external_interface, )),
             shell=True)
 
         subprocess.call(
-            ('iptables -A FORWARD -i %s -o %s -j ACCEPT'
-            % (internal_interface, external_interface)),
+            ('iptables -A FORWARD -i %s -o %s -j ACCEPT' %
+             (internal_interface, external_interface)),
             shell=True)
 
     def clear_rules(self):

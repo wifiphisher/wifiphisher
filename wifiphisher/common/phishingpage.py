@@ -54,7 +54,8 @@ class PhishingTemplate(object):
 
         # setup all the variables
 
-        config_path = os.path.join(constants.PHISHING_PAGES_DIR, name, 'config.ini')
+        config_path = os.path.join(constants.PHISHING_PAGES_DIR, name,
+                                   'config.ini')
         info = config_section_map(config_path, 'info')
 
         self._name = name
@@ -101,8 +102,7 @@ class PhishingTemplate(object):
         options = original_config.options('info')
         for option in options:
             if option != "payloadpath":
-                config.set('info', option,
-                           original_config.get('info', option))
+                config.set('info', option, original_config.get('info', option))
             else:
                 dirname = os.path.dirname(
                     original_config.get('info', 'payloadpath'))
@@ -360,8 +360,8 @@ class TemplateManager(object):
         # loop through the directory content
         for name in os.listdir(self._template_directory):
             # check to see if it is a directory and not in the database
-            if (os.path.isdir(os.path.join(self._template_directory, name)) and
-                    name not in self._templates):
+            if (os.path.isdir(os.path.join(self._template_directory, name))
+                    and name not in self._templates):
                 # check template
                 is_valid, output = self.is_valid_template(name)
                 # if template successfully validated, then...

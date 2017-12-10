@@ -15,7 +15,6 @@ import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
 
-
 logger = logging.getLogger(__name__)
 
 # define the verification state
@@ -114,8 +113,8 @@ class Handshakeverify(object):
         index = 0
         return_array = ''
         while index <= ((blen * 8 + 159) / 160):
-            hmacsha1 = hmac.new(key, const_a + chr(0x00) + const_b +
-                                chr(index), hashlib.sha1)
+            hmacsha1 = hmac.new(
+                key, const_a + chr(0x00) + const_b + chr(index), hashlib.sha1)
             index += 1
             return_array = return_array + hmacsha1.digest()
         return return_array[:blen]
@@ -138,13 +137,13 @@ class Handshakeverify(object):
         try:
             essid = self._data.target_ap_essid
             # constant for calculating PTK of 80211
-            ap_mac = binascii.a2b_hex(''.join(self._data.target_ap_bssid.
-                                              split(":")))
+            ap_mac = binascii.a2b_hex(''.join(
+                self._data.target_ap_bssid.split(":")))
             # extract the APNonce from MSG-1
             ap_nonce = self._eapols[0].load[13:45]
             # address one of the MSG-1 is client's MAC address
-            client_mac = binascii.a2b_hex(''.join(self._eapols[0].
-                                                  addr1.split(":")))
+            client_mac = binascii.a2b_hex(''.join(
+                self._eapols[0].addr1.split(":")))
             # extract the SNonce from MSG-2
             client_nonce = self._eapols[1].load[13:45]
             # constant for calculating PTK of 80211
@@ -170,8 +169,7 @@ class Handshakeverify(object):
             # compare the MIC calculated with the MIC from air
             if key_version:
                 # use SHA1 Hash
-                msg4_mic_cal = hmac.new(ptk[0:16],
-                                        msg4_data,
+                msg4_mic_cal = hmac.new(ptk[0:16], msg4_data,
                                         hashlib.sha1).hexdigest()[:32]
             else:
                 # use MD5 Hash
@@ -319,22 +317,18 @@ class Handshakeverify(object):
         """
 
         ret_info = []
-        pw_str = "ESSID: {0}".format(
-            self._data.target_ap_essid)
+        pw_str = "ESSID: {0}".format(self._data.target_ap_essid)
 
         # handshake has been captured but verify fail
         if self._is_captured and self._is_done == FAIL:
-            ret_info = ["PSK Captured - " + pw_str +
-                        " NOT correct!"]
+            ret_info = ["PSK Captured - " + pw_str + " NOT correct!"]
         # handshake has been captured and wait for victim to
         # type credentials
         elif self._is_captured and self._is_done == NOT_YET:
-            ret_info = ["PSK Captured - " + pw_str +
-                        " Wait for credential"]
+            ret_info = ["PSK Captured - " + pw_str + " Wait for credential"]
         # passphrase correct
         elif self._is_captured and self._is_done == DONE:
-            ret_info = ["PSK Captured - " + pw_str +
-                        " correct"]
+            ret_info = ["PSK Captured - " + pw_str + " correct"]
         else:
             ret_info = ["WAIT for HANDSHAKE"]
         return ret_info
