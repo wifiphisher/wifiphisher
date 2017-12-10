@@ -139,6 +139,11 @@ def parse_args():
     parser.add_argument("-wAI", "--wpspbc-assoc-interface",
                         help="The WLAN interface used for associating to the WPS AccessPoint.",
                         )
+    parser.add_argument(
+        "-kB",
+        "--known-beacons",
+        help="Broadcast a number of beacon frames advertising popular WLANs",
+        action='store_true')
 
     return parser.parse_args()
 
@@ -543,6 +548,8 @@ class WifiphisherEngine:
                 extensions.remove(DEAUTH_EXTENSION)
             if args.wpspbc_exploit:
                 extensions.append(WPSPBC)
+            if args.known_beacons:
+                extensions.append(KNOWN_BEACONS_EXTENSION)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()

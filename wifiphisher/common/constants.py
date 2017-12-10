@@ -13,6 +13,7 @@ DEV = 1
 DEAUTH_EXTENSION = "deauth"
 LURE10_EXTENSION = "lure10"
 WPSPBC = "wpspbc"
+KNOWN_BEACONS_EXTENSION = "knownbeacons"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
 DEFAULT_EXTENSIONS = [DEAUTH_EXTENSION]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
@@ -28,6 +29,7 @@ SCENARIO_HTML_DIR = "html/"
 LOGOS_DIR = dir_of_data + "logos/"
 LOCS_DIR = dir_of_data + "locs/"
 MAC_PREFIX_FILE = dir_of_data + "wifiphisher-mac-prefixes"
+KNOWN_WLANS_FILE = dir_of_data + "wifiphisher-known-open-wlans"
 POST_VALUE_PREFIX = "wfphshr"
 NETWORK_IP = "10.0.0.0"
 NETWORK_MASK = "255.255.255.0"
@@ -151,5 +153,10 @@ AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
 # Fourway handshake extension
 CONST_A = "Pairwise key expansion"
 
-# RogueAp related
+# Rogue AP related
 DENY_MACS_PATH = '/tmp/hostapd.deny'
+
+# Known Beacons
+KB_INTERVAL = 20
+KB_BUCKET_SIZE = 60
+KB_BEACON_CAP = 0x2105 
