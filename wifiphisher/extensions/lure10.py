@@ -123,3 +123,13 @@ class Lure10(object):
         """
 
         return [self.data.target_ap_channel]
+
+    def on_exit(self):
+        """
+        :param self: A Lure10 object
+        :type self: Lure10
+        Free all the resources regarding to this module
+        :return: None
+        :rtype: None
+        """
+        pass

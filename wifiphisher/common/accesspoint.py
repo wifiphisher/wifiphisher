@@ -30,6 +30,7 @@ class AccessPoint(object):
         self.psk = None
         # roguehostapd object
         self.hostapd_object = None
+        self.deny_mac_addrs = []
 
     def set_interface(self, interface):
         """
@@ -43,6 +44,35 @@ class AccessPoint(object):
         """
 
         self.interface = interface
+
+    def add_deny_macs(self, deny_mac_addrs):
+        """
+        Add the deny mac addresses
+        :param self: An AccessPoint object
+        :param deny_mac_addrs: list of deny mac addresses
+        :type self: AccessPoint
+        :type deny_mac_addrs: list
+        :return: None
+        :rtype: None
+        """
+
+        self.deny_mac_addrs.extend(deny_mac_addrs)
+
+    def update_black_macs(self):
+        """
+        Update the black mac addresses for hostapd
+
+        :param self: A HostapdConfig object
+        :type self: HostapdConfig
+        :return: None
+        :rtype: None
+        """
+        with open(hostapd_constants.HOSTAPD_CONF_PATH, 'a') as output_fp:
+            output_fp.write('macaddr_acl=0\n')
+            output_fp.write('deny_mac_file='+constants.DENY_MACS_PATH+'\n')
+        with open(constants.DENY_MACS_PATH, 'w') as writer:
+            for mac_addr in self.deny_mac_addrs:
+                writer.write(mac_addr+'\n')
 
     def set_internet_interface(self, interface):
         """
@@ -184,6 +214,7 @@ class AccessPoint(object):
             hostapd_options = {}
             hostapd_config_obj = hostapd_controller.HostapdConfig()
             hostapd_config_obj.write_configs(hostapd_config, hostapd_options)
+            self.update_black_macs()
 
             # handle exception if hostapd is not installed in system
             try:
@@ -219,6 +250,8 @@ class AccessPoint(object):
             subprocess.call('pkill hostapd', shell=True)
             if os.path.isfile(hostapd_constants.HOSTAPD_CONF_PATH):
                 os.remove(hostapd_constants.HOSTAPD_CONF_PATH)
+            if os.path.isfile(constants.DENY_MACS_PATH):
+                os.remove(constants.DENY_MACS_PATH)
 
         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
             os.remove('/var/lib/misc/dnsmasq.leases')

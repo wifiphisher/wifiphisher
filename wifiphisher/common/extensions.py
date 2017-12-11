@@ -11,8 +11,10 @@ from collections import defaultdict
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
+import wifiphisher.extensions.deauth as deauth_extension
 
 logger = logging.getLogger(__name__)
+is_deauth_cont = True
 
 
 def register_backend_funcs(func):
@@ -53,6 +55,8 @@ class ExtensionManager(object):
 
     * send_output(self): Method that returns in a list
       of strings the entry logs that we need to output.
+
+    * on_exit(self): Method that frees all the used resources
 
     * each extension can define the backend method as follows:
       ex:
@@ -268,6 +272,9 @@ class ExtensionManager(object):
             self._socket.close()
         except AttributeError:
             pass
+        # Clean resources used by extension modules
+        for extension in self._extensions:
+            extension.on_exit()
 
     def get_channels(self):
         """
@@ -378,11 +385,11 @@ class ExtensionManager(object):
             for pkt in self._packets_to_send[self._current_channel] + \
                     self._packets_to_send["*"]:
                 try:
-                    logger.debug(
-                        "Send pkt with addr1:%s addr3:%s subtype:%s in channel:%s",
-                        pkt.addr1, pkt.addr2, pkt.subtype,
-                        self._current_channel)
-                    self._socket.send(pkt)
+                    if is_deauth_cont or not deauth_extension.is_deauth_frame(pkt):
+                        logger.debug("Send pkt with A1:%s A2:%s subtype:%s in channel:%s",
+                                     pkt.addr1, pkt.addr2, pkt.subtype,
+                                     self._current_channel)
+                        self._socket.send(pkt)
                 except BaseException:
                     continue
         time.sleep(1)

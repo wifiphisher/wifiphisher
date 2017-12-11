@@ -12,6 +12,7 @@ dir_of_data = path_to_project_root + '/data/'
 DEV = 1
 LURE10_EXTENSION = "lure10"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
+WPSPBC = "wpspbc"
 DEFAULT_EXTENSIONS = ["deauth"]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
@@ -77,6 +78,15 @@ OP_MODE5 = 0x5
 # 2 cards, 3 interfaces
 # i) AP, ii) Extensions, iii) Internet
 OP_MODE6 = 0x6
+# Advanced and WPS association 0x7
+#  3 cards, 3 interfaces
+#  i) AP, ii) Extensions, iii) Extensions (Managed)
+OP_MODE7 = 0x7
+
+# Advanced and WPS association w/ 1 vif support AP/Monitor 0x8
+# 2 cards, 3 interfaces
+# i) AP, ii) Extensions, iii) Extensions (Managed)
+OP_MODE8 = 0x8
 
 AP_RATES = "\x0c\x12\x18\x24\x30\x48\x60\x6c"
 
@@ -139,3 +149,6 @@ AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
 
 # Fourway handshake extension
 CONST_A = "Pairwise key expansion"
+
+# RogueAp related
+DENY_MACS_PATH = '/tmp/hostapd.deny'
