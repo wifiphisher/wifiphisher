@@ -130,11 +130,15 @@ def parse_args():
     parser.add_argument(
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
-    parser.add_argument(
-        "-cM",
-        "--channel-monitor",
-        help="Monitor if target access point changes the channel.",
-        action='store_true')
+    parser.add_argument("-cM", "--channel-monitor",
+                        help="Monitor if target access point changes the channel.",
+                        action="store_true")
+    parser.add_argument("-wE", "--wpspbc-exploit",
+                        help="Monitor if the button on a WPS-PBC Registrar is pressed.",
+                        action="store_true")
+    parser.add_argument("-wAI", "--wpspbc-assoc-interface",
+                        help="The WLAN interface used for associating to the WPS AccessPoint.",
+                        )
 
     return parser.parse_args()
 
@@ -293,6 +297,12 @@ class WifiphisherEngine:
                             internet_interface)
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
+            # check if the interface for WPS is valid
+            if self.opmode.assoc_enabled():
+                if self.network_manager.is_interface_valid(
+                        args.wpspbc_assoc_interface, "WPS"):
+                    logger.info("Selecting %s interface for WPS association",
+                                args.wpspbc_assoc_interface)
             if self.opmode.extensions_enabled():
                 if args.extensionsinterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
@@ -493,6 +503,10 @@ class WifiphisherEngine:
         self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
+        if args.wpspbc_assoc_interface:
+            wps_mac = self.network_manager.get_interface_mac(
+                args.wpspbc_assoc_interface)
+            self.access_point.add_deny_macs([wps_mac])
         if args.presharedkey:
             self.access_point.set_psk(args.presharedkey)
         if self.opmode.internet_sharing_enabled():
@@ -527,6 +541,8 @@ class WifiphisherEngine:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
             if args.nodeauth:
                 extensions.remove(DEAUTH_EXTENSION)
+            if args.wpspbc_exploit:
+                extensions.append(WPSPBC)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
