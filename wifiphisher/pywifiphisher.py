@@ -58,8 +58,12 @@ def parse_args():
     parser.add_argument(
         "-nE",
         "--noextensions",
-        help=("Skip the deauthentication phase. When this option is used, " +
-              "only one wireless interface is required"),
+        help=("Do not load any extensions."),
+        action='store_true')
+    parser.add_argument(
+        "-nD",
+        "--nodeauth",
+        help=("Skip the deauthentication phase."),
         action='store_true')
     parser.add_argument(
         "-e",
@@ -520,6 +524,8 @@ class WifiphisherEngine:
                 extensions.append(LURE10_EXTENSION)
             if args.handshake_capture:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
+            if args.nodeauth:
+                extensions.remove(DEAUTH_EXTENSION)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
