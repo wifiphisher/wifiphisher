@@ -72,11 +72,11 @@ class OpMode(object):
         if args.handshake_capture and not os.path.isfile(
                 args.handshake_capture):
             sys.exit('[' + constants.R + '-' + constants.W +
-                     '] handshake capture does not exist.')
+                     '] Handshake capture does not exist.')
         elif args.handshake_capture and not handshakeverify.\
                 is_valid_handshake_capture(args.handshake_capture):
             sys.exit('[' + constants.R + '-' + constants.W +
-                     '] handshake capture does not contain valid handshake')
+                     '] Handshake capture does not contain valid handshake')
 
         if ((args.extensionsinterface and not args.apinterface) or
                 (not args.extensionsinterface and args.apinterface)) and \
@@ -108,9 +108,14 @@ class OpMode(object):
                 '] --no-mac-randomization (-iNM) cannot work together with'
                 '--mac-ap-interface or --mac-extensions-interface (-iDM)')
 
+        if args.deauth_essid and args.noextensions:
+            sys.exit(
+                '[' + constants.R + '-' + constants.W +
+                '] --deauth-essid (-dE) cannot work together with'
+                '--noextension (-nE)')
+
         # if args.deauth_essid is set we need the second card to
         # do the frequency hopping
-        # TODO: deauth_essid and noextensions should not work together
         if args.deauth_essid and self._is_one_phy_interface:
             print('[' + constants.R + '!' + constants.W +
                   '] Only one card was found. Wifiphisher will deauth only '

@@ -71,6 +71,7 @@ def parse_args():
         help=("Enter the ESSID of the rogue Access Point. " +
               "This option will skip Access Point selection phase. " +
               "Example: --essid 'Free WiFi'"))
+    # TODO: Would be cool to optionally provide ESSID (i.e. -dE "foo")
     parser.add_argument(
         "-dE",
         "--deauth-essid",
