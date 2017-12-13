@@ -156,7 +156,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: System Administrators",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
-INSTALL_REQUIRES = ["PyRIC", "tornado", "blessings>=1.6", "dbus-python",
+INSTALL_REQUIRES = ["PyRIC", "tornado", "dbus-python",
                     "pbkdf2", "roguehostapd"]
 CMDCLASS = {"clean": CleanCommand,}
 
