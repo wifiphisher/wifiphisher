@@ -69,28 +69,12 @@ Useful against networks with disclosed PSKs (e.g. in conferences). The <a href="
 ***
 
 ```shell
-wifiphisher --nojamming --essid "FREE WI-FI" -p oauth-login
+wifiphisher --noextensions --essid "FREE WI-FI" -p oauth-login
 ```
 
-Do not target any network. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario.
+Do not load any extensions. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario.
 
 Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook.
-
-***
-
-```shell
-python bin/wifiphisher --lure10-capture --nojamming
-```
-
-Proceed with only one card (--nojamming) and capture the BSSIDs that are discovered during AP selection phase.
-
-***
-
-```shell
-python bin/wifiphisher --lure10-exploit area_20170414_123200 --essid "WiFiSense-Tagged-WLAN"
-```
-
-Make nearby Windows devices believe that are within the area that was previously captured with `--lure-capture` by fooling the Windows Location Service. Broadcast a WLAN that is tagged as WiFi-Sense in that area. This will result in automatic association of nearby Windows devices.
 
 
 Following are all the options along with their descriptions (also available with `wifiphisher -h`):
@@ -98,9 +82,9 @@ Following are all the options along with their descriptions (also available with
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
 |-h | --help| show this help message and exit |
-|-jI JAMMINGINTERFACE| --jamminginterface JAMMINGINTERFACE|	Manually choose an interface that supports monitor mode for deauthenticating the victims. Example: -jI wlan1|
+|-jI EXTENSIONSINTERFACE| --extensionsinterface EXTENSIONSINTERFACE|	Manually choose an interface that supports monitor mode for running the extensions. Example: -jI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
-|-nJ| --nojamming|	Skip the deauthentication phase. When this option is used, only one wireless interface is required|
+|-nJ| --noextensions|	Do not load any extensions.|
 |-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
 |-pK PRESHAREDKEY| --presharedkey PRESHAREDKEY|	Add WPA/WPA2 protection on the rogue Access Point. Example: -pK s3cr3tp4ssw0rd|
@@ -108,7 +92,7 @@ Following are all the options along with their descriptions (also available with
 |-lC| --lure10-capture| Capture the BSSIDs of the APs that are discovered during AP selection phase. This option is part of Lure10 attack.
 |-lE LURE10_EXPLOIT |--lure10-exploit LURE10_EXPLOIT| Fool the Windows Location Service of nearby Windows users to believe it is within an area that was previously captured with --lure10-capture. Part of the Lure10 attack.|
 |-iAM| --mac-ap-interface| Specify the MAC address of the AP interface. Example: -iAM 38:EC:11:00:00:00|
-|-iDM| --mac-deauth-interface| Specify the MAC address of the jamming interface. Example: -iDM E8:2A:EA:00:00:00|
+|-iEM| --mac-extensions-interface| Specify the MAC address of the extensions interface. Example: -iEM E8:2A:EA:00:00:00|
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
 |-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|

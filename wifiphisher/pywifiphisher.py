@@ -40,8 +40,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "-jI",
-        "--jamminginterface",
+        "-eI",
+        "--extensionsinterface",
         help=("Manually choose an interface that supports monitor mode for " +
               "deauthenticating the victims. " + "Example: -jI wlan1"))
     parser.add_argument(
@@ -56,8 +56,8 @@ def parse_args():
         help=("Choose an interface that is connected on the Internet" +
               "Example: -iI ppp0"))
     parser.add_argument(
-        "-nJ",
-        "--nojamming",
+        "-nE",
+        "--noextensions",
         help=("Skip the deauthentication phase. When this option is used, " +
               "only one wireless interface is required"),
         action='store_true')
@@ -112,9 +112,9 @@ def parse_args():
         "--mac-ap-interface",
         help=("Specify the MAC address of the AP interface"))
     parser.add_argument(
-        "-iDM",
-        "--mac-deauth-interface",
-        help=("Specify the MAC address of the jamming interface"))
+        "-iEM",
+        "--mac-extensions-interface",
+        help=("Specify the MAC address of the extensions interface"))
     parser.add_argument(
         "-iNM",
         "--no-mac-randomization",
@@ -288,11 +288,11 @@ class WifiphisherEngine:
                             internet_interface)
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
-            if self.opmode.advanced_enabled():
-                if args.jamminginterface and args.apinterface:
+            if self.opmode.extensions_enabled():
+                if args.extensionsinterface and args.apinterface:
                     if self.network_manager.is_interface_valid(
-                            args.jamminginterface, "monitor"):
-                        mon_iface = args.jamminginterface
+                            args.extensionsinterface, "monitor"):
+                        mon_iface = args.extensionsinterface
                         self.network_manager.unblock_interface(mon_iface)
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
@@ -302,7 +302,7 @@ class WifiphisherEngine:
                     )
                 # display selected interfaces to the user
                 logger.info(
-                    "Selecting {} for deauthentication and {} for rouge access point"
+                    "Selecting {} for deauthentication and {} for the rogue Access Point"
                     .format(mon_iface, ap_iface))
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for the deauthentication "
@@ -316,13 +316,13 @@ class WifiphisherEngine:
                             ap_iface, args.mac_ap_interface)
                     else:
                         self.network_manager.set_interface_mac_random(ap_iface)
-                    if args.mac_deauth_interface:
+                    if args.mac_extensions_interface:
                         self.network_manager.set_interface_mac(
                             mon_iface, args.mac_deauth_interface)
                     else:
                         self.network_manager.set_interface_mac_random(
                             mon_iface)
-            if not self.opmode.deauth_enabled():
+            if not self.opmode.extensions_enabled():
                 if args.apinterface:
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
@@ -352,7 +352,7 @@ class WifiphisherEngine:
             self.network_manager.unblock_interface(ap_iface)
             self.network_manager.unblock_interface(mon_iface)
             # set monitor mode only when --essid is not given
-            if self.opmode.advanced_enabled() or args.essid is None:
+            if self.opmode.extensions_enabled() or args.essid is None:
                 self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
@@ -374,7 +374,7 @@ class WifiphisherEngine:
             print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
                 G, W, ap_iface, rogue_ap_mac)
 
-            if self.opmode.advanced_enabled():
+            if self.opmode.extensions_enabled():
                 mon_mac = self.network_manager.get_interface_mac(mon_iface)
                 logger.info("Changing {} MAC address to {}".format(
                     mon_iface, mon_mac))
@@ -481,7 +481,7 @@ class WifiphisherEngine:
         })
 
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
-        # mode for network discovery before (e.g. when --nojamming is enabled).
+        # mode for network discovery before (e.g. when --noextensions is enabled).
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
         self.network_manager.up_interface(ap_iface)
@@ -498,9 +498,9 @@ class WifiphisherEngine:
             self.access_point.start_dhcp_dns()
         except BaseException:
             self.stop()
-        # If are on Advanced mode, start Extension Manager (EM)
+        # Start Extension Manager (EM)
         # We need to start EM before we boot the web server
-        if self.opmode.advanced_enabled():
+        if self.opmode.extensions_enabled():
             shared_data = {
                 'is_freq_hop_allowed': self.opmode.freq_hopping_enabled(),
                 'target_ap_channel': channel or "",

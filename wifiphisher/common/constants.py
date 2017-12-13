@@ -53,11 +53,11 @@ NEW_YEAR = "01-01"
 BIRTHDAY = "01-05"
 
 # Modes of operation
-# Advanced
+# AP, Extensions
 # 2 cards, 2 interfaces
 # i) AP, ii) EM
 OP_MODE1 = 0x1
-# Advanced and Internet
+# AP, Extensions and Internet
 # 3 cards, 3 interfaces
 # i) AP, ii) EM iii) Internet
 OP_MODE2 = 0x2
@@ -69,11 +69,11 @@ OP_MODE3 = 0x3
 # 1 card, 1 interface
 # i) AP
 OP_MODE4 = 0x4
-# Advanced w/ 1 vif
+# AP, Extensions w/ 1 vif
 # 1 card, 2 interfaces
 # i) AP, ii) Extensions
 OP_MODE5 = 0x5
-# Advanced and Internet w/ 1 vif
+# AP, Extensions and Internet w/ 1 vif
 # 2 cards, 3 interfaces
 # i) AP, ii) Extensions, iii) Internet
 OP_MODE6 = 0x6
