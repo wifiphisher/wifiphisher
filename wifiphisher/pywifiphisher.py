@@ -133,7 +133,7 @@ def parse_args():
     parser.add_argument("-cM", "--channel-monitor",
                         help="Monitor if target access point changes the channel.",
                         action="store_true")
-    parser.add_argument("-wE", "--wpspbc-exploit",
+    parser.add_argument("-wP", "--wps-pbc",
                         help="Monitor if the button on a WPS-PBC Registrar is pressed.",
                         action="store_true")
     parser.add_argument("-wAI", "--wpspbc-assoc-interface",
@@ -512,6 +512,11 @@ class WifiphisherEngine:
             'target_ap_logo_path':
             ap_logo_path or ""
         })
+        # add wps_enable into the template context
+        if args.wps_pbc:
+            template.merge_context({'wps_pbc_attack': "1"})
+        else:
+            template.merge_context({'wps_pbc_attack': "0"})
 
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
         # mode for network discovery before (e.g. when --noextensions is enabled).
@@ -559,7 +564,7 @@ class WifiphisherEngine:
                 extensions.append(HANDSHAKE_VALIDATE_EXTENSION)
             if args.nodeauth:
                 extensions.remove(DEAUTH_EXTENSION)
-            if args.wpspbc_exploit:
+            if args.wps_pbc:
                 extensions.append(WPSPBC)
             if args.known_beacons:
                 extensions.append(KNOWN_BEACONS_EXTENSION)

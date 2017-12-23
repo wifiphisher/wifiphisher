@@ -122,10 +122,10 @@ class OpMode(object):
                   'on the target AP channel')
 
         # args.wAI should be used with args.wE
-        if args.wpspbc_assoc_interface and not args.wpspbc_exploit:
+        if args.wpspbc_assoc_interface and not args.wps_pbc:
             sys.exit(
                 '[' + constants.R + '!' + constants.W +
-                '] --wpspbc-assoc-interface (-wAI) requires --wpspbc-exploit (-wE) option.'
+                '] --wpspbc-assoc-interface (-wAI) requires --wps-pbc (-wP) option.'
             )
 
     def set_opmode(self, args, network_manager):
