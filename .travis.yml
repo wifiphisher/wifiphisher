@@ -12,7 +12,7 @@ before_install:
   - sudo apt-get install -y hostapd dnsmasq libdbus-1-dev libdbus-glib-1-dev
 
 install:
-  - pip install pylint tox
+  - pip install scapy pylint tox
   - python setup.py install
 
 script:
