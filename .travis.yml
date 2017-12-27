@@ -1,4 +1,5 @@
-sudo: required
+# There's no sudo: required because it slows down Travis CI job startup
+# and we don't really need it with addons: apt.
 
 language: python
 
@@ -7,17 +8,19 @@ dist: trusty
 python:
   - "2.7"
 
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y hostapd dnsmasq libdbus-1-dev libdbus-glib-1-dev
-
 install:
-  - pip install pylint tox
   - python setup.py install
 
+# We need system's site_packages for python-dbus.
+virtualenv:
+    system_site_packages: true
+
 script:
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
   - pylint --errors-only wifiphisher
   - tox -e ALL
+  - python setup.py install
 
 branches:
   only:
@@ -32,3 +35,23 @@ notifications:
     channels:
       - "chat.freenode.net#wifiphisher"
     use_notice: true
+
+# FIXME: python-tornado is here because of this error:
+#
+# > Tornado requires an up-to-date SSL module. This means Python 2.7.9+ or 3.4+
+# > (although some distributions have backported the necessary changes to older
+# > versions)
+#
+# Ubuntu does the backporting. The proper solution would be to upgrade Python
+# or somehow bypass this Tornado check (or use an older Tornado version
+# perhaps?)
+
+addons:
+    apt:
+        packages:
+          - hostapd
+          - dnsmasq
+          - python-tornado
+          - python-dbus
+          - libdbus-1-dev
+          - libdbus-glib-1-dev
