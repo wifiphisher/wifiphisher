@@ -934,7 +934,7 @@ class TuiMain(object):
                 raw_num += 1
         try:
             # print the dhcp lease section
-            screen.addstr(7, 0, "DHCP Leases", self.blue_text)
+            screen.addstr(7, 0, "DHCP Leases: ", self.blue_text)
             if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                 dnsmasq_output = check_output(
                     ['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
