@@ -1,0 +1,5 @@
+tox
+pylint
+pytest
+mock
+sphinx

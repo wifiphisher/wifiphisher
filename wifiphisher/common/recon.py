@@ -243,7 +243,7 @@ class AccessPointFinder(object):
 
         elt_section = packet[dot11.Dot11Elt]
         try:
-            channel = str(ord(packet[dot11.Dot11Elt:3].info))
+            channel = str(ord(packet[int(dot11.Dot11Elt):3].info))
             if int(channel) not in constants.ALL_2G_CHANNELS:
                 return
         except (TypeError, IndexError):
