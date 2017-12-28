@@ -937,7 +937,7 @@ class TuiMain(object):
             screen.addstr(7, 0, "DHCP Leases: ", self.blue_text)
             if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
                 dnsmasq_output = check_output(
-                    ['tail', '-5', '/var/lib/misc/dnsmasq.leases'])
+                    ['head', '-5', '/var/lib/misc/dnsmasq.leases'])
                 screen.addstr(8, 0, dnsmasq_output)
 
             # print the http request section
