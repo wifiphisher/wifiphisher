@@ -921,9 +921,8 @@ class TuiMain(object):
                           "|" + " Options: [Esc] Quit")
             screen.addstr(6, max_window_length - 30, "|" + "_" * 29)
 
-            # make Deauthenticating clients to blue color
-            # print the deauthentication section
-            screen.addstr(1, 0, "Deauthenticating clients: ", self.blue_text)
+            # Print the extensions section
+            screen.addstr(1, 0, "Extensions feed: ", self.blue_text)
         except curses.error:
             pass
 
