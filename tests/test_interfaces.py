@@ -1053,10 +1053,8 @@ class TestNetworkManager(unittest.TestCase):
         self.network_manager._name_to_object[interface_name] = adapter
         self.network_manager._active.add(interface_name)
 
-        with self.assertRaises(pyric.error) as error:
+        with self.assertRaises(interfaces.InvalidMacAddressError):
             self.network_manager.set_interface_mac(interface_name, mac_address)
-
-        self.assertEqual(error.exception[0], 5534, "Unexpected error")
 
     @mock.patch("wifiphisher.common.interfaces.pyw")
     def test_set_interface_mac_random_none(self, pyw):

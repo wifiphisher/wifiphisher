@@ -483,6 +483,7 @@ class NetworkManager(object):
         :rtype: None
         .. note: This method will set the interface to managed mode
         """
+        self._name_to_object[interface_name].mac_address = mac_address
         card = self._name_to_object[interface_name].card
         self.set_interface_mode(interface_name, "managed")
 
@@ -492,10 +493,7 @@ class NetworkManager(object):
             pyw.macset(card, mac_address)
         # make sure to catch an invalid mac address
         except pyric.error as error:
-            if error[0] == 22:
-                raise InvalidMacAddressError(mac_address)
-            else:
-                raise
+            raise InvalidMacAddressError(mac_address)
 
     def get_interface_mac(self, interface_name):
         """
@@ -528,8 +526,6 @@ class NetworkManager(object):
 
         # generate a new mac address and set it to adapter's new address
         new_mac_address = generate_random_address()
-        self._name_to_object[interface_name].mac_address = new_mac_address
-
         # change the mac address of adapter
         self.set_interface_mac(interface_name, new_mac_address)
 

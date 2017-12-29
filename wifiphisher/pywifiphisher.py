@@ -259,6 +259,25 @@ class WifiphisherEngine:
         print '[' + R + '!' + W + '] Closing'
         sys.exit(0)
 
+    def try_change_mac(self, iface_name, mac_address=None):
+        """
+        :param self: A WifiphisherEngine object
+        :param iface_name: Name of an interface
+        :param mac_addr: A MAC address
+        :type self: WifiphisherEngine
+        :type iface_name: str
+        :type mac_address:str
+        :return: None
+        :rtype: None
+        """
+        try:
+            if mac_address is not None:
+                self.network_manager.set_interface_mac(iface_name, mac_address)
+            else:
+                self.network_manager.set_interface_mac_random(iface_name)
+        except interfaces.InvalidMacAddressError as err:
+            print("[{0}!{1}] {2}").format(R, W, err)
+
     def start(self):
 
         # Parse args
@@ -327,16 +346,14 @@ class WifiphisherEngine:
                 # randomize the mac addresses
                 if not args.no_mac_randomization:
                     if args.mac_ap_interface:
-                        self.network_manager.set_interface_mac(
-                            ap_iface, args.mac_ap_interface)
+                        self.try_change_mac(ap_iface, args.mac_ap_interface)
                     else:
-                        self.network_manager.set_interface_mac_random(ap_iface)
+                        self.try_change_mac(ap_iface)
                     if args.mac_extensions_interface:
-                        self.network_manager.set_interface_mac(
-                            mon_iface, args.mac_deauth_interface)
+                        self.try_change_mac(mon_iface,
+                                            args.mac_extensions_interface)
                     else:
-                        self.network_manager.set_interface_mac_random(
-                            mon_iface)
+                        self.try_change_mac(mon_iface)
             if not self.opmode.extensions_enabled():
                 if args.apinterface:
                     if self.network_manager.is_interface_valid(
@@ -348,19 +365,15 @@ class WifiphisherEngine:
 
                 if not args.no_mac_randomization:
                     if args.mac_ap_interface:
-                        self.network_manager.set_interface_mac(
-                            ap_iface, args.mac_ap_interface)
+                        self.try_change_mac(ap_iface, args.mac_ap_interface)
                     else:
-                        self.network_manager.set_interface_mac_random(ap_iface)
+                        self.try_change_mac(ap_iface)
 
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                     "rogue Access Point").format(G, W, ap_iface)
                 logger.info("Selecting {} interface for rouge access point"
                             .format(ap_iface))
-                # randomize the mac addresses
-                if not args.no_mac_randomization:
-                    self.network_manager.set_interface_mac_random(ap_iface)
 
             # make sure interfaces are not blocked
             logger.info("Unblocking interfaces")
