@@ -83,7 +83,7 @@ class OpMode(object):
                 not (args.noextensions and args.apinterface):
             sys.exit('[' + constants.R + '-' + constants.W +
                      '] --apinterface (-aI) and --extensionsinterface (-eI)'
-                     '(or --noextensions (-nJ)) are used in conjuction.')
+                     '(or --noextensions (-nE)) are used in conjuction.')
 
         if args.noextensions and args.extensionsinterface:
             sys.exit('[' + constants.R + '-' + constants.W +
@@ -278,8 +278,8 @@ def validate_ap_interface(interface):
         pyric.pyw.isinterface(interface) and \
         interfaces.does_have_mode(interface, "AP")):
 
-        raise argparse.ArgumentTypeError("Provided interface ({}) \
-                                        either does not exist or "
+        raise argparse.ArgumentTypeError("Provided interface ({})"
+                                         " either does not exist or"
                                          " does not support AP mode" \
                                         .format(interface))
     return interface
