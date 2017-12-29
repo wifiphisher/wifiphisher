@@ -9,6 +9,7 @@ python:
   - "2.7"
 
 install:
+  - pip install pylint tox
   - python setup.py install
 
 # We need system's site_packages for python-dbus.
@@ -16,11 +17,8 @@ virtualenv:
     system_site_packages: true
 
 script:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
   - pylint --errors-only wifiphisher
   - tox -e ALL
-  - python setup.py install
 
 branches:
   only:
