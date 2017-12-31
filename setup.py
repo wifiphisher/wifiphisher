@@ -117,7 +117,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 INSTALL_REQUIRES = ["PyRIC", "tornado", "dbus-python",
-                    "pbkdf2", "roguehostapd"]
+                    "pbkdf2", "roguehostapd", "scapy"]
 CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
