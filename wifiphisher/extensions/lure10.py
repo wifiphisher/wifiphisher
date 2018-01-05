@@ -25,7 +25,7 @@ class Lure10(object):
 
         :param self: A Lure10 object
         :param data: Shared data from main engine
-        :type self: Deauthentication
+        :type self: Lure10
         :type data: dict
         :return: None
         :rtype: None
@@ -65,7 +65,7 @@ class Lure10(object):
 
             with open(area_file) as _file:
                 for line in _file:
-                    # remove any white space and store the bssid(fist word)
+                    # remove any white space and store the BSSD (first word)
                     line.strip()
                     bssid = line.split(" ", 1)[0]
 
