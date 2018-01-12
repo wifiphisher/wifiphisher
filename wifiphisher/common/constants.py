@@ -9,7 +9,7 @@ path_to_project_root = os.path.abspath(
 dir_of_data = path_to_project_root + '/data/'
 
 # Basic configuration
-DEV = 1
+DEV = 0
 DEAUTH_EXTENSION = "deauth"
 LURE10_EXTENSION = "lure10"
 WPSPBC = "wpspbc"
