@@ -7,18 +7,18 @@
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-<a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that mounts automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It is primarily a social engineering attack that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
+<a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that performs Wi-Fi automatic associationattacks to force wireless clients to unknowingly connect to an attacker-controlled Access Point. It is a rogue Access Point framework that can be used to mount automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It can work a social engineering attack tool that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
 
 Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
 ## How it works
-After achieving a man-in-the-middle position using the Evil Twin or KARMA attack, Wifiphisher redirects all HTTP requests to an attacker-controlled phishing page.
+After achieving a man-in-the-middle position using Wi-Fi automatic association techniques (including "KARMA" and "Known Beacons" attacks), Wifiphisher by default redirects all HTTP requests to an attacker-controlled phishing page.
 
 From the victim's perspective, the attack makes use in three phases:
 
 1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations.
-2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the jamming, clients will eventually start connecting to the rogue access point. After this phase, the victim is MiTMed. Furthermore, Wifiphisher listens to probe request frames and spoofs "known" open networks to cause automatic association.
-3. **Victim is being served a realistic specially-customized phishing page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials or serves malwares. This page will be specifically crafted for the victim. For example, a router config-looking page will contain logos of the victim's vendor. The tool supports community-built templates for different phishing scenarios.
+2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the deauth attack and the automatic association techniques, clients will eventually start connecting to the rogue access point. After this phase, the victim is MiTMed. 
+3. **Victim is being served a realistic specially-customized phishing page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials or serves malwares. This page will be specifically crafted for the victim. For example, a router config-looking page will contain the brand of the victim's vendor. The tool supports community-built templates for different phishing scenarios.
 
 <p align="center"><img width="70%" src="https://wifiphisher.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
 
@@ -69,12 +69,12 @@ Useful against networks with disclosed PSKs (e.g. in conferences). The <a href="
 ***
 
 ```shell
-wifiphisher --noextensions --essid "FREE WI-FI" -p oauth-login
+wifiphisher --noextensions --essid "FREE WI-FI" -p oauth-login -kB
 ```
 
-Do not load any extensions. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario.
+Do not load any extensions. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario. Use the "Known Beacons" Wi-Fi automatic association technique.
 
-Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook.
+Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook. 
 
 
 Following are all the options along with their descriptions (also available with `wifiphisher -h`):
@@ -101,6 +101,7 @@ Following are all the options along with their descriptions (also available with
 ||--payload-path| Enable the payload path. Intended for use with scenarios that serve payloads.|
 |-wP|--wps-pbc|Monitor if the button on a WPS-PBC Registrar side is pressed.|
 |-wAI|--wpspbc-assoc-interface|The WLAN interface used for associating to the WPS AccessPoint.|
+|-kb|--known-beacons|Perform the known beacons Wi-Fi automatic association technique.|
 
 
 ## Screenshots
@@ -118,7 +119,7 @@ If you don't know how to code, you can help us by <a href="https://github.com/wi
 
 ## Credits
 The script is based on an idea from <a
-href="https://github.com/DanMcInerney">Dan McInerney</a>.
+href="https://github.com/DanMcInerney">Dan McInerney</a> back in 2015.
 
 A full list of contributors lies <a href="https://github.com/wifiphisher/wifiphisher/graphs/contributors">here</a>.
 
