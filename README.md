@@ -7,7 +7,7 @@
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-<a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that performs Wi-Fi automatic associationattacks to force wireless clients to unknowingly connect to an attacker-controlled Access Point. It is a rogue Access Point framework that can be used to mount automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It can work a social engineering attack tool that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
+<a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that performs Wi-Fi automatic association attacks to force wireless clients to unknowingly connect to an attacker-controlled Access Point. It is a rogue Access Point framework that can be used to mount automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It can work a social engineering attack tool that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
 
 Wifiphisher works on Kali Linux and is licensed under the GPL license.
 
