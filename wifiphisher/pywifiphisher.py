@@ -148,7 +148,7 @@ def parse_args():
     return parser.parse_args()
 
 
-VERSION = "1.4"
+VERSION = "1.4GIT"
 args = parse_args()
 APs = {}  # for listing APs
 
