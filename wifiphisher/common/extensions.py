@@ -363,13 +363,11 @@ class ExtensionManager(object):
         """
 
         # continue to find clients until told otherwise
-        while self._should_continue:
-            dot11.sniff(
-                iface=self._interface,
-                prn=self._process_packet,
-                count=1,
-                store=0,
-                stop_filter=self._stopfilter)
+        dot11.sniff(
+            iface=self._interface,
+            prn=self._process_packet,
+            store=0,
+            stop_filter=self._stopfilter)
 
     def _send(self):
         """
