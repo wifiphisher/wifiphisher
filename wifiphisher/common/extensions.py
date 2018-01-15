@@ -144,7 +144,7 @@ class ExtensionManager(object):
 
         # set the current channel to the ap channel
         self._nm.set_interface_channel(self._interface,
-                                       int(self._current_channel))
+                                       int(self._shared_data.target_ap_channel))
 
         # if the stop flag not set, change the channel
         while self._should_continue:
