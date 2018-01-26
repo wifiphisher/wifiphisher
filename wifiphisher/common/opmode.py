@@ -223,7 +223,8 @@ class OpMode(object):
         :rtype: bool
         """
 
-        return self.op_mode in [constants.OP_MODE2, constants.OP_MODE3]
+        return self.op_mode in [constants.OP_MODE2, constants.OP_MODE3,
+                                constants.OP_MODE6]
 
     def extensions_enabled(self):
         """
