@@ -251,7 +251,10 @@ class TuiTemplateSelection(object):
         """
 
         # setup curses
-        curses.curs_set(0)
+        try:
+            curses.curs_set(0)
+        except curses.error:
+            pass
         screen.nodelay(True)
         curses.init_pair(1, curses.COLOR_GREEN, screen.getbkgd())
         # heightlight the phishing scenarios
@@ -501,7 +504,10 @@ class TuiApSel(object):
         """
         # setup curses
         # make cursor invisible
-        curses.curs_set(0)
+        try:
+            curses.curs_set(0)
+        except curses.error:
+            pass
         # don't wait for user input
         screen.nodelay(True)
         # setup the font color
@@ -812,7 +818,10 @@ class TuiMain(object):
         """
 
         # setup curses
-        curses.curs_set(0)
+        try:
+            curses.curs_set(0)
+        except curses.error:
+            pass
         screen.nodelay(True)
         curses.init_pair(1, curses.COLOR_BLUE, screen.getbkgd())
         curses.init_pair(2, curses.COLOR_YELLOW, screen.getbkgd())
