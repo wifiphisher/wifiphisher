@@ -119,8 +119,10 @@ Following are all the options along with their descriptions (also available with
 |-i INTERFACE| --interface INTERFACE| Manually choose an interface that supports both AP and monitor modes for spawning the rogue AP as well as mounting additional Wi-Fi attacks from Extensions (i.e. deauth). Example: -i wlan1 |
 |-eI EXTENSIONSINTERFACE| --extensionsinterface EXTENSIONSINTERFACE|	Manually choose an interface that supports monitor mode for running the extensions. Example: -eI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
+|-kN| --keepnetworkmanager| Do not kill NetworkManager.|
 |-nJ| --noextensions|	Do not load any extensions.|
 |-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
+|-pPD PHISHING_PAGES_DIRECTORY|--phishing-pages-directory PHISHING_PAGES_DIRECTORY| Search for phishing pages in this location|
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
 |-pK PRESHAREDKEY| --presharedkey PRESHAREDKEY|	Add WPA/WPA2 protection on the rogue Access Point. Example: -pK s3cr3tp4ssw0rd|
 |-qS| --quitonsuccess|	Stop the script after successfully retrieving one pair of credentials.|
@@ -132,12 +134,15 @@ Following are all the options along with their descriptions (also available with
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
 |-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|
+|-lP LOGPATH| --logpath LOGPATH| Determine the full path of the logfile.|
+|-cP CREDENTIAL_LOG_PATH|--credential-log-path CREDENTIAL_LOG_PATH|Determine the full path of the file that will store any captured credentials|
 |-cM|--channel-monitor|Monitor if the target access point changes the channel.|
 ||--payload-path| Enable the payload path. Intended for use with scenarios that serve payloads.|
 |-wP|--wps-pbc|Monitor if the button on a WPS-PBC Registrar side is pressed.|
 |-wAI|--wpspbc-assoc-interface|The WLAN interface used for associating to the WPS AccessPoint.|
 |-kb|--known-beacons|Perform the known beacons Wi-Fi automatic association technique.|
 |-fH|--force-hostapd|Force the usage of hostapd installed in the system.|
+|-dC DNSMASQ_CONF|--dnsmasq-conf DNSMASQ_CONF|Determine the full path of a custom dnmasq.conf file|
 
 
 ## Screenshots

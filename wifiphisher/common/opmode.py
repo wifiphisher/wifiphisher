@@ -130,6 +130,20 @@ class OpMode(object):
                 '] --wpspbc-assoc-interface (-wAI) requires --wps-pbc (-wP) option.'
             )
 
+        # if args.logpath is defined args.logging must be set too
+        if args.logpath and not args.logging:
+            sys.exit(
+                '[' + constants.R + '!' + constants.W +
+                '] --logpath (-lP) requires --logging option.'
+            )
+
+        # if args.credential_log_path is defined args.logging must be set too
+        if args.credential_log_path and not args.logging:
+            sys.exit(
+                '[' + constants.R + '!' + constants.W +
+                '] --credential-log-path (-cP) requires --logging option.'
+            )
+
     def set_opmode(self, args, network_manager):
         """
         Sets the operation mode.
