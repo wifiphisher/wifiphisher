@@ -78,6 +78,11 @@ def parse_args():
         help=("Do not change any MAC address"),
         action='store_true')
     parser.add_argument(
+        "-kN",
+        "--keepnetworkmanager",
+        action='store_true',
+        help=("Do not kill NetworkManager"))
+    parser.add_argument(
         "-nE",
         "--noextensions",
         help=("Do not load any extensions."),
@@ -115,6 +120,7 @@ def parse_args():
         "--handshake-capture",
         help=("Capture of the WPA/WPA2 handshakes for verifying passphrase" +
               "Example : -hC capture.pcap"))
+
     parser.add_argument(
         "-qS",
         "--quitonsuccess",
@@ -134,7 +140,19 @@ def parse_args():
               "to believe it is within an area that was previously captured "
               "with --lure10-capture. Part of the Lure10 attack."))
     parser.add_argument(
-        "--logging", help=("Log activity to file"), action="store_true")
+        "--logging",
+        help="Log activity to file",
+        action="store_true")
+    parser.add_argument(
+        "-lP",
+        "--logpath",
+        default=None,
+        help="Determine the full path of the logfile.")
+    parser.add_argument(
+        "-cP",
+        "--credential-log-path",
+        help="Determine the full path of the file that will store any captured credentials",
+        default=None)
     parser.add_argument(
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
@@ -158,6 +176,15 @@ def parse_args():
         help="Force the usage of hostapd installed in the system",
         action='store_true')
 
+    parser.add_argument("-pPD",
+                        "--phishing-pages-directory",
+                        help="Search for phishing pages in this location")
+    parser.add_argument(
+        "-dC",
+        "--dnsmasq-conf",
+        help="Determine the full path of a custom dnmasq.conf file",
+        default='/tmp/dnsmasq.conf')
+
     return parser.parse_args()
 
 
@@ -173,11 +200,13 @@ def setup_logging(args):
     root_logger = logging.getLogger()
     # logging setup
     if args.logging:
+        if args.logpath:
+            LOGGING_CONFIG['handlers']['file']['filename'] = args.logpath
         logging.config.dictConfig(LOGGING_CONFIG)
         should_roll_over = False
         # use root logger to rotate the log file
-        if os.path.getsize(LOG_FILEPATH) > 0:
-            should_roll_over = os.path.isfile(LOG_FILEPATH)
+        if os.path.getsize(LOGGING_CONFIG['handlers']['file']['filename']) > 0:
+            should_roll_over = os.path.isfile(LOGGING_CONFIG['handlers']['file']['filename'])
         should_roll_over and root_logger.handlers[0].doRollover()
         logger.info("Starting Wifiphisher")
 
@@ -258,7 +287,7 @@ class WifiphisherEngine:
             print "[" + G + "+" + W + "] Like us: https://www.facebook.com/Wifiphisher"
         print "[" + G + "+" + W + "] Captured credentials:"
         for cred in phishinghttp.creds:
-            logger.info("Creds: %s", cred)
+            logger.info("Credentials: %s", cred)
             print cred
 
         # EM depends on Network Manager.
@@ -305,6 +334,20 @@ class WifiphisherEngine:
 
         # setup the logging configuration
         setup_logging(args)
+
+        if args.phishing_pages_directory:
+            # check if the path ends with the proper separator, if not add it
+            # this is to prevent problems when joining path with string concatenation
+            if args.phishing_pages_directory[-1] != os.path.sep:
+                args.phishing_pages_directory += os.path.sep
+            phishing_pages_dir = args.phishing_pages_directory
+            logger.info("Searching for scenario in %s" % phishing_pages_dir)
+
+        if args.dnsmasq_conf:
+            self.access_point.dns_conf_path = args.dnsmasq_conf
+
+        if args.credential_log_path:
+            phishinghttp.credential_log_path = args.credential_log_path
 
         # Initialize the operation mode manager
         self.opmode.initialize(args)
@@ -406,7 +449,7 @@ class WifiphisherEngine:
             time.sleep(1)
             self.stop()
 
-        if not args.internetinterface:
+        if not args.internetinterface and not args.keepnetworkmanager:
             kill_interfering_procs()
             logger.info("Killing all interfering processes")
 
@@ -447,7 +490,7 @@ class WifiphisherEngine:
             else:
                 self.stop()
         # create a template manager object
-        self.template_manager = phishingpage.TemplateManager()
+        self.template_manager = phishingpage.TemplateManager(data_pages=args.phishing_pages_directory)
         # get the correct template
         tui_template_obj = tui.TuiTemplateSelection()
         template = tui_template_obj.gather_info(args.phishingscenario,
@@ -471,7 +514,7 @@ class WifiphisherEngine:
             print '[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload '
             template.update_payload_path(os.path.basename(payload_path))
             copyfile(payload_path,
-                     PHISHING_PAGES_DIR + template.get_payload_path())
+                     self.template_manager.template_directory + template.get_payload_path())
 
         APs_context = []
         for i in APs:
@@ -551,7 +594,7 @@ class WifiphisherEngine:
                 'target_ap_bssid': target_ap_mac or "",
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
-                'rogue_ap_essid': essid or "", 
+                'rogue_ap_essid': essid or "",
                 'rogue_ap_mac': self.network_manager.get_interface_mac(ap_iface),
                 'roguehostapd': self.access_point.hostapd_object,
                 'APs': APs_context,

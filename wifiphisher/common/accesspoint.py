@@ -25,16 +25,17 @@ class AccessPoint(object):
         # roguehostapd object
         self.hostapd_object = None
         self.deny_mac_addrs = []  # type: List[str]
+        self.dns_conf_path = constants.DNS_CONF_PATH
 
     def start_dhcp_dns(self):
         # type: () -> None
         """Start the dhcp server."""
         config = ('no-resolv\n' 'interface=%s\n' 'dhcp-range=%s\n')
 
-        with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
+        with open(self.dns_conf_path, 'w') as dhcpconf:
             dhcpconf.write(config % (self.interface, constants.DHCP_LEASE))
 
-        with open('/tmp/dhcpd.conf', 'a+') as dhcpconf:
+        with open(self.dns_conf_path, 'a+') as dhcpconf:
             if self.internet_interface:
                 dhcpconf.write("server=%s" % (constants.PUBLIC_DNS, ))
             else:
@@ -42,7 +43,7 @@ class AccessPoint(object):
         # catch the exception if dnsmasq is not installed
         try:
             subprocess.Popen(
-                ['dnsmasq', '-C', '/tmp/dhcpd.conf'],
+                ['dnsmasq', '-C', self.dns_conf_path],
                 stdout=subprocess.PIPE,
                 stderr=constants.DN)
         except OSError:

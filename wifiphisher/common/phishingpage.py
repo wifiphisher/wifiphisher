@@ -54,7 +54,7 @@ class PhishingTemplate(object):
 
         # setup all the variables
 
-        config_path = os.path.join(constants.PHISHING_PAGES_DIR, name,
+        config_path = os.path.join(constants.phishing_pages_dir, name,
                                    'config.ini')
         info = config_section_map(config_path, 'info')
 
@@ -62,15 +62,15 @@ class PhishingTemplate(object):
         self._display_name = info['name']
         self._description = info['description']
         self._payload = False
-        self._config_path = os.path.join(constants.PHISHING_PAGES_DIR,
+        self._config_path = os.path.join(constants.phishing_pages_dir,
                                          self._name, 'config.ini')
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
 
-        self._path = os.path.join(constants.PHISHING_PAGES_DIR,
+        self._path = os.path.join(constants.phishing_pages_dir,
                                   self._name.lower(),
                                   constants.SCENARIO_HTML_DIR)
-        self._path_static = os.path.join(constants.PHISHING_PAGES_DIR,
+        self._path_static = os.path.join(constants.phishing_pages_dir,
                                          self._name.lower(),
                                          constants.SCENARIO_HTML_DIR,
                                          'static')
@@ -285,20 +285,23 @@ class PhishingTemplate(object):
 class TemplateManager(object):
     """ This class handles all the template management operations """
 
-    def __init__(self):
+    def __init__(self, data_pages=None):
         """
         Construct object.
 
         :param self: A TemplateManager object
+        :param data_pages: The directory containing the templates
         :type self: TemplateManager
         :return: None
         :rtype: None
         """
 
         # setup the templates
-        self._template_directory = constants.PHISHING_PAGES_DIR
+        self._template_directory = data_pages or constants.phishing_pages_dir
+        if data_pages:
+            constants.phishing_pages_dir = data_pages
 
-        page_dirs = os.listdir(constants.PHISHING_PAGES_DIR)
+        page_dirs = os.listdir(self._template_directory)
 
         self._templates = {}
 
@@ -399,6 +402,10 @@ class TemplateManager(object):
             # create a template object and add it to the database
             local_template = PhishingTemplate(template)
             self._templates[template] = local_template
+
+    @property
+    def template_directory(self):
+        return self._template_directory
 
     def on_exit(self):
         """
