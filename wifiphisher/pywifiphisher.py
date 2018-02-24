@@ -444,10 +444,10 @@ class WifiphisherEngine:
             # otherwise shutdown
             if access_point:
                 # store choosen access point's information
-                essid = access_point.get_name()
-                channel = access_point.get_channel()
-                target_ap_mac = access_point.get_mac_address()
-                enctype = access_point.get_encryption()
+                essid = access_point.name
+                channel = access_point.channel
+                target_ap_mac = access_point.mac_address
+                enctype = access_point.encryption
             else:
                 self.stop()
         # create a template manager object
