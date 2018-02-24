@@ -185,8 +185,7 @@ class TuiTemplateSelection(object):
             display_str = "Options: [Up Arrow] Move Up  [Down Arrow] Move Down"
             screen.addstr(0, 0, display_string(max_window_len, display_str))
             display_str = "Available Phishing Scenarios:"
-            screen.addstr(3, 0,
-                          display_string(max_window_len, display_str),
+            screen.addstr(3, 0, display_string(max_window_len, display_str),
                           curses.A_BOLD)
         except curses.error:
             return 0
@@ -641,7 +640,7 @@ class TuiApSel(object):
 
         # check if any new access points have been discovered
         new_total_ap_number = len(
-            self.access_point_finder.get_all_access_points())
+            self.access_point_finder.observed_access_points)
 
         if new_total_ap_number != self.total_ap_number:
             self.access_points = self.access_point_finder.\
@@ -658,7 +657,7 @@ class TuiApSel(object):
         if ap_info.key == ord("\n") and self.total_ap_number != 0:
             # show message and exit
             screen.addstr(ap_info.max_h - 2, 3, "YOU HAVE SELECTED " +
-                          self.access_points[ap_info.pos - 1].get_name())
+                          self.access_points[ap_info.pos - 1].name)
             screen.refresh()
             time.sleep(1)
             is_apsel_end = True
@@ -743,17 +742,15 @@ class TuiApSel(object):
                 # get the access point and it's vendor
                 access_point = self.access_points[item_position - 1]
                 vendor = self.mac_matcher.get_vendor_name(
-                    access_point.get_mac_address())
+                    access_point.mac_address)
 
                 # the display format for showing access points
                 display_text = ((
                     "{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:^5}"
                     " {6:20}").format(
-                        access_point.get_name(),
-                        access_point.get_mac_address(),
-                        access_point.get_channel(),
-                        access_point.get_signal_strength(),
-                        access_point.get_encryption(),
+                        access_point.name, access_point.mac_address,
+                        access_point.channel, access_point.signal_strength,
+                        access_point.encryption,
                         access_point.get_number_connected_clients(), vendor))
                 # shows whether the access point should be highlighted or not
                 # based on our current position
