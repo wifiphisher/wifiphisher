@@ -419,7 +419,7 @@ def find_encryption_type(packet):
             else:
                 encryption_type = "OPEN"
 
-        if encryption_type != "WEP" and found_wps:
-            encryption_type += "/WPS"
+    if encryption_type != "WEP" and found_wps:
+        encryption_type += "/WPS"
 
-        return encryption_type
+    return encryption_type
