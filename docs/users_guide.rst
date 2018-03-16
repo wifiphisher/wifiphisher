@@ -25,7 +25,6 @@ Requirements
 ^^^^^^^^^
 Hardware
 ^^^^^^^^^
- :ref:`Frequently Asked Questions`
 
 ^^^^^^^^^
 Software
