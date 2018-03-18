@@ -5,9 +5,6 @@ language: python
 
 dist: trusty
 
-python:
-  - "pypy2.7"
-
 install:
   - pip install pylint tox tornado scapy
   - python setup.py install
