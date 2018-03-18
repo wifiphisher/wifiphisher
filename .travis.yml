@@ -5,8 +5,11 @@ language: python
 
 dist: trusty
 
+python:
+  - "2.7"
+
 install:
-  - pip install pylint tox tornado scapy
+  - pip install pylint tox tornado==4.5.3 scapy
   - python setup.py install
 
 # We need system's site_packages for python-dbus.
