@@ -9,7 +9,8 @@ python:
   - "2.7"
 
 install:
-  - pip install pylint tox tornado scapy
+  - pip install pylint tox scapy
+  - pip install tornado==4.5.3
   - python setup.py install
 
 # We need system's site_packages for python-dbus.
