@@ -83,6 +83,7 @@ This documentation is also available in `PDF and Epub formats
    :titlesonly:
 
    custom_phishing_scenario
+   faq
 
 * :ref:`genindex`
 * :ref:`modindex`
