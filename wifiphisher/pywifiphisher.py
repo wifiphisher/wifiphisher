@@ -144,6 +144,11 @@ def parse_args():
         "--known-beacons",
         help="Broadcast a number of beacon frames advertising popular WLANs",
         action='store_true')
+    parser.add_argument(
+        "-fH",
+        "--force-hostapd",
+        help="Force the usage of hostapd installed in the system",
+        action='store_true')
 
     return parser.parse_args()
 
@@ -526,6 +531,11 @@ class WifiphisherEngine:
         self.access_point.set_interface(ap_iface)
         self.access_point.set_channel(channel)
         self.access_point.set_essid(essid)
+        if args.force_hostapd:
+            print('[' + T + '*' + W + '] Using hostapd instead of roguehostapd.'
+                  " Many significant features will be turned off."
+                 )
+            self.access_point.enable_system_hostapd()
         if args.wpspbc_assoc_interface:
             wps_mac = self.network_manager.get_interface_mac(
                 args.wpspbc_assoc_interface)

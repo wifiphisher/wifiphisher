@@ -4,9 +4,9 @@ This module was made to fork the rogue access point
 import os
 import time
 import subprocess
-from roguehostapd import hostapd_controller
-from roguehostapd import hostapd_constants
 import wifiphisher.common.constants as constants
+import roguehostapd.config.hostapdconfig as hostapdconfig
+import roguehostapd.apctrl as apctrl
 
 
 class AccessPoint(object):
@@ -28,9 +28,21 @@ class AccessPoint(object):
         self.channel = None
         self.essid = None
         self.psk = None
+        self.force_hostapd = False
         # roguehostapd object
         self.hostapd_object = None
         self.deny_mac_addrs = []
+
+    def enable_system_hostapd(self):
+        """
+        Set the interface for the softAP
+        :param self: An AccessPoint object
+        :type self: AccessPoint
+        :return: None
+        :rtype: None
+        ..note: use hostapd on the system instead of using roguehostapd
+        """
+        self.force_hostapd = True
 
     def set_interface(self, interface):
         """
@@ -57,22 +69,6 @@ class AccessPoint(object):
         """
 
         self.deny_mac_addrs.extend(deny_mac_addrs)
-
-    def update_black_macs(self):
-        """
-        Update the black mac addresses for hostapd
-
-        :param self: A HostapdConfig object
-        :type self: HostapdConfig
-        :return: None
-        :rtype: None
-        """
-        with open(hostapd_constants.HOSTAPD_CONF_PATH, 'a') as output_fp:
-            output_fp.write('macaddr_acl=0\n')
-            output_fp.write('deny_mac_file='+constants.DENY_MACS_PATH+'\n')
-        with open(constants.DENY_MACS_PATH, 'w') as writer:
-            for mac_addr in self.deny_mac_addrs:
-                writer.write(mac_addr+'\n')
 
     def set_internet_interface(self, interface):
         """
@@ -190,41 +186,49 @@ class AccessPoint(object):
             "ssid": self.essid,
             "interface": self.interface,
             "channel": self.channel,
-            "karma_enable": 1
+            "deny_macs": self.deny_mac_addrs,
         }
         if self.psk:
-            hostapd_config['wpa_passphrase'] = self.psk
-
-        # create the option dictionary
-        hostapd_options = {
-            'debug_level': hostapd_constants.HOSTAPD_DEBUG_OFF,
-            'mute': True,
-            "eloop_term_disable": True
-        }
-
-        try:
-            self.hostapd_object = hostapd_controller.Hostapd()
-            self.hostapd_object.start(hostapd_config, hostapd_options)
-        except KeyboardInterrupt:
-            raise Exception
-        # when roguehostapd fail to start rollback to use the hostapd
-        # on the system
-        except BaseException:
-            hostapd_config.pop("karma_enable", None)
-            hostapd_options = {}
-            hostapd_config_obj = hostapd_controller.HostapdConfig()
-            hostapd_config_obj.write_configs(hostapd_config, hostapd_options)
-            self.update_black_macs()
-
-            # handle exception if hostapd is not installed in system
+            hostapd_config['wpa2password'] = self.psk
+        self.hostapd_object = apctrl.Hostapd()
+        if not self.force_hostapd:
+            try:
+                # Enable KARMA attack
+                hostapd_config["karma_enable"] = 1
+                # Enable WPSPBC KARMA attack
+                hostapd_config["wpspbc"] = True
+                hostapd_options = {
+                    'mute': True,
+                    'timestamp': False,
+                    "eloop_term_disable": True
+                }
+                self.hostapd_object.start(hostapd_config, hostapd_options)
+            except KeyboardInterrupt:
+                raise Exception
+            except BaseException:
+                print("[" + constants.R + "!" + constants.W + "] " +
+                      "Roguehostapd is not installed in the system! Please install"
+                      " roguehostapd manually (https://github.com/wifiphisher/roguehostapd)"
+                      " and rerun the script. Otherwise, you can run the tool with the"
+                      " --force-hostapd option to use hostapd but please note that using"
+                      " Wifiphisher with hostapd instead of roguehostapd will turn off many"
+                      " significant features of the tool.")
+                # just raise exception when hostapd is not installed
+                raise Exception
+        else:
+            # use the hostapd on the users' system
+            self.hostapd_object.create_hostapd_conf_file(hostapd_config,
+                                                         {})
             try:
                 self.hostapd_object = subprocess.Popen(
-                    ['hostapd', hostapd_constants.HOSTAPD_CONF_PATH],
+                    ['hostapd', hostapdconfig.ROGUEHOSTAPD_RUNTIME_CONFIGPATH],
                     stdout=constants.DN,
                     stderr=constants.DN)
             except OSError:
                 print("[" + constants.R + "!" + constants.W + "] " +
-                      "hostapd is not installed!")
+                      "hostapd is not installed in the system! Please download it"
+                      " using your favorite package manager"
+                      "(e.g. apt-get install hostapd) and rerun the script.")
                 # just raise exception when hostapd is not installed
                 raise Exception
 
@@ -248,10 +252,10 @@ class AccessPoint(object):
             self.hostapd_object.stop()
         except BaseException:
             subprocess.call('pkill hostapd', shell=True)
-            if os.path.isfile(hostapd_constants.HOSTAPD_CONF_PATH):
-                os.remove(hostapd_constants.HOSTAPD_CONF_PATH)
-            if os.path.isfile(constants.DENY_MACS_PATH):
-                os.remove(constants.DENY_MACS_PATH)
+            if os.path.isfile(hostapdconfig.ROGUEHOSTAPD_RUNTIME_CONFIGPATH):
+                os.remove(hostapdconfig.ROGUEHOSTAPD_RUNTIME_CONFIGPATH)
+            if os.path.isfile(hostapdconfig.ROGUEHOSTAPD_DENY_MACS_CONFIGPATH):
+                os.remove(hostapdconfig.ROGUEHOSTAPD_DENY_MACS_CONFIGPATH)
 
         if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
             os.remove('/var/lib/misc/dnsmasq.leases')

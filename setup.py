@@ -6,7 +6,6 @@ This module tries to install all the required software.
 from __future__ import print_function
 import sys
 import os
-from ctypes.util import find_library
 from setuptools import setup, find_packages, Command
 import wifiphisher.common.constants as constants
 
@@ -58,44 +57,6 @@ def get_dnsmasq():
 
         sys.exit(dnsmasq_message)
 
-
-def get_hostapd():
-    """
-    Try to install hostapd on host system if not present
-
-    :return: None
-    :rtype: None
-    """
-
-    if not os.path.isfile("/usr/sbin/hostapd"):
-        install = raw_input(("[" + constants.T + "*" + constants.W + "] hostapd not found in " +
-                             "/usr/sbin/hostapd, install now? [y/n] "))
-
-        if install == "y":
-            if os.path.isfile("/usr/bin/pacman"):
-                os.system("pacman -S hostapd")
-            elif os.path.isfile("/usr/bin/yum"):
-                os.system("yum install hostapd")
-            else:
-                os.system("apt-get -y install hostapd")
-        else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] hostapd not found in " +
-                      "/usr/sbin/hostapd"))
-
-    if not os.path.isfile("/usr/sbin/hostapd"):
-        hostapd_message = ("\n[" + constants.R + "-" + constants.W + "] Unable to install the " +
-                           "\'hostapd\' package!\n[" + constants.T + "*" + constants.W + "] " +
-                           "This process requires a persistent internet connection!\nPlease " +
-                           "follow the link below to configure your sources.list\n" + constants.B +
-                           "http://docs.kali.org/general-use/kali-linux-sources-list-" +
-                           "repositories\n" + constants.W + "[" + constants.G + "+" + constants.W +
-                           "] Run apt-get update for changes to take effect.\n[" + constants.G +
-                           "+" + constants.W + "] Rerun the script to install hostapd.\n[" +
-                           constants.R + "!" + constants.W + "] Closing")
-
-        sys.exit(hostapd_message)
-
-
 # setup settings
 NAME = "wifiphisher"
 AUTHOR = "sophron"
@@ -127,8 +88,6 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
-# Get hostapd or dnsmasq if needed
-get_hostapd()
 get_dnsmasq()
 
 print()
