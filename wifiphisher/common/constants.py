@@ -145,6 +145,8 @@ NM_DEV_INTERFACE_PATH = 'org.freedesktop.NetworkManager.Device'
 
 # Phishinghttp
 VALID_POST_CONTENT_TYPE = "application/x-www-form-urlencoded"
+REGEX_PWD = "password|pwd|pass"
+REGEX_UNAME = "username|uname|name"
 
 # TUI
 MAIN_TUI_ATTRS = 'version essid channel ap_iface em phishinghttp args'

