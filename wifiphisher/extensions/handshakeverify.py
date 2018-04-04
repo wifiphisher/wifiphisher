@@ -1,3 +1,5 @@
+# pylint: skip-file
+# FIXME Pylint complains about EAPOL.
 """
 Extension that capture the four way handshake and
 do the verification whether the password given by
