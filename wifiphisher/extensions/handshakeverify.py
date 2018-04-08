@@ -22,6 +22,14 @@ logger = logging.getLogger(__name__)
 # define the verification state
 DONE, FAIL, NOT_YET = range(3)
 
+# backward compatible for scapy EAPOL
+try:
+    EAPOL = dot11.EAPOL
+except AttributeError:
+    # incase scapy version >= 2.4.0
+    import scapy.layers.eap as eap
+    EAPOL = eap.EAPOL
+
 
 def is_valid_handshake_capture(handshake_path):
     """
@@ -38,7 +46,7 @@ def is_valid_handshake_capture(handshake_path):
         # pkt is Dot11 and is not retried frame
         if pkt.haslayer(dot11.Dot11) and not pkt.FCfield & (1 << 3):
             # pkt is EAPOL and KEY type
-            if pkt.haslayer(dot11.EAPOL) and pkt[dot11.EAPOL].type == 3:
+            if pkt.haslayer(EAPOL) and pkt[EAPOL].type == 3:
                 eapols.append(pkt)
 
     num_of_frames = len(eapols)
@@ -161,9 +169,9 @@ class Handshakeverify(object):
             key_version = 1 if ord(msg4.load[2]) & 7 else 0
 
             # start to construct the buffer for calculating the MIC
-            msg4_data = format(msg4[dot11.EAPOL].version, '02x') +\
-                format(msg4[dot11.EAPOL].type, '02x') +\
-                format(msg4[dot11.EAPOL].len, '04x')
+            msg4_data = format(msg4[EAPOL].version, '02x') +\
+                format(msg4[EAPOL].type, '02x') +\
+                format(msg4[EAPOL].len, '04x')
             msg4_data += binascii.b2a_hex(msg4.load)[:154]
             msg4_data += "00" * 18
             msg4_data = binascii.a2b_hex(msg4_data)
@@ -198,7 +206,7 @@ class Handshakeverify(object):
         # pkt is Dot11 nad packet is not retried
         if packet.haslayer(dot11.Dot11) and not packet.FCfield & (1 << 3):
             # check it is key type eapol
-            if packet.haslayer(dot11.EAPOL) and packet[dot11.EAPOL].type == 3:
+            if packet.haslayer(EAPOL) and packet[EAPOL].type == 3:
                 return True
         return False
 
