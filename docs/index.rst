@@ -82,6 +82,7 @@ This documentation is also available in `PDF and Epub formats
 .. toctree::
    :titlesonly:
 
+   extensions
    custom_phishing_scenario
    faq
 

@@ -143,6 +143,11 @@ Now we can verify that the captured credentials are valid with the use of AJAX.
                      }
                   );
 
+
+Any request to the /backend/ handler will be processed by all extensions that
+have registered a backend method. It's the extension's responsibility to figure
+out if the submitted data was intended for itself and not for another extension.
+
 That's it! For a full example, it is recommended to go through the code of
 Wifiphisher extension "pskverify" that verifies the validity of a captured
 Pre-Shared Key over a network dump that contains the four-way handshake. This
