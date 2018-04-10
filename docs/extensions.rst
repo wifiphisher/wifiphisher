@@ -48,6 +48,7 @@ shared_data is actually a dictionary that holds the following information:
                         'target_ap_encryption': str
                         'target_ap_logo_path': str
                         'rogue_ap_mac': str
+                        'roguehostapd': Hostapd
                         'APs': list
                         'args': args
                     }

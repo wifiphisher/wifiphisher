@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-#pylint: skip-file
+# pylint: skip-file
 import os
 
 dir_of_executable = os.path.dirname(__file__)
@@ -15,6 +15,7 @@ LURE10_EXTENSION = "lure10"
 WPSPBC = "wpspbc"
 KNOWN_BEACONS_EXTENSION = "knownbeacons"
 HANDSHAKE_VALIDATE_EXTENSION = "handshakeverify"
+ROGUEHOSTAPDINFO = "roguehostapdinfo"
 DEFAULT_EXTENSIONS = [DEAUTH_EXTENSION]
 EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
@@ -161,4 +162,4 @@ DENY_MACS_PATH = '/tmp/hostapd.deny'
 # Known Beacons
 KB_INTERVAL = 20
 KB_BUCKET_SIZE = 60
-KB_BEACON_CAP = 0x2105 
+KB_BEACON_CAP = 0x2105

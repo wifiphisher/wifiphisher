@@ -561,6 +561,7 @@ class WifiphisherEngine:
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
                 'rogue_ap_mac': rogue_ap_mac,
+                'roguehostapd': self.access_point.hostapd_object,
                 'APs': APs_context,
                 'args': args
             }
@@ -578,6 +579,8 @@ class WifiphisherEngine:
                 extensions.append(WPSPBC)
             if args.known_beacons:
                 extensions.append(KNOWN_BEACONS_EXTENSION)
+            if not args.force_hostapd:
+                extensions.append(ROGUEHOSTAPDINFO)
             self.em.set_extensions(extensions)
             self.em.init_extensions(shared_data)
             self.em.start_extensions()
