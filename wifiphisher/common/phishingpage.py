@@ -63,15 +63,17 @@ class PhishingTemplate(object):
         self._description = info['description']
         self._payload = False
         self._config_path = os.path.join(constants.PHISHING_PAGES_DIR,
-                                   self._name, 'config.ini')
+                                         self._name, 'config.ini')
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
 
-        # TODO: Use os.path.join instead
-        self._path = constants.PHISHING_PAGES_DIR +\
-            self._name.lower() + "/" + constants.SCENARIO_HTML_DIR
-        self._path_static = constants.PHISHING_PAGES_DIR +\
-            self._name.lower() + "/" + constants.SCENARIO_HTML_DIR + "/static/"
+        self._path = os.path.join(constants.PHISHING_PAGES_DIR,
+                                  self._name.lower(),
+                                  constants.SCENARIO_HTML_DIR)
+        self._path_static = os.path.join(constants.PHISHING_PAGES_DIR,
+                                         self._name.lower(),
+                                         constants.SCENARIO_HTML_DIR,
+                                         'static')
 
         self._context = config_section_map(config_path, 'context')
         self._extra_files = []
@@ -301,7 +303,7 @@ class TemplateManager(object):
         self._templates = {}
 
         for page in page_dirs:
-            if os.path.isdir(page):
+            if os.path.isdir(page) and self.is_valid_template(page)[0]:
                 self._templates[page] = PhishingTemplate(page)
 
         # add all the user templates to the database
@@ -329,21 +331,25 @@ class TemplateManager(object):
         :rtype: tuple
         """
 
+        html = False
         dir_path = os.path.join(self._template_directory, name)
-        tdir = os.listdir(os.path.join(dir_path, constants.SCENARIO_HTML_DIR))
+        # check config file...
+        if not "config.ini" in os.listdir(dir_path):
+            return False, "Configuration file not found in: "
+        try:
+            tdir = os.listdir(os.path.join(dir_path, constants.SCENARIO_HTML_DIR))
+        except OSError:
+            return False, "No " + constants.SCENARIO_HTML_DIR + " directory found in: "
         # Check HTML files...
         for tfile in tdir:
             if tfile.endswith(".html"):
                 html = True
                 break
         if not html:
-            return False, "No HTML files found in: " 
-        # check config file...
-        if not "config.ini" in os.listdir(dir_path):
-                return False, "Configuration file not found in: "
+            return False, "No HTML files found in: "
         # and if we found them all return true and template directory name
         return True, name
-      
+
     def find_user_templates(self):
         """
         Return all the user's templates available.
