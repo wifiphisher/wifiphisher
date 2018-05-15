@@ -78,7 +78,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 # WORKAROUND: Download tornado 4.5.3 instead of latest so travis won't complain
-INSTALL_REQUIRES = ["PyRIC", "tornado==4.5.3", "dbus-python",
+INSTALL_REQUIRES = ["PyRIC", "tornado==4.5.3",
                     "pbkdf2", "roguehostapd", "scapy"]
 CMDCLASS = {"clean": CleanCommand,}
 

@@ -13,12 +13,7 @@ install:
   - pip install tornado==4.5.3
   - python setup.py install
 
-# We need system's site_packages for python-dbus.
-virtualenv:
-    system_site_packages: true
-
 script:
-  - export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
   - pylint --errors-only wifiphisher
   - tox -e ALL
 
@@ -51,6 +46,3 @@ addons:
         packages:
           - hostapd
           - dnsmasq
-          - python-dbus
-          - libdbus-1-dev
-          - libdbus-glib-1-dev

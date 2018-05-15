@@ -5,10 +5,10 @@ the program
 
 import random
 from collections import defaultdict
+from subprocess import check_output
 import logging
 import pyric
 import pyric.pyw as pyw
-import dbus
 import wifiphisher.common.constants as constants
 
 logger = logging.getLogger("wifiphisher.interfaces")
@@ -822,29 +822,6 @@ def is_add_vif_required(args):
     return perfect_card, is_single_perfect_phy
 
 
-def get_network_manager_objects(system_bus):
-    """
-    Get the required objects that implement the given interface_paths
-
-    :param system_bus: SystemBus used to control the NetworkManager
-    :type system_bus: dbus.SystemBus
-    :return tuple of network manager and property accesser
-    :rtype: tuple
-    """
-
-    # get the network manager proxy
-    network_manager_proxy = system_bus.get_object(
-        constants.NM_APP_PATH, constants.NM_MANAGER_OBJ_PATH)
-    # get the network manager object that implements the NM_MANAGER_INTERFACE
-    network_manager = dbus.Interface(
-        network_manager_proxy,
-        dbus_interface=constants.NM_MANAGER_INTERFACE_PATH)
-    # get the network manager prperty accesser
-    prop_accesser = dbus.Interface(
-        network_manager_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
-    return network_manager, prop_accesser
-
-
 def is_managed_by_network_manager(interface_name):
     """
     Check if the interface is managed by NetworkManager
@@ -853,41 +830,22 @@ def is_managed_by_network_manager(interface_name):
     :type interface_name: str
     :return if managed by NetworkManager return True
     :rtype: bool
-    .. note: When the NetworkManager service is not running, using bus.get_object
-        will raise the exception. It's safe to pass this exception since when
-        NetworkManger doesn't run, the manage property will be unmanaged.
-
-        We first create the network_manager_proxy first, and use it to get the
-        network_manager object that implements the interface NM_MANAGER_INTERFACE_PATH.
-        This network_manager object can then get all the assoicated devices, and we can
-        uses these devices' paths to get the device objects. After finding the target
-        device object we can then check if this device is managed by NetworkManager or not.
     """
 
-    bus = dbus.SystemBus()
     is_managed = False
     try:
-        # we only need the first returning value for network manager object
-        network_manager = get_network_manager_objects(bus)[0]
-        # get all the wireless devices
-        devices = network_manager.GetDevices()
-        for dev_obj_path in devices:
-            # get the device proxy object
-            device_proxy = bus.get_object(constants.NM_APP_PATH, dev_obj_path)
-
-            # get the device object that implements the PROPERTIES_IFACE interface
-            device = dbus.Interface(
-                device_proxy, dbus_interface=dbus.PROPERTIES_IFACE)
-
-            # check if the device is the target interface
-            if device.Get(constants.NM_DEV_INTERFACE_PATH,
-                          'Interface') == interface_name:
-                is_managed = device.Get(constants.NM_DEV_INTERFACE_PATH,
-                                        'Managed')
-                break
-    except dbus.exceptions.DBusException:
-        # NetworkManager service is not running so the devices must be unmanaged
+        out = check_output(["nmcli", "dev"])
+        for l in out.splitlines():
+            #TODO: If the device is managed and user has nmcli installed, 
+            # we can probably do a "nmcli dev set wlan0 managed no"
+            if interface_name in l and "unmanaged" not in l:
+                is_managed = True
+    # NetworkManager service is not running so the devices must be unmanaged 
+    # (CalledProcessError)
+    # Or nmcli is not installed...
+    except:
         pass
+
     return bool(is_managed)
 
 
