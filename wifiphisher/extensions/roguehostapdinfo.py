@@ -91,9 +91,9 @@ class Roguehostapdinfo(object):
         macssid_pairs = self._mac2ssid_dict.items()
         for mac, ssid in macssid_pairs:
             if mac not in self._known_beacon_ssids:
-                outputstr = "Victim " + mac + " probed for WLAN with ESSID " + ssid + " (KARMA)"
+                outputstr = "Victim " + mac + " probed for WLAN with ESSID: '" + ssid + "' (KARMA)"
             else:
-                outputstr = "Victim " + mac + " probed for WLAN with ESSID " + ssid + " (Known Beacons)"
+                outputstr = "Victim " + mac + " probed for WLAN with ESSID: '" + ssid + "' (Known Beacons)"
             info.append(outputstr)
         return info
 
