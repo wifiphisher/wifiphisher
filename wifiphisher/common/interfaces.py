@@ -606,7 +606,7 @@ class NetworkManager(object):
 
     def get_interface_automatically(self):
         """
-        Return a name of two interfaces
+        Returns a tuple of two interfaces
         :param self: A NetworkManager object
         :param self: NetworkManager
         :return: Name of monitor interface followed by AP interface
@@ -820,15 +820,25 @@ def is_add_vif_required(args):
     # sort with score
     vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
 
-    perfect_card, is_single_perfect_phy = get_perfect_card(
-        phy_to_vifs, vif_score_tuples)
+    use_one_phy = False
+    if args.interface:
+        card = pyw.getcard(args.interface)
+        phy_number = card.phy
+        if phy_to_vifs[card.phy][0][1] == 2:
+            perfect_card = card
+            use_one_phy = True
+    else:
+        perfect_card, use_one_phy = get_perfect_card(
+            phy_to_vifs, vif_score_tuples)
 
-    return perfect_card, is_single_perfect_phy
+    return perfect_card, use_one_phy
 
 
 def is_managed_by_network_manager(interface_name):
     """
     Check if the interface is managed by NetworkManager
+    At this point NetworkManager may or may not be running.
+    If it's not running, nothing is returned.
 
     :param interface_name: An interface name
     :type interface_name: str
@@ -838,7 +848,9 @@ def is_managed_by_network_manager(interface_name):
 
     is_managed = False
     try:
-        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], stdout=PIPE)
+        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], 
+        stdout=constants.DN,
+        stderr=PIPE)
         out, err = nmcli_process.communicate()
 
         if err == None and out != "":

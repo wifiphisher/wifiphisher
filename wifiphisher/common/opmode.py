@@ -32,7 +32,9 @@ class OpMode(object):
 
         self.op_mode = 0x0
         # True if the system only contains one phy interface
-        self._is_one_phy_interface = False
+        # or if the user wants us to use only one phy
+        # e.g. using the --interface option
+        self._use_one_phy = False
         # The card which supports monitor and ap mode
         self._perfect_card = None
 
@@ -47,7 +49,7 @@ class OpMode(object):
         :rtype: None
         """
 
-        self._perfect_card, self._is_one_phy_interface =\
+        self._perfect_card, self._use_one_phy =\
             interfaces.is_add_vif_required(args)
         self._check_args(args)
 
@@ -116,7 +118,7 @@ class OpMode(object):
 
         # if args.deauth_essid is set we need the second card to
         # do the frequency hopping
-        if args.deauth_essid and self._is_one_phy_interface:
+        if args.deauth_essid and self._use_one_phy:
             print('[' + constants.R + '!' + constants.W +
                   '] Only one card was found. Wifiphisher will deauth only '
                   'on the target AP channel')
@@ -179,7 +181,7 @@ class OpMode(object):
         """
 
         if not args.internetinterface and not args.noextensions:
-            if not self._is_one_phy_interface:
+            if not self._use_one_phy:
                 # check if there is WPS association interface
                 if args.wpspbc_assoc_interface:
                     self.op_mode = constants.OP_MODE7
@@ -188,6 +190,9 @@ class OpMode(object):
                     self.op_mode = constants.OP_MODE1
                     logger.info("Starting OP_MODE1 (0x1)")
             else:
+                # TODO: We should not add any vifs here.
+                # These should happen after the interface 
+                # checks in main engine
                 if self._perfect_card is not None:
                     network_manager.add_virtual_interface(self._perfect_card)
                 # check if there is WPS association interface
@@ -198,7 +203,7 @@ class OpMode(object):
                     self.op_mode = constants.OP_MODE5
                     logger.info("Starting OP_MODE5 (0x5)")
         if args.internetinterface and not args.noextensions:
-            if not self._is_one_phy_interface:
+            if not self._use_one_phy:
                 self.op_mode = constants.OP_MODE2
                 logger.info("Starting OP_MODE2 (0x2)")
             else:
