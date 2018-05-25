@@ -39,6 +39,14 @@ def parse_args():
     # Create the arguments
     parser = argparse.ArgumentParser()
 
+    # Interface selection
+    parser.add_argument(
+        "-i",
+        "--interface",
+        help=("Manually choose an interface that supports both AP and monitor " + 
+              "modes for spawning the rogue AP as well as mounting additional " +
+              "Wi-Fi attacks from Extensions (i.e. deauth). " +
+              "Example: -i wlan1"))
     parser.add_argument(
         "-eI",
         "--extensionsinterface",
@@ -49,12 +57,26 @@ def parse_args():
         "--apinterface",
         type=opmode.validate_ap_interface,
         help=("Manually choose an interface that supports AP mode for  " +
-              "spawning an AP. " + "Example: -aI wlan0"))
+              "spawning the rogue AP. " + "Example: -aI wlan0"))
     parser.add_argument(
         "-iI",
         "--internetinterface",
         help=("Choose an interface that is connected on the Internet" +
               "Example: -iI ppp0"))
+    # MAC address randomization
+    parser.add_argument(
+        "-iAM",
+        "--mac-ap-interface",
+        help=("Specify the MAC address of the AP interface"))
+    parser.add_argument(
+        "-iEM",
+        "--mac-extensions-interface",
+        help=("Specify the MAC address of the extensions interface"))
+    parser.add_argument(
+        "-iNM",
+        "--no-mac-randomization",
+        help=("Do not change any MAC address"),
+        action='store_true')
     parser.add_argument(
         "-nE",
         "--noextensions",
@@ -71,7 +93,6 @@ def parse_args():
         help=("Enter the ESSID of the rogue Access Point. " +
               "This option will skip Access Point selection phase. " +
               "Example: --essid 'Free WiFi'"))
-    # TODO: Would be cool to optionally provide ESSID (i.e. -dE "foo")
     parser.add_argument(
         "-dE",
         "--deauth-essid",
@@ -112,19 +133,6 @@ def parse_args():
         help=("Fool the Windows Location Service of nearby Windows users "
               "to believe it is within an area that was previously captured "
               "with --lure10-capture. Part of the Lure10 attack."))
-    parser.add_argument(
-        "-iAM",
-        "--mac-ap-interface",
-        help=("Specify the MAC address of the AP interface"))
-    parser.add_argument(
-        "-iEM",
-        "--mac-extensions-interface",
-        help=("Specify the MAC address of the extensions interface"))
-    parser.add_argument(
-        "-iNM",
-        "--no-mac-randomization",
-        help=("Do not change any MAC address"),
-        action='store_true')
     parser.add_argument(
         "--logging", help=("Log activity to file"), action="store_true")
     parser.add_argument(
@@ -382,7 +390,7 @@ class WifiphisherEngine:
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                     "rogue Access Point").format(G, W, ap_iface)
-                logger.info("Selecting {} interface for rouge access point"
+                logger.info("Selecting {} interface for rogue Access Point"
                             .format(ap_iface))
 
             # make sure interfaces are not blocked
