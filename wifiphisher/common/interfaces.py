@@ -606,7 +606,7 @@ class NetworkManager(object):
 
     def get_interface_automatically(self):
         """
-        Return a name of two interfaces
+        Returns a tuple of two interfaces
         :param self: A NetworkManager object
         :param self: NetworkManager
         :return: Name of monitor interface followed by AP interface
@@ -820,10 +820,18 @@ def is_add_vif_required(args):
     # sort with score
     vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
 
-    perfect_card, is_single_perfect_phy = get_perfect_card(
-        phy_to_vifs, vif_score_tuples)
+    use_one_phy = False
+    if args.interface:
+        card = pyw.getcard(args.interface)
+        phy_number = card.phy
+        if phy_to_vifs[card.phy][0][1] == 2:
+            perfect_card = card
+            use_one_phy = True
+    else:
+        perfect_card, use_one_phy = get_perfect_card(
+            phy_to_vifs, vif_score_tuples)
 
-    return perfect_card, is_single_perfect_phy
+    return perfect_card, use_one_phy
 
 
 def is_managed_by_network_manager(interface_name):
