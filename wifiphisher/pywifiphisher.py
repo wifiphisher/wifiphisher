@@ -290,6 +290,11 @@ class WifiphisherEngine:
 
     def start(self):
 
+        # First of - are you root?
+        if os.geteuid():
+            logger.error("Non root user detected")
+            sys.exit('[' + R + '-' + W + '] Please run as root')
+
         # Parse args
         global args, APs
         args = parse_args()
@@ -301,11 +306,6 @@ class WifiphisherEngine:
         self.opmode.initialize(args)
         # Set operation mode
         self.opmode.set_opmode(args, self.network_manager)
-
-        # Are you root?
-        if os.geteuid():
-            logger.error("Non root user detected")
-            sys.exit('[' + R + '-' + W + '] Please run as root')
 
         self.network_manager.start()
 
