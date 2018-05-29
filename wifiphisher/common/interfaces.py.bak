@@ -8,9 +8,49 @@ import collections
 import logging
 import pyric
 import pyric.pyw as pyw
+import dbus
 import wifiphisher.common.constants as constants
 
 LOGGER = logging.getLogger("wifiphisher.interfaces")
+
+"""
+    def add_virtual_interface(self, card):
+        Add the virtual interface to the host system
+        :param self: A NetworkManager object
+        :param card: A pyw.Card object
+        :type self: NetworkManager
+        :type card: pyw.Card
+        :return name of the interface
+        :rtype str
+        :..note: when add the interface it is possible raising the
+        pyric.error causing by adding the duplicated wlan interface
+        name.
+
+        done_flag = True
+        number = 0
+        while done_flag:
+            try:
+                number += 1
+                name = 'wlan' + str(number)
+                pyw.down(card)
+                monitor_card = pyw.devadd(card, name, 'monitor')
+                done_flag = False
+            # catch if wlan1 is already exist
+            except pyric.error:
+                pass
+        self._vifs_add.add(monitor_card)
+        return name
+
+    def remove_vifs_added(self):
+        Remove all the added virtual interfaces
+        :param self: A NetworkManager object
+        :type self: NetworkManager
+        :return: None
+        :rtype: None
+
+        for card in self._vifs_add:
+            pyw.devdel(card)
+"""
 
 
 def set_interface_mac(interface_name, mac_address=None, generate_random=True):
@@ -25,33 +65,31 @@ def set_interface_mac(interface_name, mac_address=None, generate_random=True):
     :type interface_name: str
     :type mac_address: str
     :type random: bool
-    :return: result(status, old_mac_address, new_mac_address)
-    :rtype: namedtuple(bool, str, str)
+    :return: True if operation was successful and False otherwise
+    :rtype: bool
     .. note: This method will set the interface to managed mode
     """
-    result_tuple = collections.namedtuple(
-        "result", "status, old_mac_address, new_mac_address")
-    status = False
-    old_mac_address = None
-    new_mac_address = mac_address
+    address = mac_address
+    succeeded = False
 
     if generate_random:
-        new_mac_address = "00:00:00:{:02x}:{:02x}:{:02x}".format(
+        address = "00:00:00:{:02x}:{:02x}:{:02x}".format(
             random.randint(0, 255), random.randint(0, 255),
             random.randint(0, 255))
 
-    card_result = get_interface_card(interface_name)
+    if address:
+        card = pyw.getcard(interface_name)
+        set_interface_mode(interface_name, "managed", card)
 
-    if new_mac_address and card_result.status and set_interface_mode(
-            interface_name, "managed", card_result.card):
         try:
-            old_mac_address = pyw.macget(card_result.card)
-            pyw.macset(card_result.card, new_mac_address)
-            status = True
-        except pyric.error:
-            LOGGER.exception("Failed to change MAC address!")
+            pyw.macset(card, address)
+            succeeded = True
+        except pyric.error as error:
+            LOGGER.warning(
+                "MAC address was not changed due to this error:\n{}".format(
+                    error))
 
-    return result_tuple(status, old_mac_address, new_mac_address)
+    return succeeded
 
 
 def set_interface_mode(interface_name, mode, card=None):
@@ -73,17 +111,18 @@ def set_interface_mode(interface_name, mode, card=None):
     succeeded = False
 
     if not card:
-        interface_card = get_interface_card(interface_name).card
+        interface_card = pyw.getcard(interface_name)
 
-    if interface_card and pyw.validcard(interface_card) and turn_interface(
-            interface_name, on=False, card=interface_card):
-        try:
-            pyw.modeset(interface_card, mode)
-        except pyric.error:
-            LOGGER.exception("Failed to set %s to %s", interface_name, mode)
-        else:
-            succeeded = turn_interface(
-                interface_name, on=True, card=interface_card)
+    turn_interface(interface_name, on=False, card=interface_card)
+
+    try:
+        pyw.modeset(interface_card, mode)
+        succeeded = True
+    except pyric.error as error:
+        LOGGER.warning("Failed to set {} to {}:\n{}".format(
+            interface_name, mode, error))
+
+    turn_interface(interface_name, on=True, card=interface_card)
 
     return succeeded
 
@@ -105,19 +144,17 @@ def turn_interface(interface_name, on=True, card=None):
     succeeded = False
 
     if not card:
-        interface_card = get_interface_card(interface_name).card
+        interface_card = pyw.getcard(interface_name)
 
-    if interface_card and pyw.validcard(interface_card):
-        try:
-            if on:
-                pyw.up(interface_card)
-            else:
-                pyw.down(interface_card)
-        except pyric.error:
-            state = "ON" if on else "OFF"
-            LOGGER.exception("Failed to turn %s %s!", interface_name, state)
+    try:
+        if on:
+            pyw.up(interface_card)
         else:
-            succeeded = True
+            pyw.down(interface_card)
+        succeeded = True
+    except pyric.error as error:
+        LOGGER.warning("Failed to turn {} {}:\n{}".format(
+            interface_name, "ON" if on else "OFF", error))
 
     return succeeded
 
@@ -140,66 +177,43 @@ def set_interface_channel(interface_name, channel, card=None):
     succeeded = False
 
     if not card:
-        interface_card = get_interface_card(interface_name).card
+        interface_card = pyw.getcard(interface_name)
 
-    if interface_card and pyw.validcard(interface_card):
-        try:
-            pyw.chset(interface_card, channel)
-        except pyric.error:
-            LOGGER.exception("Failed to set %s to channel %s", interface_name,
-                             channel)
-        else:
-            succeeded = True
+    try:
+        pyw.chset(interface_card, channel)
+    except pyric.error as error:
+        LOGGER.warning("Failed to set {} to channel {}:\n{}".format(
+            interface_name, channel, error))
 
     return succeeded
 
 
 def find_interface(mode, exclude=[]):
     """
-    Return an interface with the given mode. The function prioritizes
-    physical interfaces over virtual ones.
-
-    :param mode: An operation mode
-    :param exclude: An interface to exclude
-    :type mode: str
-    :type exclude: [str,]
-    :return: result(status, interface_name, is_virtual)
-    :rtype: namedtuple(bool, str, bool)
-    .. note: exclude does not exclude the interface from search. It
-        only gives priority to other physical interfaces
-    :Example:
-
-        # assuming 2 interface
-        # name      modes
-        # wlan1 - AP, monitor
-        # wlan2 - monitor
-        >>> result = find_interface("monitor", exclude=["wlan1"])
-        >>> result.status
-        True
-        >>> result.interface_name
-        'wlan2'
-        >>> result.is_virtual
-        False
     """
     interface = None
     alternative_interface = None
+    all_wireless_interfaces = pyw.winterfaces()
     result_tuple = collections.namedtuple("result",
                                           "status, interface_name, is_virtual")
+    result = result_tuple(True, None, False)
 
-    for wireless_interface in pyw.winterfaces():
-        if has_mode(wireless_interface, mode):
-            if wireless_interface not in exclude:
-                interface = wireless_interface
-                break
-            elif not alternative_interface:
-                alternative_interface = wireless_interface
+    for wireless in all_wireless_interfaces:
+        has_mode = has_modes(wireless, mode)
+
+        if has_mode and wireless not in exclude:
+            interface = wireless
+            break
+        elif not alternative_interface and has_mode:
+            alternative_interface = wireless
 
     if interface:
-        result = result_tuple(True, interface, False)
+        result.interface_name = interface
     elif alternative_interface:
-        result = result_tuple(True, alternative_interface, True)
+        result.interface_name = alternative_interface
+        result.is_virtual = True
     else:
-        result = result_tuple(False, None, False)
+        result.status = False
 
     return result
 
@@ -219,11 +233,11 @@ def setup_interfaces(monitor_interface=None,
         if monitor_interface == ap_interface:
             result.status = False
             result.error_message = "Monitor interface and AP interface can not be the same"
-        elif not has_mode(monitor_interface, "monitor"):
+        elif not is_interface_valid(monitor_interface, "monitor"):
             result.status = False
             result.error_message = "Monitor interface {} is invalid".format(
                 monitor_interface)
-        elif not has_mode(ap_interface, "AP"):
+        elif not is_interface_valid(ap_interface, "AP"):
             result.status = False
             result.error_message = "AP interface {} is invalid".format(
                 ap_interface)
@@ -231,7 +245,7 @@ def setup_interfaces(monitor_interface=None,
             result.monitor_interface = monitor_interface
             result.ap_interface = ap_interface
     elif monitor_interface:
-        if has_mode(monitor_interface, "monitor"):
+        if is_interface_valid(monitor_interface, "monitor"):
             find_result = find_interface("AP", exclude=[monitor_interface])
 
             if find_result.status:
@@ -247,7 +261,7 @@ def setup_interfaces(monitor_interface=None,
             result.error_message = "Monitor interface {} is invalid".format(
                 monitor_interface)
     elif ap_interface:
-        if has_mode(ap_interface, "AP"):
+        if is_interface_valid(ap_interface, "AP"):
             find_result = find_interface("monitor", exclude=[ap_interface])
 
             if find_result.status:
@@ -280,80 +294,36 @@ def setup_interfaces(monitor_interface=None,
             result.ap_interface = find_ap_result.interface_name
             result.ap_virtual = find_ap_result.is_virtual
 
-    if internet_interface and result.status and not pyw.isinterface(
-            internet_interface):
+    if internet_interface and result.status and not pyw.isinterface(internet_interface):
         result.status = False
-        result.error_message = "Internet interface {} is invalid".format(
-            internet_interface)
+        result.error_message = "Internet interface {} is invalid".format(internet_interface)
 
     return result
 
 
-def has_mode(interface_name, mode):
+def is_interface_valid(interface_name, mode):
     """
-    Return whether the provided interface has the provided mode
+    """
+    return pyw.isinterface(interface_name) and has_modes(interface_name, mode)
 
-    :param interface_name: Name of the interface
-    :param mode: Mode of operation
-    :type interface_name: str
+
+def has_modes(interface, mode):
+    """
+    Return whether the provided interface has the provided modes
+
+    :param interface: Name of the interface
+    :param mode: Modes of operation
+    :type interface: str
     :type mode: list
     :return: True if interface has the mode and False otherwise
     :rtype: bool
     :Example:
 
-        >>> has_mode("DoesNotExist", "AP")
-        False
-
-        >>> has_mode("HasAP", "AP")
+        >>> does_have_mode("wlan0", ["AP"])
         True
 
-        >>> has_mode("NoMonitor", "monitor")
+        >>> does_have_mode("wlan1", ["monitor", "AP"])
         False
     """
-    modes = []
-
-    card_result = get_interface_card(interface_name)
-
-    if card_result.status:
-        try:
-            modes = pyw.devmodes(card_result.card)
-        except pyric.error:
-            LOGGER.exception("Failed to check if %s has %s mode",
-                             interface_name, mode)
-
-    return mode in modes
-
-
-def get_interface_card(interface_name):
-    """
-    return the card object for the given interface
-
-    :param interface_name: Name of an interface
-    :type interface_name: str
-    :return: result(status, card)
-    :rtype: namedtuple(bool, pyric.pyw.Card)
-    :Example:
-
-        >>> result = get_interface_card("valid_card")
-        >>> result.status
-        True
-        >>> result.card
-        Card(phy=0,dev=valid_card, ifindex=3)
-
-        >>> result = get_interface_card("bad_card")
-        >>> result.status
-        False
-    """
-    result_tuple = collections.namedtuple("result", "status, card")
-    status = False
-    card = None
-
-    try:
-        card = pyw.getcard(interface_name)
-    except pyric.error:
-        LOGGER.exception("Failed to get the card object for %s",
-                         interface_name)
-    else:
-        status = True
-
-    return result_tuple(status, card)
+    card = pyw.getcard(interface)
+    return mode in pyw.devmodes(card)
