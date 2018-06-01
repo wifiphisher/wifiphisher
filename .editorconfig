@@ -16,3 +16,7 @@ trim_trailing_whitespace = false
 [{.travis.yml}]
 indent_style = space
 indent_size = 2
+
+# Tab indentation (no size specified)
+[Makefile]
+indent_style = tab
