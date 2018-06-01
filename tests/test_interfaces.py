@@ -130,7 +130,7 @@ def test_turn_interface_on_sucess(mock_pyric):
     """
     mock_pyric.up.return_value = True
 
-    assert interfaces.turn_interface("wlan", on=True, card="card") is True
+    assert interfaces.turn_interface("wlan", turn_on=True, card="card") is True
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -141,7 +141,8 @@ def test_turn_interface_on_fail(mock_pyric):
     """
     mock_pyric.up.side_effect = pyric.error(1, "test")
 
-    assert interfaces.turn_interface("wlan", on=True, card="card") is False
+    assert interfaces.turn_interface(
+        "wlan", turn_on=True, card="card") is False
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -152,7 +153,8 @@ def test_turn_interface_off_fail(mock_pyric):
     """
     mock_pyric.down.side_effect = pyric.error(1, "test")
 
-    assert interfaces.turn_interface("wlan", on=False, card="card") is False
+    assert interfaces.turn_interface(
+        "wlan", turn_on=False, card="card") is False
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -163,7 +165,8 @@ def test_turn_interface_off_success(mock_pyric):
     """
     mock_pyric.down.return_value = True
 
-    assert interfaces.turn_interface("wlan", on=False, card="card") is True
+    assert interfaces.turn_interface(
+        "wlan", turn_on=False, card="card") is True
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -174,7 +177,8 @@ def test_turn_interface_card_success(mock_pyric):
     """
     # mock_pyric.getcard.return_value = True
 
-    assert interfaces.turn_interface("somecard", on=False, card=None) is True
+    assert interfaces.turn_interface(
+        "somecard", turn_on=False, card=None) is True
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -184,8 +188,7 @@ def test_get_interface_card_valid(mock_pyric):
 
     result = interfaces.get_interface_card("valid_card")
 
-    assert result.status is True
-    assert result.card == "card"
+    assert result == "card"
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -195,7 +198,7 @@ def test_get_interface_card_invalid(mock_pyric):
 
     result = interfaces.get_interface_card("valid_card")
 
-    assert result.status is False
+    assert result is None
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -391,7 +394,8 @@ def test_find_interface_available_physical_failed(mock_pyric):
     mock_pyric.getcard.return_value = "card"
     mock_pyric.devmodes.side_effect = [["AP", "monitor"], ["AP"]]
 
-    assert interfaces.find_interface("monitor") == (True, "ap-mon", False)
+    assert interfaces.find_interface("monitor") == interfaces.FindResult(
+        "ap-mon", False)
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -401,7 +405,8 @@ def test_find_interface_none_failed(mock_pyric):
     """
     mock_pyric.winterfaces.return_value = []
 
-    assert interfaces.find_interface("monitor") == (False, None, False)
+    assert interfaces.find_interface("monitor") == interfaces.FindResult(
+        "", False)
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -416,7 +421,8 @@ def test_find_interface_available_virtual_success(mock_pyric):
     mock_pyric.devmodes.side_effect = [["AP", "monitor"]]
 
     assert interfaces.find_interface(
-        "monitor", exclude=[interface]) == (True, interface, True)
+        "monitor", exclude=[interface]) == interfaces.FindResult(
+            interface, True)
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -432,7 +438,8 @@ def test_find_interface_multiple_available_physical_success(mock_pyric):
     mock_pyric.devmodes.side_effect = [["AP", "monitor"], ["AP"]]
 
     assert interfaces.find_interface(
-        "AP", exclude=[excluded]) == (True, should_select, False)
+        "AP", exclude=[excluded]) == interfaces.FindResult(
+            should_select, False)
 
 
 @mock.patch("wifiphisher.common.interfaces.pyw")
@@ -445,4 +452,29 @@ def test_find_interface_multiple_not_available_failed(mock_pyric):
     mock_pyric.getcard.return_value = "card"
     mock_pyric.devmodes.side_effect = [["AP"], ["AP"]]
 
-    assert interfaces.find_interface("monitor") == (False, None, False)
+    assert interfaces.find_interface("monitor") == interfaces.FindResult(
+        "", False)
+
+
+@mock.patch("wifiphisher.common.interfaces.pyw")
+def test_validate_or_find_interface_valid_interface_valid_mode_return_valid(
+        mock_pyric):
+    """
+    """
+    interface_name = "test"
+    mode = "AP"
+    mock_pyric.isinterface.return_value = True
+    mock_pyric.devmodes.return_value = [mode]
+
+    assert interfaces.validate_or_find_interface(
+        interface_name, mode) == interfaces.FindResult(interface_name, False)
+
+
+@mock.patch("wifiphisher.common.interfaces.pyw")
+def test_validate_or_find_interface_no_interface_return_valid(mock_pyric):
+    """
+    """
+    interface_name = "test"
+    mode = "AP"
+    mock_pyric.winterfaces.return_value = [interface_name]
+    mock_pyric.devmodes.return_value = [mode]
