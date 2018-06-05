@@ -387,6 +387,27 @@ class NetworkManager(object):
         else:
             raise InvalidValueError(value, bool)
 
+    def nm_unmanage(self, interface):
+        """
+        Set an interface to unmanaged.
+
+        :param interface: Name of the interface
+        :type interface: str
+
+        :return: True upon success
+        :rtype bool
+        """
+
+        try:
+            out = check_output(["nmcli", "dev",  interface, "managed", "no"])
+        # (CalledProcessError)
+        except:
+            raise InterfaceManagedByNetworkManagerError(interface)
+
+        # Make sure.
+        if not is_managed_by_network_manager(interface):
+            raise InterfaceManagedByNetworkManagerError(interface)
+
     def is_interface_valid(self, interface_name, mode=None):
         """
         Check if interface is valid
@@ -421,9 +442,10 @@ class NetworkManager(object):
         if mode == "internet" or mode == "WPS":
             self._exclude_shutdown.add(interface_name)
         # raise an error if interface doesn't support the mode
-        if mode != "internet" and interface_adapter.is_managed_by_nm\
+        if mode != "internet" and interface_adapter.is_managed_by_nm \
                 and self.internet_access_enable:
-            raise InterfaceManagedByNetworkManagerError(interface_name)
+            # TODO: This is a check method. This should be done elsewhere.
+            self.nm_unmanage(interface_name)
         if mode == "monitor" and not interface_adapter.has_monitor_mode:
             raise InvalidInterfaceError(interface_name, mode)
         elif mode == "AP" and not interface_adapter.has_ap_mode:
@@ -923,3 +945,4 @@ def does_have_mode(interface, mode):
     card = pyric.pyw.getcard(interface)
 
     return mode in pyric.pyw.devmodes(card)
+

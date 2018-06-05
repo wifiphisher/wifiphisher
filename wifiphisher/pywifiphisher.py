@@ -53,8 +53,14 @@ def parse_args():
     parser.add_argument(
         "-iI",
         "--internetinterface",
-        help=("Choose an interface that is connected on the Internet" +
+        help=("Choose an interface that is connected on the Internet. " +
               "Example: -iI ppp0"))
+    parser.add_argument(
+        "-pI",
+        "--protectinterface",
+        nargs='+',
+        help=("Choose an interface that you want to protect and persist its connection. " +
+              "Example: -pI wlan1"))
     parser.add_argument(
         "-nE",
         "--noextensions",
@@ -382,7 +388,7 @@ class WifiphisherEngine:
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                     "rogue Access Point").format(G, W, ap_iface)
-                logger.info("Selecting {} interface for rouge access point"
+                logger.info("Selecting {} interface for rogue Access Point"
                             .format(ap_iface))
 
             # make sure interfaces are not blocked
@@ -401,7 +407,11 @@ class WifiphisherEngine:
             time.sleep(1)
             self.stop()
 
-        if not args.internetinterface:
+        if args.protectinterface:
+            for iface in args.protectinterface:
+                self.network_manager.nm_unmanage(iface)
+
+        if not args.internetinterface and not args.protectinterface:
             kill_interfering_procs()
             logger.info("Killing all interfering processes")
 
