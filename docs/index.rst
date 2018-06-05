@@ -84,6 +84,7 @@ This documentation is also available in `PDF and Epub formats
 
    extensions
    custom_phishing_scenario
+   opmodes
    faq
 
 * :ref:`genindex`
