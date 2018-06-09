@@ -43,7 +43,7 @@ def parse_args():
         "-eI",
         "--extensionsinterface",
         help=("Manually choose an interface that supports monitor mode for " +
-              "deauthenticating the victims. " + "Example: -jI wlan1"))
+              "deauthenticating the victims. " + "Example: -eI wlan1"))
     parser.add_argument(
         "-aI",
         "--apinterface",
