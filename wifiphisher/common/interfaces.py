@@ -20,7 +20,7 @@ current_locale = locale.getdefaultlocale()
 state_unmanaged = "unmanaged"
 
 if current_locale[0] == "ru_RU":
-    state_unmanaged = "не настроенно".splitlines()
+    state_unmanaged = "\xd0\xbd\xd0\xb5 \xd0\xbd\xd0\xb0\xd1\x81\xd1\x82\xd1\x80\xd0\xbe\xd0\xb5\xd0\xbd\xd0\xbd\xd0\xbe" # не настроенно
 
 
 class InvalidInterfaceError(Exception):
