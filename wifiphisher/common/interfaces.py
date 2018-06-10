@@ -10,8 +10,17 @@ import logging
 import pyric
 import pyric.pyw as pyw
 import wifiphisher.common.constants as constants
+import locale
 
 logger = logging.getLogger("wifiphisher.interfaces")
+
+# definition of the system language and language constants
+current_locale = locale.getdefaultlocale()
+
+state_unmanaged = "unmanaged"
+
+if current_locale[0] == "ru_RU":
+    state_unmanaged = "не настроенно".splitlines()
 
 
 class InvalidInterfaceError(Exception):
@@ -836,11 +845,11 @@ def is_managed_by_network_manager(interface_name):
     try:
         out = check_output(["nmcli", "dev"])
         for l in out.splitlines():
-            #TODO: If the device is managed and user has nmcli installed, 
+            #TODO: If the device is managed and user has nmcli installed,
             # we can probably do a "nmcli dev set wlan0 managed no"
-            if interface_name in l and "unmanaged" not in l:
+            if interface_name in l and state_unmanaged not in l:
                 is_managed = True
-    # NetworkManager service is not running so the devices must be unmanaged 
+    # NetworkManager service is not running so the devices must be unmanaged
     # (CalledProcessError)
     # Or nmcli is not installed...
     except:
