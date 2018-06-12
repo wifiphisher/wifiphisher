@@ -855,6 +855,8 @@ def is_managed_by_network_manager(interface_name):
             logger.error('Error opening the base process')
             logger.error('Ignored checking for managed devices by NM')
 
+        nmcli_process.stdout.close();
+
     # NetworkManager service is not running so the devices must be unmanaged
     # (CalledProcessError)
     # Or nmcli is not installed...
