@@ -838,22 +838,20 @@ def is_managed_by_network_manager(interface_name):
 
     is_managed = False
     try:
-        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], stdout=PIPE);
-        out, err = nmcli_process.communicate();
+        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], stdout=PIPE)
+        out, err = nmcli_process.communicate()
 
-        if err == None:
+        if err == None and out != "":
             for l in out.splitlines():
                 #TODO: If the device is managed and user has nmcli installed,
                 # we can probably do a "nmcli dev set wlan0 managed no"
                 if interface_name in l:
-                    if interface_name in l and "unmanaged" not in l:
+                    if "unmanaged" not in l:
                         is_managed = True
                 else:
-                    logger.error('Error obtaining base process output')
-                    logger.error('Ignored checking for managed devices by NM')
+                    logger.error("Failed to make NetworkManager ignore interface %s", interface_name)
         else:
-            logger.error('Error opening the base process')
-            logger.error('Ignored checking for managed devices by NM')
+            logger.error("Failed to check if interface %s is managed by NetworkManager", interface_name)
 
         nmcli_process.stdout.close();
 
