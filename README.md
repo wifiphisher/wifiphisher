@@ -82,6 +82,7 @@ Following are all the options along with their descriptions (also available with
 | Short form | Long form | Explanation |
 | :----------: | :---------: | :-----------: |
 |-h | --help| show this help message and exit |
+|-i INTERFACE| --interface INTERFACE| Manually choose an interface that supports both AP and monitor modes for spawning the rogue AP as well as mounting additional Wi-Fi attacks from Extensions (i.e. deauth). Example: -i wlan1 |
 |-eI EXTENSIONSINTERFACE| --extensionsinterface EXTENSIONSINTERFACE|	Manually choose an interface that supports monitor mode for running the extensions. Example: -eI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
 |-nJ| --noextensions|	Do not load any extensions.|
