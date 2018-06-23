@@ -9,7 +9,7 @@ python:
   - "2.7"
 
 install:
-  - pip install pylint tox scapy
+  - pip install pylint tox scapy twine
   - pip install tornado==4.5.3
   - python setup.py install
 
@@ -47,3 +47,10 @@ addons:
         packages:
           - hostapd
           - dnsmasq
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: bash deploy.sh
+  on:
+    branch: master
