@@ -95,7 +95,7 @@ main(){
   echo -e "\\e[93m\\u2744\\e[0m Uploading to Github"
   git config --global user.name "release-bot"
   git config --global user.email "release-bot@github.com"
-  local github_url="https://${GH_TOKEN}@github.com/blackHatMonkey/\
+  local github_url="https://${GH_TOKEN}@github.com/wifiphisher/\
   wifiphisher.git"
   git remote add new "${github_url// /}" 
   git add wifiphisher/pywifiphisher.py setup.py changelog.md > /dev/null
@@ -107,7 +107,7 @@ main(){
   # the sed in the data section removes all end of file ($) abd repleaces
   # it with \n since json can only be only line
   curl --silent --show-error -H "Authorization: token ${GH_TOKEN}" \
-  https://api.github.com/repos/blackhatmonkey/wifiphisher/releases -d \
+  https://api.github.com/repos/wifiphisher/wifiphisher/releases -d \
   "{
     \"tag_name\": \"${new_version}\",
     \"name\": \"${new_version} ${code_name}\",
@@ -120,8 +120,7 @@ main(){
 
   echo -e "\\u25b7\\u25b7 Uploading to PYPI"
   python setup.py sdist > /dev/null
-  twine upload --repository-url https://test.pypi.org/legacy/ dist/* \
-  -u "${PYPI_USERNAME}" -p "${PYPI_PASS}" > /dev/null
+  twine upload dist/* -u "${PYPI_USERNAME}" -p "${PYPI_PASS}" > /dev/null
 }
 
 main
