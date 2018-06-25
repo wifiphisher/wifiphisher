@@ -9,13 +9,13 @@ pyric = "*"
 roguehostapd = "*"
 scapy = "*"
 tornado = "*"
-docutils = "*"
-tox = "*"
 
 [dev-packages]
+tox = "*"
 mock = "*"
 pytest = "*"
 sphinx = "*"
+sphinx-rtd-theme = "*"
 
 [requires]
 python_version = "2.7"
