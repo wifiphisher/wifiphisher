@@ -83,6 +83,7 @@ This documentation is also available in `PDF and Epub formats
    :titlesonly:
 
    extensions
+   templates
    custom_phishing_scenario
    opmodes
    faq
