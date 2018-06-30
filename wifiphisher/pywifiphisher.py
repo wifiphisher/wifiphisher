@@ -27,6 +27,7 @@ import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
 import wifiphisher.common.tui as tui
 import wifiphisher.common.opmode as opmode
+from .common.dependencies import check_dependencies
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ def parse_args():
     parser.add_argument(
         "-i",
         "--interface",
-        help=("Manually choose an interface that supports both AP and monitor " + 
+        help=("Manually choose an interface that supports both AP and monitor " +
               "modes for spawning the rogue AP as well as mounting additional " +
               "Wi-Fi attacks from Extensions (i.e. deauth). " +
               "Example: -i wlan1"))
@@ -297,6 +298,10 @@ class WifiphisherEngine:
             print("[{0}!{1}] {2}").format(R, W, err)
 
     def start(self):
+        dependency_result = check_dependencies()
+        if not dependency_result.status:
+            logger.error("{} is needed but not installed."
+                         "Please install and run again".format(dependency_result.name))
 
         # First of - are you root?
         if os.geteuid():

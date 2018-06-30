@@ -20,42 +20,6 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
-def get_dnsmasq():
-    """
-    Try to install dnsmasq on host machine if not present
-
-    :return: None
-    :rtype: None
-    """
-
-    if not os.path.isfile("/usr/sbin/dnsmasq"):
-        install = raw_input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
-                             "in /usr/sbin/dnsmasq, " + "install now? [y/n] "))
-
-        if install == "y":
-            if os.path.isfile("/usr/bin/pacman"):
-                os.system("pacman -S dnsmasq")
-            elif os.path.isfile("/usr/bin/yum"):
-                os.system("yum install dnsmasq")
-            else:
-                os.system("apt-get -y install dnsmasq")
-        else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] dnsmasq " +
-                      "not found in /usr/sbin/dnsmasq"))
-
-    if not os.path.isfile("/usr/sbin/dnsmasq"):
-        dnsmasq_message = ("\n[" + constants.R + "-" + constants.W +
-                           "] Unable to install the \'dnsmasq\' package!\n" + "[" + constants.T +
-                           "*" + constants.W + "] This process requires a persistent internet " +
-                           "connection!\nPlease follow the link below to configure your " +
-                           "sources.list\n" + constants.B + "http://docs.kali.org/general-use/" +
-                           "kali-linux-sources-list-repositories\n" + constants.W + "[" +
-                           constants.G + "+" + constants.W + "] Run apt-get update for changes " +
-                           "to take effect.\n" + "[" + constants.G + "+" + constants.W + "] " +
-                           "Rerun the script to install dnsmasq.\n[" + constants.R + "!" +
-                           constants.W + "] Closing")
-
-        sys.exit(dnsmasq_message)
 
 # setup settings
 NAME = "wifiphisher"
@@ -79,7 +43,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 # WORKAROUND: Download tornado 4.5.3 instead of latest so travis won't complain
 INSTALL_REQUIRES = ["PyRIC", "tornado==4.5.3",
-                    "pbkdf2", "roguehostapd", "scapy"]
+                    "pbkdf2", "roguehostapd", "scapy", "typing"]
 CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
@@ -88,7 +52,6 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
-get_dnsmasq()
 
 print()
 print("                     _  __ _       _     _     _               ")
