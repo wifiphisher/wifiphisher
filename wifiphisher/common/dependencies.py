@@ -4,38 +4,25 @@ This module checks for all the required dependency needed for full
 function.
 """
 
-from typing import NamedTuple
-from subprocess import (check_call, CalledProcessError)
-from .constants import DN
-
-Result = NamedTuple("Result", [("status", bool), ("name", str)])
+from collections import namedtuple
+from distutils.spawn import find_executable
 
 
-def is_installed(application):
-    # type: (str) -> bool
-    """Check if application is installed.
-
-    Return True if application is installed and False otherwise.
-    """
-    try:
-        check_call(["which", application], stdout=DN, stderr=DN)
-    except CalledProcessError:
-        return False
-
-    return True
+Result = namedtuple("Result", ["status", "missing"])
 
 
-def check_dependencies():
+def is_all_dependencies_installed():
     # type: () -> Result
     """Check all required dependencies are installed.
 
     Check to see if all the required depedencies are installed. It will
     return as soon as it finds a missing dependency.
     """
-    dependencies = ["dnsmasq"]
+    dependencies = ["dnsmasq", "roguehostapd"]
+    missing = []  # type: List[str]
 
     for dependency in dependencies:
-        if not is_installed(dependency):
-            return Result(status=False, name=dependency)
+        if not find_executable(dependency):
+            missing.append(dependency)
 
-    return Result(status=True, name="")
+    return Result(status=not missing, missing=missing)
