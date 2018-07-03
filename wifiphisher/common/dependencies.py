@@ -5,10 +5,25 @@ function.
 """
 
 from collections import namedtuple
-from distutils.spawn import find_executable
+from subprocess import (check_call, CalledProcessError)
+from wifiphisher.common.constants import DN
 
 
 Result = namedtuple("Result", ["status", "missing"])
+
+
+def is_installed(application):
+    # type: (str) -> bool
+    """Check if application is installed.
+
+    Return True if application is installed and False otherwise.
+    """
+    try:
+        check_call(["which", application], stdout=DN, stderr=DN)
+    except CalledProcessError:
+        return False
+
+    return True
 
 
 def is_all_dependencies_installed():
@@ -22,7 +37,7 @@ def is_all_dependencies_installed():
     missing = []  # type: List[str]
 
     for dependency in dependencies:
-        if not find_executable(dependency):
+        if not is_installed(dependency):
             missing.append(dependency)
 
     return Result(status=not missing, missing=missing)
