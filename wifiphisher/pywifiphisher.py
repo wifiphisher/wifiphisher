@@ -27,7 +27,7 @@ import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
 import wifiphisher.common.tui as tui
 import wifiphisher.common.opmode as opmode
-from wifiphisher.common.dependencies import is_all_dependencies_installed
+from wifiphisher.common.dependencies import find_missing_dependencies
 
 logger = logging.getLogger(__name__)
 
@@ -298,16 +298,18 @@ class WifiphisherEngine:
             print("[{0}!{1}] {2}").format(R, W, err)
 
     def start(self):
-        dependency_result = is_all_dependencies_installed()
-        if not dependency_result.status:
-            logger.error("The following dependencies are missing:")
-            print("The following dependencies are missing:")
-            for dependency in dependency_result.missing:
+        missing_dependencies = find_missing_dependencies()
+        if missing_dependencies:
+            message = "The following dependencies are missing:"
+            logger.error(message)
+            print(message)
+            for dependency in missing_dependencies:
                 logger.error(dependency)
-                print("dependency")
+                print(dependency)
 
-            logger.error("Please install and try again.")
-            print("Please install and try again.")
+            message = "Please install and try again."
+            logger.error(message)
+            print(message)
             sys.exit()
 
         # First of - are you root?

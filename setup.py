@@ -7,8 +7,6 @@ from __future__ import print_function
 import sys
 import os
 from setuptools import setup, find_packages, Command
-from wifiphisher.common.dependencies import is_all_dependencies_installed
-import wifiphisher.common.constants as constants
 
 
 class CleanCommand(Command):
@@ -53,11 +51,13 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
-print("Checking required dependencies")
-DEPENDENCIES_RESULT = is_all_dependencies_installed()
-if DEPENDENCIES_RESULT.status:
-    print("All dependencies are installed.")
-else:
-    print("The follwoing dependencies are missing:")
-    for dependency in DEPENDENCIES_RESULT.missing:
-        print(dependency)
+print()
+print("                     _  __ _       _     _     _               ")
+print("                    (_)/ _(_)     | |   (_)   | |              ")
+print("  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
+print(r"    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|")
+print(r"   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   ")
+print(r"  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|   ")
+print(r" /     \                    | |                                ")
+print("                            |_|                                ")
+print("                                                               ")

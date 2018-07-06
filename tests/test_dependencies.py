@@ -1,7 +1,7 @@
 import mock
 from subprocess import CalledProcessError
-from wifiphisher.common.dependencies import (is_installed, Result,
-                                             is_all_dependencies_installed)
+from wifiphisher.common.dependencies import (is_installed,
+                                             find_missing_dependencies)
 
 
 @mock.patch(
@@ -21,19 +21,16 @@ def test_is_installed_installed_false(_):
 
 
 @mock.patch(
-    "wifiphisher.common.dependencies.check_call",
-    spec=True,
-    return_value=True)
-def test_is_all_dependencies_installed_all_installed(_):
+    "wifiphisher.common.dependencies.check_call", spec=True, return_value=True)
+def test_find_missing_dependencies_all_installed(_):
     """Test function when all dependecies are installed."""
-    assert is_all_dependencies_installed() == Result(status=True, missing=[])
+    assert find_missing_dependencies() == []
 
 
 @mock.patch(
     "wifiphisher.common.dependencies.check_call",
     spec=True,
     side_effect=CalledProcessError(1, "cmd", None))
-def test_is_all_dependencies_installed_all_not_installed(_):
+def test_find_missing_dependencies_all_not_installed(_):
     """Test function when all not dependecies are installed."""
-    assert is_all_dependencies_installed() == Result(
-        status=False, missing=["dnsmasq", "roguehostapd"])
+    assert find_missing_dependencies()[:2] == ["dnsmasq", "iptables"]

@@ -3,13 +3,13 @@
 This module checks for all the required dependency needed for full
 function.
 """
-
-from collections import namedtuple
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from itertools import ifilterfalse
 from subprocess import (check_call, CalledProcessError)
 from wifiphisher.common.constants import DN
-
-
-Result = namedtuple("Result", ["status", "missing"])
 
 
 def is_installed(application):
@@ -26,18 +26,13 @@ def is_installed(application):
     return True
 
 
-def is_all_dependencies_installed():
-    # type: () -> Result
+def find_missing_dependencies():
+    # type: () -> List[str]
     """Check all required dependencies are installed.
 
     Check to see if all the required depedencies are installed. It will
-    return as soon as it finds a missing dependency.
+    return a list of all missing dependencies.
     """
-    dependencies = ["dnsmasq", "roguehostapd"]
-    missing = []  # type: List[str]
+    dependencies = ["dnsmasq", "iptables"]
 
-    for dependency in dependencies:
-        if not is_installed(dependency):
-            missing.append(dependency)
-
-    return Result(status=not missing, missing=missing)
+    return list(ifilterfalse(is_installed, dependencies))
