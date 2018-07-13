@@ -16,53 +16,15 @@ class AccessPoint(object):
     def __init__(self):
         # type: () -> None
         """Intialize the class."""
-        self.interface = None
-        self.internet_interface = None
-        self.channel = None
-        self.essid = None
-        self.psk = None
+        self.interface = ""
+        self.internet_interface = ""
+        self.channel = ""
+        self.essid = ""
+        self.psk = ""
         self.force_hostapd = False
         # roguehostapd object
         self.hostapd_object = None
         self.deny_mac_addrs = []  # type: List[str]
-
-    def enable_system_hostapd(self):
-        # type: () -> None
-        """Set the interface for the softAP.
-
-        ..note: use hostapd on the system instead of using roguehostapd
-        """
-        self.force_hostapd = True
-
-    def set_interface(self, interface):
-        # type: (str) -> None
-        """Set the interface for the softAP."""
-        self.interface = interface
-
-    def add_deny_macs(self, deny_mac_addrs):
-        # type: (str) -> None
-        """Add the deny mac addresses."""
-        self.deny_mac_addrs.extend(deny_mac_addrs)
-
-    def set_internet_interface(self, interface):
-        # type: (str) -> None
-        """Set the internet interface."""
-        self.internet_interface = interface
-
-    def set_channel(self, channel):
-        # type: (str) -> None
-        """Set the channel for the softAP."""
-        self.channel = channel
-
-    def set_essid(self, essid):
-        # type: (str) -> None
-        """Set the ssid for the softAP."""
-        self.essid = essid
-
-    def set_psk(self, psk):
-        # type: (str) -> None
-        """Set the psk for the softAP."""
-        self.psk = psk
 
     def start_dhcp_dns(self):
         # type: () -> None
@@ -84,8 +46,8 @@ class AccessPoint(object):
                 stdout=subprocess.PIPE,
                 stderr=constants.DN)
         except OSError:
-            print("[" + constants.R + "!" + constants.W + "] " +
-                  "dnsmasq is not installed!")
+            print("[{}!{}] dnsmasq is not installed!".format(
+                constants.R, constants.W))
             raise Exception
 
         subprocess.Popen(
