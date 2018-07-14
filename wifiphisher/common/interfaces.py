@@ -837,6 +837,8 @@ def is_add_vif_required(args):
 def is_managed_by_network_manager(interface_name):
     """
     Check if the interface is managed by NetworkManager
+    At this point NetworkManager may or may not be running.
+    If it's not running, nothing is returned.
 
     :param interface_name: An interface name
     :type interface_name: str
@@ -846,7 +848,9 @@ def is_managed_by_network_manager(interface_name):
 
     is_managed = False
     try:
-        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], stdout=PIPE)
+        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], 
+        stdout=constants.DN,
+        stderr=PIPE)
         out, err = nmcli_process.communicate()
 
         if err == None and out != "":
