@@ -1,6 +1,7 @@
-"""
-This module was made to fork the rogue access point
-"""
+"""This module was made to fork the rogue access point."""
+
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import os
 import time
 import subprocess
@@ -10,127 +11,24 @@ import roguehostapd.apctrl as apctrl
 
 
 class AccessPoint(object):
-    """
-    This class forks the softAP
-    """
+    """This class forks the softAP."""
 
     def __init__(self):
-        """
-        Setup the class with all the given arguments
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: None
-        :rtype: None
-        """
-
-        self.interface = None
-        self.internet_interface = None
-        self.channel = None
-        self.essid = None
-        self.psk = None
+        # type: () -> None
+        """Intialize the class."""
+        self.interface = ""
+        self.internet_interface = ""
+        self.channel = ""
+        self.essid = ""
+        self.psk = ""
         self.force_hostapd = False
         # roguehostapd object
         self.hostapd_object = None
-        self.deny_mac_addrs = []
-
-    def enable_system_hostapd(self):
-        """
-        Set the interface for the softAP
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: None
-        :rtype: None
-        ..note: use hostapd on the system instead of using roguehostapd
-        """
-        self.force_hostapd = True
-
-    def set_interface(self, interface):
-        """
-        Set the interface for the softAP
-        :param self: An AccessPoint object
-        :param interface: interface name
-        :type self: AccessPoint
-        :type interface: str
-        :return: None
-        :rtype: None
-        """
-
-        self.interface = interface
-
-    def add_deny_macs(self, deny_mac_addrs):
-        """
-        Add the deny mac addresses
-        :param self: An AccessPoint object
-        :param deny_mac_addrs: list of deny mac addresses
-        :type self: AccessPoint
-        :type deny_mac_addrs: list
-        :return: None
-        :rtype: None
-        """
-
-        self.deny_mac_addrs.extend(deny_mac_addrs)
-
-    def set_internet_interface(self, interface):
-        """
-        Set the internet interface
-        :param self: An AccessPoint object
-        :param interface: interface name
-        :type self: AccessPoint
-        :type interface: str
-        :return: None
-        :rtype: None
-        """
-
-        self.internet_interface = interface
-
-    def set_channel(self, channel):
-        """
-        Set the channel for the softAP
-        :param self: An AccessPoint object
-        :param channel: channel number
-        :type self: AccessPoint
-        :type channel: str
-        :return: None
-        :rtype: None
-        """
-
-        self.channel = channel
-
-    def set_essid(self, essid):
-        """
-        Set the ssid for the softAP
-        :param self: An AccessPoint object
-        :param essid: SSID for the softAP
-        :type self: AccessPoint
-        :type essid: str
-        :return: None
-        :rtype: None
-        """
-
-        self.essid = essid
-
-    def set_psk(self, psk):
-        """
-        Set the psk for the softAP
-        :param self: An AccessPoint object
-        :param psk: passphrase for the softAP
-        :type self: AccessPoint
-        :type psk: str
-        :return: None
-        :rtype: None
-        """
-
-        self.psk = psk
+        self.deny_mac_addrs = []  # type: List[str]
 
     def start_dhcp_dns(self):
-        """
-        Start the dhcp server
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: None
-        :rtype: None
-        """
-
+        # type: () -> None
+        """Start the dhcp server."""
         config = ('no-resolv\n' 'interface=%s\n' 'dhcp-range=%s\n')
 
         with open('/tmp/dhcpd.conf', 'w') as dhcpconf:
@@ -148,8 +46,8 @@ class AccessPoint(object):
                 stdout=subprocess.PIPE,
                 stderr=constants.DN)
         except OSError:
-            print("[" + constants.R + "!" + constants.W + "] " +
-                  "dnsmasq is not installed!")
+            print("[{}!{}] dnsmasq is not installed!".format(
+                constants.R, constants.W))
             raise Exception
 
         subprocess.Popen(
@@ -173,14 +71,8 @@ class AccessPoint(object):
             return False
 
     def start(self):
-        """
-        Start the softAP
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: None
-        :rtype: None
-        """
-
+        # type: () -> None
+        """Start the softAP."""
         # create the configuration for roguehostapd
         hostapd_config = {
             "ssid": self.essid,
@@ -206,47 +98,41 @@ class AccessPoint(object):
             except KeyboardInterrupt:
                 raise Exception
             except BaseException:
-                print("[" + constants.R + "!" + constants.W + "] " +
-                      "Roguehostapd is not installed in the system! Please install"
-                      " roguehostapd manually (https://github.com/wifiphisher/roguehostapd)"
-                      " and rerun the script. Otherwise, you can run the tool with the"
-                      " --force-hostapd option to use hostapd but please note that using"
-                      " Wifiphisher with hostapd instead of roguehostapd will turn off many"
-                      " significant features of the tool.")
+                print(
+                    "[{}!{}] Roguehostapd is not installed in the system! Please install"
+                    " roguehostapd manually (https://github.com/wifiphisher/roguehostapd)"
+                    " and rerun the script. Otherwise, you can run the tool with the"
+                    " --force-hostapd option to use hostapd but please note that using"
+                    " Wifiphisher with hostapd instead of roguehostapd will turn off many"
+                    " significant features of the tool.".format(
+                        constants.R, constants.W))
                 # just raise exception when hostapd is not installed
                 raise Exception
         else:
             # use the hostapd on the users' system
-            self.hostapd_object.create_hostapd_conf_file(hostapd_config,
-                                                         {})
+            self.hostapd_object.create_hostapd_conf_file(hostapd_config, {})
             try:
                 self.hostapd_object = subprocess.Popen(
                     ['hostapd', hostapdconfig.ROGUEHOSTAPD_RUNTIME_CONFIGPATH],
                     stdout=constants.DN,
                     stderr=constants.DN)
             except OSError:
-                print("[" + constants.R + "!" + constants.W + "] " +
-                      "hostapd is not installed in the system! Please download it"
-                      " using your favorite package manager"
-                      "(e.g. apt-get install hostapd) and rerun the script.")
+                print(
+                    "[{}!{}] hostapd is not installed in the system! Please download it"
+                    " using your favorite package manager (e.g. apt-get install hostapd) and "
+                    "rerun the script.".format(constants.R, constants.W))
                 # just raise exception when hostapd is not installed
                 raise Exception
 
             time.sleep(2)
             if self.hostapd_object.poll() is not None:
-                print("[" + constants.R + "!" + constants.W + "] " +
-                      "hostapd failed to lunch!")
+                print("[{}!{}] hostapd failed to lunch!".format(
+                    constants.R, constants.W))
                 raise Exception
 
     def on_exit(self):
-        """
-        Clean up the resoures when exits
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: None
-        :rtype: None
-        """
-
+        # type: () -> None
+        """Clean up the resoures when exits."""
         subprocess.call('pkill dnsmasq', shell=True)
         try:
             self.hostapd_object.stop()
