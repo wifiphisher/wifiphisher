@@ -43,7 +43,7 @@ def parse_args():
     parser.add_argument(
         "-i",
         "--interface",
-        help=("Manually choose an interface that supports both AP and monitor " + 
+        help=("Manually choose an interface that supports both AP and monitor " +
               "modes for spawning the rogue AP as well as mounting additional " +
               "Wi-Fi attacks from Extensions (i.e. deauth). " +
               "Example: -i wlan1"))
@@ -536,22 +536,22 @@ class WifiphisherEngine:
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
         self.network_manager.up_interface(ap_iface)
-        self.access_point.set_interface(ap_iface)
-        self.access_point.set_channel(channel)
-        self.access_point.set_essid(essid)
+        self.access_point.interface = ap_iface
+        self.access_point.channel = channel
+        self.access_point.essid = essid
         if args.force_hostapd:
             print('[' + T + '*' + W + '] Using hostapd instead of roguehostapd.'
                   " Many significant features will be turned off."
                  )
-            self.access_point.enable_system_hostapd()
+            self.access_point.force_hostapd = True
         if args.wpspbc_assoc_interface:
             wps_mac = self.network_manager.get_interface_mac(
                 args.wpspbc_assoc_interface)
-            self.access_point.add_deny_macs([wps_mac])
+            self.access_point.deny_mac_addrs.append(wps_mac)
         if args.presharedkey:
-            self.access_point.set_psk(args.presharedkey)
+            self.access_point.set_psk = args.presharedkey
         if self.opmode.internet_sharing_enabled():
-            self.access_point.set_internet_interface(args.internetinterface)
+            self.access_point.internet_interface = args.internetinterface
         print '[' + T + '*' + W + '] Starting the fake access point...'
         try:
             self.access_point.start()
