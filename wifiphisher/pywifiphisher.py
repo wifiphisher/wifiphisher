@@ -531,12 +531,6 @@ class WifiphisherEngine:
 
         template.merge_context({'APs': APs_context})
 
-        # only get logo path if MAC address is present
-        ap_logo_path = False
-        if target_ap_mac is not None:
-            ap_logo_path = template.use_file(
-                self.mac_matcher.get_vendor_logo_path(target_ap_mac))
-
         template.merge_context({
             'target_ap_channel':
             channel or "",
@@ -548,8 +542,7 @@ class WifiphisherEngine:
             enctype or "",
             'target_ap_vendor':
             self.mac_matcher.get_vendor_name(target_ap_mac) or "",
-            'target_ap_logo_path':
-            ap_logo_path or ""
+            'target_ap_logo_path': ""
         })
         # add wps_enable into the template context
         if args.wps_pbc:
