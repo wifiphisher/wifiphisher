@@ -751,7 +751,7 @@ class TuiApSel(object):
                         access_point.name, access_point.mac_address,
                         access_point.channel, access_point.signal_strength,
                         access_point.encryption,
-                        access_point.get_number_connected_clients(), vendor))
+                        access_point.client_count, vendor))
                 # shows whether the access point should be highlighted or not
                 # based on our current position
                 print_row_number = item_position - ap_info.max_row * (

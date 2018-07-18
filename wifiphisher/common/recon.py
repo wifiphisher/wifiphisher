@@ -1,116 +1,60 @@
-"""
-This module handles all the operations regarding locating all the
-available access points
-"""
+"""Handles all reconnaissance operations."""
 
-from __future__ import division
-import threading
-import time
-import logging
+from __future__ import (absolute_import, division, print_function)
+from threading import Thread
+from time import (strftime, sleep)
+from logging import getLogger
 import scapy.layers.dot11 as dot11
-import wifiphisher.common.constants as constants
+from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES,
+                                          ALL_2G_CHANNELS, LOCS_DIR)
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = getLogger(__name__)
 
 
 class AccessPoint(object):
-    """ This class represents an access point """
+    """Represents an access point."""
 
     def __init__(self, ssid, bssid, channel, encryption, capture_file=False):
-        """
-        Setup the class with all the given arguments
-
-        :param self: An AccessPoint object
-        :param ssid: The name of the access point
-        :param bssid: The MAC address of the access point
-        :param channel: The channel number of the access point
-        :param encryption: The encryption type of the access point
-        :type self: AccessPoint
-        :type ssid: string
-        :type bssid: string
-        :type channel: string
-        :type encryption: string
-        """
-
+        # type: (str, str, str, str, bool) -> None
+        """Initialize class with all the given arguments."""
         self.name = ssid
         self.mac_address = bssid
         self.channel = channel
         self.encryption = encryption
         self.signal_strength = None
-        self._clients = set()
+        self.client_count = 0
+        self._clients = set()  # type: Set[str]
 
         if capture_file:
-            with open(capture_file, "a") as f:
-                f.write(bssid + " " + ssid + "\n")
+            with open(capture_file, "a") as _file:
+                _file.write("{bssid} {ssid}\n".format(bssid=bssid, ssid=ssid))
 
     def add_client(self, client):
-        """
-        Adds the client if client is new
-
-        :param self: An AccessPoint object
-        :param client: A client's MAC address
-        :type self: AccessPoint
-        :type client: string
-        :return: None
-        :rtype: None
-        """
-
-        self._clients.add(client)
-
-    def get_number_connected_clients(self):
-        """
-        Return the number of connected clients to get access point
-
-        :param self: An AccessPoint object
-        :type self: AccessPoint
-        :return: Number of connected clients
-        :rtype: int
-        """
-
-        return len(self._clients)
+        # type: (str) -> None
+        """Add client to access point."""
+        if client not in self._clients:
+            self._clients.add(client)
+            self.client_count += 1
 
 
 class AccessPointFinder(object):
-    """ This class finds all the available access point """
+    """Finds all the available access point."""
 
     def __init__(self, ap_interface, network_manager):
-        """
-        Setup the class with all the given arguments
-
-        :param self: An AccessPointFinder object
-        :param ap_interface: A NetworkAdapter object
-        :param network_manager: A NetworkManager object
-        :type self: AccessPointFinder
-        :type ap_interface: str
-        :type: network_manager: NetworkManager
-        :return: None
-        :rtype: None
-        """
-
+        # type: (str, NetworkManager) -> None
+        """Initialize class with all the given arguments."""
         self._interface = ap_interface
         self.observed_access_points = list()
         self._capture_file = False
         self._should_continue = True
         self._hidden_networks = list()
-        self._sniff_packets_thread = None
-        self._channel_hop_thread = None
+        self._sniff_packets_thread = Thread(target=self._sniff_packets)
+        self._channel_hop_thread = Thread(target=self._channel_hop)
         self._network_manager = network_manager
 
-        # filter used to remove non-client addresses
-        self._non_client_addresses = constants.NON_CLIENT_ADDRESSES
-
     def _process_packets(self, packet):
-        """
-        Process a RadioTap packet to find access points
-
-        :param self: An AccessPointFinder object
-        :param packet: A scapy.layers.RadioTap object
-        :type self: AccessPointFinder
-        :type packet: scapy.layers.RadioTap
-        :return: None
-        :rtype: None
-        """
-
+        # type: (scapy.layers.RadioTap) -> None
+        """Process a RadioTap packet to find access points."""
         # check the type of the packet
         if packet.haslayer(dot11.Dot11Beacon):
             # check if the packet has info field to prevent processing
@@ -120,7 +64,7 @@ class AccessPointFinder(object):
                 # to the list
                 # note \00 used for when ap is hidden and shows only the length
                 # of the name. see issue #506
-                if not packet.info or "\00" in packet.info:
+                if not packet.info or b"\00" in packet.info:
                     if packet.addr3 not in self._hidden_networks:
                         self._hidden_networks.append(packet.addr3)
                 # otherwise get it's name and encryption
@@ -138,23 +82,16 @@ class AccessPointFinder(object):
             self._find_clients(packet)
 
     def _create_ap_with_info(self, packet):
-        """
-        Create and add an access point using the extracted information
+        # type: (scapy.layers.RadioTap) -> None
+        """Create and add an access point using the extracted information.
 
-        :param self: An AccessPointFinder object
-        :param packet: A scapy.layers.RadioTap object
-        :type self: AccessPointFinder
-        :type packet: scapy.layers.RadioTap
-        :return: None
-        :rtype: None
-        :note: return when the frame is malformed or the channel is not
-        in the 2G channel list
+        Access points which are malformed or not in 2G channel list are
+        excluded.
         """
-
         elt_section = packet[dot11.Dot11Elt]
         try:
             channel = str(ord(packet[dot11.Dot11Elt][2].info))
-            if int(channel) not in constants.ALL_2G_CHANNELS:
+            if int(channel) not in ALL_2G_CHANNELS:
                 return
         except (TypeError, IndexError):
             return
@@ -204,16 +141,8 @@ class AccessPointFinder(object):
         self.observed_access_points.append(access_point)
 
     def _sniff_packets(self):
-        """
-        Sniff packets one at a time until otherwise set
-
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
-        :return: None
-        :rtype: None
-        """
-
-        # continue to find clients until otherwise told
+        # type: () -> None
+        """Sniff packets one at a time until otherwise set."""
         while self._should_continue:
             dot11.sniff(
                 iface=self._interface,
@@ -222,78 +151,43 @@ class AccessPointFinder(object):
                 store=0)
 
     def capture_aps(self):
-        self._capture_file = constants.LOCS_DIR + "area_" +\
-            time.strftime("%Y%m%d_%H%M%S")
+        """Create Lure10 capture file."""
+        self._capture_file = "{LOCS_DIR}area_{time}".format(
+            LOCS_DIR=LOCS_DIR, time=strftime("%Y%m%d_%H%M%S"))
         LOGGER.info("Create lure10-capture file %s", self._capture_file)
 
     def find_all_access_points(self):
-        """
-        Find all the visible and hidden access points
-
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
-        :return: An tuple of sniff and channel hop threads
-        :rtype: tuple
-        """
-
-        # start finding access points in a separate thread
-        self._sniff_packets_thread = threading.Thread(
-            target=self._sniff_packets)
+        # type: () -> None
+        """Find all the visible and hidden access points."""
         self._sniff_packets_thread.start()
-
-        # start channel hopping in a separate thread
-        self._channel_hop_thread = threading.Thread(target=self._channel_hop)
         self._channel_hop_thread.start()
 
     def stop_finding_access_points(self):
-        """
-        Stops looking for access points.
-
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
-        :return: None
-        :rtype: None
-        """
-
+        # type: () -> None
+        """Stop looking for access points."""
         self._should_continue = False
-        # wait for 10 second to join the threads
-        self._channel_hop_thread.join(10)
-        self._sniff_packets_thread.join(10)
+        wait_time = 10
+        self._channel_hop_thread.join(wait_time)
+        self._sniff_packets_thread.join(wait_time)
 
     def _channel_hop(self):
-        """
-        Change the interface's channel every three seconds
+        # type: () -> None
+        """Change the interface's channel every three seconds.
 
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
-        :return: None
-        :rtype: None
         .. note: The channel range is between 1 to 13
         """
-
-        # if the stop flag not set, change the channel
-        while self._should_continue:
-            for channel in constants.ALL_2G_CHANNELS:
-                # added this check to reduce shutdown time
-                if self._should_continue:
-                    self._network_manager.set_interface_channel(
-                        self._interface, channel)
-                    time.sleep(3)
-                else:
+        while True:
+            for channel in ALL_2G_CHANNELS:
+                if not self._should_continue:
                     break
 
+                self._network_manager.set_interface_channel(
+                    self._interface, channel)
+                sleep(3)
+
     def _find_clients(self, packet):
-        """
-        Find and add if a client is discovered
-
-        :param self: An AccessPointFinder object
-        :param packet: A scapy.layers.RadioTap object
-        :type self: AccessPointFinder
-        :type packet: scapy.layers.RadioTap
-        :return: None
-        :rtype: None
-        """
-
+        # type: (scapy.layers.RadioTap) -> None
+        """Find and add if a client is discovered."""
         # find sender and receiver
         receiver = packet.addr1
         sender = packet.addr2
@@ -308,8 +202,8 @@ class AccessPointFinder(object):
             return None
 
         # if a valid address is provided
-        if (receiver_identifier, sender_identifier) not in\
-                self._non_client_addresses:
+        if (receiver_identifier,
+                sender_identifier) not in NON_CLIENT_ADDRESSES:
 
             # if discovered access point is either sending or receving
             # add client if it's mac address is not in the MAC filter
@@ -328,15 +222,8 @@ class AccessPointFinder(object):
                     access_point.add_client(receiver)
 
     def get_sorted_access_points(self):
-        """
-        Return all access points sorted based on signal strength
-
-        :param self: An AccessPointFinder object
-        :type self: AccessPointFinder
-        :return: None
-        :rtype: None
-        """
-
+        # type: () -> List[str]
+        """Return all access points sorted based on signal strength."""
         return sorted(
             self.observed_access_points,
             key=lambda ap: ap.signal_strength,
@@ -344,31 +231,17 @@ class AccessPointFinder(object):
 
 
 def get_rssi(non_decoded_packet):
-    """
-    Return the rssi value of the packet
-
-    :param packet: A scapy.layers.RadioTap object
-    :type packet: scapy.layers.RadioTap
-    :return: rssi value of packet
-    :rtype: int
-    """
+    # type: (scapy.layers.RadioTap) -> int
+    """Return the rssi value of the packet."""
     return -(256 - max(
         ord(non_decoded_packet[-4:-3]), ord(non_decoded_packet[-2:-1])))
 
 
 def calculate_signal_strength(rssi):
-    """
-    calculate the signal strength of access point
-
-    :param rssi: A rssi value
-    :type rssi: int
-    :return: Signal strength of access point
-    :rtype: int
-    """
-
-    if rssi <= -100:
-        signal_strength = 0
-    elif rssi >= -50:
+    # type: (int) -> int
+    """Calculate the signal strength of access point."""
+    signal_strength = 0
+    if rssi >= -50:
         signal_strength = 100
     else:
         signal_strength = 2 * (rssi + 100)
@@ -377,17 +250,12 @@ def calculate_signal_strength(rssi):
 
 
 def find_encryption_type(packet):
-    """
-    Return the encryption type of the access point
+    # type: (scapy.layers.RadioTap) -> str
+    """Return the encryption type of the access point.
 
-    :param packet: A scapy.layers.RadioTap object
-    :type packet: scapy.layers.RadioTap
-    :return: encryption type of the access point
-    :rtype: string
     .. note: Possible return values are WPA2, WPA, WEP, OPEN,
         WPA2/WPS and WPA/WPS
     """
-
     encryption_info = packet.sprintf("%Dot11Beacon.cap%")
     elt_section = packet[dot11.Dot11Elt]
     encryption_type = None
