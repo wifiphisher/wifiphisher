@@ -496,7 +496,7 @@ class WifiphisherEngine:
         template = tui_template_obj.gather_info(args.phishingscenario,
                                                 self.template_manager)
         logger.info("Selecting {} template".format(
-            template.get_display_name()))
+            template.display_name))
         print("[" + G + "+" + W + "] Selecting " +
               template.get_display_name() + " template")
 
