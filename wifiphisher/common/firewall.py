@@ -40,13 +40,13 @@ class Fw():
             * DNS (Port 53)
         """
         execute_commands([
-            "iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT"
+            "iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, PORT),
-            "iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT"
+            "iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, 53),
-            "iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT"
+            "iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, 53),
-            "iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT"
+            "iptables -t nat -A PREROUTING -p tcp --dport 443 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, SSL_PORT)
         ])
 
