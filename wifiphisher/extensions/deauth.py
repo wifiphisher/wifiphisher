@@ -273,7 +273,7 @@ class Deauth(object):
         :rtype: list
         """
 
-        return map("DEAUTH/DISAS - {}".format, self._observed_clients)
+        return list(map("DEAUTH/DISAS - {}".format, self._observed_clients))
 
     def send_channels(self):
         """
@@ -291,7 +291,7 @@ class Deauth(object):
         if self._data.target_ap_bssid and not self._data.args.deauth_essid\
                 and not self._data.args.channel_monitor:
             return [self._data.target_ap_channel]
-        return map(str, constants.ALL_2G_CHANNELS)
+        return list(map(str, constants.ALL_2G_CHANNELS))
 
     def on_exit(self):
         """
