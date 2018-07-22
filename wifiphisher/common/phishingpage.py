@@ -4,7 +4,7 @@ Wifiphisher.py
 """
 
 import os
-import ConfigParser
+import configparser
 from shutil import copyfile
 import wifiphisher.common.constants as constants
 
@@ -14,7 +14,7 @@ def config_section_map(config_file, section):
     Map the values of a config file to a dictionary.
     """
 
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(config_file)
     dict1 = {}
 
@@ -93,11 +93,11 @@ class PhishingTemplate(object):
         :rtype: None
         """
 
-        original_config = ConfigParser.ConfigParser()
+        original_config = configparser.ConfigParser()
         original_config.read(config_path)
 
         # new config file object
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
 
         # update the info section
         config.add_section('info')
@@ -377,7 +377,7 @@ class TemplateManager(object):
                 else:
                     # TODO: We should throw an exception instead here.
                     # but if not then display which problem occurred
-                    print "[" + constants.R + "!" + constants.W + "] " + output + name
+                    print("[" + constants.R + "!" + constants.W + "] " + output + name)
 
         return local_templates
 
@@ -410,5 +410,5 @@ class TemplateManager(object):
         :rtype: None
         """
 
-        for templ_obj in self._templates.values():
+        for templ_obj in list(self._templates.values()):
             templ_obj.remove_extra_files()
