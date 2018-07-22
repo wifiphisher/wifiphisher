@@ -120,7 +120,7 @@ class AccessPointFinder(object):
                 # to the list
                 # note \00 used for when ap is hidden and shows only the length
                 # of the name. see issue #506
-                if not packet.info or "\00" in packet.info:
+                if not packet.info or b"\00" in packet.info:
                     if packet.addr3 not in self._hidden_networks:
                         self._hidden_networks.append(packet.addr3)
                 # otherwise get it's name and encryption
@@ -402,11 +402,11 @@ def find_encryption_type(packet):
 
         # check if encryption type is WPA
         elif (elt_section.ID == 221
-              and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
+              and elt_section.info.startswith(b"\x00P\xf2\x01\x01\x00")):
             encryption_type = "WPA"
         # check if WPS IE exists
         if (elt_section.ID == 221
-                and elt_section.info.startswith("\x00P\xf2\x04")):
+                and elt_section.info.startswith(b"\x00P\xf2\x04")):
             found_wps = True
 
         # break down the packet
