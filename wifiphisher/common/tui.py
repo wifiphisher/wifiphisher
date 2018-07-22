@@ -702,10 +702,10 @@ class TuiApSel(object):
         """
 
         # get the page boundary
-        page_boundary = range(1 + (ap_info.max_row *
+        page_boundary = list(range(1 + (ap_info.max_row *
                                    (ap_info.page_number - 1)),
                               ap_info.max_row + 1 +
-                              (ap_info.max_row * (ap_info.page_number - 1)))
+                              (ap_info.max_row * (ap_info.page_number - 1))))
 
         # remove previous content and draw border
         ap_info.box.erase()
@@ -993,4 +993,4 @@ def line_splitter(num_of_words, line):
     """
     pieces = line.split()
     return (" ".join(pieces[i:i + num_of_words])
-            for i in xrange(0, len(pieces), num_of_words))
+            for i in range(0, len(pieces), num_of_words))
