@@ -1,7 +1,5 @@
 """Serves as an abstraction layer in front of iptables."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 from wifiphisher.common.constants import (NETWORK_GW_IP, SSL_PORT, PORT)
 from wifiphisher.common.utilities import execute_commands
 
