@@ -20,7 +20,7 @@ import wifiphisher.common.extensions as extensions
 logger = logging.getLogger(__name__)
 
 # define the verification state
-DONE, FAIL, NOT_YET = range(3)
+DONE, FAIL, NOT_YET = list(range(3))
 
 # backward compatible for scapy EAPOL
 try:
