@@ -3,7 +3,7 @@ This module handles all the operations regarding locating all the
 available access points
 """
 
-from __future__ import division
+
 import threading
 import time
 import logging
