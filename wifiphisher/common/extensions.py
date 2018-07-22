@@ -211,7 +211,7 @@ class ExtensionManager(object):
 
         # Convert shared_data from dict to named tuple
         shared_data = collections.namedtuple('GenericDict',
-                                             shared_data.keys())(**shared_data)
+                                             list(shared_data.keys()))(**shared_data)
         self._shared_data = shared_data
 
         # Initialize all extensions with the shared data
