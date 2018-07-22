@@ -72,7 +72,7 @@ class Roguehostapdinfo(object):
         info = []
         ssid_mac_list = self._data.roguehostapd.get_karma_data()
         try:
-            mac_list, ssid_list = zip(*ssid_mac_list)
+            mac_list, ssid_list = list(zip(*ssid_mac_list))
         except ValueError:
             # incase ssid_mac_list is still empty
             mac_list = []
@@ -88,7 +88,7 @@ class Roguehostapdinfo(object):
         for idx, mac in enumerate(mac_list):
             if mac not in self._mac2ssid_dict:
                 self._mac2ssid_dict[mac] = ssid_list[idx]
-        macssid_pairs = self._mac2ssid_dict.items()
+        macssid_pairs = list(self._mac2ssid_dict.items())
         for mac, ssid in macssid_pairs:
             if ssid not in self._known_beacon_ssids:
                 outputstr = "Victim " + mac + " probed for WLAN with ESSID: '" + ssid + "' (KARMA)"
