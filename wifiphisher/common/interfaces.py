@@ -861,9 +861,13 @@ def is_managed_by_network_manager(interface_name):
                     if "unmanaged" not in l:
                         is_managed = True
                 else:
-                    logger.error("Failed to make NetworkManager ignore interface %s", interface_name)
+                    # Ignore until we make handle logging registers properly.
+                    pass
+                    #logger.error("Failed to make NetworkManager ignore interface %s", interface_name)
         else:
-            logger.error("Failed to check if interface %s is managed by NetworkManager", interface_name)
+            # Ignore until we make handle logging registers properly.
+            pass
+            #logger.error("Failed to check if interface %s is managed by NetworkManager", interface_name)
 
         nmcli_process.stdout.close();
 
