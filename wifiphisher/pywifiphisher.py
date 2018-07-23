@@ -568,6 +568,7 @@ class WifiphisherEngine:
                 'target_ap_bssid': target_ap_mac or "",
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
+                'rogue_ap_essid': essid or "", 
                 'rogue_ap_mac': rogue_ap_mac,
                 'roguehostapd': self.access_point.hostapd_object,
                 'APs': APs_context,
