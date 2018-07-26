@@ -264,10 +264,12 @@ class WifiphisherEngine:
         # EM depends on Network Manager.
         # It has to shutdown first.
         self.em.on_exit()
-        # move the access_points.on_exit before the exit for
-        # network manager
+        # AP depends on NM too.
         self.access_point.on_exit()
-        self.network_manager.on_exit()
+        try:
+             self.network_manager.on_exit()
+        except interfaces.InvalidMacAddressError as err:
+            print("[{0}!{1}] {2}").format(R, W, err)
         self.template_manager.on_exit()
         self.fw.on_exit()
 
@@ -277,26 +279,20 @@ class WifiphisherEngine:
         print '[' + R + '!' + W + '] Closing'
         sys.exit(0)
 
-    def try_change_mac(self, iface_name, mac_address=None):
-        """
-        :param self: A WifiphisherEngine object
-        :param iface_name: Name of an interface
-        :param mac_addr: A MAC address
-        :type self: WifiphisherEngine
-        :type iface_name: str
-        :type mac_address:str
-        :return: None
-        :rtype: None
-        """
-        try:
-            if mac_address is not None:
-                self.network_manager.set_interface_mac(iface_name, mac_address)
-            else:
-                self.network_manager.set_interface_mac_random(iface_name)
-        except interfaces.InvalidMacAddressError as err:
-            print("[{0}!{1}] {2}").format(R, W, err)
-
     def start(self):
+
+        today = time.strftime("%Y-%m-%d %H:%M")
+        print ('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
+               (VERSION, WEBSITE, today))
+
+        # Show some emotions.
+        if BIRTHDAY in today:
+            print '[' + T + '*' + W + \
+            '] Wifiphisher was first released on this day in 2015! ' \
+            'Happy birthday!'
+        if NEW_YEAR in today:
+            print '[' + T + '*' + W + \
+            '] Happy new year!'
 
         # First of - are you root?
         if os.geteuid():
@@ -361,17 +357,6 @@ class WifiphisherEngine:
                     "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
                     "rogue Access Point").format(G, W, mon_iface, ap_iface)
 
-                # randomize the mac addresses
-                if not args.no_mac_randomization:
-                    if args.mac_ap_interface:
-                        self.try_change_mac(ap_iface, args.mac_ap_interface)
-                    else:
-                        self.try_change_mac(ap_iface)
-                    if args.mac_extensions_interface:
-                        self.try_change_mac(mon_iface,
-                                            args.mac_extensions_interface)
-                    else:
-                        self.try_change_mac(mon_iface)
             if not self.opmode.extensions_enabled():
                 if args.apinterface:
                     if self.network_manager.is_interface_valid(
@@ -381,17 +366,30 @@ class WifiphisherEngine:
                     ap_iface = self.network_manager.get_interface(True, False)
                 mon_iface = ap_iface
 
-                if not args.no_mac_randomization:
-                    if args.mac_ap_interface:
-                        self.try_change_mac(ap_iface, args.mac_ap_interface)
-                    else:
-                        self.try_change_mac(ap_iface)
-
                 print(
                     "[{0}+{1}] Selecting {0}{2}{1} interface for creating the "
                     "rogue Access Point").format(G, W, ap_iface)
                 logger.info("Selecting {} interface for rogue Access Point"
                             .format(ap_iface))
+
+            # Randomize MAC
+            if not args.no_mac_randomization:
+                try:
+                    new_mac = self.network_manager.set_interface_mac(ap_iface,
+                        args.mac_ap_interface)
+                    logger.info("Changing {} MAC address to {}".format(
+                        ap_iface, new_mac))
+                    print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
+                        G, W, ap_iface, new_mac)
+                    if mon_iface != ap_iface:
+                        new_mac = self.network_manager.set_interface_mac(mon_iface,
+                                             args.mac_extensions_interface)
+                        logger.info("Changing {} MAC address to {}".format(
+                            mon_iface, new_mac))
+                        print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
+                            G, W, ap_iface, new_mac)
+                except interfaces.InvalidMacAddressError as err:
+                    print("[{0}!{1}] {2}").format(R, W, err)
 
             # make sure interfaces are not blocked
             logger.info("Unblocking interfaces")
@@ -405,27 +403,12 @@ class WifiphisherEngine:
                 interfaces.InterfaceManagedByNetworkManagerError) as err:
             logging.exception("The following error has occurred:")
             print("[{0}!{1}] {2}").format(R, W, err)
-
             time.sleep(1)
             self.stop()
 
         if not args.internetinterface:
             kill_interfering_procs()
             logger.info("Killing all interfering processes")
-
-        rogue_ap_mac = self.network_manager.get_interface_mac(ap_iface)
-        if not args.no_mac_randomization:
-            logger.info("Changing {} MAC address to {}".format(
-                ap_iface, rogue_ap_mac))
-            print "[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
-                G, W, ap_iface, rogue_ap_mac)
-
-            if self.opmode.extensions_enabled():
-                mon_mac = self.network_manager.get_interface_mac(mon_iface)
-                logger.info("Changing {} MAC address to {}".format(
-                    mon_iface, mon_mac))
-                print("[{0}+{1}] Changing {2} MAC addr to {3}".format(
-                    G, W, mon_iface, mon_mac))
 
         if self.opmode.internet_sharing_enabled():
             self.fw.nat(ap_iface, args.internetinterface)
@@ -569,7 +552,7 @@ class WifiphisherEngine:
                 'target_ap_encryption': enctype or "",
                 'target_ap_logo_path': ap_logo_path or "",
                 'rogue_ap_essid': essid or "", 
-                'rogue_ap_mac': rogue_ap_mac,
+                'rogue_ap_mac': self.network_manager.get_interface_mac(ap_iface),
                 'roguehostapd': self.access_point.hostapd_object,
                 'APs': APs_context,
                 'args': args
@@ -625,19 +608,10 @@ class WifiphisherEngine:
 
 def run():
     try:
-        today = time.strftime("%Y-%m-%d %H:%M")
-        print ('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
-               (VERSION, WEBSITE, today))
-        if BIRTHDAY in today:
-            print '[' + T + '*' + W + \
-            '] Wifiphisher was first released on this day in 2015! ' \
-            'Happy birthday!'
-        if NEW_YEAR in today:
-            print '[' + T + '*' + W + \
-            '] Happy new year!'
         engine = WifiphisherEngine()
         engine.start()
     except KeyboardInterrupt:
         print R + '\n (^C)' + O + ' interrupted\n' + W
+        engine.stop()
     except EOFError:
         print R + '\n (^D)' + O + ' interrupted\n' + W
