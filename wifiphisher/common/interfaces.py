@@ -60,7 +60,7 @@ class InvalidMacAddressError(Exception):
         :return: None
         :rtype: None
         """
-        message = "The provided MAC address {0} is invalid".format(mac_address)
+        message = "The MAC address could not be set. (Tried {0})".format(mac_address)
         Exception.__init__(self, message)
 
 
@@ -473,7 +473,7 @@ class NetworkManager(object):
         card = self._name_to_object[interface_name].card
         pyw.down(card)
 
-    def set_interface_mac(self, interface_name, mac_address):
+    def set_interface_mac(self, interface_name, mac_address=None):
         """
         Set the specified MAC address for the interface
 
@@ -483,10 +483,14 @@ class NetworkManager(object):
         :type self: NetworkManager
         :type interface_name: str
         :type mac_address: str
-        :return: None
-        :rtype: None
+        :return: new MAC
+        :rtype: str
         .. note: This method will set the interface to managed mode
         """
+
+        if not mac_address:
+            mac_address = generate_random_address()
+
         self._name_to_object[interface_name].mac_address = mac_address
         card = self._name_to_object[interface_name].card
         self.set_interface_mode(interface_name, "managed")
@@ -498,6 +502,7 @@ class NetworkManager(object):
         # make sure to catch an invalid mac address
         except pyric.error as error:
             raise InvalidMacAddressError(mac_address)
+        return mac_address
 
     def get_interface_mac(self, interface_name):
         """
@@ -512,26 +517,6 @@ class NetworkManager(object):
         """
 
         return self._name_to_object[interface_name].mac_address
-
-    def set_interface_mac_random(self, interface_name):
-        """
-        Set random MAC address for the interface
-
-        :param self: A NetworkManager object
-        :param interface_name: Name of an interface
-        :type self: NetworkManager
-        :type interface_name: str
-        :return: None
-        :rtype: None
-        .. note: This method will set the interface to managed mode.
-            Also the first 3 octets are always 00:00:00 by default
-            Only set the mac address when card is in down state
-        """
-
-        # generate a new mac address and set it to adapter's new address
-        new_mac_address = generate_random_address()
-        # change the mac address of adapter
-        self.set_interface_mac(interface_name, new_mac_address)
 
     def set_interface_mode(self, interface_name, mode):
         """
