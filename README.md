@@ -2,31 +2,65 @@
 [![Documentation Status](https://readthedocs.org/projects/wifiphisher/badge/?version=latest)](http://wifiphisher.readthedocs.io/en/latest/?badge=latest)
 ![Python Version](https://img.shields.io/badge/python-2.7-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL-blue.svg)
-[![Chat IRC](https://img.shields.io/badge/chat-IRC-ff69b4.svg)](https://webchat.freenode.net/?channels=%23wifiphisher)
 
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-<a href="https://wifiphisher.org">Wifiphisher</a> is a security tool that performs Wi-Fi automatic association attacks to force wireless clients to unknowingly connect to an attacker-controlled Access Point. It is a rogue Access Point framework that can be used to mount automated victim-customized phishing attacks against WiFi clients in order to obtain credentials or infect the victims with malwares. It can work as social engineering attack tool that unlike other methods it does not include any brute forcing. It is an easy way for obtaining credentials from captive portals and third party login pages (e.g. in social networks) or WPA/WPA2 pre-shared keys.
+<a href="https://wifiphisher.org">Wifiphisher</a> is a rogue Access Point framework for conducting red team engagements or Wi-Fi security testing. Using Wifiphisher, penetration testers can easily achieve a man-in-the-middle position against wireless clients by performing targeted Wi-Fi association attacks. Wifiphisher can be further used to mount victim-customized web phishing attacks against the connected clients in order to capture credentials (e.g. from third party login pages or WPA/WPA2 Pre-Shared Keys) or infect the victim stations with malwares.
 
-Wifiphisher works on Kali Linux and is licensed under the GPL license.
+Wifiphisher is...
+
+* ...powerful. Wifiphisher can run for hours inside a Raspberry Pi device
+executing all modern Wi-Fi association techniques (including "Evil Twin", "KARMA" and "Known Beacons").  
+
+* ...flexible. Supports dozens of arguments and comes with a set of
+community-driven phishing templates for different deployment scenarios.  
+
+* ...modular. Users can <a href="http://wifiphisher.readthedocs.io/en/latest/extensions.html">write simple or complicated modules</a> in Python to expand the functionality of the tool or <a href="http://wifiphisher.readthedocs.io/en/latest/custom_phishing_scenario.html">create custom phishing scenarios</a> in order to conduct specific target-oriented attacks. 
+
+* ...easy to use. Advanced users can utilize the rich set of features that Wifiphisher offers but beginners may start out as simply as "./bin/wifiphisher". The interactive Textual User Interface guides the tester through the build process of the attack. 
+
+* ...the result of an extensive research. Attacks like "Known Beacons" and "Lure10" as well as state-of-the-art phishing techniques, were disclosed by our developers, and Wifiphisher was the first tool to incorporate them. 
+
+* ...supported by an awesome community of developers and users.
+
+* ...free. Wifiphisher is available for free download, and also comes with full
+source code that you may study, change, or distribute under the terms of the 
+GPLv3 license.
+
+
 
 ## How it works
-After achieving a man-in-the-middle position using Wi-Fi automatic association techniques (including "KARMA" and "Known Beacons" attacks), Wifiphisher by default redirects all HTTP requests to an attacker-controlled phishing page.
 
-From the victim's perspective, the attack makes use in three phases:
+Wi-Fi phishing consists of two steps:
 
-1. **Victim is being deauthenticated from her access point**. Wifiphisher continuously jams all of the target access point's wifi devices within range by forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations.
-2. **Victim joins a rogue access point**. Wifiphisher sniffs the area and copies the target access point's settings. It then creates a rogue wireless access point that is modeled by the target. It also sets up a NAT/DHCP server and forwards the right ports. Consequently, because of the deauth attack and the automatic association techniques, clients will eventually start connecting to the rogue access point. After this phase, the victim is MiTMed. 
-3. **Victim is being served a realistic specially-customized phishing page**. Wifiphisher employs a minimal web server that responds to HTTP & HTTPS requests. As soon as the victim requests a page from the Internet, wifiphisher will respond with a realistic fake page that asks for credentials or serves malwares. This page will be specifically crafted for the victim. For example, a router config-looking page will contain the brand of the victim's vendor. The tool supports community-built templates for different phishing scenarios.
+1. The first step involves the process of associating with Wi-Fi clients
+unknowingly, or in other words, obtaining a man-in-the-middle (MITM) position. Wifiphisher uses a number of different techniques to achieve this including:
+    * Evil Twin, where Wifiphisher creates a fake wireless network that looks similar to a legitimate network.
+    * KARMA, where Wifiphisher masquerades as a public network searched for by nearby Wi-Fi clients.
+    * Known Beacons, where Wifiphisher broadcasts a dictionary of common ESSIDs, that the around wireless stations have likely connected to in the past.
+
+    At the same time, Wifiphisher keeps forging “Deauthenticate” or “Disassociate” packets to disrupt existing associations and eventually lure victims using the above techniques.
 
 <p align="center"><img width="70%" src="https://wifiphisher.github.io/wifiphisher/diagram.jpg" /><br /><i>Performing MiTM attack</i></p>
+
+2. (Optionally) There are a number of different attacks that can be carried out 
+once Wifiphisher grants the penetration tester with a man-in-the-middle
+position. For example, the tester may perform data sniffing or scan the victim stations for vulnerabilities. 
+
+    Using Wifiphisher, advanced web phishing techniques are possible by gathering
+information from the target environment and victim user. For example, in one of
+our scenarios, Wifiphisher will extract information from the broadcasted beacon
+frames and the HTTP User-Agent header to display a web-based imitation of
+Windows network manager in order to capture the Pre-Shared Key.
+
+<p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss-webphishing.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/wifi_connect/">web-based network manager</a></i></p>
 
 ## Requirements
 Following are the requirements for getting the most out of Wifiphisher:
 
-* Kali Linux. Although people have made Wifiphisher work on other distros, Kali Linux is the officially supported distribution, thus all new features are primarily tested on this platform.
-* One wireless network adapter that supports AP & Monitor mode and is capable of injection. For advanced mode, you need two cards; one that supports AP mode and another that supports Monitor mode. Drivers should support netlink.
+  - A working Linux system. People have made Wifiphisher work on many distros, but Kali Linux is the officially supported distribution, thus all new features are primarily tested on this platform.
+  - One wireless network adapter that supports AP & Monitor mode and is capable of injection. Drivers should support netlink.
 
 ## Installation
 
@@ -114,10 +148,11 @@ Following are all the options along with their descriptions (also available with
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss6.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/oauth-login/">OAuth Login Page</a></i></p>
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/ss4.png" /><br /><i>Fake <a href="https://wifiphisher.org/ps/wifi_connect/">web-based network manager</a></i></p>
 
-## Help needed
-If you are a Python developer or a web designer you can help us improve wifiphisher. Feel free to take a look at the <a href="https://github.com/wifiphisher/wifiphisher/issues">bug tracker</a> for some tasks to do.
 
-If you don't know how to code, you can help us by <a href="https://github.com/wifiphisher/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the <a href="https://github.com/wifiphisher/wifiphisher/wiki/Bug-reporting-guidelines">Bug Reporting Guidelines</a> and the <a href="https://github.com/wifiphisher/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.  Note that the tool does not aim to be script-kiddie friendly. Make sure you do understand how the tool works before opening an issue.
+## Help needed
+If you are a Python developer or a web designer you can help us improve Wifiphisher. Feel free to take a look at the <a href="https://github.com/wifiphisher/wifiphisher/issues">bug tracker</a> for some tasks to do.
+
+If you don't know how to code, you can help us by <a href="https://github.com/wifiphisher/wifiphisher/issues">proposing improvements or reporting bugs</a>. Please have a look at the Bug Reporting Guidelines and the <a href="https://github.com/wifiphisher/wifiphisher/wiki/Frequently-Asked-Questions-%28FAQ%29">FAQ document</a> beforehand.  Note that the tool does not aim to be script-kiddie friendly. Make sure you do understand how the tool works before opening an issue.
 
 ## Credits
 The script is based on an idea from <a
@@ -126,7 +161,7 @@ href="https://github.com/DanMcInerney">Dan McInerney</a> back in 2015.
 A full list of contributors lies <a href="https://github.com/wifiphisher/wifiphisher/graphs/contributors">here</a>.
 
 ## License
-Wifiphisher is licensed under the GPL license. See [LICENSE](LICENSE) for more information.
+Wifiphisher is licensed under the GPLv3 license. See [LICENSE](LICENSE) for more information.
 
 ## Project Status
 Wifiphisher's current version is **1.4**. You can download the latest release from <a href="https://github.com/wifiphisher/wifiphisher/releases/tag/v1.4">here</a>. Otherwise you can get the latest development version by cloning this repository.
