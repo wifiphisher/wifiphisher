@@ -746,7 +746,7 @@ class TuiApSel(object):
 
                 # the display format for showing access points
                 display_text = ((
-                    "{0:30} {1:17} {2:2} {3:3}% {4:^7} {5:^5}"
+                    "{0:30} {1:17} {2:2} {3:3}% {4:^8} {5:^5}"
                     " {6:20}").format(
                         access_point.name, access_point.mac_address,
                         access_point.channel, access_point.signal_strength,
