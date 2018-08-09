@@ -61,7 +61,7 @@ def parse_args():
     parser.add_argument(
         "-iI",
         "--internetinterface",
-        help=("Choose an interface that is connected on the Internet" +
+        help=("Choose an interface that is connected on the Internet. " +
               "Example: -iI ppp0"))
     # MAC address randomization
     parser.add_argument(
@@ -77,6 +77,12 @@ def parse_args():
         "--no-mac-randomization",
         help=("Do not change any MAC address"),
         action='store_true')
+    parser.add_argument(
+        "-pI",
+        "--protectinterface",
+        nargs='+',
+        help=("Choose an interface that you want to protect and persist its connection. " +
+              "Example: -pI wlan1"))
     parser.add_argument(
         "-nE",
         "--noextensions",
@@ -406,7 +412,11 @@ class WifiphisherEngine:
             time.sleep(1)
             self.stop()
 
-        if not args.internetinterface:
+        if args.protectinterface:
+            for iface in args.protectinterface:
+                self.network_manager.nm_unmanage(iface)
+
+        if not args.internetinterface and not args.protectinterface:
             kill_interfering_procs()
             logger.info("Killing all interfering processes")
 
