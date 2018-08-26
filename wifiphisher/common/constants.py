@@ -7,6 +7,7 @@ dir_of_executable = os.path.dirname(__file__)
 path_to_project_root = os.path.abspath(
     os.path.join(dir_of_executable, '../../wifiphisher'))
 dir_of_data = path_to_project_root + '/data/'
+phishing_pages_dir = dir_of_data + "phishing-pages/"
 
 # Basic configuration
 DEV = 1
@@ -25,7 +26,6 @@ ALL_2G_CHANNELS = range(1, 14)
 WEBSITE = "https://wifiphisher.org"
 PUBLIC_DNS = "8.8.8.8"
 PEM = dir_of_data + 'cert/server.pem'
-PHISHING_PAGES_DIR = dir_of_data + "phishing-pages/"
 SCENARIO_HTML_DIR = "html/"
 LOGOS_DIR = dir_of_data + "logos/"
 LOCS_DIR = dir_of_data + "locs/"
@@ -54,6 +54,7 @@ INTERFERING_PROCS = [
     "dhcpcd", "udhcpc", "avahi-autoipd", "avahi-daemon", "wlassistant",
     "wifibox", "NetworkManager", "knetworkmanager"
 ]
+DNS_CONF_PATH = '/tmp/dnsmasq.conf'
 NEW_YEAR = "01-01"
 BIRTHDAY = "01-05"
 
@@ -137,6 +138,7 @@ LOGGING_CONFIG = {
     "loggers": {},
     'disable_existing_loggers': False
 }
+CREDENTIALS_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 # Phishinghttp
 VALID_POST_CONTENT_TYPE = "application/x-www-form-urlencoded"
