@@ -12,6 +12,9 @@ import curses
 import wifiphisher.common.constants as constants
 import wifiphisher.common.recon as recon
 import wifiphisher.common.phishingpage as phishingpage
+from logging import getLogger
+
+LOGGER = getLogger(__name__)
 
 # information for the main terminal
 MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
@@ -492,6 +495,7 @@ class TuiApSel(object):
         ap_info = ApDisplayInfo(position, page_number, box, box_info)
 
         self.mac_matcher = parse_oui_file(constants.MAC_PREFIX_FILE)
+        LOGGER.info(self.mac_matcher)
         # start finding access points
         self.access_point_finder = recon.AccessPointFinder(
             info.interface, info.network_manager)
