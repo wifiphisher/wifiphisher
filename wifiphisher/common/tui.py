@@ -495,7 +495,6 @@ class TuiApSel(object):
         ap_info = ApDisplayInfo(position, page_number, box, box_info)
 
         self.mac_matcher = parse_oui_file(constants.MAC_PREFIX_FILE)
-        LOGGER.info(self.mac_matcher)
         # start finding access points
         self.access_point_finder = recon.AccessPointFinder(
             info.interface, info.network_manager)
@@ -756,6 +755,8 @@ class TuiApSel(object):
             else:
                 # get the access point and it's vendor
                 access_point = self.access_points[item_position - 1]
+                LOGGER.info("NAME %s", access_point.mac_address[0:8])
+                LOGGER.info("IS HERE: %s", access_point.mac_address[0:8] in self.mac_matcher)
                 self._vendor_name = self.mac_matcher.get(
                     access_point.mac_address[0:8], "Unknown")
 
