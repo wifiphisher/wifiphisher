@@ -43,10 +43,11 @@ def parse_args():
     parser.add_argument(
         "-i",
         "--interface",
-        help=("Manually choose an interface that supports both AP and monitor " +
-              "modes for spawning the rogue AP as well as mounting additional " +
-              "Wi-Fi attacks from Extensions (i.e. deauth). " +
-              "Example: -i wlan1"))
+        help=(
+            "Manually choose an interface that supports both AP and monitor " +
+            "modes for spawning the rogue AP as well as mounting additional " +
+            "Wi-Fi attacks from Extensions (i.e. deauth). " +
+            "Example: -i wlan1"))
     parser.add_argument(
         "-eI",
         "--extensionsinterface",
@@ -156,15 +157,21 @@ def parse_args():
     parser.add_argument(
         "--payload-path",
         help=("Payload path for scenarios serving a payload"))
-    parser.add_argument("-cM", "--channel-monitor",
-                        help="Monitor if target access point changes the channel.",
-                        action="store_true")
-    parser.add_argument("-wP", "--wps-pbc",
-                        help="Monitor if the button on a WPS-PBC Registrar is pressed.",
-                        action="store_true")
-    parser.add_argument("-wAI", "--wpspbc-assoc-interface",
-                        help="The WLAN interface used for associating to the WPS AccessPoint.",
-                        )
+    parser.add_argument(
+        "-cM",
+        "--channel-monitor",
+        help="Monitor if target access point changes the channel.",
+        action="store_true")
+    parser.add_argument(
+        "-wP",
+        "--wps-pbc",
+        help="Monitor if the button on a WPS-PBC Registrar is pressed.",
+        action="store_true")
+    parser.add_argument(
+        "-wAI",
+        "--wpspbc-assoc-interface",
+        help="The WLAN interface used for associating to the WPS AccessPoint.",
+    )
     parser.add_argument(
         "-kB",
         "--known-beacons",
@@ -272,7 +279,6 @@ def kill_interfering_procs():
 
 class WifiphisherEngine:
     def __init__(self):
-        self.mac_matcher = macmatcher.MACMatcher(MAC_PREFIX_FILE)
         self.network_manager = interfaces.NetworkManager()
         self.template_manager = phishingpage.TemplateManager()
         self.access_point = accesspoint.AccessPoint()
@@ -474,11 +480,11 @@ class WifiphisherEngine:
             # let user choose access point
             # start the monitor adapter
             self.network_manager.up_interface(mon_iface)
-            ap_info_object = tui.ApSelInfo(mon_iface, self.mac_matcher,
-                                           self.network_manager, args)
+            ap_info_object = tui.ApSelInfo(mon_iface, self.network_manager,
+                                           args)
             ap_sel_object = tui.TuiApSel()
-            access_point = curses.wrapper(ap_sel_object.gather_info,
-                                          ap_info_object)
+            access_point, vendor = curses.wrapper(ap_sel_object.gather_info,
+                                                  ap_info_object)
             # if the user has chosen a access point continue
             # otherwise shutdown
             if access_point:
@@ -497,8 +503,8 @@ class WifiphisherEngine:
                                                 self.template_manager)
         logger.info("Selecting {} template".format(
             template.get_display_name()))
-        print("[" + G + "+" + W + "] Selecting " +
-              template.get_display_name() + " template")
+        print("[" + G + "+" + W + "] Selecting " + template.get_display_name()
+              + " template")
 
         # payload selection for browser plugin update
         if template.has_payload():
@@ -526,7 +532,7 @@ class WifiphisherEngine:
                 'bssid':
                 APs[i][2] or "",
                 'vendor':
-                self.mac_matcher.get_vendor_name(APs[i][2]) or ""
+                vendor or ""
             })
 
         template.merge_context({'APs': APs_context})
@@ -542,7 +548,8 @@ class WifiphisherEngine:
             enctype or "",
             'target_ap_vendor':
             self.mac_matcher.get_vendor_name(target_ap_mac) or "",
-            'target_ap_logo_path': ""
+            'target_ap_logo_path':
+            ""
         })
         # add wps_enable into the template context
         if args.wps_pbc:
@@ -559,9 +566,9 @@ class WifiphisherEngine:
         self.access_point.channel = channel
         self.access_point.essid = essid
         if args.force_hostapd:
-            print('[' + T + '*' + W + '] Using hostapd instead of roguehostapd.'
-                  " Many significant features will be turned off."
-                 )
+            print(
+                '[' + T + '*' + W + '] Using hostapd instead of roguehostapd.'
+                " Many significant features will be turned off.")
             self.access_point.force_hostapd = True
         if args.wpspbc_assoc_interface:
             wps_mac = self.network_manager.get_interface_mac(
@@ -644,6 +651,17 @@ class WifiphisherEngine:
 
 def run():
     try:
+        today = time.strftime("%Y-%m-%d %H:%M")
+        print(
+            '[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
+            (VERSION, WEBSITE, today))
+        if BIRTHDAY in today:
+            print '[' + T + '*' + W + \
+            '] Wifiphisher was first released on this day in 2015! ' \
+            'Happy birthday!'
+        if NEW_YEAR in today:
+            print '[' + T + '*' + W + \
+            '] Happy new year!'
         engine = WifiphisherEngine()
         engine.start()
     except KeyboardInterrupt:

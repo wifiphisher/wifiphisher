@@ -19,6 +19,17 @@ MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
 ApSelInfo = namedtuple("ApSelInfo", constants.AP_SEL_ATTRS)
 
 
+def parse_oui_file(filename):
+    # type: (str) -> Dict[str, str]
+    """Read and process all the data in the vendor file."""
+    vendors = dict()
+    with open(filename) as _file:
+        for line in _file:
+            vendor_id, vendor_name = line.rstrip('\n').split("|")
+            vendors[vendor_id] = vendor_name
+        return vendors
+
+
 class TuiTemplateSelection(object):
     """
     TUI to do Template selection
@@ -281,9 +292,9 @@ class TuiTemplateSelection(object):
             # display the words of chosen template
             if key == ord("\n"):
                 try:
-                    screen.addstr(row_number, 3, "YOU HAVE SELECTED " +
-                                  template_names[self.heightlight_number],
-                                  curses.A_BOLD)
+                    screen.addstr(
+                        row_number, 3, "YOU HAVE SELECTED " +
+                        template_names[self.heightlight_number], curses.A_BOLD)
                 except curses.error:
                     pass
                 screen.refresh()
@@ -440,6 +451,7 @@ class TuiApSel(object):
         self.highlight_text = None
         self.normal_text = None
         self.mac_matcher = None
+        self._vendor_name = "Unknown"
         # when screen becomes too small we'll create a box with
         # the size equal to the screen terminal. We need to renew
         # the box when the screen terminal expands again.
@@ -479,7 +491,7 @@ class TuiApSel(object):
 
         ap_info = ApDisplayInfo(position, page_number, box, box_info)
 
-        self.mac_matcher = info.mac_matcher
+        self.mac_matcher = parse_oui_file(constants.MAC_PREFIX_FILE)
         # start finding access points
         self.access_point_finder = recon.AccessPointFinder(
             info.interface, info.network_manager)
@@ -525,7 +537,7 @@ class TuiApSel(object):
             if is_done:
                 # turn off access point discovery and return the result
                 self.access_point_finder.stop_finding_access_points()
-                return self.access_points[ap_info.pos - 1]
+                return self.access_points[ap_info.pos - 1], self._vendor_name
 
         # turn off access point discovery
         self.access_point_finder.stop_finding_access_points()
@@ -656,8 +668,9 @@ class TuiApSel(object):
         ap_info.key = screen.getch()
         if ap_info.key == ord("\n") and self.total_ap_number != 0:
             # show message and exit
-            screen.addstr(ap_info.max_h - 2, 3, "YOU HAVE SELECTED " +
-                          self.access_points[ap_info.pos - 1].name)
+            screen.addstr(
+                ap_info.max_h - 2, 3, "YOU HAVE SELECTED " +
+                self.access_points[ap_info.pos - 1].name)
             screen.refresh()
             time.sleep(1)
             is_apsel_end = True
@@ -702,10 +715,9 @@ class TuiApSel(object):
         """
 
         # get the page boundary
-        page_boundary = range(1 + (ap_info.max_row *
-                                   (ap_info.page_number - 1)),
-                              ap_info.max_row + 1 +
-                              (ap_info.max_row * (ap_info.page_number - 1)))
+        page_boundary = range(
+            1 + (ap_info.max_row * (ap_info.page_number - 1)), ap_info.max_row
+            + 1 + (ap_info.max_row * (ap_info.page_number - 1)))
 
         # remove previous content and draw border
         ap_info.box.erase()
@@ -731,18 +743,17 @@ class TuiApSel(object):
             if self.total_ap_number == 0:
                 display_str = "No access point has been discovered yet!"
                 try:
-                    ap_info.box.addstr(1, 1,
-                                       display_string(ap_info.max_l - 1,
-                                                      display_str),
-                                       self.highlight_text)
+                    ap_info.box.addstr(
+                        1, 1, display_string(ap_info.max_l - 1, display_str),
+                        self.highlight_text)
                 except curses.error:
                     return
             # in case of at least one access point
             else:
                 # get the access point and it's vendor
                 access_point = self.access_points[item_position - 1]
-                vendor = self.mac_matcher.get_vendor_name(
-                    access_point.mac_address)
+                self._vendor_name = self.mac_matcher.get(
+                    access_point.mac_address[0:8], "Unknown")
 
                 # the display format for showing access points
                 display_text = ((
@@ -751,7 +762,7 @@ class TuiApSel(object):
                         access_point.name, access_point.mac_address,
                         access_point.channel, access_point.signal_strength,
                         access_point.encryption,
-                        access_point.client_count, vendor))
+                        access_point.get_number_connected_clients(), self._vendor_name))
                 # shows whether the access point should be highlighted or not
                 # based on our current position
                 print_row_number = item_position - ap_info.max_row * (
@@ -761,16 +772,15 @@ class TuiApSel(object):
                 try:
 
                     if item_position == ap_info.pos:
-                        ap_info.box.addstr(print_row_number, 2,
-                                           display_string(
-                                               ap_info.max_l - 2,
-                                               display_text),
-                                           self.highlight_text)
+                        ap_info.box.addstr(
+                            print_row_number, 2,
+                            display_string(ap_info.max_l - 2, display_text),
+                            self.highlight_text)
                     else:
-                        ap_info.box.addstr(print_row_number, 2,
-                                           display_string(
-                                               ap_info.max_l - 2,
-                                               display_text), self.normal_text)
+                        ap_info.box.addstr(
+                            print_row_number, 2,
+                            display_string(ap_info.max_l - 2, display_text),
+                            self.normal_text)
                 except curses.error:
                     return
 
