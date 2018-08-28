@@ -495,7 +495,6 @@ class TuiApSel(object):
         ap_info = ApDisplayInfo(position, page_number, box, box_info)
 
         self.mac_matcher = parse_oui_file(constants.MAC_PREFIX_FILE)
-        LOGGER.info("info is: %s", info)
         # start finding access points
         self.access_point_finder = recon.AccessPointFinder(
             info.interface, info.network_manager)
