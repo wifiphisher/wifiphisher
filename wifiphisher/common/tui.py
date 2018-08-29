@@ -544,6 +544,7 @@ class TuiApSel(object):
 
         # turn off access point discovery
         self.access_point_finder.stop_finding_access_points()
+        return None, None
 
     def resize_window(self, screen, ap_info):
         """
