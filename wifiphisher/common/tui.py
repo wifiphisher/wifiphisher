@@ -12,9 +12,7 @@ import curses
 import wifiphisher.common.constants as constants
 import wifiphisher.common.recon as recon
 import wifiphisher.common.phishingpage as phishingpage
-from logging import getLogger
 
-LOGGER = getLogger(__name__)
 
 # information for the main terminal
 MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
