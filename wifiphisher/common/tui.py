@@ -111,7 +111,7 @@ class TuiTemplateSelection(object):
         by the user is not available.
         """
         # get all available templates
-        templates = template_manager.get_templates()
+        templates = template_manager.templates
 
         # get all the templates names for display
         template_names = list(templates.keys())
@@ -125,7 +125,10 @@ class TuiTemplateSelection(object):
             return templates[template_argument]
         elif template_argument and template_argument not in templates:
             # in case of an invalid template
-            raise phishingpage.InvalidTemplate
+            raise phishingpage.InvalidTemplate(
+                "{template_argument} is either invalid or"
+                "not available locally!".format(
+                    template_argument=template_argument))
         else:
             # prompt interactive phishing scenarios to let user select one
             template = curses.wrapper(self.display_info, templates,
@@ -281,9 +284,9 @@ class TuiTemplateSelection(object):
             # display the words of chosen template
             if key == ord("\n"):
                 try:
-                    screen.addstr(row_number, 3, "YOU HAVE SELECTED " +
-                                  template_names[self.heightlight_number],
-                                  curses.A_BOLD)
+                    screen.addstr(
+                        row_number, 3, "YOU HAVE SELECTED " +
+                        template_names[self.heightlight_number], curses.A_BOLD)
                 except curses.error:
                     pass
                 screen.refresh()
@@ -656,8 +659,9 @@ class TuiApSel(object):
         ap_info.key = screen.getch()
         if ap_info.key == ord("\n") and self.total_ap_number != 0:
             # show message and exit
-            screen.addstr(ap_info.max_h - 2, 3, "YOU HAVE SELECTED " +
-                          self.access_points[ap_info.pos - 1].name)
+            screen.addstr(
+                ap_info.max_h - 2, 3, "YOU HAVE SELECTED " +
+                self.access_points[ap_info.pos - 1].name)
             screen.refresh()
             time.sleep(1)
             is_apsel_end = True
@@ -702,10 +706,9 @@ class TuiApSel(object):
         """
 
         # get the page boundary
-        page_boundary = range(1 + (ap_info.max_row *
-                                   (ap_info.page_number - 1)),
-                              ap_info.max_row + 1 +
-                              (ap_info.max_row * (ap_info.page_number - 1)))
+        page_boundary = range(
+            1 + (ap_info.max_row * (ap_info.page_number - 1)), ap_info.max_row
+            + 1 + (ap_info.max_row * (ap_info.page_number - 1)))
 
         # remove previous content and draw border
         ap_info.box.erase()
@@ -731,10 +734,9 @@ class TuiApSel(object):
             if self.total_ap_number == 0:
                 display_str = "No access point has been discovered yet!"
                 try:
-                    ap_info.box.addstr(1, 1,
-                                       display_string(ap_info.max_l - 1,
-                                                      display_str),
-                                       self.highlight_text)
+                    ap_info.box.addstr(
+                        1, 1, display_string(ap_info.max_l - 1, display_str),
+                        self.highlight_text)
                 except curses.error:
                     return
             # in case of at least one access point
@@ -761,16 +763,15 @@ class TuiApSel(object):
                 try:
 
                     if item_position == ap_info.pos:
-                        ap_info.box.addstr(print_row_number, 2,
-                                           display_string(
-                                               ap_info.max_l - 2,
-                                               display_text),
-                                           self.highlight_text)
+                        ap_info.box.addstr(
+                            print_row_number, 2,
+                            display_string(ap_info.max_l - 2, display_text),
+                            self.highlight_text)
                     else:
-                        ap_info.box.addstr(print_row_number, 2,
-                                           display_string(
-                                               ap_info.max_l - 2,
-                                               display_text), self.normal_text)
+                        ap_info.box.addstr(
+                            print_row_number, 2,
+                            display_string(ap_info.max_l - 2, display_text),
+                            self.normal_text)
                 except curses.error:
                     return
 
