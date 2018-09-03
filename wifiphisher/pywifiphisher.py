@@ -498,7 +498,7 @@ class WifiphisherEngine:
         logger.info("Selecting {} template".format(
             template.display_name))
         print("[" + G + "+" + W + "] Selecting " +
-              template.get_display_name() + " template")
+              template.display_name + " template")
 
         # payload selection for browser plugin update
         if template.has_payload():
