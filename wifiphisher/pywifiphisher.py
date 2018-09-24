@@ -27,6 +27,7 @@ import wifiphisher.common.firewall as firewall
 import wifiphisher.common.accesspoint as accesspoint
 import wifiphisher.common.tui as tui
 import wifiphisher.common.opmode as opmode
+import wifiphisher.common.victim as victim
 
 logger = logging.getLogger(__name__)
 
@@ -279,6 +280,7 @@ class WifiphisherEngine:
         self.fw = firewall.Fw()
         self.em = extensions.ExtensionManager(self.network_manager)
         self.opmode = opmode.OpMode()
+        self.victim = victim.Victims()
 
     def stop(self):
         if DEV:
