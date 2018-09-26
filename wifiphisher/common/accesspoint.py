@@ -5,17 +5,34 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import time
 import subprocess
+from subprocess import check_output
 import wifiphisher.common.constants as constants
 import roguehostapd.config.hostapdconfig as hostapdconfig
 import roguehostapd.apctrl as apctrl
+import wifiphisher.common.victim as victim
 
 
 class AccessPoint(object):
     """This class forks the softAP."""
 
+    # Instance will be stored here.
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        """Return the instance of the class or create new if none exists."""
+        if AccessPoint.__instance is None:
+            AccessPoint()
+        return AccessPoint.__instance
+
     def __init__(self):
         # type: () -> None
-        """Intialize the class."""
+        """Initialize the class."""
+        if AccessPoint.__instance:
+            raise Exception("Error: AccessPoint class is a singleton!")
+        else:
+            AccessPoint.__instance = self
+
         self.interface = ""
         self.internet_interface = ""
         self.channel = ""
@@ -151,3 +168,26 @@ class AccessPoint(object):
         # sleep 2 seconds to wait all the hostapd process is
         # killed
         time.sleep(2)
+
+    def read_connected_victims_file(self):
+        """Update the Victims dictionary by reading dnsmasq.leases file."""
+        if (not os.path.isfile('/var/lib/misc/dnsmasq.leases')):
+            return
+        with open("/var/lib/misc/dnsmasq.leases", "r") as dnsmasq_leases:
+            for line in dnsmasq_leases:
+                line = line.split()
+                if not line:
+                    return
+                mac_address = line[1].strip()
+                ip_address = line[2].strip()
+                # Get instance of victims dic
+                victims_instance = victim.Victims.get_instance()
+                if mac_address in victims_instance.victims_dic:
+                    existing_victim = victims_instance.victims_dic[mac_address]
+                    if ip_address == existing_victim.ip_address:
+                        return
+                    existing_victim.assign_ip_to_victim(mac_address, ip_address)
+                else:
+                    new_victim = victim.Victim(mac_address, ip_address)
+                    victims_instance.add_to_victim_dic(new_victim)
+                    new_victim.associate_victim_mac_to_vendor(mac_address)

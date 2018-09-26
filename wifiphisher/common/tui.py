@@ -12,6 +12,8 @@ import curses
 import wifiphisher.common.constants as constants
 import wifiphisher.common.recon as recon
 import wifiphisher.common.phishingpage as phishingpage
+import wifiphisher.common.victim as victim
+import wifiphisher.common.accesspoint as accesspoint
 
 # information for the main terminal
 MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
@@ -822,8 +824,10 @@ class TuiMain(object):
         screen.nodelay(True)
         curses.init_pair(1, curses.COLOR_BLUE, screen.getbkgd())
         curses.init_pair(2, curses.COLOR_YELLOW, screen.getbkgd())
+        curses.init_pair(3, curses.COLOR_RED, screen.getbkgd())
         self.blue_text = curses.color_pair(1) | curses.A_BOLD
         self.yellow_text = curses.color_pair(2) | curses.A_BOLD
+        self.red_text = curses.color_pair(3) | curses.A_BOLD
 
         while True:
             # catch the exception when screen size is smaller than
@@ -905,6 +909,10 @@ class TuiMain(object):
         :rtype: bool
         """
 
+        # Get accesspoint instance and read victims from file
+        accesspoint_instance = accesspoint.AccessPoint.get_instance()
+        accesspoint_instance.read_connected_victims_file()
+
         is_done = False
         screen.erase()
 
@@ -939,14 +947,16 @@ class TuiMain(object):
                 screen.addstr(raw_num, 0, client)
                 raw_num += 1
         try:
-            # print the dhcp lease section
-            screen.addstr(7, 0, "DHCP Leases: ", self.blue_text)
-            if os.path.isfile('/var/lib/misc/dnsmasq.leases'):
-                dnsmasq_output = check_output(
-                    ['head', '-5', '/var/lib/misc/dnsmasq.leases'])
-                screen.addstr(8, 0, dnsmasq_output)
-
-            # print the http request section
+            # Print the connected victims section
+            screen.addstr(7, 0, "Connected Victims: ", self.blue_text)
+            victims_instance = victim.Victims.get_instance()
+            vict_dic = victims_instance.get_print_representation()
+            row_counter = 8
+            for key in vict_dic:
+                screen.addstr(row_counter, 0, key, self.red_text)
+                screen.addstr(row_counter, 22, vict_dic[key])
+                row_counter += 1
+            # Print the http request section
             screen.addstr(13, 0, "HTTP requests: ", self.blue_text)
             if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
                 http_output = check_output(
