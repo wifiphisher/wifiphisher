@@ -142,7 +142,8 @@ Following are all the options along with their descriptions (also available with
 |-wAI|--wpspbc-assoc-interface|The WLAN interface used for associating to the WPS AccessPoint.|
 |-kb|--known-beacons|Perform the known beacons Wi-Fi automatic association technique.|
 |-fH|--force-hostapd|Force the usage of hostapd installed in the system.|
-|-dC DNSMASQ_CONF|--dnsmasq-conf DNSMASQ_CONF|Determine the full path of a custom dnmasq.conf file|
+|-dC DNSMASQ_CONF|--dnsmasq-conf DNSMASQ_CONF|Determine the full path of dnmasq.conf file.|
+|-dK|--disable-karma|Disables KARMA attack.|
 
 
 ## Screenshots

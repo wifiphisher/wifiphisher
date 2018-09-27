@@ -145,6 +145,11 @@ def parse_args():
         help="Log activity to file",
         action="store_true")
     parser.add_argument(
+        "-dK",
+        "--disable-karma",
+        help="Disables KARMA attack",
+        action="store_true") 
+    parser.add_argument(
         "-lP",
         "--logpath",
         default=None,
@@ -582,7 +587,7 @@ class WifiphisherEngine:
             self.access_point.internet_interface = args.internetinterface
         print '[' + T + '*' + W + '] Starting the fake access point...'
         try:
-            self.access_point.start()
+            self.access_point.start(disable_karma=args.disable_karma)
             self.access_point.start_dhcp_dns()
         except BaseException:
             self.stop()

@@ -88,7 +88,7 @@ class AccessPoint(object):
         if constants.NETWORK_GW_IP not in proc:
             return False
 
-    def start(self):
+    def start(self, disable_karma=False):
         # type: () -> None
         """Start the softAP."""
         # create the configuration for roguehostapd
@@ -103,8 +103,9 @@ class AccessPoint(object):
         self.hostapd_object = apctrl.Hostapd()
         if not self.force_hostapd:
             try:
-                # Enable KARMA attack
-                hostapd_config["karma_enable"] = 1
+                # Enable KARMA attack if needed
+                if not disable_karma:
+                    hostapd_config["karma_enable"] = 1
                 # Enable WPSPBC KARMA attack
                 hostapd_config["wpspbc"] = True
                 hostapd_options = {
