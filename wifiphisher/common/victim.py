@@ -88,8 +88,7 @@ class Victims():
         for value in self.victims_dic.values():
             mac_timestamp[value.vmac_address] = value.timestamp
 
-        sorted_mac_timestamp = sorted(mac_timestamp.iteritems(),
-                                      key=lambda p: float(p[1]))
+        sorted_mac_timestamp = sorted(mac_timestamp.iteritems(), key=lambda p: float(p[1]))
 
         for item in reversed(sorted_mac_timestamp):
             if max_victim_counter >= 5:

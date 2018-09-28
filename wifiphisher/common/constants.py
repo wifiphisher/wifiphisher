@@ -5,8 +5,7 @@
 import os
 
 dir_of_executable = os.path.dirname(__file__)
-path_to_project_root = os.path.abspath(
-    os.path.join(dir_of_executable, '../../wifiphisher'))
+path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '../../wifiphisher'))
 dir_of_data = path_to_project_root + '/data/'
 phishing_pages_dir = dir_of_data + "phishing-pages/"
 
@@ -44,16 +43,15 @@ WIFI_IPV6MCAST2 = "33:33:ff:"
 WIFI_SPANNINGTREE = "01:80:c2:00:00:00"
 WIFI_MULTICAST = "01:00:5e:"
 NON_CLIENT_ADDRESSES = set([
-    WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_IPV6MCAST1,
-    WIFI_IPV6MCAST2, WIFI_SPANNINGTREE, None
+    WIFI_BROADCAST, WIFI_INVALID, WIFI_MULTICAST, WIFI_IPV6MCAST1, WIFI_IPV6MCAST2,
+    WIFI_SPANNINGTREE, None
 ])
 DEFAULT_OUI = '00:00:00'
 LINES_OUTPUT = 3
 DN = open(os.devnull, 'w')
 INTERFERING_PROCS = [
-    "wpa_action", "wpa_supplicant", "wpa_cli", "dhclient", "ifplugd", "dhcdbd",
-    "dhcpcd", "udhcpc", "avahi-autoipd", "avahi-daemon", "wlassistant",
-    "wifibox", "NetworkManager", "knetworkmanager"
+    "wpa_action", "wpa_supplicant", "wpa_cli", "dhclient", "ifplugd", "dhcdbd", "dhcpcd", "udhcpc",
+    "avahi-autoipd", "avahi-daemon", "wlassistant", "wifibox", "NetworkManager", "knetworkmanager"
 ]
 DNS_CONF_PATH = '/tmp/dnsmasq.conf'
 NEW_YEAR = "01-01"

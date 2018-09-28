@@ -5,15 +5,14 @@ language: python
 
 dist: trusty
 
-python:
-  - "2.7"
-
 install:
   - pip install pylint tox scapy
   - pip install tornado==4.5.3
   - python setup.py install
 
 script:
+  - pyenv global 2.7.14 3.6.3
+  - pyenv versions
   - pylint --errors-only wifiphisher
   - tox -e ALL
 
@@ -44,6 +43,6 @@ notifications:
 
 addons:
     apt:
-        packages:
-          - hostapd
-          - dnsmasq
+      packages:
+        - hostapd
+        - dnsmasq

@@ -123,8 +123,7 @@ class Handshakeverify(object):
         index = 0
         return_array = ''
         while index <= ((blen * 8 + 159) / 160):
-            hmacsha1 = hmac.new(
-                key, const_a + chr(0x00) + const_b + chr(index), hashlib.sha1)
+            hmacsha1 = hmac.new(key, const_a + chr(0x00) + const_b + chr(index), hashlib.sha1)
             index += 1
             return_array = return_array + hmacsha1.digest()
         return return_array[:blen]
@@ -147,13 +146,11 @@ class Handshakeverify(object):
         try:
             essid = self._data.target_ap_essid
             # constant for calculating PTK of 80211
-            ap_mac = binascii.a2b_hex(''.join(
-                self._data.target_ap_bssid.split(":")))
+            ap_mac = binascii.a2b_hex(''.join(self._data.target_ap_bssid.split(":")))
             # extract the APNonce from MSG-1
             ap_nonce = self._eapols[0].load[13:45]
             # address one of the MSG-1 is client's MAC address
-            client_mac = binascii.a2b_hex(''.join(
-                self._eapols[0].addr1.split(":")))
+            client_mac = binascii.a2b_hex(''.join(self._eapols[0].addr1.split(":")))
             # extract the SNonce from MSG-2
             client_nonce = self._eapols[1].load[13:45]
             # constant for calculating PTK of 80211
@@ -179,8 +176,7 @@ class Handshakeverify(object):
             # compare the MIC calculated with the MIC from air
             if key_version:
                 # use SHA1 Hash
-                msg4_mic_cal = hmac.new(ptk[0:16], msg4_data,
-                                        hashlib.sha1).hexdigest()[:32]
+                msg4_mic_cal = hmac.new(ptk[0:16], msg4_data, hashlib.sha1).hexdigest()[:32]
             else:
                 # use MD5 Hash
                 msg4_mic_cal = hmac.new(ptk[0:16], msg4_data).hexdigest()[:32]

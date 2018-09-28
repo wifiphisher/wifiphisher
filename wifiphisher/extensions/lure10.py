@@ -72,22 +72,16 @@ class Lure10(object):
                     # craft the required packet parts
                     frame_part_0 = dot11.RadioTap()
                     frame_part_1 = dot11.Dot11(
-                        subtype=8,
-                        addr1=constants.WIFI_BROADCAST,
-                        addr2=bssid,
-                        addr3=bssid)
+                        subtype=8, addr1=constants.WIFI_BROADCAST, addr2=bssid, addr3=bssid)
                     frame_part_2 = dot11.Dot11Beacon(cap=0x2105)
                     frame_part_3 = dot11.Dot11Elt(ID="SSID", info="")
-                    frame_part_4 = dot11.Dot11Elt(
-                        ID="Rates", info=constants.AP_RATES)
+                    frame_part_4 = dot11.Dot11Elt(ID="Rates", info=constants.AP_RATES)
                     frame_part_5 = dot11.Dot11Elt(ID="DSset", info=chr(7))
 
                     # create a complete packet by combining the parts
-                    complete_frame = (
-                        frame_part_0 / frame_part_1 / frame_part_2 /
-                        frame_part_3 / frame_part_4 / frame_part_5)
-                    logger.debug("Add lure10-beacon frame with BSSID %s",
-                                 bssid)
+                    complete_frame = (frame_part_0 / frame_part_1 / frame_part_2 / frame_part_3 /
+                                      frame_part_4 / frame_part_5)
+                    logger.debug("Add lure10-beacon frame with BSSID %s", bssid)
                     # add the frame to the list
                     beacons.append(complete_frame)
 

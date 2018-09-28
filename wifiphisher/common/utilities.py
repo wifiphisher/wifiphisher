@@ -5,8 +5,7 @@ the project.
 
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 from logging import getLogger
 from subprocess import (PIPE, Popen)
 from wifiphisher.common.constants import DN
@@ -21,6 +20,5 @@ def execute_commands(commands):
     for command in commands:
         _, error = Popen(command.split(), stderr=PIPE, stdout=DN).communicate()
         if error:
-            logger.error(
-                "{command} has failed with the following error:\n{error}".
-                format(command=command, error=error))
+            logger.error("{command} has failed with the following error:\n{error}".format(
+                command=command, error=error))

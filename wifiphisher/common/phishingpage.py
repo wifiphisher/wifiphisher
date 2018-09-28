@@ -34,8 +34,8 @@ class InvalidTemplate(Exception):
     """ Exception class to raise in case of a invalid template """
 
     def __init__(self):
-        Exception.__init__(self, "The given template is either invalid or " +
-                           "not available locally!")
+        Exception.__init__(self,
+                           "The given template is either invalid or " + "not available locally!")
 
 
 class PhishingTemplate(object):
@@ -54,26 +54,21 @@ class PhishingTemplate(object):
 
         # setup all the variables
 
-        config_path = os.path.join(constants.phishing_pages_dir, name,
-                                   'config.ini')
+        config_path = os.path.join(constants.phishing_pages_dir, name, 'config.ini')
         info = config_section_map(config_path, 'info')
 
         self._name = name
         self._display_name = info['name']
         self._description = info['description']
         self._payload = False
-        self._config_path = os.path.join(constants.phishing_pages_dir,
-                                         self._name, 'config.ini')
+        self._config_path = os.path.join(constants.phishing_pages_dir, self._name, 'config.ini')
         if 'payloadpath' in info:
             self._payload = info['payloadpath']
 
-        self._path = os.path.join(constants.phishing_pages_dir,
-                                  self._name.lower(),
+        self._path = os.path.join(constants.phishing_pages_dir, self._name.lower(),
                                   constants.SCENARIO_HTML_DIR)
-        self._path_static = os.path.join(constants.phishing_pages_dir,
-                                         self._name.lower(),
-                                         constants.SCENARIO_HTML_DIR,
-                                         'static')
+        self._path_static = os.path.join(constants.phishing_pages_dir, self._name.lower(),
+                                         constants.SCENARIO_HTML_DIR, 'static')
 
         self._context = config_section_map(config_path, 'context')
         self._extra_files = []
@@ -106,15 +101,13 @@ class PhishingTemplate(object):
             if option != "payloadpath":
                 config.set('info', option, original_config.get('info', option))
             else:
-                dirname = os.path.dirname(
-                    original_config.get('info', 'payloadpath'))
+                dirname = os.path.dirname(original_config.get('info', 'payloadpath'))
                 filepath = os.path.join(dirname, payload_filename)
                 config.set('info', option, filepath)
 
         # update the context section
         config.add_section('context')
-        dirname = os.path.dirname(
-            original_config.get('context', 'update_path'))
+        dirname = os.path.dirname(original_config.get('context', 'update_path'))
         filepath = os.path.join(dirname, payload_filename)
         config.set('context', 'update_path', filepath)
         with open(config_path, 'wb') as configfile:

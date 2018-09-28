@@ -6,8 +6,7 @@ from time import (strftime, sleep)
 from logging import getLogger
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.globals as universal
-from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES,
-                                          LOCS_DIR)
+from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES, LOCS_DIR)
 
 LOGGER = getLogger(__name__)
 
@@ -133,11 +132,7 @@ class AccessPointFinder(object):
         # with all the information gathered create and add the
         # access point
         access_point = AccessPoint(
-            name,
-            mac_address,
-            channel,
-            encryption_type,
-            capture_file=self._capture_file)
+            name, mac_address, channel, encryption_type, capture_file=self._capture_file)
         access_point.signal_strength = new_signal_strength
         self.observed_access_points.append(access_point)
 
@@ -145,11 +140,7 @@ class AccessPointFinder(object):
         # type: () -> None
         """Sniff packets one at a time until otherwise set."""
         while self._should_continue:
-            dot11.sniff(
-                iface=self._interface,
-                prn=self._process_packets,
-                count=1,
-                store=0)
+            dot11.sniff(iface=self._interface, prn=self._process_packets, count=1, store=0)
 
     def capture_aps(self):
         """Create Lure10 capture file."""
@@ -182,8 +173,7 @@ class AccessPointFinder(object):
             for channel in universal.ALL_2G_CHANNELS:
                 # added this check to reduce shutdown time
                 if self._should_continue:
-                    self._network_manager.set_interface_channel(
-                        self._interface, channel)
+                    self._network_manager.set_interface_channel(self._interface, channel)
                     sleep(3)
                 else:
                     break
@@ -205,8 +195,7 @@ class AccessPointFinder(object):
             return None
 
         # if a valid address is provided
-        if (receiver_identifier,
-                sender_identifier) not in NON_CLIENT_ADDRESSES:
+        if (receiver_identifier, sender_identifier) not in NON_CLIENT_ADDRESSES:
 
             # if discovered access point is either sending or receving
             # add client if it's mac address is not in the MAC filter
@@ -227,17 +216,13 @@ class AccessPointFinder(object):
     def get_sorted_access_points(self):
         # type: () -> List[str]
         """Return all access points sorted based on signal strength."""
-        return sorted(
-            self.observed_access_points,
-            key=lambda ap: ap.signal_strength,
-            reverse=True)
+        return sorted(self.observed_access_points, key=lambda ap: ap.signal_strength, reverse=True)
 
 
 def get_rssi(non_decoded_packet):
     # type: (scapy.layers.RadioTap) -> int
     """Return the rssi value of the packet."""
-    return -(256 - max(
-        ord(non_decoded_packet[-4:-3]), ord(non_decoded_packet[-2:-1])))
+    return -(256 - max(ord(non_decoded_packet[-4:-3]), ord(non_decoded_packet[-2:-1])))
 
 
 def calculate_signal_strength(rssi):
@@ -265,19 +250,16 @@ def find_encryption_type(packet):
     found_wps = False
 
     # extract information from packet
-    while (isinstance(elt_section, dot11.Dot11Elt)
-           or (not encryption_type and not found_wps)):
+    while (isinstance(elt_section, dot11.Dot11Elt) or (not encryption_type and not found_wps)):
         # check if encryption type is WPA2
         if elt_section.ID == 48:
             encryption_type = "WPA2"
 
         # check if encryption type is WPA
-        elif (elt_section.ID == 221
-              and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
+        elif (elt_section.ID == 221 and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
             encryption_type = "WPA"
         # check if WPS IE exists
-        if (elt_section.ID == 221
-                and elt_section.info.startswith("\x00P\xf2\x04")):
+        if (elt_section.ID == 221 and elt_section.info.startswith("\x00P\xf2\x04")):
             found_wps = True
 
         # break down the packet

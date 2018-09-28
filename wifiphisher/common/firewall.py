@@ -1,7 +1,6 @@
 """Serves as an abstraction layer in front of iptables."""
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 from wifiphisher.common.constants import (NETWORK_GW_IP, SSL_PORT, PORT)
 from wifiphisher.common.utilities import execute_commands
 
@@ -14,20 +13,16 @@ class Fw():
         # type: (str, str) -> None
         """Do NAT."""
         execute_commands([
-            "iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(
-                external_interface),
-            "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(
-                internal_interface, external_interface)
+            "iptables -t nat -A POSTROUTING -o {} -j MASQUERADE".format(external_interface),
+            "iptables -A FORWARD -i {} -o {} -j ACCEPT".format(internal_interface,
+                                                               external_interface)
         ])
 
     @staticmethod
     def clear_rules():
         # type: () -> None
         """Clear all rules."""
-        execute_commands([
-            "iptables -F", "iptables -X", "iptables -t nat -F",
-            "iptables -t nat -X"
-        ])
+        execute_commands(["iptables -F", "iptables -X", "iptables -t nat -F", "iptables -t nat -X"])
 
     @staticmethod
     def redirect_requests_localhost():
@@ -41,8 +36,8 @@ class Fw():
         """
         execute_commands([
             "iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT "
-            "--to-destination {}:{}".format(NETWORK_GW_IP, PORT),
-            "iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT "
+            "--to-destination {}:{}".format(
+                NETWORK_GW_IP, PORT), "iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, 53),
             "iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT "
             "--to-destination {}:{}".format(NETWORK_GW_IP, 53),
