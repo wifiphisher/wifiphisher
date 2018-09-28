@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # pylint: skip-file
+
 import os
 
 dir_of_executable = os.path.dirname(__file__)
@@ -22,7 +23,6 @@ EXTENSIONS_LOADPATH = "wifiphisher.extensions."
 PORT = 8080
 SSL_PORT = 443
 CHANNEL = 6
-ALL_2G_CHANNELS = range(1, 14)
 WEBSITE = "https://wifiphisher.org"
 PUBLIC_DNS = "8.8.8.8"
 PEM = dir_of_data + 'cert/server.pem'

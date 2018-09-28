@@ -11,6 +11,7 @@ from collections import defaultdict
 import scapy.layers.dot11 as dot11
 import scapy.arch.linux as linux
 import wifiphisher.common.constants as constants
+import wifiphisher.common.globals as universal
 import wifiphisher.extensions.deauth as deauth_extension
 
 logger = logging.getLogger(__name__)
@@ -331,7 +332,7 @@ class ExtensionManager(object):
         # clear the _packets_to_send on every run of the
         # sniffed frame
         self._packets_to_send = defaultdict(list)
-        channels = [str(ch) for ch in constants.ALL_2G_CHANNELS] + ["*"]
+        channels = [str(ch) for ch in universal.ALL_2G_CHANNELS] + ["*"]
         for extension in self._extensions:
             ext_pkts = extension.get_packet(pkt)
             for channel in channels:

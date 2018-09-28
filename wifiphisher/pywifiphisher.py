@@ -17,6 +17,7 @@ from threading import Thread
 from subprocess import Popen, PIPE, check_output
 from shutil import copyfile
 from wifiphisher.common.constants import *
+import wifiphisher.common.globals as universal
 import wifiphisher.common.extensions as extensions
 import wifiphisher.common.recon as recon
 import wifiphisher.common.phishingpage as phishingpage
@@ -234,6 +235,26 @@ def set_route_localnet():
         stderr=PIPE)
 
 
+def set_channel_range():
+    """
+    Set channel range accordingly.
+    """
+    region = time.tzname[time.daylight]
+
+    if "JST" in region:
+        print '[' + G + '+' + W + "] " + \
+              "JST timezone detected. " + \
+              "Setting channel range to 1-14"
+        universal.ALL_2G_CHANNELS = range(1,15)
+        return
+
+    print '[' + G + '+' + W + "] " + \
+          "Timezone detected. " + \
+          "Setting channel range to 1-13"
+    universal.ALL_2G_CHANNELS = range(1,14)
+    return
+
+
 def kill_interfering_procs():
     """
     Kill the interfering processes that may interfere the wireless card
@@ -334,6 +355,9 @@ class WifiphisherEngine:
         if os.geteuid():
             logger.error("Non root user detected")
             sys.exit('[' + R + '-' + W + '] Please run as root')
+
+        # Set the channel range
+        set_channel_range()
 
         # Parse args
         global args, APs

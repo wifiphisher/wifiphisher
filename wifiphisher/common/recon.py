@@ -5,8 +5,9 @@ from threading import Thread
 from time import (strftime, sleep)
 from logging import getLogger
 import scapy.layers.dot11 as dot11
+import wifiphisher.common.globals as universal
 from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES,
-                                          ALL_2G_CHANNELS, LOCS_DIR)
+                                          LOCS_DIR)
 
 LOGGER = getLogger(__name__)
 
@@ -91,7 +92,7 @@ class AccessPointFinder(object):
         elt_section = packet[dot11.Dot11Elt]
         try:
             channel = str(ord(packet[dot11.Dot11Elt][2].info))
-            if int(channel) not in ALL_2G_CHANNELS:
+            if int(channel) not in universal.ALL_2G_CHANNELS:
                 return
         except (TypeError, IndexError):
             return
@@ -177,7 +178,7 @@ class AccessPointFinder(object):
         .. note: The channel range is between 1 to 13
         """
         while True:
-            for channel in ALL_2G_CHANNELS:
+            for channel in universal.ALL_2G_CHANNELS:
                 if not self._should_continue:
                     break
 
