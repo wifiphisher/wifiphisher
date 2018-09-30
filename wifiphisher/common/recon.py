@@ -177,14 +177,16 @@ class AccessPointFinder(object):
 
         .. note: The channel range is between 1 to 13
         """
-        while True:
+        # if the stop flag not set, change the channel
+        while self._should_continue:
             for channel in universal.ALL_2G_CHANNELS:
-                if not self._should_continue:
+                # added this check to reduce shutdown time
+                if self._should_continue:
+                    self._network_manager.set_interface_channel(
+                        self._interface, channel)
+                    sleep(3)
+                else:
                     break
-
-                self._network_manager.set_interface_channel(
-                    self._interface, channel)
-                sleep(3)
 
     def _find_clients(self, packet):
         # type: (scapy.layers.RadioTap) -> None
