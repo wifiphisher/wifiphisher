@@ -37,7 +37,7 @@ class AccessPoint(object):
         self.internet_interface = ""
         self.channel = ""
         self.essid = ""
-        self.psk = ""
+        self.presharedkey = ""
         self.force_hostapd = False
         # roguehostapd object
         self.hostapd_object = None
@@ -98,8 +98,8 @@ class AccessPoint(object):
             "channel": self.channel,
             "deny_macs": self.deny_mac_addrs,
         }
-        if self.psk:
-            hostapd_config['wpa2password'] = self.psk
+        if self.presharedkey:
+            hostapd_config['wpa2password'] = self.presharedkey
         self.hostapd_object = apctrl.Hostapd()
         if not self.force_hostapd:
             try:

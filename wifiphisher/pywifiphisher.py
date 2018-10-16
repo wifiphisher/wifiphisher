@@ -606,7 +606,7 @@ class WifiphisherEngine:
                 args.wpspbc_assoc_interface)
             self.access_point.deny_mac_addrs.append(wps_mac)
         if args.presharedkey:
-            self.access_point.set_psk = args.presharedkey
+            self.access_point.presharedkey = args.presharedkey
         if self.opmode.internet_sharing_enabled():
             self.access_point.internet_interface = args.internetinterface
         print '[' + T + '*' + W + '] Starting the fake access point...'
