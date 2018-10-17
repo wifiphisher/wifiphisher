@@ -124,7 +124,7 @@ class Deauth(object):
 
             # only compare essid when -dE is given
             return ((self._data.args.deauth_essid
-                     and essid == self._data.target_ap_essid) or
+                     and essid == self._data.args.deauth_essid) or
                     # frenzy deauth
                     (not self._data.args.deauth_essid
                      and not self._data.target_ap_bssid) or

@@ -103,9 +103,7 @@ def parse_args():
     parser.add_argument(
         "-dE",
         "--deauth-essid",
-        help=("Deauth all the BSSIDs having same ESSID from AP selection or " +
-              "the ESSID given by -e option"),
-        action='store_true')
+        help=("Deauth all the BSSIDs in the WLAN with that ESSID."))
     parser.add_argument(
         "-p",
         "--phishingscenario",
@@ -122,7 +120,6 @@ def parse_args():
         "--handshake-capture",
         help=("Capture of the WPA/WPA2 handshakes for verifying passphrase" +
               "Example : -hC capture.pcap"))
-
     parser.add_argument(
         "-qS",
         "--quitonsuccess",

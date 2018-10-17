@@ -132,7 +132,7 @@ Following are all the options along with their descriptions (also available with
 |-iEM| --mac-extensions-interface| Specify the MAC address of the extensions interface. Example: -iEM E8:2A:EA:00:00:00|
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
-|-dE|--deauth-essid|Deauth all the BSSIDs having same ESSID from AP selection or the ESSID given by -e option.|
+|-dE ESSID|--deauth-essid ESSID|Deauth all the BSSIDs in the WLAN with that ESSID.|
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|
 |-lP LOGPATH| --logpath LOGPATH| Determine the full path of the logfile.|
 |-cP CREDENTIAL_LOG_PATH|--credential-log-path CREDENTIAL_LOG_PATH|Determine the full path of the file that will store any captured credentials|
