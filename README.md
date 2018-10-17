@@ -144,6 +144,7 @@ Following are all the options along with their descriptions (also available with
 |-fH|--force-hostapd|Force the usage of hostapd installed in the system.|
 |-dC DNSMASQ_CONF|--dnsmasq-conf DNSMASQ_CONF|Determine the full path of dnmasq.conf file.|
 |-dK|--disable-karma|Disables KARMA attack.|
+|-pE|--phishing-essid|Determine the ESSID you want to use for the phishing page.|
 
 
 ## Screenshots

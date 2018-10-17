@@ -182,7 +182,6 @@ def parse_args():
         "--force-hostapd",
         help="Force the usage of hostapd installed in the system",
         action='store_true')
-
     parser.add_argument("-pPD",
                         "--phishing-pages-directory",
                         help="Search for phishing pages in this location")
@@ -191,6 +190,10 @@ def parse_args():
         "--dnsmasq-conf",
         help="Determine the full path of a custom dnmasq.conf file",
         default='/tmp/dnsmasq.conf')
+    parser.add_argument(
+        "-pE",
+        "--phishing-essid",
+        help="Determine the ESSID you want to use for the phishing page")
 
     return parser.parse_args()
 
@@ -572,6 +575,7 @@ class WifiphisherEngine:
             'target_ap_channel':
             channel or "",
             'target_ap_essid':
+            args.phishing_essid or 
             essid or "",
             'target_ap_bssid':
             target_ap_mac or "",
