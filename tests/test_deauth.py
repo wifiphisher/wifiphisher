@@ -821,23 +821,8 @@ class TestDeauth(unittest.TestCase):
         essid = dot11.Dot11Elt(ID='SSID', info="Evil")
         packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
         packet.addr3 = "99:99:99:99:99:99"
-        self.deauth_obj0._data.args.deauth_essid = True
+        self.deauth_obj0._data.args.deauth_essid = "Evil"
         result = self.deauth_obj0._is_target(packet)
-
-        expected = True
-        message = "Fail to check the attacking essid: " + self.target_essid
-        self.assertEqual(result, expected, message)
-
-    def test_is_target_target_ap_bssid_None_true(self):
-        """
-        Get the target attacking bssid for the speficic ESSID
-        when --essid is not used
-        """
-        essid = dot11.Dot11Elt(ID='SSID', info="Evil")
-        packet = dot11.RadioTap() / dot11.Dot11() / dot11.Dot11Beacon() / essid
-        packet.addr3 = "99:99:99:99:99:99"
-        self.deauth_obj1._data.args.deauth_essid = True
-        result = self.deauth_obj1._is_target(packet)
 
         expected = True
         message = "Fail to check the attacking essid: " + self.target_essid
