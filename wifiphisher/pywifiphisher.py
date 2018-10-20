@@ -95,6 +95,13 @@ def parse_args():
         help=("Skip the deauthentication phase."),
         action='store_true')
     parser.add_argument(
+        "-dC",
+        "--deauth-channels", 
+        nargs="+",
+        type=int,
+        help=("Channels to deauth. " +
+              "Example: --deauth-channels 1,3,7"))
+    parser.add_argument(
         "-e",
         "--essid",
         help=("Enter the ESSID of the rogue Access Point. " +
@@ -183,7 +190,6 @@ def parse_args():
                         "--phishing-pages-directory",
                         help="Search for phishing pages in this location")
     parser.add_argument(
-        "-dC",
         "--dnsmasq-conf",
         help="Determine the full path of a custom dnmasq.conf file",
         default='/tmp/dnsmasq.conf')

@@ -144,6 +144,14 @@ class OpMode(object):
                 '] --credential-log-path (-cP) requires --logging option.'
             )
 
+        if args.deauth_channels:
+            for channel in args.deauth_channels:
+                if channel > 14 or channel < 0:
+                    sys.exit(
+                        '[' + constants.R + '!' + constants.W +
+                        '] --deauth-channels (-dC) requires channels in range 1-14.'
+                    )
+
     def set_opmode(self, args, network_manager):
         """
         Sets the operation mode.

@@ -31,6 +31,7 @@ class TestDeauth(unittest.TestCase):
         self.args = mock.Mock()
         self.args.deauth_essid = False
         self.args.channel_monitor = False
+        self.args.deauth_channels = []
 
         data0 = custom_tuple(self.target_bssid, self.target_channel, self.rogue_mac,
                              self.args, self.target_essid, True)
@@ -838,4 +839,23 @@ class TestDeauth(unittest.TestCase):
         result = self.deauth_obj0._is_target(packet)
         expected = False
         message = 'Fail to raise the UnicodeDecodeError for non-printable essid'
+        self.assertEqual(result, expected, message)
+
+    def test_channel_deauth(self):
+        """
+        Test that we are deauthing on the right channels each time.
+        """
+
+        # In obj0 we are targetting a specific AP 
+        # Default behavior (e.g. through AP selection phase)
+        result = self.deauth_obj0.send_channels()
+        expected = [str(self.deauth_obj0._data.target_ap_channel)]
+        message = "Fail to receive right channels"
+        self.assertEqual(result, expected, message)
+
+        # In obj1 we set --deauth-channels 1 2 3 4
+        self.deauth_obj1._data.args.deauth_channels = [1, 2, 3, 4]
+        result = self.deauth_obj1.send_channels()
+        expected = ['1', '2', '3', '4']
+        message = "Fail to receive right channels"
         self.assertEqual(result, expected, message)
