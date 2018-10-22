@@ -293,7 +293,8 @@ class Deauth(object):
                 and not self._data.args.channel_monitor:
             return [self._data.target_ap_channel]
 
-        if len(self._data.args.deauth_channels) > 0:
+        if self._data.args.deauth_channels and \
+           len(self._data.args.deauth_channels) > 0:
             return map(str, self._data.args.deauth_channels)
 
         return map(str, universal.ALL_2G_CHANNELS)
