@@ -577,7 +577,15 @@ class NetworkManager(object):
                 elif has_monitor_mode and adapter.has_monitor_mode:
                     possible_adapters.append(adapter)
 
-        for adapter in possible_adapters:
+        # From all possible interface candidates, 
+        # give priority to those we may have created
+        our_vifs = []
+        for wlan in self._vifs_add:
+            for adapter in possible_adapters:
+                if wlan.dev == adapter.name:
+                    our_vifs.append(adapter)
+
+        for adapter in our_vifs + possible_adapters:
             if ((not adapter.is_managed_by_nm and self.internet_access_enable)
                     or (not self.internet_access_enable)):
                 chosen_interface = adapter.name
@@ -654,17 +662,18 @@ class NetworkManager(object):
         """
 
         done_flag = True
-        number = 0
+        number = -1
         while done_flag:
             try:
                 number += 1
-                name = 'wlan' + str(number)
+                name = 'wfphshr-wlan' + str(number)
                 pyw.down(card)
                 monitor_card = pyw.devadd(card, name, 'monitor')
                 done_flag = False
             # catch if wlan1 is already exist
             except pyric.error:
                 pass
+
         self._vifs_add.add(monitor_card)
         return name
 
@@ -812,6 +821,8 @@ def is_add_vif_required(args):
         if phy_to_vifs[card.phy][0][1] == 2:
             perfect_card = card
             use_one_phy = True
+        else:
+            raise InvalidInterfaceError(args.interface)
     else:
         perfect_card, use_one_phy = get_perfect_card(
             phy_to_vifs, vif_score_tuples)
