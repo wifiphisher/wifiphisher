@@ -87,6 +87,8 @@ This documentation is also available in `PDF and Epub formats
    opmodes
    faq
    contribute
+   code_req
+   pull_request
 
 * :ref:`genindex`
 * :ref:`modindex`
