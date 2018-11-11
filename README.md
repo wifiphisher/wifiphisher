@@ -103,10 +103,10 @@ Useful against networks with disclosed PSKs (e.g. in conferences). The <a href="
 ***
 
 ```shell
-wifiphisher --noextensions --essid "FREE WI-FI" -p oauth-login -kB
+wifiphisher --essid "FREE WI-FI" -p oauth-login -kB
 ```
 
-Do not load any extensions. Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario. Use the "Known Beacons" Wi-Fi automatic association technique.
+Simply spawn an open Wi-Fi network with ESSID "FREE WI-FI" and perform the "OAuth Login" scenario. Furthermore, mount the "Known Beacons" Wi-Fi automatic association technique.
 
 Useful against victims in public areas. The <a href="https://wifiphisher.org/ps/oauth-login/">"OAuth Login"</a> scenario provides a simple way for capturing credentials from social networks, like Facebook. 
 
@@ -120,7 +120,7 @@ Following are all the options along with their descriptions (also available with
 |-eI EXTENSIONSINTERFACE| --extensionsinterface EXTENSIONSINTERFACE|	Manually choose an interface that supports monitor mode for running the extensions. Example: -eI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
 |-kN| --keepnetworkmanager| Do not kill NetworkManager.|
-|-nJ| --noextensions|	Do not load any extensions.|
+|-nE| --noextensions|	Do not load any extensions.|
 |-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
 |-pPD PHISHING_PAGES_DIRECTORY|--phishing-pages-directory PHISHING_PAGES_DIRECTORY| Search for phishing pages in this location|
 |-p PHISHINGSCENARIO| --phishingscenario PHISHINGSCENARIO	|Choose the phishing scenario to run.This option will skip the scenario selection phase. Example: -p firmware_upgrade|
