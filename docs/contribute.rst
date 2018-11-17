@@ -20,8 +20,8 @@ in addition to `wifiphisher` requirements:
 .. _yapf: https://github.com/google/yapf
 .. _sphinx: http://www.sphinx-doc.org/en/stable/
 
-If you are new to Github, Git or our project coding standards take a look
-at the following:
+If you are new to Github, Git or our project coding standards you can
+find them below.
 
 - :ref:`code_req_label`
 - :ref:`pull_request_label`

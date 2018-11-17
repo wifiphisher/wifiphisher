@@ -58,7 +58,7 @@ you are adding `new.py` module the test file name would be
 
 Test the changes
 #################
-After you made the required changes along with test cases
+After you made changes and have written test cases,
 you need to test it. All you have to do is run
 
 .. code:: bash
@@ -75,7 +75,7 @@ In case of success your screen will look like this:
 
 Commit
 ########
-Once all your changes and test cases passed the tests it is time to commit them.
+Once all your test cases passes, it is time to commit.
 
 .. code:: bash
 
@@ -107,8 +107,7 @@ You can also do it in your editor:
 
 Push
 ######
-You are almost done. Push to the new commits to 
-github by running:
+You are almost done. Push the new commits to github by running:
 
 .. code:: bash
 
@@ -116,7 +115,7 @@ github by running:
 
 .. image:: _static/push.gif
 
-Using editor would be:
+From terminal or you can use your editor like so:
 
 .. image:: _static/vs_push.gif 
 
@@ -133,8 +132,8 @@ To create a pull request on Github
 
 Clean up
 #########
-Most of the times you need to make changes after
-pull request review so the log might look like this:
+Most of the times you need to make changes after a review, so
+your log might look like this:
 
 .. code::
 
