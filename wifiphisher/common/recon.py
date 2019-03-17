@@ -236,8 +236,11 @@ class AccessPointFinder(object):
 def get_rssi(non_decoded_packet):
     # type: (scapy.layers.RadioTap) -> int
     """Return the rssi value of the packet."""
-    return -(256 - max(
-        ord(non_decoded_packet[-4:-3]), ord(non_decoded_packet[-2:-1])))
+    try:
+        return -(256 - max(
+            ord(non_decoded_packet[-4:-3]), ord(non_decoded_packet[-2:-1])))
+    except TypeError:
+        return -100
 
 
 def calculate_signal_strength(rssi):
