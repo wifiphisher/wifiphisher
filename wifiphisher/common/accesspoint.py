@@ -56,7 +56,9 @@ class AccessPoint(object):
             if self.internet_interface:
                 dhcpconf.write("server=%s" % (constants.PUBLIC_DNS, ))
             else:
-                dhcpconf.write("address=/#/%s" % (constants.NETWORK_GW_IP, ))
+                dhcpconf.write("address=/google.com/172.217.5.78\n")
+                dhcpconf.write("address=/clients3.google.com/172.217.11.174\n")
+                dhcpconf.write("address=/#/%s " % (constants.NETWORK_GW_IP, ))
         # catch the exception if dnsmasq is not installed
         try:
             subprocess.Popen(
