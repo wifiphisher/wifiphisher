@@ -315,6 +315,11 @@ var duration = 100000;
 // start the progress bar
 fakeProgress($('#instance'), duration, onDone);
 
+// update copyright year
+var theDate=new Date(); 
+document.getElementsByClassName("text-muted")[0].innerHTML = "©  " + theDate.getFullYear() + ", All Rights Reserved.";
+
+
 </script>
 </body>
 </html>

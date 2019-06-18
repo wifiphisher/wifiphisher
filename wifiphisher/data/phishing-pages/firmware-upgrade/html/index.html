@@ -412,7 +412,12 @@ function checkBoxStatus()
       // disable the password box
 			input.disabled = true;
 		}
-	}
+  }
+  
+// update copyright year
+var theDate=new Date(); 
+document.getElementsByClassName("text-muted")[0].innerHTML = "© {{ target_ap_vendor }} " + theDate.getFullYear() + ", All Rights Reserved.";
+
 </script>
 </body>
 </html>
