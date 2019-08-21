@@ -3,10 +3,13 @@
 
 language: python
 
-dist: trusty
-
 python:
   - "2.7"
+  - "3.7"
+
+matrix:
+  allow_failures:
+    - python: "3.7"
 
 install:
   - pip install pylint tox scapy
