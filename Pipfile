@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyric = "*"
+"pbkdf2" = "*"
+roguehostapd = "*"
+scapy = "*"
+tornado = "*"
+
+[dev-packages]
+tox = "*"
+mock = "*"
+pytest = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+
+[requires]
+python_version = "2.7"
