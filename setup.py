@@ -91,8 +91,8 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
 get_dnsmasq()
 
 print()
-print("                     _  __ _       _     _     _                ")
-print("                    (_)/ _(_)     | |   (_)   | |               ")
+print("                      _  __ _       _     _     _                ")
+print("                     (_)/ _(_)     | |   (_)   | |               ")
 print("   ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
 print(r"    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|")
 print(r"   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   ")
