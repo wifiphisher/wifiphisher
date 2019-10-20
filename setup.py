@@ -59,7 +59,7 @@ def get_dnsmasq():
 
 # setup settings
 NAME = "wifiphisher"
-AUTHOR = "sophron"
+AUTHOR = "Mr.Sophron"
 AUTHOR_EMAIL = "sophron@latthi.com"
 URL = "https://github.com/wifiphisher/wifiphisher"
 DESCRIPTION = "Automated phishing attacks against Wi-Fi networks"
@@ -91,12 +91,14 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
 get_dnsmasq()
 
 print()
-print("                     _  __ _       _     _     _               ")
-print("                    (_)/ _(_)     | |   (_)   | |              ")
-print("  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
+print("                     _  __ _       _     _     _                ")
+print("                    (_)/ _(_)     | |   (_)   | |               ")
+print("   ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
 print(r"    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|")
 print(r"   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   ")
 print(r"  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|   ")
 print(r" /     \                    | |                                ")
-print("                            |_|                                ")
-print("                                                               ")
+print("                             |_|                                ")
+print("                                                                ")
+print("................................................................")
+
