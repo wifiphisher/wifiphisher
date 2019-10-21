@@ -9,6 +9,11 @@ import os
 from setuptools import setup, find_packages, Command
 import wifiphisher.common.constants as constants
 
+try:
+    raw_input  # Python 2
+except NameError:
+    raw_input = input  # Python 3
+
 
 class CleanCommand(Command):
     """Custom clean command to tidy up the project root."""
