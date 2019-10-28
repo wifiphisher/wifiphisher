@@ -2,6 +2,7 @@
 This module handles all the phishing related operations for
 Wifiphisher.py
 """
+from __future__ import print_function
 
 import os
 import ConfigParser
@@ -380,7 +381,7 @@ class TemplateManager(object):
                 else:
                     # TODO: We should throw an exception instead here.
                     # but if not then display which problem occurred
-                    print "[" + constants.R + "!" + constants.W + "] " + output + name
+                    print("[" + constants.R + "!" + constants.W + "] " + output + name)
 
         return local_templates
 
