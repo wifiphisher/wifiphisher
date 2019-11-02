@@ -6,7 +6,7 @@ r"""
    /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |
   /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|
  /     \                    | |
-                            |_|
+                            |_|  Version {}
 """
 
 from __future__ import print_function
@@ -101,4 +101,4 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
 
 get_dnsmasq()
 
-print(__doc__)  # print the docstring located at the top of this file
+print(__doc__.format(VERSION))  # print the docstring located at the top of this file
