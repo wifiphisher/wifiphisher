@@ -1,6 +1,12 @@
 #!/usr/bin/env python
-"""
-This module tries to install all the required software.
+r"""
+                    (_)/ _(_)     | |   (_)   | |
+  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __
+    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|
+   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |
+  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|
+ /     \                    | |
+                            |_|
 """
 
 from __future__ import print_function
@@ -95,13 +101,4 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
 
 get_dnsmasq()
 
-print()
-print("                     _  __ _       _     _     _               ")
-print("                    (_)/ _(_)     | |   (_)   | |              ")
-print("  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
-print(r"    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|")
-print(r"   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   ")
-print(r"  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|   ")
-print(r" /     \                    | |                                ")
-print("                            |_|                                ")
-print("                                                               ")
+print(__doc__)  # print the docstring located at the top of this file
