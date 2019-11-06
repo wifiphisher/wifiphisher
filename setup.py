@@ -33,7 +33,7 @@ class CleanCommand(Command):
 
 def get_dnsmasq():
     """
-    Try to install dnsmasq on host machine if not present
+    Try to install dnsmasq on host machine if not present.
 
     :return: None
     :rtype: None
@@ -48,6 +48,8 @@ def get_dnsmasq():
                 os.system("pacman -S dnsmasq")
             elif os.path.isfile("/usr/bin/yum"):
                 os.system("yum install dnsmasq")
+            elif os.path.isfile("/usr/bin/dnf"):
+                os.system("dnf -y install dnsmasq")
             else:
                 os.system("apt-get -y install dnsmasq")
         else:
