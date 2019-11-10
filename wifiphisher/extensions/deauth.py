@@ -7,6 +7,7 @@ Extension that sends 3 DEAUTH/DISAS Frames:
 
 import logging
 from collections import defaultdict
+
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 import wifiphisher.common.globals as universal

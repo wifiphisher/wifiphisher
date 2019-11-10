@@ -1,12 +1,13 @@
 """ This module tests the interface module """
 
-import io
 import collections
-from collections import defaultdict
+import io
 import unittest
+from collections import defaultdict
+
 import mock
-import wifiphisher.extensions.lure10 as lure10
 import wifiphisher.common.constants as constants
+import wifiphisher.extensions.lure10 as lure10
 
 
 class TestLure10(unittest.TestCase):

@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import sys
-import os
 import logging
+import os
+import sys
 
+from wifiphisher.pywifiphisher import run
 
 root_logger = logging.getLogger()
 root_logger.addHandler(logging.NullHandler())
@@ -13,5 +14,4 @@ dir_of_executable = os.path.dirname(__file__)
 path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
 sys.path.insert(0, path_to_project_root)
 os.chdir(path_to_project_root)
-from wifiphisher.pywifiphisher import run
 run()

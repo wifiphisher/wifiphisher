@@ -5,12 +5,11 @@ This module was made to handle all the interface related operations of
 the program
 """
 
+import logging
 import random
 from collections import defaultdict
-from subprocess import check_output
-from subprocess import Popen
-from subprocess import PIPE
-import logging
+from subprocess import PIPE, Popen, check_output
+
 import pyric
 import pyric.pyw as pyw
 import wifiphisher.common.constants as constants
