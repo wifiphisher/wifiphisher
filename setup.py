@@ -91,15 +91,16 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 # WORKAROUND: Download tornado 4.5.3 instead of latest so travis won't complain
-INSTALL_REQUIRES = ["PyRIC", "tornado==4.5.3",
-                    "pbkdf2", "roguehostapd", "scapy"]
+INSTALL_REQUIRES = ["pbkdf2", "PyRIC", "scapy", "tornado==4.5.3",]  # "roguehostapd"
+DEPENDENCY_LINKS = ["http://github.com/wifiphisher/roguehostapd/tarball/master"]
 CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
       license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
-      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
+      install_requires=INSTALL_REQUIRES, dependency_links=DEPENDENCY_LINKS,
+      classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
 get_dnsmasq()
 

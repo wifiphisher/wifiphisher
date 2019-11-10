@@ -1,13 +1,17 @@
 """Handles all reconnaissance operations."""
 
-from __future__ import (absolute_import, division, print_function)
-from threading import Thread
-from time import (strftime, sleep)
+from __future__ import absolute_import, division, print_function
+
 from logging import getLogger
+from threading import Thread
+from time import sleep, strftime
+from typing import List, Set
+
+import scapy
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.globals as universal
-from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES,
-                                          LOCS_DIR)
+from wifiphisher.common.constants import LOCS_DIR, NON_CLIENT_ADDRESSES
+from wifiphisher.common.interfaces import NetworkManager
 
 LOGGER = getLogger(__name__)
 

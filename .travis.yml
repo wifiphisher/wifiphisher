@@ -11,6 +11,7 @@ matrix:
 install:
   - pip install pylint tox scapy
   - pip install tornado==4.5.3
+  - pip install git+http://github.com/wifiphisher/roguehostapd.git
   - python setup.py install
 
 script:
