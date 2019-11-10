@@ -1003,4 +1003,4 @@ def line_splitter(num_of_words, line):
     """
     pieces = line.split()
     return (" ".join(pieces[i:i + num_of_words])
-            for i in xrange(0, len(pieces), num_of_words))
+            for i in range(0, len(pieces), num_of_words))
