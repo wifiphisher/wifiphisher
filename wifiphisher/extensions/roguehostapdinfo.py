@@ -4,6 +4,7 @@ information regarding automatic association attacks.
 """
 
 from collections import defaultdict
+
 import wifiphisher.common.constants as constants
 
 

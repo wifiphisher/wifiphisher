@@ -7,12 +7,13 @@ from __future__ import print_function
 import os
 from shutil import copyfile
 
+import wifiphisher.common.constants as constants
+
 try:
     from configparser import ConfigParser, RawConfigParser
 except ImportError:
     from ConfigParser import ConfigParser, RawConfigParser
 
-import wifiphisher.common.constants as constants
 
 
 def config_section_map(config_file, section):
