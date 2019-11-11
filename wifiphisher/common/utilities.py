@@ -7,8 +7,10 @@ the project.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
 from logging import getLogger
-from subprocess import (PIPE, Popen)
+from subprocess import PIPE, Popen
+
 from wifiphisher.common.constants import DN
 
 # pylint: disable=C0103

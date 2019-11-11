@@ -2,14 +2,15 @@
 All logic regarding extensions management
 """
 
-import time
-import importlib
-import threading
-import logging
 import collections
+import importlib
+import logging
+import threading
+import time
 from collections import defaultdict
-import scapy.layers.dot11 as dot11
+
 import scapy.arch.linux as linux
+import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 import wifiphisher.common.globals as universal
 import wifiphisher.extensions.deauth as deauth_extension

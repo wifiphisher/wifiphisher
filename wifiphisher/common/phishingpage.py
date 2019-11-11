@@ -4,9 +4,10 @@ Wifiphisher.py
 """
 from __future__ import print_function
 
-import os
 import ConfigParser
+import os
 from shutil import copyfile
+
 import wifiphisher.common.constants as constants
 
 

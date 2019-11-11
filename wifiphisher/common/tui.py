@@ -3,17 +3,18 @@ This module was made to handle the curses sections for the ap selection,
 template selection and the main window
 """
 
+import curses
 import os
-import time
 import re
+import time
 from collections import namedtuple
 from subprocess import check_output
-import curses
-import wifiphisher.common.constants as constants
-import wifiphisher.common.recon as recon
-import wifiphisher.common.phishingpage as phishingpage
-import wifiphisher.common.victim as victim
+
 import wifiphisher.common.accesspoint as accesspoint
+import wifiphisher.common.constants as constants
+import wifiphisher.common.phishingpage as phishingpage
+import wifiphisher.common.recon as recon
+import wifiphisher.common.victim as victim
 
 # information for the main terminal
 MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
