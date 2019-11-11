@@ -1,7 +1,6 @@
+import constants
 import importlib
 from functools import wraps
-
-import constants
 
 
 def uimethod(func):

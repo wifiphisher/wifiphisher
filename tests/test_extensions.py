@@ -2,22 +2,21 @@
 Unit tests for Extension Manager
 """
 
-import os
-import shutil
 import sys
+import os
 import unittest
-
 import mock
-import scapy.layers.dot11 as dot11
-import wifiphisher.common.constants as constants
-import wifiphisher.common.extensions as extensions
-import wifiphisher.common.interfaces as interfaces
+import shutil
 
 dir_of_executable = os.path.dirname(__file__)
 path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
 sys.path.insert(0, path_to_project_root)
 os.chdir(path_to_project_root)
 
+import wifiphisher.common.interfaces as interfaces
+import wifiphisher.common.extensions as extensions
+import wifiphisher.common.constants as constants
+import scapy.layers.dot11 as dot11
 
 CONTENTS_EXTENSION_1 = """
 import os

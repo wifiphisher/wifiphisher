@@ -7,16 +7,16 @@ do the verification whether the password given by
 """
 
 import binascii
-import hashlib
 import hmac
+import hashlib
 import logging
-from collections import defaultdict, deque
-
+from collections import deque
+from collections import defaultdict
+from pbkdf2 import PBKDF2
 import scapy.layers.dot11 as dot11
+from scapy.all import rdpcap
 import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
-from pbkdf2 import PBKDF2
-from scapy.all import rdpcap
 
 logger = logging.getLogger(__name__)
 

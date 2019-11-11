@@ -8,9 +8,8 @@ Location Service
 
 import logging
 from collections import defaultdict
-
-import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
+import scapy.layers.dot11 as dot11
 
 logger = logging.getLogger(__name__)
 

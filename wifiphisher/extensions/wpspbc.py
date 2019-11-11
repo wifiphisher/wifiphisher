@@ -10,13 +10,12 @@ Define three WPS states
 """
 
 import logging
+import time
 import os
 import signal
 import subprocess
-import time
-from collections import defaultdict
 from threading import Timer
-
+from collections import defaultdict
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.extensions as extensions
 

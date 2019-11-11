@@ -5,10 +5,9 @@ Extension that sends a number of known beacons to trigger the AUTO-CONNECT flag.
 import logging
 import time
 from collections import defaultdict
-
-import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 import wifiphisher.common.globals as universal
+import scapy.layers.dot11 as dot11
 
 logger = logging.getLogger(__name__)
 

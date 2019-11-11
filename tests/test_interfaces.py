@@ -2,13 +2,11 @@
 """ This module tests the interface module """
 
 import unittest
-
-import pytest
-
 import mock
-import pyric
-import wifiphisher.common.constants as constants
 import wifiphisher.common.interfaces as interfaces
+import wifiphisher.common.constants as constants
+import pyric
+import pytest
 
 pytestmark = pytest.mark.skip('Skipping for now.')
 

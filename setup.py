@@ -10,12 +10,9 @@ r"""
 """
 
 from __future__ import print_function
-
-import os
 import sys
-
-from setuptools import Command, find_packages, setup
-
+import os
+from setuptools import setup, find_packages, Command
 import wifiphisher.common.constants as constants
 
 try:

@@ -2,15 +2,13 @@
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
 import os
-import subprocess
 import time
+import subprocess
 from subprocess import check_output
-
-import roguehostapd.apctrl as apctrl
-import roguehostapd.config.hostapdconfig as hostapdconfig
 import wifiphisher.common.constants as constants
+import roguehostapd.config.hostapdconfig as hostapdconfig
+import roguehostapd.apctrl as apctrl
 import wifiphisher.common.victim as victim
 
 

@@ -1,9 +1,8 @@
 """Module to keep track the victims connected to the rogue AP."""
 
 import time
-
-import wifiphisher.common.constants as constants
 from macmatcher import MACMatcher as macmatcher
+import wifiphisher.common.constants as constants
 
 
 class Victim(object):

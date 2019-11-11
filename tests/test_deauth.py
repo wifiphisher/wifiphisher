@@ -1,13 +1,12 @@
 # pylint: skip-file
 """ This module tests the deauth module in extensions """
 import collections
-import unittest
 from collections import defaultdict
-
+import unittest
 import mock
 import scapy.layers.dot11 as dot11
-import wifiphisher.common.constants as constants
 import wifiphisher.extensions.deauth as deauth
+import wifiphisher.common.constants as constants
 
 
 class TestDeauth(unittest.TestCase):
