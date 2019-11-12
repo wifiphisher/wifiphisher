@@ -7,6 +7,7 @@ import os
 import subprocess
 import time
 from subprocess import check_output
+from typing import List
 
 import roguehostapd.apctrl as apctrl
 import roguehostapd.config.hostapdconfig as hostapdconfig

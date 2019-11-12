@@ -10,6 +10,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from logging import getLogger
 from subprocess import PIPE, Popen
+from typing import List
 
 from wifiphisher.common.constants import DN
 

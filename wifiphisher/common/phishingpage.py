@@ -4,11 +4,16 @@ Wifiphisher.py
 """
 from __future__ import print_function
 
-import ConfigParser
 import os
 from shutil import copyfile
 
 import wifiphisher.common.constants as constants
+
+try:
+    from configparser import ConfigParser, RawConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser, RawConfigParser
+
 
 
 def config_section_map(config_file, section):
@@ -16,7 +21,7 @@ def config_section_map(config_file, section):
     Map the values of a config file to a dictionary.
     """
 
-    config = ConfigParser.ConfigParser()
+    config = ConfigParser()
     config.read(config_file)
     dict1 = {}
 
@@ -95,11 +100,11 @@ class PhishingTemplate(object):
         :rtype: None
         """
 
-        original_config = ConfigParser.ConfigParser()
+        original_config = ConfigParser()
         original_config.read(config_path)
 
         # new config file object
-        config = ConfigParser.RawConfigParser()
+        config = RawConfigParser()
 
         # update the info section
         config.add_section('info')
