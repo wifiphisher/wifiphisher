@@ -13,7 +13,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <link rel="stylesheet" href="static/css/reset.css">
   <link rel='stylesheet prefetch' href='static/css/roboto.css'>
   <link rel='stylesheet prefetch' href='static/css/font-awesome.min.css'>
-  <link rel="stylesheet" href="static/css/style2.css">
+  <link rel="stylesheet" href="static/css/style.css">
   <script src='static/js/jquery.min.js'></script>
   <script src="static/js/index.js"></script>
 </head>
@@ -21,10 +21,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 <script>
-function test() {
-  var valuex2 = {{ popup_value }};
-  if (valuex2 === true) {
-    detect();
+function oauth_popup() {
+  var popup_enabled = {{ popup }};
+  if (popup_enabled === true) {
+    detect_os();
   }
   else {
     return false;
@@ -35,7 +35,8 @@ function test() {
 
 
 <script>
-function detect() {
+/* If the popup value has been set to true then this script will do a OS discovery to the connected user browser and if he's OS is compatible with the JS popup then he will be redirected to the login page but if he's not then he will stay on this Oauth login page (the default one). */
+function detect_os() {
 
 var OSName="Unknown OS";
 if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
@@ -49,22 +50,22 @@ if (OSName == "Windows") {
 window.location='login.html';
     };
 if (OSName == "MacOS") {
-window.location='signin.html';
+window.location='login.html';
     };
 
 
 if (OSName == "Linux") {
-    return false;
+return false;
     };
 
 if (OSName == "UNIX") {
-    return false;
+return false;
     };
 }
 
 </script>
 
-<body onload="test()">
+<body onload="oauth_popup()">
   <!-- Form Mixin-->
   <!-- Input Mixin-->
   <!-- Button Mixin-->
