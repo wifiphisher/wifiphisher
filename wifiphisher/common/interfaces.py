@@ -5,12 +5,11 @@ This module was made to handle all the interface related operations of
 the program
 """
 
+import logging
 import random
 from collections import defaultdict
-from subprocess import check_output
-from subprocess import Popen
-from subprocess import PIPE
-import logging
+from subprocess import PIPE, Popen, check_output
+
 import pyric
 import pyric.pyw as pyw
 import wifiphisher.common.constants as constants
@@ -561,7 +560,7 @@ class NetworkManager(object):
         """
 
         possible_adapters = list()
-        for interface, adapter in self._name_to_object.iteritems():
+        for interface, adapter in self._name_to_object.items():
             # check to make sure interface is not active and not already in the possible list
             if (interface not in self._active) and (
                     adapter not in possible_adapters):
@@ -577,7 +576,7 @@ class NetworkManager(object):
                 elif has_monitor_mode and adapter.has_monitor_mode:
                     possible_adapters.append(adapter)
 
-        # From all possible interface candidates, 
+        # From all possible interface candidates,
         # give priority to those we may have created
         our_vifs = []
         for wlan in self._vifs_add:
@@ -709,7 +708,7 @@ class NetworkManager(object):
                 interface_property_detector(adapter)
             # ignore devices that are not supported(93) and no such device(19)
             except pyric.error as error:
-                if error[0] == 93 or error[0] == 19:
+                if error.args[0] in (93, 19):
                     pass
                 else:
                     raise error
@@ -844,7 +843,7 @@ def is_managed_by_network_manager(interface_name):
 
     is_managed = False
     try:
-        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'], 
+        nmcli_process = Popen(['/bin/sh', '-c', 'export LC_ALL=C; nmcli dev; unset LC_ALL'],
         stdout=constants.DN,
         stderr=PIPE)
         out, err = nmcli_process.communicate()
