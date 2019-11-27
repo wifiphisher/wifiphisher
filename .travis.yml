@@ -1,29 +1,18 @@
-# There's no sudo: required because it slows down Travis CI job startup
-# and we don't really need it with addons: apt.
-
 language: python
 
 python:
   - "2.7"
   - "3.7"
 
-matrix:
-  allow_failures:
-    - python: "3.7"
-
 install:
-  - pip install pylint tox scapy
-  - pip install tornado==4.5.3
+  - pip install flake8 pylint scapy tornado tox
+  - pip install git+http://github.com/wifiphisher/roguehostapd.git
   - python setup.py install
 
 script:
+  - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
   - pylint --errors-only wifiphisher
   - tox -e ALL
-
-branches:
-  only:
-  - master
-  - python3
 
 notifications:
   email:
