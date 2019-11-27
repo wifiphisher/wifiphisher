@@ -1,13 +1,15 @@
 """This module tests the victims class."""
 
-import sys
 import os
+import sys
 import unittest
+
+import wifiphisher.common.victim as victim
+
 dir_of_executable = os.path.dirname(__file__)
 path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
 sys.path.insert(0, path_to_project_root)
 os.chdir(path_to_project_root)
-import wifiphisher.common.victim as victim
 
 
 class TestVictim(unittest.TestCase):

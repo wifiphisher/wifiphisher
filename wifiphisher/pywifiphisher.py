@@ -3,35 +3,35 @@
 # pylint: skip-file
 from __future__ import absolute_import
 from __future__ import print_function
-import subprocess
-import os
+
+import argparse
+import curses
+import fcntl
 import logging
 import logging.config
-import time
-import sys
-import argparse
-import fcntl
-import curses
+import os
+import signal
 import socket
 import struct
-import signal
-from threading import Thread
-from subprocess import Popen, PIPE, check_output
+import subprocess
+import sys
+import time
 from shutil import copyfile
-from wifiphisher.common.constants import *
-import wifiphisher.common.globals as universal
-import wifiphisher.common.extensions as extensions
-import wifiphisher.common.recon as recon
-import wifiphisher.common.phishingpage as phishingpage
-import wifiphisher.common.phishinghttp as phishinghttp
-import wifiphisher.common.macmatcher as macmatcher
-import wifiphisher.common.interfaces as interfaces
-import wifiphisher.common.firewall as firewall
+from subprocess import PIPE, Popen, check_output
+from threading import Thread
+
 import wifiphisher.common.accesspoint as accesspoint
-import wifiphisher.common.tui as tui
+import wifiphisher.common.extensions as extensions
+import wifiphisher.common.firewall as firewall
+import wifiphisher.common.globals as universal
+import wifiphisher.common.interfaces as interfaces
+import wifiphisher.common.macmatcher as macmatcher
 import wifiphisher.common.opmode as opmode
+import wifiphisher.common.phishinghttp as phishinghttp
+import wifiphisher.common.phishingpage as phishingpage
+import wifiphisher.common.recon as recon
+import wifiphisher.common.tui as tui
 import wifiphisher.common.victim as victim
-from six.moves import range, input
 
 from six.moves import range, input
 
@@ -41,7 +41,6 @@ from wifiphisher.common.constants import (BIRTHDAY, CHANNEL, DEAUTH_EXTENSION, D
                                           LOGGING_CONFIG, LURE10_EXTENSION, MAC_PREFIX_FILE,
                                           NETWORK_GW_IP, NEW_YEAR, O, PORT, R, ROGUEHOSTAPDINFO,
                                           SSL_PORT, T, W, WEBSITE, WPSPBC)
-
 
 logger = logging.getLogger(__name__)
 

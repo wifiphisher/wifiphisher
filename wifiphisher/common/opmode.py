@@ -4,13 +4,14 @@ All logic regarding the Operation Modes (opmodes).
 The opmode is defined based on the user's arguments and the available
 resources of the host system
 """
-import sys
-import os
-import logging
 import argparse
+import logging
+import os
+import sys
+
 import pyric
-import wifiphisher.common.interfaces as interfaces
 import wifiphisher.common.constants as constants
+import wifiphisher.common.interfaces as interfaces
 import wifiphisher.extensions.handshakeverify as handshakeverify
 
 logger = logging.getLogger(__name__)
