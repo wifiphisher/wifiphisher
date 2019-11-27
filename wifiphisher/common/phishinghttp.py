@@ -1,16 +1,17 @@
 import datetime
-import logging
 import json
+import logging
+import os.path
 import re
 import time
-from tornado.escape import json_decode
+
 import tornado.ioloop
 import tornado.web
-import os.path
-import wifiphisher.common.uimethods as uimethods
-import wifiphisher.common.extensions as extensions
 import wifiphisher.common.constants as constants
+import wifiphisher.common.extensions as extensions
+import wifiphisher.common.uimethods as uimethods
 import wifiphisher.common.victim as victim
+from tornado.escape import json_decode
 
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)

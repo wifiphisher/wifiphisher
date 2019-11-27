@@ -1,12 +1,22 @@
 #!/usr/bin/env python
-"""
-This module tries to install all the required software.
+r"""
+                     _  __ _       _     _     _
+                    (_)/ _(_)     | |   (_)   | |
+  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __
+    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|
+   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |
+  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|
+ /     \                    | |
+                            |_|  Version {}
 """
 
 from __future__ import print_function
-import sys
+
 import os
-from setuptools import setup, find_packages, Command
+import sys
+
+from setuptools import Command, find_packages, setup
+
 import wifiphisher.common.constants as constants
 
 try:
@@ -27,7 +37,7 @@ class CleanCommand(Command):
 
 def get_dnsmasq():
     """
-    Try to install dnsmasq on host machine if not present
+    Try to install dnsmasq on host machine if not present.
 
     :return: None
     :rtype: None
@@ -42,6 +52,8 @@ def get_dnsmasq():
                 os.system("pacman -S dnsmasq")
             elif os.path.isfile("/usr/bin/yum"):
                 os.system("yum install dnsmasq")
+            elif os.path.isfile("/usr/bin/dnf"):
+                os.system("dnf -y install dnsmasq")
             else:
                 os.system("apt-get -y install dnsmasq")
         else:
@@ -83,25 +95,17 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 # WORKAROUND: Download tornado 4.5.3 instead of latest so travis won't complain
-INSTALL_REQUIRES = ["PyRIC", "tornado==4.5.3",
-                    "pbkdf2", "roguehostapd", "scapy"]
+INSTALL_REQUIRES = ["pbkdf2", "PyRIC", "scapy", "tornado==4.5.3",]  # "roguehostapd"
+DEPENDENCY_LINKS = ["http://github.com/wifiphisher/roguehostapd/tarball/master"]
 CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
       license=LICENSE, keywords=KEYWORDS, packages=PACKAGES,
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
-      install_requires=INSTALL_REQUIRES, classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
+      install_requires=INSTALL_REQUIRES, dependency_links=DEPENDENCY_LINKS,
+      classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
 
 get_dnsmasq()
 
-print()
-print("                     _  __ _       _     _     _               ")
-print("                    (_)/ _(_)     | |   (_)   | |              ")
-print("  ((.))    __      ___| |_ _ _ __ | |__  _ ___| |__   ___ _ __ ")
-print(r"    |      \ \ /\ / / |  _| | '_ \| '_ \| / __| '_ \ / _ \ '__|")
-print(r"   /_\      \ V  V /| | | | | |_) | | | | \__ \ | | |  __/ |   ")
-print(r"  /___\      \_/\_/ |_|_| |_| .__/|_| |_|_|___/_| |_|\___|_|   ")
-print(r" /     \                    | |                                ")
-print("                            |_|                                ")
-print("                                                               ")
+print(__doc__.format(VERSION))  # print the docstring located at the top of this file

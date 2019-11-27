@@ -1,8 +1,9 @@
 """Module to keep track the victims connected to the rogue AP."""
 
 import time
-from macmatcher import MACMatcher as macmatcher
+
 import wifiphisher.common.constants as constants
+from macmatcher import MACMatcher as macmatcher
 
 
 class Victim(object):
@@ -88,7 +89,7 @@ class Victims():
         for value in self.victims_dic.values():
             mac_timestamp[value.vmac_address] = value.timestamp
 
-        sorted_mac_timestamp = sorted(mac_timestamp.iteritems(),
+        sorted_mac_timestamp = sorted(mac_timestamp.items(),
                                       key=lambda p: float(p[1]))
 
         for item in reversed(sorted_mac_timestamp):
