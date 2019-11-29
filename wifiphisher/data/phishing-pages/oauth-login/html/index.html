@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <!--
 Copyright (c) 2016 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -18,7 +19,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   <script src="static/js/index.js"></script>
 </head>
 
+<style>
+/*Do not remove this style part and put it in style.css because if you do you'll have some conflicts in the apperance of index.html and login.html*/
+/*Both style parts inside index.html and login.html will have conflicts if you put them together inside style.css*/
+body {
+  color: #666666;
+  font-family: 'RobotoDraft', 'Roboto', sans-serif;
+}
 
+/* Form Module */
+.form-module {
+  max-width: 320px;
+}
+.login-btn {
+  cursor: pointer;
+  background: #33b5e5;
+  width: 100%;
+  border: 0;
+  padding: 10px 15px;
+  color: #ffffff;
+  -webkit-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+
+
+</style>
 
 <script>
 function oauth_popup() {
