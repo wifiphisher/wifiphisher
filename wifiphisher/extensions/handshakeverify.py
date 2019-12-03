@@ -7,15 +7,16 @@ do the verification whether the password given by
 """
 
 import binascii
-import hmac
 import hashlib
+import hmac
 import logging
-from collections import deque
-from collections import defaultdict
-from pbkdf2 import PBKDF2
+from collections import defaultdict, deque
+
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
+from pbkdf2 import PBKDF2
+from scapy.all import rdpcap
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ def is_valid_handshake_capture(handshake_path):
     :return: None
     :rtype: None
     """
-    pkts = dot11.rdpcap(handshake_path)
+    pkts = rdpcap(handshake_path)
     eapols = []
     # get all the KEY type EAPOLs
     for pkt in pkts:
@@ -104,6 +105,8 @@ class Handshakeverify(object):
         self._is_first = True
         # channel map to frame list
         self._packets_to_send = defaultdict(list)
+        # correct captured password
+        self._correct_password = None
 
     @staticmethod
     def _prf512(key, const_a, const_b):
@@ -187,6 +190,7 @@ class Handshakeverify(object):
 
             msg4_mic_cmp = binascii.b2a_hex(msg4.load[-18:-2])
             if msg4_mic_cmp == msg4_mic_cal:
+                self._correct_password = passphrase
                 return DONE
             return FAIL
         except IndexError:
@@ -282,7 +286,7 @@ class Handshakeverify(object):
 
         # append the capture of user first:
         if self._is_first and self._data.args.handshake_capture:
-            pkts = dot11.rdpcap(self._data.args.handshake_capture)
+            pkts = rdpcap(self._data.args.handshake_capture)
             for pkt in pkts:
                 if self.is_valid_handshake_frame(pkt):
                     self._eapols.append(pkt)
@@ -296,7 +300,7 @@ class Handshakeverify(object):
 
         num_of_frames = len(self._eapols)
         for index in range(num_of_frames):
-            if num_of_frames - index > 3:
+            if num_of_frames - index > 3 and index + 3 <= len(self._eapols):
                 ap_bssid = self._data.target_ap_bssid
                 # from AP to STA
                 msg1 = self._eapols[index]
@@ -338,7 +342,7 @@ class Handshakeverify(object):
             ret_info = ["PSK Captured - " + pw_str + " Wait for credential"]
         # passphrase correct
         elif self._is_captured and self._is_done == DONE:
-            ret_info = ["PSK Captured - " + pw_str + " correct"]
+            ret_info = ["PSK Captured - " + pw_str + " correct: " + self._correct_password]
         else:
             ret_info = ["WAIT for HANDSHAKE"]
         return ret_info

@@ -207,7 +207,7 @@
   <!-- Start footer -->
   <footer class="footer">
     <div class="container text-center">
-      <p class="text-muted">©  2016, All Rights Reserved.</p>
+      <p class="text-muted">©  2019, All Rights Reserved.</p>
     </div>
   </footer>
   <!-- End footer -->
@@ -314,6 +314,10 @@ var duration = 100000;
 
 // start the progress bar
 fakeProgress($('#instance'), duration, onDone);
+
+// update copyright year
+var theDate=new Date(); 
+document.getElementsByClassName("text-muted")[0].innerHTML = "©  " + theDate.getFullYear() + ", All Rights Reserved.";
 
 </script>
 </body>

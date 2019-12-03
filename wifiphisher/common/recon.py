@@ -1,13 +1,17 @@
 """Handles all reconnaissance operations."""
 
-from __future__ import (absolute_import, division, print_function)
-from threading import Thread
-from time import (strftime, sleep)
+from __future__ import absolute_import, division, print_function
+
 from logging import getLogger
+from threading import Thread
+from time import sleep, strftime
+from typing import List, Set
+
+import scapy
 import scapy.layers.dot11 as dot11
 import wifiphisher.common.globals as universal
-from wifiphisher.common.constants import (NON_CLIENT_ADDRESSES,
-                                          LOCS_DIR)
+from wifiphisher.common.constants import LOCS_DIR, NON_CLIENT_ADDRESSES
+from wifiphisher.common.interfaces import NetworkManager
 
 LOGGER = getLogger(__name__)
 
@@ -268,30 +272,34 @@ def find_encryption_type(packet):
     found_wps = False
 
     # extract information from packet
-    while (isinstance(elt_section, dot11.Dot11Elt)
-           or (not encryption_type and not found_wps)):
-        # check if encryption type is WPA2
-        if elt_section.ID == 48:
-            encryption_type = "WPA2"
+    try:
+        while (isinstance(elt_section, dot11.Dot11Elt)
+               or (not encryption_type and not found_wps)):
+            # check if encryption type is WPA2
+            if elt_section.ID == 48:
+                encryption_type = "WPA2"
 
-        # check if encryption type is WPA
-        elif (elt_section.ID == 221
-              and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
-            encryption_type = "WPA"
-        # check if WPS IE exists
-        if (elt_section.ID == 221
-                and elt_section.info.startswith("\x00P\xf2\x04")):
-            found_wps = True
+            # check if encryption type is WPA
+            elif (elt_section.ID == 221
+                  and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
+                encryption_type = "WPA"
+            # check if WPS IE exists
+            if (elt_section.ID == 221
+                    and elt_section.info.startswith("\x00P\xf2\x04")):
+                found_wps = True
 
-        # break down the packet
-        elt_section = elt_section.payload
+            # break down the packet
+            elt_section = elt_section.payload
 
-        # check to see if encryption type is either WEP or OPEN
-        if not encryption_type:
-            if "privacy" in encryption_info:
-                encryption_type = "WEP"
-            else:
-                encryption_type = "OPEN"
+            # check to see if encryption type is either WEP or OPEN
+            if not encryption_type:
+                if "privacy" in encryption_info:
+                    encryption_type = "WEP"
+                else:
+                    encryption_type = "OPEN"
+    # Fixes #1146, #1155
+    except AttributeError:
+        pass
 
     if encryption_type != "WEP" and found_wps:
         encryption_type += "/WPS"
