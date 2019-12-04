@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # pylint: skip-file
+
+from __future__ import absolute_import
 from __future__ import print_function
 
 import argparse
@@ -31,7 +33,16 @@ import wifiphisher.common.phishingpage as phishingpage
 import wifiphisher.common.recon as recon
 import wifiphisher.common.tui as tui
 import wifiphisher.common.victim as victim
-from wifiphisher.common.constants import *
+
+from six.moves import range, input
+
+from wifiphisher.common.constants import (BIRTHDAY, CHANNEL, DEAUTH_EXTENSION, DEFAULT_EXTENSIONS,
+                                          DEV, DN, G, HANDSHAKE_VALIDATE_EXTENSION,
+                                          INTERFERING_PROCS, KNOWN_BEACONS_EXTENSION,
+                                          LOGGING_CONFIG, LURE10_EXTENSION, MAC_PREFIX_FILE,
+                                          NETWORK_GW_IP, NEW_YEAR, O, PORT, R, ROGUEHOSTAPDINFO,
+                                          SSL_PORT, T, W, WEBSITE, WPSPBC)
+
 
 logger = logging.getLogger(__name__)
 
@@ -254,13 +265,13 @@ def set_channel_range():
         print('[' + G + '+' + W + "] " + \
               "JST timezone detected. " + \
               "Setting channel range to 1-14")
-        universal.ALL_2G_CHANNELS = range(1,15)
+        universal.ALL_2G_CHANNELS = list(range(1,15))
         return
 
     print('[' + G + '+' + W + "] " + \
           "Timezone detected. " + \
           "Setting channel range to 1-13")
-    universal.ALL_2G_CHANNELS = range(1,14)
+    universal.ALL_2G_CHANNELS = list(range(1,14))
     return
 
 
@@ -348,8 +359,8 @@ class WifiphisherEngine:
     def start(self):
 
         today = time.strftime("%Y-%m-%d %H:%M")
-        print ('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
-               (VERSION, WEBSITE, today))
+        print('[' + T + '*' + W + '] Starting Wifiphisher %s ( %s ) at %s' %
+              (VERSION, WEBSITE, today))
 
         # Show some emotions.
         if BIRTHDAY in today:
@@ -546,7 +557,7 @@ class WifiphisherEngine:
             # copy payload to update directory
             while not payload_path or not os.path.isfile(payload_path):
                 # get payload path
-                payload_path = raw_input(
+                payload_path = input(
                     "[" + G + "+" + W + "] Enter the [" + G + "full path" + W +
                     "] to the payload you wish to serve: ")
                 if not os.path.isfile(payload_path):
