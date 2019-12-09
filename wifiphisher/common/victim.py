@@ -3,7 +3,7 @@
 import time
 
 import wifiphisher.common.constants as constants
-from macmatcher import MACMatcher as macmatcher
+from wifiphisher.common.macmatcher import MACMatcher as macmatcher
 
 
 class Victim(object):
