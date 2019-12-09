@@ -5,7 +5,6 @@ from __future__ import absolute_import, division, print_function
 from logging import getLogger
 from threading import Thread
 from time import sleep, strftime
-from typing import List, Set
 
 import scapy
 import scapy.layers.dot11 as dot11
@@ -28,7 +27,7 @@ class AccessPoint(object):
         self.encryption = encryption
         self.signal_strength = None
         self.client_count = 0
-        self._clients = set()  # type: Set[str]
+        self._clients = set()
 
         if capture_file:
             with open(capture_file, "a") as _file:
@@ -229,7 +228,6 @@ class AccessPointFinder(object):
                     access_point.add_client(receiver)
 
     def get_sorted_access_points(self):
-        # type: () -> List[str]
         """Return all access points sorted based on signal strength."""
         return sorted(
             self.observed_access_points,

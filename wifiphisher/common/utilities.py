@@ -10,7 +10,6 @@ from __future__ import (absolute_import, division, print_function,
 
 from logging import getLogger
 from subprocess import PIPE, Popen
-from typing import List
 
 from wifiphisher.common.constants import DN
 
@@ -19,7 +18,6 @@ logger = getLogger(__name__)
 
 
 def execute_commands(commands):
-    # type: (List[str]) -> None
     """Execute each command and log any errors."""
     for command in commands:
         _, error = Popen(command.split(), stderr=PIPE, stdout=DN).communicate()

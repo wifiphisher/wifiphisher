@@ -7,7 +7,6 @@ import os
 import subprocess
 import time
 from subprocess import check_output
-from typing import List
 
 import roguehostapd.apctrl as apctrl
 import roguehostapd.config.hostapdconfig as hostapdconfig
@@ -44,7 +43,7 @@ class AccessPoint(object):
         self.force_hostapd = False
         # roguehostapd object
         self.hostapd_object = None
-        self.deny_mac_addrs = []  # type: List[str]
+        self.deny_mac_addrs = []
         self.dns_conf_path = constants.DNS_CONF_PATH
 
     def start_dhcp_dns(self):
