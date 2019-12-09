@@ -46,10 +46,6 @@ from wifiphisher.common.constants import (BIRTHDAY, CHANNEL, DEAUTH_EXTENSION, D
 
 logger = logging.getLogger(__name__)
 
-# Fixes UnicodeDecodeError for ESSIDs
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 
 def parse_args():
     # Create the arguments
