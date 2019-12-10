@@ -95,10 +95,10 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
                "Intended Audience :: Information Technology"]
 ENTRY_POINTS = {"console_scripts": ["wifiphisher = wifiphisher.pywifiphisher:run"]}
 # WORKAROUND: Download tornado 4.5.3 instead of latest so travis won't complain
-INSTALL_REQUIRES = ["pbkdf2", "scapy", "tornado==4.5.3",]  # "roguehostapd"
+INSTALL_REQUIRES = ["pbkdf2", "scapy", "tornado==4.5.3", "roguehostapd", "pyric"]
 DEPENDENCY_LINKS = \
-["http://github.com/wifiphisher/roguehostapd/tarball/master", \
-"http://github.com/wifiphisher/pyric/tarball/master"]
+["http://github.com/wifiphisher/roguehostapd/tarball/master#egg=roguehostapd-1.9.0", \
+"http://github.com/wifiphisher/pyric/tarball/master#egg=pyric-0.5.0"]
 CMDCLASS = {"clean": CleanCommand,}
 
 # run setup
