@@ -1,9 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import argparse
 import curses
@@ -306,7 +306,7 @@ def kill_interfering_procs():
     for interfering_proc in INTERFERING_PROCS:
         for proc in sys_procs:
             # kill all the processes name equal to interfering_proc
-            if interfering_proc in proc:
+            if interfering_proc in proc.decode('utf-8'):
                 pid = int(proc.split(None, 1)[0])
                 print('[' + G + '+' + W + "] Sending SIGKILL to " +\
                     interfering_proc)
@@ -553,9 +553,9 @@ class WifiphisherEngine:
             # copy payload to update directory
             while not payload_path or not os.path.isfile(payload_path):
                 # get payload path
-                payload_path = input(
+                payload_path = eval(input(
                     "[" + G + "+" + W + "] Enter the [" + G + "full path" + W +
-                    "] to the payload you wish to serve: ")
+                    "] to the payload you wish to serve: "))
                 if not os.path.isfile(payload_path):
                     print('[' + R + '-' + W + '] Invalid file path!')
             print('[' + T + '*' + W + '] Using ' + G + payload_path + W + ' as payload ')
@@ -607,6 +607,7 @@ class WifiphisherEngine:
 
         # We want to set this now for hostapd. Maybe the interface was in "monitor"
         # mode for network discovery before (e.g. when --noextensions is enabled).
+        
         self.network_manager.set_interface_mode(ap_iface, "managed")
         # Start AP
         self.network_manager.up_interface(ap_iface)
@@ -627,10 +628,15 @@ class WifiphisherEngine:
         if self.opmode.internet_sharing_enabled():
             self.access_point.internet_interface = args.internetinterface
         print('[' + T + '*' + W + '] Starting the fake access point...')
+
         try:
             self.access_point.start(disable_karma=args.disable_karma)
             self.access_point.start_dhcp_dns()
-        except BaseException:
+        except BaseException as e:
+            if hasattr(e, 'message'):
+                print(e.message)
+            else:
+                print(e)
             self.stop()
         # Start Extension Manager (EM)
         # We need to start EM before we boot the web server

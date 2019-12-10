@@ -120,9 +120,9 @@ class OpMode(object):
         # if args.deauth_essid is set we need the second card to
         # do the frequency hopping
         if args.deauth_essid and self._use_one_phy:
-            print('[' + constants.R + '!' + constants.W +
+            print(('[' + constants.R + '!' + constants.W +
                   '] Only one card was found. Wifiphisher will deauth only '
-                  'on the target AP channel')
+                  'on the target AP channel'))
 
         # args.wAI should be used with args.wE
         if args.wpspbc_assoc_interface and not args.wps_pbc:

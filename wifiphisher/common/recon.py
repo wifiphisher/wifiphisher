@@ -1,6 +1,6 @@
 """Handles all reconnaissance operations."""
 
-from __future__ import absolute_import, division, print_function
+
 
 from logging import getLogger
 from threading import Thread
@@ -279,11 +279,11 @@ def find_encryption_type(packet):
 
             # check if encryption type is WPA
             elif (elt_section.ID == 221
-                  and elt_section.info.startswith("\x00P\xf2\x01\x01\x00")):
+                  and elt_section.info.startswith(b"\x00P\xf2\x01\x01\x00")):
                 encryption_type = "WPA"
             # check if WPS IE exists
             if (elt_section.ID == 221
-                    and elt_section.info.startswith("\x00P\xf2\x04")):
+                    and elt_section.info.startswith(b"\x00P\xf2\x04")):
                 found_wps = True
 
             # break down the packet

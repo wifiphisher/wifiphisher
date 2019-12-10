@@ -86,10 +86,10 @@ class Victims():
         sorted_mac_timestamp = []
         most_recent_dic = {}
         max_victim_counter = 0
-        for value in self.victims_dic.values():
+        for value in list(self.victims_dic.values()):
             mac_timestamp[value.vmac_address] = value.timestamp
 
-        sorted_mac_timestamp = sorted(mac_timestamp.items(),
+        sorted_mac_timestamp = sorted(list(mac_timestamp.items()),
                                       key=lambda p: float(p[1]))
 
         for item in reversed(sorted_mac_timestamp):

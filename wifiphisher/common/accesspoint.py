@@ -89,11 +89,10 @@ class AccessPoint(object):
         time.sleep(1)
         # Make sure that we have set the network properly.
         proc = subprocess.check_output(['ifconfig', str(self.interface)])
-        if constants.NETWORK_GW_IP not in proc:
+        if constants.NETWORK_GW_IP not in proc.decode('utf-8'):
             return False
 
     def start(self, disable_karma=False):
-        # type: () -> None
         """Start the softAP."""
         # create the configuration for roguehostapd
         hostapd_config = {

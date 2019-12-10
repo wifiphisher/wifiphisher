@@ -2,7 +2,7 @@
 This module handles all the phishing related operations for
 Wifiphisher.py
 """
-from __future__ import print_function
+
 
 import os
 from shutil import copyfile
@@ -12,7 +12,7 @@ import wifiphisher.common.constants as constants
 try:
     from configparser import ConfigParser, RawConfigParser
 except ImportError:
-    from ConfigParser import ConfigParser, RawConfigParser
+    from configparser import ConfigParser, RawConfigParser
 
 
 
@@ -424,5 +424,5 @@ class TemplateManager(object):
         :rtype: None
         """
 
-        for templ_obj in self._templates.values():
+        for templ_obj in list(self._templates.values()):
             templ_obj.remove_extra_files()

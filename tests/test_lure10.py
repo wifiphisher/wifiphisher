@@ -67,7 +67,7 @@ class TestLure10(unittest.TestCase):
         bssid0 = "11:11:11:11:11:11"
         bssid1 = "22:22:22:22:22:22"
 
-        content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
+        content = io.StringIO("{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
             pkts_to_send = self._object0.get_packet(self.pkt)
 
@@ -93,7 +93,7 @@ class TestLure10(unittest.TestCase):
         bssid0 = "11:11:11:11:11:11"
         bssid1 = "22:22:22:22:22:22"
 
-        content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
+        content = io.StringIO("{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
             first_run_frames = self._object0.get_packet(self.pkt)
 
@@ -125,7 +125,7 @@ class TestLure10(unittest.TestCase):
         bssid0 = "11:11:11:11:11:11"
         bssid1 = "22:22:22:22:22:22"
 
-        content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
+        content = io.StringIO("{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
             self._object0.get_packet(self.pkt)
 
@@ -154,7 +154,7 @@ class TestLure10(unittest.TestCase):
         bssid0 = "11:11:11:11:11:11"
         bssid1 = "22:22:22:22:22:22"
 
-        content = io.StringIO(u"{} one\n{} two".format(bssid0, bssid1))
+        content = io.StringIO("{} one\n{} two".format(bssid0, bssid1))
         with mock.patch("wifiphisher.extensions.lure10.open", return_value=content, create=True):
             self._object1.get_packet(self.pkt)
 

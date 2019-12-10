@@ -275,7 +275,7 @@ class Deauth(object):
         :rtype: list
         """
 
-        return map("DEAUTH/DISAS - {}".format, self._observed_clients)
+        return list(map("DEAUTH/DISAS - {}".format, self._observed_clients))
 
     def send_channels(self):
         """
@@ -296,9 +296,9 @@ class Deauth(object):
 
         if self._data.args.deauth_channels and \
            len(self._data.args.deauth_channels) > 0:
-            return map(str, self._data.args.deauth_channels)
+            return list(map(str, self._data.args.deauth_channels))
 
-        return map(str, universal.ALL_2G_CHANNELS)
+        return list(map(str, universal.ALL_2G_CHANNELS))
 
     def on_exit(self):
         """

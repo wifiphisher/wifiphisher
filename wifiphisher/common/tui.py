@@ -705,10 +705,10 @@ class TuiApSel(object):
         """
 
         # get the page boundary
-        page_boundary = range(1 + (ap_info.max_row *
+        page_boundary = list(range(1 + (ap_info.max_row *
                                    (ap_info.page_number - 1)),
                               ap_info.max_row + 1 +
-                              (ap_info.max_row * (ap_info.page_number - 1)))
+                              (ap_info.max_row * (ap_info.page_number - 1))))
 
         # remove previous content and draw border
         ap_info.box.erase()
@@ -852,7 +852,7 @@ class TuiMain(object):
         match_str = r"(.*\s)(request from\s)(.*)(\sfor|with\s)(.*)"
         for request in requests:
             # match the information from the input string
-            match = re.match(match_str, request)
+            match = re.match(match_str, request.decode('utf-8'))
             if match is None:
                 continue
 
