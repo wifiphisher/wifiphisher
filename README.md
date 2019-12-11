@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/wifiphisher/wifiphisher.svg?branch=master)](https://travis-ci.org/wifiphisher/wifiphisher)
 [![Documentation Status](https://readthedocs.org/projects/wifiphisher/badge/?version=latest)](http://wifiphisher.readthedocs.io/en/latest/?badge=latest)
-![Python Version](https://img.shields.io/badge/python-2.7-blue.svg)
+![Python Version](https://img.shields.io/badge/python-3.7-blue.svg)
 ![License](https://img.shields.io/badge/license-GPL-blue.svg)
 
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
