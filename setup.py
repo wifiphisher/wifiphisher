@@ -21,8 +21,9 @@ import wifiphisher.common.constants as constants
 
 try:
     raw_input  # Python 2
+    sys.exit("Please use Python 3 to install Wifiphisher.")
 except NameError:
-    raw_input = input  # Python 3
+    pass  # Python 3
 
 
 class CleanCommand(Command):
@@ -44,7 +45,7 @@ def get_dnsmasq():
     """
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
-        install = raw_input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
+        install = input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
                              "in /usr/sbin/dnsmasq, " + "install now? [y/n] "))
 
         if install == "y":
