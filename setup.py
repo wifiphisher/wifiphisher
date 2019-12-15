@@ -14,8 +14,14 @@ r"""
 
 import os
 import sys
+import shutil
+import tempfile
+import distutils.sysconfig
+import distutils.ccompiler
 
+from distutils.errors import CompileError, LinkError
 from setuptools import Command, find_packages, setup
+from textwrap import dedent
 
 import wifiphisher.common.constants as constants
 
@@ -36,7 +42,81 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
-def get_dnsmasq():
+# code for checking if libnl-dev and libnl-genl-dev exist
+LIBNL_CODE = dedent("""
+#include <netlink/netlink.h>
+#include <netlink/genl/genl.h>
+int main(int argc, char* argv[])
+{
+   struct nl_msg *testmsg;
+   testmsg = nlmsg_alloc();
+   nlmsg_free(testmsg);
+   return 0;
+}
+""")
+
+# code for checking if openssl library exist
+OPENSSL_CODE = dedent("""
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+int main(int argc, char* argv[])
+{
+    SSL_load_error_strings();
+    return 0;
+}
+""")
+
+LIBNAME_CODE_DICT = {
+    "netlink": LIBNL_CODE,
+    "openssl": OPENSSL_CODE
+}
+
+
+def check_required_library(libname, libraries=None, include_dir=None):
+    """
+    Check if the required shared library exists
+
+    :param libname: The name of shared library
+    :type libname: str
+    :return True if the required shared lib exists else false
+    :rtype: bool
+    """
+    build_success = True
+    tmp_dir = tempfile.mkdtemp(prefix='tmp_' + libname + '_')
+    bin_file_name = os.path.join(tmp_dir, 'test_' + libname)
+    file_name = bin_file_name + '.c'
+    with open(file_name, 'w') as filep:
+        filep.write(LIBNAME_CODE_DICT[libname])
+    compiler = distutils.ccompiler.new_compiler()
+    distutils.sysconfig.customize_compiler(compiler)
+    try:
+        compiler.link_executable(
+            compiler.compile([file_name],
+                             include_dirs=include_dir),
+            bin_file_name,
+            libraries=libraries,
+        )
+    except CompileError:
+        build_success = False
+    except LinkError:
+        build_success = False
+    finally:
+        shutil.rmtree(tmp_dir)
+    if build_success:
+        return True
+    err_msg = "The development package for " + \
+               libname + " is required " + \
+               "for the compilation of roguehostapd. " + \
+               "Please install it and " + \
+               "rerun the script (e.g. on Debian-based systems " \
+               "run: apt-get install " 
+    if libname == "openssl":
+        err_msg += "libssl-dev"
+    else:
+        err_msg += "libnl-3-dev libnl-genl-3-dev"
+    sys.exit(err_msg) 
+
+def check_dnsmasq():
     """
     Try to install dnsmasq on host machine if not present.
 
@@ -45,35 +125,10 @@ def get_dnsmasq():
     """
 
     if not os.path.isfile("/usr/sbin/dnsmasq"):
-        install = input(("[" + constants.T + "*" + constants.W + "] dnsmasq not found " +
-                             "in /usr/sbin/dnsmasq, " + "install now? [y/n] "))
-
-        if install == "y":
-            if os.path.isfile("/usr/bin/pacman"):
-                os.system("pacman -S dnsmasq")
-            elif os.path.isfile("/usr/bin/yum"):
-                os.system("yum install dnsmasq")
-            elif os.path.isfile("/usr/bin/dnf"):
-                os.system("dnf -y install dnsmasq")
-            else:
-                os.system("apt-get -y install dnsmasq")
-        else:
-            sys.exit(("[" + constants.R + "-" + constants.W + "] dnsmasq " +
-                      "not found in /usr/sbin/dnsmasq"))
-
-    if not os.path.isfile("/usr/sbin/dnsmasq"):
-        dnsmasq_message = ("\n[" + constants.R + "-" + constants.W +
-                           "] Unable to install the \'dnsmasq\' package!\n" + "[" + constants.T +
-                           "*" + constants.W + "] This process requires a persistent internet " +
-                           "connection!\nPlease follow the link below to configure your " +
-                           "sources.list\n" + constants.B + "http://docs.kali.org/general-use/" +
-                           "kali-linux-sources-list-repositories\n" + constants.W + "[" +
-                           constants.G + "+" + constants.W + "] Run apt-get update for changes " +
-                           "to take effect.\n" + "[" + constants.G + "+" + constants.W + "] " +
-                           "Rerun the script to install dnsmasq.\n[" + constants.R + "!" +
-                           constants.W + "] Closing")
-
-        sys.exit(dnsmasq_message)
+        sys.exit("dnsmasq not found in /usr/sbin/dnsmasq. " + 
+              "Please install dnsmasq and rerun the script " +
+              "(e.g. on Debian-based systems: " +
+              "apt-get install dnsmasq)")
 
 # setup settings
 NAME = "wifiphisher"
@@ -101,6 +156,15 @@ DEPENDENCY_LINKS = \
 ["http://github.com/wifiphisher/roguehostapd/tarball/master#egg=roguehostapd-1.9.0", \
 "http://github.com/sophron/pyric/tarball/master#egg=pyric-0.5.0"]
 CMDCLASS = {"clean": CleanCommand,}
+LIB_NL3_PATH = '/usr/include/libnl3'
+LIB_SSL_PATH = '/usr/include/openssl'
+
+check_dnsmasq()
+check_required_library("netlink", ["nl-3", "nl-genl-3"],
+                       [LIB_NL3_PATH])
+check_required_library("openssl", ["ssl"],
+                       [LIB_SSL_PATH])
+shutil.rmtree('tmp')
 
 # run setup
 setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTION,
@@ -108,7 +172,5 @@ setup(name=NAME, author=AUTHOR, author_email=AUTHOR_EMAIL, description=DESCRIPTI
       include_package_data=INCLUDE_PACKAGE_DATA, version=VERSION, entry_points=ENTRY_POINTS,
       install_requires=INSTALL_REQUIRES, dependency_links=DEPENDENCY_LINKS,
       classifiers=CLASSIFIERS, url=URL, cmdclass=CMDCLASS)
-
-get_dnsmasq()
 
 print(__doc__.format(VERSION))  # print the docstring located at the top of this file
