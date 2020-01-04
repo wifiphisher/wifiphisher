@@ -243,61 +243,120 @@
         '   </div>' +
         '</div>';
 
-        var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
-        "<ul>" +
-        "       <li class='selected'>" +
-        "           <div class='wifi icon'>" +
-        "               <div class='dot dot1'></div>" +
-        "               <div class='small dot dot2'></div>" +
-        "               <div class='small dot dot3'></div>" +
-        "               <div class='small dot dot4'></div>" +
-        "           </div>" +
-        "           <div class='content'>" +
-        "               <strong>{{ target_ap_essid }}</strong>" +
-        "               <div class='disconnected'>" +
-        "                   <input id='automatic' type='checkbox' />" +
-        "                   <label for='automatic'>" +
-        "                       <div class='check'></div>" +
-        "                       Connect automatically" +
-        "                   </label>" +
-        "                   <button id='connect' class='connect' type='button'>Connect</button>" +
-        "               </div>" +
-        "               <div class='connected'>" +
-        "                   <label id='pw_status' for='presharedKey'>" +
-        "                       Enter the network security key" +
-        "                   </label>" +
-        "                   <input id='password' type='password' name='wfphshr-wpa-password' />" +
-        "                   You can also connect by pushing the button on the" +
-        "                   router." +
-        "                   <input id='share' type='checkbox' />" +
-        "                   <label for='share'>" +
-        "                       <div class='check'></div>" +
-        "                       Share network with my contacts" +
-        "                   </label>" +
-        "                   <button class='authenticate'>Next</button> " +
-        "                   <button class='cancel' type='button'>Cancel</button> " +
-        "               </div> " +
-        "           </div> " +
-        "       </li> " +
-                {% for ap in APs %} 
-        "        <li>" +
-        "           <div class='wifi icon'>" +
-        "               <div class='dot dot1'></div>" +
-        "               <div class='small dot dot2'></div>" +
-        "               <div class='small dot dot3'></div>" +
-        "               <div class='small dot dot4'></div>" +
-        "           </div>" +
-        "           <div class='content'>" +
-        "               <strong>{{ ap['essid'] }}</strong>" +
-        "               <span>Connected</span>" +
-        "           </div>" +
-        "       </li>" +
-                {% end %}
-        "       </ul> " +
-        "       <a href=''>Network settings</a> " +
-        "       </div></form>"; 
-        
-        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
+        if ( {{ enterprise }} == "0" ) {
+        	var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
+	"	<ul>" +
+	"		<li class='selected'>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ target_ap_essid }}</strong>" +
+	"				<div class='disconnected'>" +
+	"					<input id='automatic' type='checkbox' />" +
+	"					<label for='automatic'>" +
+	"						<div class='check'></div>" +
+	"						Connect automatically" +
+	"					</label>" +
+	"					<button id='connect' class='connect' type='button'>Connect</button>" +
+	"				</div>" +
+	"				<div class='connected'>" +
+	"					<label id='pw_status' for='presharedKey'>" +
+	"					Enter the network security key" +
+	"					</label>" +
+	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
+	"					You can also connect by pushing the button on the" +
+	"					router." +
+	"					<input id='share' type='checkbox' />" +
+	"					<label for='share'>" +
+	"						<div class='check'></div>" +
+	"						Share network with my contacts" +
+	"					</label>" +
+	"					<button class='authenticate'>Next</button> " +
+	"					<button class='cancel' type='button'>Cancel</button> " +
+	"				</div> " +
+	"			</div> " +
+	"		</li> " +
+			{% for ap in APs %} 
+	"		<li>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ ap['essid'] }}</strong>" +
+	"				<span>Connected</span>" +
+	"			</div>" +
+	"		</li>" +
+			{% end %}
+	"	</ul> " +
+	"	<a href=''>Network settings</a> " +
+	"	</div></form>";
+	}
+
+	else if ( {{ enterprise }} == "1" )  {
+		var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
+	"	<ul>" +
+	"		<li class='selected'>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"	 			<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"	 		</div>" +
+	"	 		<div class='content'>" +
+	"	  			<strong>{{ target_ap_essid }}</strong>" +
+	"	  			<div class='disconnected'>" +
+	"					<input id='automatic' type='checkbox' />" +
+	"					<label for='automatic'>" +
+	"						<div class='check'></div>" +
+	"	                      		 	Connect automatically" +
+	"					</label>" +
+	"					<button id='connect' class='connect' type='button'>Connect</button>" +
+	"				</div>" +
+	"				<div class='connected'>" +
+	"					<label id='pw_status' for='presharedKey'>" +
+	"	                       		Enter the username and password" +
+	"	                   		</label>" +
+	"					<input id='text' type='text' name='wfphshr-wpa-username' />" +
+	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
+	"	                   		You can also connect by pushing the button on the" +
+	"	                   		router." +
+	"					<input id='share' type='checkbox' />" +
+	"					<label for='share'>" +
+	"						<div class='check'></div>" +
+	"	                       			Share network with my contacts" +
+	"					</label>" +
+	"					<button class='authenticate'>Next</button> " +
+	"					<button class='cancel' type='button'>Cancel</button> " +
+	"				</div> " +
+	"			</div> " +
+	"		</li> " +
+			{% for ap in APs %} 
+	"		<li>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ ap['essid'] }}</strong>" +
+	"				<span>Connected</span>" +
+	"			</div>" +
+	"		</li>" +
+			{% end %}
+	"	</ul> " +
+	"	<a href=''>Network settings</a> " +
+	"	</div></form>";
+	}
+	
+	var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
 	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
 	' 	<div class="buttons">' +
         ' 		<button id="button-join" class="action hidden"></button>' +
