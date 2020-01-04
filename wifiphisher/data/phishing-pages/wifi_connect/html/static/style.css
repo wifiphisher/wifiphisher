@@ -96,6 +96,13 @@ input[type=checkbox] + label div.check:after {
     width: 14px;
     height: 14px;
 }
+input[type=text] {
+    border: 0px solid black;
+    display: block;
+    width: 100%;
+    height: 20px;
+    margin: 2px 0;
+}
 input[type=password] {
     border: 0px solid black;
     display: block;
