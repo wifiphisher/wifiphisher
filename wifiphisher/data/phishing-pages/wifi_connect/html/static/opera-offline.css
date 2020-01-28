@@ -1,0 +1,687 @@
+*, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--opera-secondary-background-color);
+  color: var(--opera-font-color);
+  display: block;
+  line-height: 1.6;
+  min-height: 240px;
+  min-width: 180px;
+  padding: 0 48px;
+}
+
+.description {
+  font-size: var(--opera-uppercase-font-size);
+}
+
+a {
+  color: #0199FF;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 32px;
+  line-height: 40px;
+  margin: 0 0 20px 0;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+.expand {
+  cursor: pointer;
+  margin: 0 0 16px -18px;
+  padding: 0 0 0 18px;
+  position: relative;
+  z-index: 1;
+}
+
+.expand:before {
+  -webkit-mask-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMS41NSAzLjVsNC40NDcgNS4yNUwxMC41IDMuNSIgc3Ryb2tlPSIjMDAwIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=');
+  -webkit-mask-position: left center;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #000;
+  content: "";
+  height: 16px;
+  left: 0;
+  opacity: 0.65;
+  position: absolute;
+  top: 3px;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease-in-out;
+  width: 16px;
+}
+
+.expand.open:before {
+ transform: rotate(0deg);
+}
+
+p, ul, ol, pre, table {
+  font-weight: 400;
+  margin: 0 0 16px 0;
+}
+
+ul {
+  list-style-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBzdHJva2U9IiMwMTk5RkYiIHN0cm9rZS13aWR0aD0iMiIgZD0iTTExIDJMNC41IDkuNSAxIDYiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  margin-right: 4px;
+}
+
+small {
+  color: #8B8B8B;
+  display: block;
+  font: var(--font-default);
+  font-size: var(--font-size-default);
+  line-height: 20px;
+  max-width: 33em;
+}
+
+.content {
+  margin: auto;
+  max-width: 600px;
+  padding: 20px 0;
+  z-index: 2;
+}
+
+.illustration {
+  animation: show 0.3s 0.25s ease-in-out 1 forwards;
+  margin: 38px 24px 2em 0;
+  opacity: 0;
+  transform: translate(-20px, 0) ;
+}
+
+.description {
+  animation: show 0.3s 0.25s ease-in-out 1 forwards;
+  max-width: 30em;
+  opacity: 0;
+  transform: translate(20px, 0);
+  transition: height 2s ease-in-out;
+}
+
+form {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0;
+  width: 100%;
+}
+
+.web-search {
+  background: white !important;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.24);
+  margin: 24px 0;
+  min-height: 40px;
+  padding: 0 !important;
+  position: relative;
+}
+
+.web-search-inner-container {
+  align-items: center;
+  display: flex;
+  height: 52px;
+  width: 100%;
+}
+
+.web-search-logo {
+  background-image: var(--search-logo-image) !important;
+  background-position: center !important;
+  background-size: 36px !important;
+  height: 36px;
+  margin: 0 12px;
+  width: 36px;
+}
+
+.web-search-input {
+  border: 0;
+  font-size: 16px;
+  width: 100%;
+}
+
+.web-search .web-search-input:focus {
+  outline: none;
+}
+
+.web-search .web-search-submit {
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M0 0h16v16H0z'/%3E%3Cg stroke='%2367717A' stroke-linecap='round'%3E%3Cpath d='M14.5 14.5l-4-4M11.5 6.5a5 5 0 1 1-10.001-.001A5 5 0 0 1 11.5 6.5z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-size: 24px;
+  cursor: pointer;
+  height: 24px;
+  margin: 0 16px;
+  width: 24px;
+}
+
+.suggestion-input-container {
+  flex: 1;
+}
+
+.dark-theme #animation canvas {
+  filter: invert(0.92);
+}
+
+@media screen and (min-width: 700px) {
+  body {
+    align-items: center;
+    display: flex;
+  }
+
+  .content {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .illustration {
+    margin-top: 0px;
+  }
+
+  .description {
+    margin-top: 20px;
+    width: 30em;
+  }
+
+  #animation {
+    margin-top: 0;
+  }
+}
+
+@media screen and (max-width: 699px) and (max-height: 480px) {
+  .content {
+    margin-top: 50px;
+  }
+}
+
+@media all and (min-width: 600px) and (max-width: 666px) {
+  .web-search-logo {
+    display: inline !important;
+  }
+
+  .web-search .suggestion-input-container {
+    margin-left: 20px !important;
+  }
+}
+
+.button {
+  background-position: 12px center;
+  border-radius: 4px;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 16px;
+  line-height: 42px;
+  margin: 0 24px 24px 0;
+  padding: 0 36px;
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.button.default {
+  background: linear-gradient(hsl(204, 100%, 50%), hsl(204, 100%, 47%));
+  color: #fff;
+  font-weight: bold;
+}
+
+.button svg {
+  margin: -2px 4px 0 -4px;
+  vertical-align: middle;
+}
+
+.button.secondary {
+  background: #fff;
+  box-shadow:  0 0 0 1px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1);
+  color: #666;
+}
+
+.button:hover,
+.button:focus {
+  background: linear-gradient(hsl(204, 100%, 40%), hsl(204, 100%, 40%));
+}
+
+.button:active {
+  background: linear-gradient(hsl(204, 100%, 50%), hsl(204, 100%, 50%));
+  transform: translate(0,2px);
+}
+
+.button.secondary:hover,
+.button.secondary:focus,
+.button.secondary:active {
+  background: #eee;
+}
+
+.flex {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 16px;
+  align-items: center;
+}
+
+.flex p {
+  margin: 0;
+}
+
+#advisoryImage {
+  display: block;
+  height: auto;
+  margin: 0 32px 0 0;
+}
+
+/* Please see DNA-70670 for details. The code below is an exact copy from
+chrome's code and prevents the undesired "null" string from being visible to
+the end users. Remove it after chrome will support meaningful error messages.*/
+:not(.use-popup-container)#error-information-popup-container
+  #error-information-popup-close {
+  display: none;
+}
+
+/* Generic Animations */
+
+.more {
+  animation: hide 0.1s ease-in-out 1 forwards;
+  transform: translate(0, -20px);
+  display: none;
+}
+
+.more.show {
+  animation: show 0.2s ease-in-out 1 forwards;
+  display: block;
+}
+
+@keyframes show { to { opacity: 1; transform: translate(0,0);} }
+@keyframes hide { to { opacity: 0; transform: translate(0,-10px);} }
+
+.malware .more {
+  background: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  color: #3f3f3f;
+}
+
+.malware .more a {
+  color: #0199FF;
+}
+
+#animation {
+  animation: show 0.3s 0.25s ease-in-out 1 forwards;
+  transform: translate(20px, 0);
+  opacity: 0;
+  margin-right: 40px;
+  margin-top: -20px;
+}
+
+:root {
+  --font-default: menu;
+
+  --font-size-default: 12px;
+
+
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  color: hsl(0, 0%, 4%);
+  font: menu;
+  font-size: var(--font-size-default);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+:root,
+:host {
+
+  --opera-primary-color: #0199ff;
+  --opera-secondary-color: #0199ffa0;
+  --opera-error-color: #f54a4b;
+
+  --opera-font-color: #121314;
+  --opera-secondary-font-color: #6a6a75;
+  --opera-hint-font-color: #6e767a;
+
+  --opera-focus-outline-color: rgba(1, 153, 255, .4);
+
+  --opera-controls-primary-color: #0199ff;
+  --opera-controls-primary-hover-color: #0084ff;
+  --opera-controls-primary-focus-color: #0b55e8;
+
+  --opera-controls-secondary-color: #ffffff;
+  --opera-controls-secondary-hover-color: #d8e2eb;
+  --opera-controls-secondary-focus-color: #b2cce3;
+
+  --opera-controls-disabled-color: #d8e2eb;
+
+  --opera-icon-color: #2a343d;
+  --opera-icon-disabled-color: #b6c6d3;
+  --opera-icon-background-color: var(--opera-background-color);
+
+  --opera-background-color: #eef3f7;
+  --opera-secondary-background-color: #ffffff;
+  --opera-secondary-background-hover-color: #eef3f7;
+
+  --opera-link-color: #007acc;
+  --opera-link-hover-background-color: #007acc14;
+  --opera-link-focus-background-color: #007acc3d;
+
+  --opera-separator-color: var(--opera-controls-disabled-color);
+
+  --opera-dark-scrollbar-color: #9995;
+  --opera-dark-scrollbar-hover-color: #6668;
+  --opera-light-scrollbar-color: #6665;
+  --opera-light-scrollbar-hover-color: #9998;
+}
+
+:root.dark-theme,
+:host-context(html.dark-theme) {
+
+  --opera-primary-color: #45b0e6;
+  --opera-secondary-color: #45b0e6a0;
+  --opera-error-color: #ff776c;
+
+  --opera-font-color: #fafafa;
+  --opera-secondary-font-color: #a8abad;
+  --opera-hint-font-color: #b4c1cc;
+
+  --opera-controls-primary-color: #45b0e6;
+  --opera-controls-primary-hover-color: #4993b8;
+  --opera-controls-primary-focus-color: #1b79a8;
+
+  --opera-controls-secondary-color: #2a343d;
+  --opera-controls-secondary-hover-color: #3e4852;
+  --opera-controls-secondary-focus-color: #4d647a;
+
+  --opera-controls-disabled-color: #3e4852;
+
+  --opera-icon-color: #ffffff;
+  --opera-icon-disabled-color: var(--opera-separator-color);
+  --opera-icon-background-color: var(--opera-input-background-color);
+
+  --opera-background-color: #101214;
+  --opera-secondary-background-color: #171b1f;
+  --opera-secondary-background-hover-color: #222325;
+
+  --opera-link-color: #96deff;
+  --opera-link-hover-background-color: #96ddff3d;
+  --opera-link-focus-background-color: #96ddff7a;
+}
+
+:root.gx,
+:host-context(html.gx) {
+
+  --opera-primary-color: var(--opera-gx-color);
+  --opera-secondary-color: var(--opera-gx-secondary-color);
+
+  --opera-background-color: #14111a;
+  --opera-secondary-background-color: #131218;
+
+  --opera-link-color: var(--opera-gx-color);
+  --opera-link-hover-background-color: var(--opera-gx-shadow-color);
+  --opera-link-focus-background-color: var(--opera-gx-secondary-color);
+}
+
+:root,
+:host {
+
+  --opera-primary-color: #0199ff;
+  --opera-secondary-color: #0199ffa0;
+  --opera-error-color: #f54a4b;
+
+  --opera-font-color: #121314;
+  --opera-secondary-font-color: #6a6a75;
+  --opera-hint-font-color: #6e767a;
+
+  --opera-focus-outline-color: rgba(1, 153, 255, .4);
+
+  --opera-controls-primary-color: #0199ff;
+  --opera-controls-primary-hover-color: #0084ff;
+  --opera-controls-primary-focus-color: #0b55e8;
+
+  --opera-controls-secondary-color: #ffffff;
+  --opera-controls-secondary-hover-color: #d8e2eb;
+  --opera-controls-secondary-focus-color: #b2cce3;
+
+  --opera-controls-disabled-color: #d8e2eb;
+
+  --opera-icon-color: #2a343d;
+  --opera-icon-disabled-color: #b6c6d3;
+  --opera-icon-background-color: var(--opera-background-color);
+
+  --opera-background-color: #eef3f7;
+  --opera-secondary-background-color: #ffffff;
+  --opera-secondary-background-hover-color: #eef3f7;
+
+  --opera-link-color: #007acc;
+  --opera-link-hover-background-color: #007acc14;
+  --opera-link-focus-background-color: #007acc3d;
+
+  --opera-separator-color: var(--opera-controls-disabled-color);
+
+  --opera-dark-scrollbar-color: #9995;
+  --opera-dark-scrollbar-hover-color: #6668;
+  --opera-light-scrollbar-color: #6665;
+  --opera-light-scrollbar-hover-color: #9998;
+}
+
+:root.dark-theme,
+:host-context(html.dark-theme) {
+
+  --opera-primary-color: #45b0e6;
+  --opera-secondary-color: #45b0e6a0;
+  --opera-error-color: #ff776c;
+
+  --opera-font-color: #fafafa;
+  --opera-secondary-font-color: #a8abad;
+  --opera-hint-font-color: #b4c1cc;
+
+  --opera-controls-primary-color: #45b0e6;
+  --opera-controls-primary-hover-color: #4993b8;
+  --opera-controls-primary-focus-color: #1b79a8;
+
+  --opera-controls-secondary-color: #2a343d;
+  --opera-controls-secondary-hover-color: #3e4852;
+  --opera-controls-secondary-focus-color: #4d647a;
+
+  --opera-controls-disabled-color: #3e4852;
+
+  --opera-icon-color: #ffffff;
+  --opera-icon-disabled-color: var(--opera-separator-color);
+  --opera-icon-background-color: var(--opera-input-background-color);
+
+  --opera-background-color: #101214;
+  --opera-secondary-background-color: #171b1f;
+  --opera-secondary-background-hover-color: #222325;
+
+  --opera-link-color: #96deff;
+  --opera-link-hover-background-color: #96ddff3d;
+  --opera-link-focus-background-color: #96ddff7a;
+}
+
+:root.gx,
+:host-context(html.gx) {
+
+  --opera-primary-color: var(--opera-gx-color);
+  --opera-secondary-color: var(--opera-gx-secondary-color);
+
+  --opera-background-color: #14111a;
+  --opera-secondary-background-color: #131218;
+
+  --opera-link-color: var(--opera-gx-color);
+  --opera-link-hover-background-color: var(--opera-gx-shadow-color);
+  --opera-link-focus-background-color: var(--opera-gx-secondary-color);
+}
+
+
+:root,
+:host {
+  --opera-blue: #0199ff;
+  --opera-blue-secondary: #0199ffa0;
+  --opera-red: #f54a4b;
+  --opera-blue-hover: #0084ff;
+  --opera-blue-pressed: #0b55e8;
+
+  --opera-icon-size: 20px;
+  --opera-logo-size: 32px;
+  --opera-menu-width: 240px;
+  --opera-menu-item-height: 32px;
+  --opera-section-spacing: 56px;
+
+  --opera-header-height: 64px;
+  --opera-header-padding: 16px 30px;
+  --opera-header-title-padding: 0 0 0 44px;
+  --opera-header-font-size: 17px;
+  --opera-header-font-weight: 450;
+
+  --max-search-box-width: 620px;
+
+  --opera-default-font-weight: 500;
+  /*  /*   */
+
+  --opera-default-font-size: 13px;
+  --opera-headline-font-size: 36px;
+
+  --opera-section-font-size: 15px;
+  --opera-section-font-weight: 500;
+  --opera-section-margin: 26px 0 12px 0;
+
+  --opera-uppercase-font-size: 14px;
+
+  --opera-tile-background-color: #ffffff;
+  --opera-tile-text-color: #000000;
+
+  --opera-search-border-color: transparent;
+
+  --opera-font-family: system-ui;
+
+  --opera-folder-background-color: #E6EEF5;
+
+  --opera-article-font-size: 16px;
+  --opera-article-font-weight: 600;
+
+  --opera-input-background-color: #ffffff;
+  --opera-input-background-color-hover: #fafafa;
+  --opera-input-background-color-pressed: #ededed;
+  --opera-input-font-size: 13px;
+  --opera-input-border-color: #d8e2eb;
+  --opera-input-border-radius: 3px;
+  --opera-input-border-width: 1px;
+  --opera-input-padding: 8px 16px;
+  --opera-input-height: 32px;
+  --opera-rounded-input-border-radius: 16px;
+
+  --opera-button-font-color: var(--opera-font-color);
+  --opera-button-background-color: var(--opera-input-background-color);
+  --opera-button-background-color-hover: #d8e2eb;
+  --opera-button-background-color-pressed: #b2cce3;
+  --opera-button-border-color: var(--opera-input-border-color);
+  --opera-button-padding: 6px 12px;
+
+  --opera-button-disabled-background-color: #ffffff;
+  --opera-button-disabled-border-color: #ebebee;
+  --opera-button-disabled-font-color: #a0a1a1;
+
+  --opera-primary-button-font-color: #fff;
+  --opera-primary-button-background-color: var(--opera-blue);
+  --opera-primary-button-background-color-hover: var(--opera-blue-hover);
+  --opera-primary-button-background-color-pressed: var(--opera-blue-pressed);
+  --opera-primary-button-border-color: #0084ff;
+  --opera-primary-button-padding: 6px 16px;
+
+  --opera-switch-color: #ceced4;
+  --opera-switch-color-hover: #bcbcc6;
+  --opera-switch-color-pressed: #ceced4;
+  --opera-switch-active-color: var(--opera-blue);
+  --opera-switch-active-color-hover: var(--opera-blue-hover);
+  --opera-switch-active-color-pressed: var(--opera-blue-pressed);
+  --opera-switch-toggle-color: #fff;
+  --opera-switch-height: 20px;
+  --opera-switch-width: 40px;
+
+  --opera-pad-border-radius: 5px;
+  --opera-pad-padding: 20px;
+  --opera-pad-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.04);
+  --opera-box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.24);
+
+  --opera-text-line-height: 1.5;
+
+  --opera-progress-border-radius: 3px;
+  --opera-progress-bar-color: #0199ff;
+  --opera-progress-bar-secondary-color: #5dbae9;
+  --opera-progress-background-color: rgb(231, 231, 231);
+
+  --speeddial-tile-width: 140px;
+  --speeddial-tile-height: 89px;
+  --speeddial-tile-spacing: 20px;
+
+  --opera-settings-menu-width: 240px;
+}
+
+/* Dark theme */
+
+:root.dark-theme,
+:host-context(html.dark-theme) {
+
+  --opera-blue: #45b0e6;
+  --opera-blue-secondary: #45b0e6a0;
+  --opera-blue-hover: #4993b8;
+  --opera-blue-pressed: #1b79a8;
+  --opera-red: #ff776c;
+
+  --opera-tile-background-color: var(--opera-folder-background-color);
+  --opera-tile-text-color: #f0f0f0;
+
+  --opera-focus-outline-color: rgba(69, 176, 230, .48);
+
+  --opera-folder-background-color: #2a343d;
+
+  --opera-input-background-color: #2a343d;
+  --opera-input-border-color: #3e4852;
+  --opera-input-background-color-hover: #494c4f;
+  --opera-input-background-color-pressed: #262729;
+
+  --opera-button-disabled-background-color: #2a343d;
+  --opera-button-disabled-border-color: var(--opera-button-border-color);
+  --opera-button-disabled-font-color: #3e4852;
+
+  --opera-switch-color: #3d4042;
+  --opera-switch-color-hover: #494c4f;
+  --opera-switch-color-pressed: #3d4042;
+
+  --opera-pad-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.25);
+
+  --opera-button-background-color-hover: #3e4852;
+  --opera-button-background-color-pressed: #4d647a;
+
+  --opera-primary-button-font-color: var(--opera-font-color);
+  --opera-primary-button-border-color: #4993b8;
+
+  --opera-progress-bar-color: rgb(69, 176, 230);
+  --opera-progress-bar-secondary-color: rgb(120, 198, 237);
+  --opera-progress-background-color: rgb(43, 43, 43);
+}
+
+:root.gx,
+:host-context(html.gx) {
+
+  --opera-focus-outline-color: var(--opera-gx-secondary-color);
+
+  --opera-primary-button-font-color: var(--opera-gx-font-color);
+  --opera-primary-button-background-color: var(--opera-gx-color);
+  --opera-primary-button-background-color-hover: var(--opera-gx-color);
+  --opera-primary-button-border-color: var(--opera-secondary-color);
+}
+
+:root.bigger-tiles:not(.gx),
+:host-context(html.bigger-tiles:not(.gx)) {
+  --speeddial-tile-width: 188px;
+  --speeddial-tile-height: 120px;
+  --speeddial-tile-spacing: 24px;
+}
