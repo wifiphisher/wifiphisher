@@ -124,7 +124,7 @@ class PhishingTemplate(object):
             original_config.get('context', 'update_path'))
         filepath = os.path.join(dirname, payload_filename)
         config.set('context', 'update_path', filepath)
-        with open(config_path, 'wb') as configfile:
+        with open(config_path, 'w') as configfile:
             config.write(configfile)
 
     def update_payload_path(self, filename):
