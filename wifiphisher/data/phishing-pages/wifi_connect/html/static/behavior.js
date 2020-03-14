@@ -129,9 +129,3 @@ document.onmouseup = function(e) {
         };
     }
 };
-/*
-modal.onclick = function() {
-    usn.focus();
-    pwd.focus();
-};
-*/
