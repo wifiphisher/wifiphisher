@@ -6,7 +6,6 @@ import subprocess
 from collections import defaultdict
 import shlex
 
-import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
 
 def get_process_result(command_string):
