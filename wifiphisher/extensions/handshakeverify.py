@@ -1,8 +1,7 @@
 # pylint: skip-file
 """
-Extension that verify WPA key by precaptured handshake using cowpatty
+Extension that verifies WPA key by precaptured handshake using cowpatty
 """
-import sys
 import subprocess
 from collections import defaultdict
 import shlex
@@ -33,8 +32,6 @@ def is_valid_handshake_capture(filename):
 class Handshakeverify(object):
 
     def __init__(self, data):
-        print(data.args)
-        #sys.exit()
         self.capt_file = data.args.handshake_capture
         self.essid = data.target_ap_essid
         self.key_file_path = "/tmp/keyfile.tmp"
@@ -48,9 +45,9 @@ class Handshakeverify(object):
         return defaultdict(list)
 
     def send_output(self):
-        if self.key != "" and self.found == True:
+        if self.key != "" and self.found:
             return ["VALID KEY: " + self.key]
-        elif self.key != "" and self.found == False:
+        elif self.key != "" and not self.found:
             return ["INVALID KEY ({})".format(self.key)]
         return ["WAITING FOR WPA KEY POST (ESSID: {})".format(self.essid)]
 
