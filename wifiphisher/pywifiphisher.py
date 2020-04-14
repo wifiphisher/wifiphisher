@@ -75,6 +75,13 @@ def parse_args():
         "--internetinterface",
         help=("Choose an interface that is connected on the Internet" +
               "Example: -iI ppp0"))
+    parser.add_argument(
+        "-pI",
+        "--protectinterface",
+        nargs='+',
+        help=("Specify the interface(s) that will have their connection protected (i.e. NetworkManager will be prevented from controlling them). " +
+              "Example: -pI wlan1 wlan2"))
+
     # MAC address randomization
     parser.add_argument(
         "-iAM",
@@ -495,6 +502,9 @@ class WifiphisherEngine:
             print(("[{0}!{1}] {2}").format(R, W, err))
             time.sleep(1)
             self.stop()
+        if args.protectinterface:
+            for interface in args.protectinterface:
+                self.network_manager.nm_unmanage(interface)
 
         if not args.internetinterface and not args.keepnetworkmanager:
             kill_interfering_procs()
