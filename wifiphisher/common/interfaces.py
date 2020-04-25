@@ -389,6 +389,24 @@ class NetworkManager(object):
             self._internet_access_enable = value
         else:
             raise InvalidValueError(value, bool)
+    
+    def nm_unmanage(self, interface):
+        """
+        Set an interface to unmanaged.
+        :param interface: Name of the interface
+        :type interface: str
+        :return: True upon success
+        :rtype: bool
+        """
+        try:
+            proc = Popen(['nmcli', 'dev', 'set', interface, 'manage', 'no'], stderr=PIPE)
+            err = proc.communicate()[1]
+        except:
+            logger.error("Failed to make NetworkManager unmanage interface {0}: {1}".format(interface_name, err))
+            raise InterfaceManagedByNetworkManagerError(interface)
+        # Ensure that the interface is unmanaged
+        if is_managed_by_network_manager(interface):
+            raise InterfaceManagedByNetworkManagerError(interface)
 
     def is_interface_valid(self, interface_name, mode=None):
         """
@@ -426,7 +444,7 @@ class NetworkManager(object):
         # raise an error if interface doesn't support the mode
         if mode != "internet" and interface_adapter.is_managed_by_nm\
                 and self.internet_access_enable:
-            raise InterfaceManagedByNetworkManagerError(interface_name)
+                self.nm_unmanage(interface_name)
         if mode == "monitor" and not interface_adapter.has_monitor_mode:
             raise InvalidInterfaceError(interface_name, mode)
         elif mode == "AP" and not interface_adapter.has_ap_mode:
