@@ -202,12 +202,13 @@
             document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
         }
 	
-        else if (resolvedOs == "Mac OS X") {
-            document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
+        else if (resolvedOs == "iOS") {
+	    document.write("<link rel='stylesheet' href='/static/ios.css'>");
+            
         }
 	
         else {
-	    document.write("<link rel='stylesheet' href='/static/ios.css'>");
+	    document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
         }
 
 	if ( {{ enterprise }} == "0") {

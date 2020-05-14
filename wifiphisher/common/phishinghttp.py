@@ -4,14 +4,18 @@ import logging
 import os.path
 import re
 import time
+import asyncio
 
 import tornado.ioloop
 import tornado.web
+import tornado.platform.asyncio
 import wifiphisher.common.constants as constants
 import wifiphisher.common.extensions as extensions
 import wifiphisher.common.uimethods as uimethods
 import wifiphisher.common.victim as victim
 from tornado.escape import json_decode
+
+asyncio.set_event_loop_policy(tornado.platform.asyncio.AnyThreadEventLoopPolicy())
 
 hn = logging.NullHandler()
 hn.setLevel(logging.DEBUG)
