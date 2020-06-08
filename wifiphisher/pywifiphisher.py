@@ -408,7 +408,7 @@ class WifiphisherEngine:
         # Set operation mode
         self.opmode.set_opmode(args, self.network_manager)
 
-        self.network_manager.start()
+        self.network_manager.start(args)
 
         # TODO: We should have more checks here:
         # Is anything binded to our HTTP(S) ports?
@@ -423,8 +423,17 @@ class WifiphisherEngine:
                         args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
                     if interfaces.is_wireless_interface(internet_interface):
-                        self.network_manager.unblock_interface(
+                        try:
+                          self.network_manager.unblock_interface(
                             internet_interface)
+                        except KeyError:
+                            # TODO: Find a workaround for managing blocked adapters that do not support nl80211
+                            # Calling unblock on internet interfaces might return a `Key Error` if it does not 
+                            # support nl80211. This will be a problem if the interface is blocked as it cannot
+                            # be unblocked automatically. Let the user know with a warning.
+                            logger.warning("Interface {} does not support 'nl80211'. In case it is blocked,\
+                                    you must unblock it manually".format(internet_interface))
+                            pass
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
             # check if the interface for WPS is valid
