@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+   
+   <head>
+      <link rel="icon" href="static/images/favicon.ico">  
+      <title>Administrador de plugin</title>
+      <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
+      
+      <link href = "static/css/bootstrap.min.css" rel = "stylesheet">
+      <link href="static/css/theme.css" rel="stylesheet">
+      
+   </head>
+   
+   <body>
+      
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="">Administrador de plugin</a>
+        </div>
+        </div>
+        </nav>
+
+
+      <div class="container theme-showcase" role="main">
+
+      <div class="alert alert-warning" role="alert">
+        <h4><strong>Atención:</strong> Los plugins de su navegador están desactualizados. Actualice ahora para continuar navegando por Internet.</h4>
+      </div>
+
+      <div class="page-header">
+        <h1><strong>Actualizar sus plugins</strong></h1>
+        <h4>Mantener sus plugins actualizados ayuda a que su navegador funcione de manera segura y sin problemas.</h4>
+      </div>
+
+      <div class="jumbotron">
+        <h1>Estado del plugin</h1>
+       <br>
+
+      <div class="row">
+        <div class="col-md-13">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><h3>Plugin</h3></th>
+                <th><h3>Estado</h3></th>
+                <th><h3>Acción</h3></th>
+
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Flash Player</strong><br>
+                  Flash Player es un plugin de navegador liviano y un tiempo de ejecución de aplicaciones de Internet enriquecido que ofrece experiencias de usuario consistentes y atractivas, una reproducción de audio / video sorprendente y un juego emocionante
+               </td>
+
+                <td>
+                  <br><strong style="color:red">Desactualzado</strong>
+               </td>
+
+                <td>
+                  <h4>
+                  <form method="get" action="{{ update_path }}">
+                    <button type="submit" class="btn btn-lg btn-success">Actualizar</button>
+                    </form>
+                  </h4>
+                </td>
+              </tr>
+         </tbody>
+         </table>
+
+               <br>
+
+               <p> 
+       <ul class="list-unstyled">
+               <ul>
+                   <li><h4><strong>Paso 1:</strong> Haga clic en "Actualizar" para descargar el archivo de actualización.</h4></li>
+                   <li><h4><strong>Paso 2:</strong> Ejecute el archivo de actualización para actualizar sus plugins.</h4></li>
+               </ul>
+       </ul>
+      <br>
+
+
+      </div>
+      </div>
+      </div>
+
+      <div class="jumbotron">
+        <h1>Preguntas frecuentes</h1>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h3>¿Qué es un plugin?</h3>
+      <p> 
+       <ul class="list-unstyled">
+               <ul>
+                   <li><h4>Los plugins potencian videos, animaciones y juegos.</h4></li>
+                   <li><h4>Los plugins no siempre se actualizan automáticamente.</h4></li>
+                   <li><h4>Están construidos fuera de su navegador por compañías como Adobe Systems y Apple.</h4></li>
+               </ul>
+       </ul>
+       <br>
+      <p>
+
+          <h3>¿Cómo me ayuda administrador de plugin?</h3>
+          <h4>El administrador de plugins de su navegador <strong>actualiza automáticamente</strong> la mayoría de sus plugins para usted. Sin embargo, algunos plugins ocasionalmente requieren ser <strong>actualizados manualmente</strong>.</h4>
+       <br>
+
+        </div>
+
+        <div class="col-lg-6">
+          <h3>¿Por qué debería actualizar mis plugins?</h3>
+         <p> 
+          <ul class="list-unstyled">
+                  <ul>
+                      <li><h4>plugins antiguos <strong>aumentan el riesgo</strong> de ataques de malware, virus y otras amenazas de seguridad.</h4></li>
+                      <li><h4><strong>Los plugins actualizados tienen mejoras</strong> que hacen la web <strong>Mejor y mas segura</strong> para ti.</h4></li>
+                      <li><h4>Los plugins antiguos pueden <strong>interrumpir la navegación</strong> y hacerle perder el tiempo.</h4></li>
+
+                  </ul>
+          </ul>
+          <br>
+
+         <img src="static/images/plugins.png" class="img-thumbnail" alt="A generic square placeholder image with a white border around it, making it resemble a photograph taken with an old instant camera">
+
+        </div>
+      </div>
+
+    </div>
+
+      </div>
+
+      <script src = "static/js/jquery.js"></script>
+      
+      <script src = "static/js/bootstrap.min.js"></script>
+      
+   </body>
+	
+</html>
