@@ -76,10 +76,12 @@ class PhishingTemplate(object):
 
         self._path = os.path.join(constants.phishing_pages_dir,
                                   self._name.lower(),
-                                  constants.SCENARIO_HTML_DIR)
+                                  constants.SCENARIO_HTML_DIR,
+                                  constants.LANGUAGE)
         self._path_static = os.path.join(constants.phishing_pages_dir,
                                          self._name.lower(),
                                          constants.SCENARIO_HTML_DIR,
+                                         constants.LANGUAGE,
                                          'static')
 
         self._context = config_section_map(config_path, 'context')
@@ -292,7 +294,7 @@ class PhishingTemplate(object):
 class TemplateManager(object):
     """ This class handles all the template management operations """
 
-    def __init__(self, data_pages=None):
+    def __init__(self, data_pages=None, lang=None):
         """
         Construct object.
 
@@ -302,11 +304,15 @@ class TemplateManager(object):
         :return: None
         :rtype: None
         """
-
         # setup the templates
         self._template_directory = data_pages or constants.phishing_pages_dir
         if data_pages:
             constants.phishing_pages_dir = data_pages
+
+        # setup language
+        language = lang or constants.LANGUAGE
+        if lang:
+            constants.LANGUAGE = lang
 
         page_dirs = os.listdir(self._template_directory)
 
@@ -347,7 +353,7 @@ class TemplateManager(object):
         if not "config.ini" in os.listdir(dir_path):
             return False, "Configuration file not found in: "
         try:
-            tdir = os.listdir(os.path.join(dir_path, constants.SCENARIO_HTML_DIR))
+            tdir = os.listdir(os.path.join(dir_path, constants.SCENARIO_HTML_DIR, constants.LANGUAGE))
         except OSError:
             return False, "No " + constants.SCENARIO_HTML_DIR + " directory found in: "
         # Check HTML files...
