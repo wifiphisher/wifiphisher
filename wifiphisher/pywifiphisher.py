@@ -214,6 +214,11 @@ def parse_args():
         "-pE",
         "--phishing-essid",
         help="Determine the ESSID you want to use for the phishing page")
+    parser.add_argument(
+        "-l",
+        "--language",
+        help="Determine the language for the phishing page",
+        default='en')
 
     return parser.parse_args()
 
@@ -556,7 +561,7 @@ class WifiphisherEngine:
             else:
                 self.stop()
         # create a template manager object
-        self.template_manager = phishingpage.TemplateManager(data_pages=args.phishing_pages_directory)
+        self.template_manager = phishingpage.TemplateManager(data_pages=args.phishing_pages_directory, lang=args.language)
         # get the correct template
         tui_template_obj = tui.TuiTemplateSelection()
         template = tui_template_obj.gather_info(args.phishingscenario,
