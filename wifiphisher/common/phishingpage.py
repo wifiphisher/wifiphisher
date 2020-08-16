@@ -311,8 +311,9 @@ class TemplateManager(object):
 
         # setup language
         language = lang or constants.LANGUAGE
+        language += "/"
         if lang:
-            constants.LANGUAGE = lang
+            constants.LANGUAGE = language
 
         page_dirs = os.listdir(self._template_directory)
 
