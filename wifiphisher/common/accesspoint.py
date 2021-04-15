@@ -91,6 +91,10 @@ class AccessPoint(object):
         proc = subprocess.check_output(['ifconfig', str(self.interface)])
         if constants.NETWORK_GW_IP not in proc.decode('utf-8'):
             return False
+        subprocess.call(('route add -net %s netmask %s gw %s' %
+                         (constants.NETWORK_IP, constants.NETWORK_MASK,
+                          constants.NETWORK_GW_IP)),
+                        shell=True)
 
     def start(self, disable_karma=False):
         """Start the softAP."""
