@@ -142,7 +142,8 @@ def parse_args():
     parser.add_argument(
         "-hC",
         "--handshake-capture",
-        help=("Capture of the WPA/WPA2 handshakes for verifying passphrase" +
+        help=("Capture of the WPA/WPA2 handshakes for verifying passphrase. " + 
+              "Requires cowpatty. " +
               "Example : -hC capture.pcap"))
     parser.add_argument(
         "-qS",
