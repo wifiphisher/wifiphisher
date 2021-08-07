@@ -6,7 +6,7 @@
   border-radius: 5px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   width: 452px;
-  height: 260px;
+  height: 290px;
   color: black;
   position: absolute;
 }
@@ -70,7 +70,11 @@
 }
 
 .mac-wifi input[type=email] {
+<<<<<<< .merge_file_oJvb93
   width: 245px;
+=======
+  width: 240px;
+>>>>>>> .merge_file_LFCCd4
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;  
@@ -82,11 +86,19 @@
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
+<<<<<<< .merge_file_oJvb93
   width: 245px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;
   margin-left: 5px;
+=======
+  width: 240px;
+  height: 22px;
+  font-size: 80%;
+  padding: 0 0 0 2px;
+  margin-left: 7px;
+>>>>>>> .merge_file_LFCCd4
   border: 1px solid #ccc;
   background-image: none !important; /* avoid LastPass icon */
   position: relative;
@@ -102,6 +114,7 @@
   border: 1px solid #ccc;
   outline: none;
 }
+
 
 .mac-wifi .title {
   height: 20px;
@@ -122,7 +135,7 @@
 
 .mac-wifi .content {
   padding: 15px;
-  height: 207px;
+  height: 237px;
   border: 1px solid #aeaeae;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;

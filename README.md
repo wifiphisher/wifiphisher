@@ -119,6 +119,7 @@ Following are all the options along with their descriptions (also available with
 |-i INTERFACE| --interface INTERFACE| Manually choose an interface that supports both AP and monitor modes for spawning the rogue AP as well as mounting additional Wi-Fi attacks from Extensions (i.e. deauth). Example: -i wlan1 |
 |-eI EXTENSIONSINTERFACE| --extensionsinterface EXTENSIONSINTERFACE|	Manually choose an interface that supports monitor mode for running the extensions. Example: -eI wlan1|
 |-aI APINTERFACE| --apinterface APINTERFACE|	Manually choose an interface that supports AP mode for spawning an AP. Example: -aI wlan0|
+|-pI INTERFACE| --protectinterface INTERFACE| Specify one or more interfaces that will have their connection protected from being managed by NetworkManager.|
 |-kN| --keepnetworkmanager| Do not kill NetworkManager.|
 |-nE| --noextensions|	Do not load any extensions.|
 |-e ESSID| --essid ESSID|	Enter the ESSID of the rogue Access Point. This option will skip Access Point selection phase. Example: --essid 'Free WiFi'|
@@ -131,7 +132,7 @@ Following are all the options along with their descriptions (also available with
 |-iAM| --mac-ap-interface| Specify the MAC address of the AP interface. Example: -iAM 38:EC:11:00:00:00|
 |-iEM| --mac-extensions-interface| Specify the MAC address of the extensions interface. Example: -iEM E8:2A:EA:00:00:00|
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
-|-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Example: -hC capture.pcap|
+|-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Requires cowpatty. Example: -hC capture.pcap|
 |-dE ESSID|--deauth-essid ESSID|Deauth all the BSSIDs in the WLAN with that ESSID.|
 |-dC CHANNELS| --deauth-channels CHANNELS|Channels to deauth. Example: --deauth-channels 1,3,7|
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|

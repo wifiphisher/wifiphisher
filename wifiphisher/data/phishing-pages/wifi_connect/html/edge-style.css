@@ -3,22 +3,23 @@ body {
     background-repeat: no-repeat;
     height: 100%;
 }
+
 .network-manager {
     border-left: 1px solid #777;
     border-top: 1px solid #777;
     width: 400px;
-    background-color: #3d444c;
+    background-color: #333;
     color: white;
     position: absolute;
     right: 0;
     bottom: 0;
+    font-size: 125%;
 }
 span {
     color: #ccc;
     font-size: 90%;
 }
 ul:not(.chrome-list) {
-    list-style: none;
     padding: 0;
     margin: 0;
 }
@@ -36,6 +37,8 @@ strong {
 }
 li.selected {
     background-color: #0769b7;
+    margin-bottom: 50px;
+    height: 100px;
 }
 input[type=checkbox] {
     display: none;
@@ -43,7 +46,10 @@ input[type=checkbox] {
 button {
     border: 1px solid transparent;
     background-color: #3987c6;
-    padding: 10px 40px;
+    padding-top: 10px;
+    padding-bottom:25px;
+    padding-right: 40px;
+    padding-left:40px;
     color: white;
     font-family: 'Open Sans', sans-serif;
     font-size: 90%;
@@ -58,22 +64,45 @@ button:hover {
     border: 1px solid white;
 }
 button.connect {
-    float: right;
     clear: both;
+    position: absolute;
+    bottom: 45px;
+    right: 10px;
+    margin-bottom: 15px;
 }
-button.authenticate, button.cancel {
+button.authenticate{
     width: 155px;
     display: inline-block;
     margin-top: 10px;
-    padding: 5px 30px;
+    padding-top: 10px;
+    padding-bottom:25px;
+    padding-right: 40px;
+    padding-left:40px;
+    margin-left: 100px;
+    position: absolute;
+    right: 200px;
+}
+
+button.cancel {
+    width: 155px;
+    display: inline-block;
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom:25px;
+    padding-right: 40px;
+    padding-left:40px;
+    margin-left: 175px
 }
 button:hover {
 }
 .disconnected {
     display: block;
+    height: 70px;
 }
 .connected {
     display: none;
+    padding-right: 30px;
+    position : absolute;
 }
 div.check {
     width: 14px;
@@ -123,7 +152,7 @@ a {
 div.content {
     width: 330px;
     margin-left: 43px;
-    font-size: 90%;
+    font-size: 115%;
 }
 div.wifi.icon {
     position: relative;
@@ -161,3 +190,23 @@ div.wifi.icon div.dot4 {
     width: 20px;
     height: 20px;
 }
+.content {
+    margin: auto;
+        margin-left: auto;
+    max-width: 600px;
+    z-index: 2;
+    padding-top: 5px;
+    padding-bottom: 20px;
+}
+
+.networksettings {
+position: absolute;
+bottom: 5px
+}
+
+#networklabel {
+position: absolute;
+bottom: 100px;
+right: 145px;
+}
+

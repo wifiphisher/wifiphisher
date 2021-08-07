@@ -1,0 +1,70 @@
+body {
+  background-color: white;
+  padding: 0px;
+  margin: 0px;
+}
+
+html {
+  margin: 0px;
+  padding: 0px;
+}
+
+.ios-container {
+  max-width: 600px;
+  height: 100vh;
+  margin: auto;
+  background-color: rgb(239, 238, 243);
+}
+
+.ios-header {
+  background-color: white;
+  margin: 0px;
+  padding: 12px;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.ios-actions {
+  background-color: white;
+  padding-top: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgb(210,211,216);
+}
+
+.enter-password-text {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.action-button {
+  padding-left: 2px;
+  padding-right: 2px;
+  margin-left: 8px;
+  margin-right: 8px;
+  font-size: 1.4em;
+  background-color: white;
+  color: rgb(52,120,243);
+  border: none;
+  -webkit-appearance: none;
+}
+
+.ios-password-entry {
+  margin-top: 36px;
+  background-color: white;
+  padding: 8px 12px;
+  font-size: 1.4em;
+  border-top: 1px solid rgb(210,211,216);
+  border-bottom: 1px solid rgb(210,211,216);
+}
+
+input {
+  border: none;
+  font-size: 1.0em;
+}
+
+.ios-note {
+  padding: 12px;
+  color: rgb(111,110,115);
+  font-size: 1.1em;
+}

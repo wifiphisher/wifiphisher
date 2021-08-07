@@ -389,6 +389,24 @@ class NetworkManager(object):
             self._internet_access_enable = value
         else:
             raise InvalidValueError(value, bool)
+    
+    def nm_unmanage(self, interface):
+        """
+        Set an interface to unmanaged.
+        :param interface: Name of the interface
+        :type interface: str
+        :return: True upon success
+        :rtype: bool
+        """
+        try:
+            proc = Popen(['nmcli', 'dev', 'set', interface, 'manage', 'no'], stderr=PIPE)
+            err = proc.communicate()[1]
+        except:
+            logger.error("Failed to make NetworkManager unmanage interface {0}: {1}".format(interface, err))
+            raise InterfaceManagedByNetworkManagerError(interface)
+        # Ensure that the interface is unmanaged
+        if is_managed_by_network_manager(interface):
+            raise InterfaceManagedByNetworkManagerError(interface)
 
     def is_interface_valid(self, interface_name, mode=None):
         """
@@ -426,7 +444,7 @@ class NetworkManager(object):
         # raise an error if interface doesn't support the mode
         if mode != "internet" and interface_adapter.is_managed_by_nm\
                 and self.internet_access_enable:
-            raise InterfaceManagedByNetworkManagerError(interface_name)
+                self.nm_unmanage(interface_name)
         if mode == "monitor" and not interface_adapter.has_monitor_mode:
             raise InvalidInterfaceError(interface_name, mode)
         elif mode == "AP" and not interface_adapter.has_ap_mode:
@@ -625,6 +643,7 @@ class NetworkManager(object):
         card = self._name_to_object[interface_name].card
 
         # unblock card if it is blocked
+
         if pyw.isblocked(card):
             pyw.unblock(card)
 
@@ -688,12 +707,14 @@ class NetworkManager(object):
         for card in self._vifs_add:
             pyw.devdel(card)
 
-    def start(self):
+    def start(self, args):
         """
         Start the network manager
 
         :param self: A NetworkManager object
         :type self: NetworkManager
+        :param args: An argparse.Namespace object
+        :type args: argparse.Namespace
         :return: None
         :rtype: None
         """
@@ -710,6 +731,8 @@ class NetworkManager(object):
             except pyric.error as error:
                 if error.args[0] in (93, 19):
                     pass
+                elif interface == args.internetinterface:
+                    return False
                 else:
                     raise error
 
@@ -734,7 +757,7 @@ class NetworkManager(object):
         self.remove_vifs_added()
 
 
-def is_add_vif_required(args):
+def is_add_vif_required(main_interface, internet_interface, wpspbc_assoc_interface):
     """
     Return the card if only that card support both monitor and ap
     :param args: Arguemnt from pywifiphisher
@@ -778,27 +801,17 @@ def is_add_vif_required(args):
     # map the phy interface to virtual interfaces
     # i.e. phy0 to wlan0
     phy_to_vifs = defaultdict(list)
-    # store the phy number for the internet access
-    invalid_phy_number = list()
-    # record the invalid_phy_number when it is wireless card
-    if args.internetinterface and pyw.iswireless(args.internetinterface):
-        card = pyw.getcard(args.internetinterface)
-        invalid_phy_number.append(card.phy)
-
-    if args.wpspbc_assoc_interface:
-        card = pyw.getcard(args.wpspbc_assoc_interface)
-        invalid_phy_number.append(card.phy)
 
     # map the phy# to the virtual interface tuples
     for vif in [vif for vif in pyw.interfaces() if pyw.iswireless(vif)]:
         # excluding the card that used for internet accessing
         # setup basic card information
         score = 0
-        card = pyw.getcard(vif)
-        phy_number = card.phy
-        if phy_number in invalid_phy_number:
+        if vif == internet_interface or vif == wpspbc_assoc_interface:
             continue
-
+        else:
+            card = pyw.getcard(vif)
+            phy_number = card.phy
         supported_modes = pyw.devmodes(card)
 
         if "monitor" in supported_modes:
@@ -807,21 +820,20 @@ def is_add_vif_required(args):
             score += 1
 
         phy_to_vifs[phy_number].append((card, score))
-
     # each phy number map to a sublist containing (card, score)
     vif_score_tuples = [sublist[0] for sublist in list(phy_to_vifs.values())]
     # sort with score
     vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
-
     use_one_phy = False
-    if args.interface:
-        card = pyw.getcard(args.interface)
+    # check the user-provided args.interface
+    if main_interface:
+        card = pyw.getcard(main_interface)
         phy_number = card.phy
         if phy_to_vifs[card.phy][0][1] == 2:
             perfect_card = card
             use_one_phy = True
         else:
-            raise InvalidInterfaceError(args.interface)
+            raise InvalidInterfaceError(main_interface)
     else:
         perfect_card, use_one_phy = get_perfect_card(
             phy_to_vifs, vif_score_tuples)

@@ -1,0 +1,63 @@
+/*
+    This file has a UTF-8 BOM in it so it can be included from a UTF-16 page
+    without specifying an explicit character set. When editing it, please be
+    sure to preserve the BOM (first three bytes of the file, EF BB BF).
+ */
+
+body {
+    background: rgb(246, 246, 246);
+    cursor: default;
+    display: -webkit-box;
+    text-align: center;
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+    -webkit-user-select: none;
+}
+
+a {
+    color: rgb(21, 126, 251);
+    text-decoration: none;
+}
+
+input {
+    font-size: 16px;
+}
+
+.content-container {
+    font-family:'-apple-system-font';
+    min-width: 320px;
+    max-width: 580px;
+    margin: 0 auto;
+    position: relative;
+    width: 50%;
+}
+
+.error-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 34px;
+    margin: 0 auto;
+}
+
+.error-message, .suggestion-prompt {
+    font-size: 13px;
+    line-height: 18px;
+    padding: 0px 24px;
+}
+
+.suggestion-form {
+    display: inline-block;
+    margin: 5px;
+}
+
+.suggestion-form input {
+    margin: 0;
+    min-width: 146px;
+}
+
+.text-container {
+    color: rgb(133, 133, 133);
+    position: relative;
+    width: 100%;
+    word-wrap: break-word;
+}

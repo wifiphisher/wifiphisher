@@ -1,0 +1,9 @@
+@media (prefers-dark-interface) {
+	body {
+		background: rgb(30, 30 ,30);
+	}
+	
+	.error-message, .suggestion-prompt{
+		color: rgb(110, 110, 110);
+	}
+}
