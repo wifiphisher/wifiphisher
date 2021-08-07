@@ -51,7 +51,8 @@ class OpMode(object):
         """
 
         self._perfect_card, self._use_one_phy =\
-            interfaces.is_add_vif_required(args)
+            interfaces.is_add_vif_required(args.interface, 
+                    args.internetinterface, args.wpspbc_assoc_interface)
         self._check_args(args)
 
     def _check_args(self, args):
