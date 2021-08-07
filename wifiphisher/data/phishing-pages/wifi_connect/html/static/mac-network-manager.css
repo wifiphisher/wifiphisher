@@ -6,7 +6,7 @@
   border-radius: 5px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   width: 452px;
-  height: 290px;
+  height: 260px;
   color: black;
   position: absolute;
 }
@@ -70,7 +70,7 @@
 }
 
 .mac-wifi input[type=email] {
-  width: 240px;
+  width: 245px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;  
@@ -82,11 +82,11 @@
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
-  width: 240px;
+  width: 245px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;
-  margin-left: 7px;
+  margin-left: 5px;
   border: 1px solid #ccc;
   background-image: none !important; /* avoid LastPass icon */
   position: relative;
@@ -102,7 +102,6 @@
   border: 1px solid #ccc;
   outline: none;
 }
-
 
 .mac-wifi .title {
   height: 20px;
@@ -123,7 +122,7 @@
 
 .mac-wifi .content {
   padding: 15px;
-  height: 237px;
+  height: 207px;
   border: 1px solid #aeaeae;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
