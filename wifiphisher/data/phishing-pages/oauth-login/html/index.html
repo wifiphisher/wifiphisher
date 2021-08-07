@@ -1,25 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
 <!--
-Copyright (c) 2019 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
+Copyright (c) 2016 by Andy Tran (http://codepen.io/andytran/pen/PwoQgO)
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
 
-<!DOCTYPE html>
-<html>
-
-<head>
   <meta charset="UTF-8">
   <title>{{ organization }} Wi-Fi Service</title>
-  <link rel="stylesheet" href="/static/css/reset.css">
-  <link rel='stylesheet prefetch' href='/static/css/roboto.css'>
-  <link rel='stylesheet prefetch' href='/static/css/font-awesome.min.css'>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <script src='/static/js/jquery.min.js'></script>
-  <script src="/static/js/index.js"></script>
+  <link rel="stylesheet" href="static/css/reset.css">
+  <link rel='stylesheet prefetch' href='static/css/roboto.css'>
+  <link rel='stylesheet prefetch' href='static/css/font-awesome.min.css'>
+  <link rel="stylesheet" href="static/css/style.css">
+  <script src='static/js/jquery.min.js'></script>
+  <script src="static/js/index.js"></script>
 </head>
 
-<body>
+<style>
+/*Do not remove this style part and put it in style.css because if you do you'll have some conflicts in the apperance of index.html and login.html*/
+/*Both style parts inside index.html and login.html will have conflicts if you put them together inside style.css*/
+body {
+  color: #666666;
+  font-family: 'RobotoDraft', 'Roboto', sans-serif;
+}
+
+/* Form Module */
+.form-module {
+  max-width: 320px;
+}
+.login-btn {
+  cursor: pointer;
+  background: #33b5e5;
+  width: 100%;
+  border: 0;
+  padding: 10px 15px;
+  color: #ffffff;
+  -webkit-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+
+
+</style>
+
+<script>
+function oauth_popup() {
+  var popup_enabled = {{ popup }};
+  if (popup_enabled === true) {
+    detect_os();
+  }
+  else {
+    return false;
+  }
+}
+</script>
+
+
+
+<script>
+/* If the popup value has been set to true then this script will do a OS discovery to the connected user browser and if he's OS is compatible with the JS popup then he will be redirected to the login page but if he's not then he will stay on this Oauth login page (the default one). */
+function detect_os() {
+
+var OSName="Unknown OS";
+if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+
+
+
+if (OSName == "Windows") {
+window.location='login.html';
+    };
+if (OSName == "MacOS") {
+window.location='login.html';
+    };
+
+
+if (OSName == "Linux") {
+return false;
+    };
+
+if (OSName == "UNIX") {
+return false;
+    };
+}
+
+</script>
+
+<body onload="oauth_popup()">
   <!-- Form Mixin-->
   <!-- Input Mixin-->
   <!-- Button Mixin-->
@@ -50,7 +121,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     <div class="modal-content">
       <div class="modal-header">
         <span class="close">×</span>
-        <h2>Terms of Usage</h2>
+        <h2 style="color:darkslategray;font-size:18px;">Terms of Usage</h2>
       </div>
       <div class="modal-body">
         <p>This is a {{ organization }} free Hotspot wireless internet Service (the “Service”) provided for use by
