@@ -70,8 +70,8 @@
 }
 
 .mac-wifi input[type=email] {
-  width: 240px;
   height: 22px;
+  width: 220px;
   font-size: 80%;
   padding: 0 0 0 2px;  
   margin-bottom: 2px;
@@ -82,7 +82,7 @@
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
-  width: 240px;
+  width: 220px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;

