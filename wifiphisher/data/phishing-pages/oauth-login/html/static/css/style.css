@@ -1,10 +1,46 @@
 body {
   background: #e9e9e9;
-  color: #666666;
-  font-family: 'RobotoDraft', 'Roboto', sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#navwrapper {
+  width: 100%;
+  height: 95px;
+  background-color: #3b5998;
+}
+
+#navbar {
+  margin: 0 auto;
+  width:980px;
+  height:59px;
+}
+
+#contentwrapper {
+  width: 100%;
+  height: 606px;
+  background-color: #edf0f5;
+}
+
+#content {
+  margin: 0 auto;
+  width:980px;
+  padding-top:20px;
+}
+
+/* add appropriate colors to fb, twitter and google buttons */
+.fb {
+  background-color: #3B5998;
+  color: white;
+  cursor:pointer;
+
+}
+
+.twitter {
+  background-color: #55ACEE;
+  color: white;
+  cursor:pointer;
 }
 
 /* Pen Title */
@@ -13,11 +49,12 @@ body {
   text-align: center;
   letter-spacing: 2px;
 }
-.pen-title h1 {
+.pen-title h4, h1 {
   margin: 0 0 20px;
   font-size: 48px;
   font-weight: 300;
 }
+
 .pen-title span {
   font-size: 12px;
 }
@@ -29,12 +66,10 @@ body {
   font-weight: 600;
   text-decoration: none;
 }
-
 /* Form Module */
 .form-module {
   position: relative;
   background: #ffffff;
-  max-width: 320px;
   width: 100%;
   border-top: 5px solid #33b5e5;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
@@ -84,7 +119,7 @@ body {
   display: block;
 }
 .form-module h2 {
-  margin: 0 0 20px;
+  margin: 10px 1px 15px;
   color: #33b5e5;
   font-size: 18px;
   font-weight: 400;
@@ -94,6 +129,15 @@ body {
   float: right;
   margin-top: -50px;
 }
+
+.logowrapper {
+  display: block;
+  padding: 10px 0;
+  margin: 9px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Form Module */
 .form-module input {
   outline: none;
   display: block;
@@ -109,19 +153,6 @@ body {
 .form-module input:focus {
   border: 1px solid #33b5e5;
   color: #333333;
-}
-.login-btn {
-  cursor: pointer;
-  background: #33b5e5;
-  width: 100%;
-  border: 0;
-  padding: 10px 15px;
-  color: #ffffff;
-  -webkit-transition: 0.3s ease;
-  transition: 0.3s ease;
-}
-#btn1, #btn2  {
-  cursor: pointer;
 }
 .login-btn:hover {
   background: #178ab4;
@@ -139,6 +170,9 @@ body {
   color: #333333;
   text-decoration: none;
 }
+#btn1, #btn2  {
+  cursor: pointer;
+}
 
 /* The Modal (background) */
 .modal {
@@ -153,6 +187,7 @@ body {
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    line-height: 17px;
 }
 
 /* Modal Content */
@@ -170,6 +205,40 @@ body {
     animation-duration: 0.4s
 }
 
+/* The Close Button */
+.close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+position: relative;
+
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+
+/* hide some text on medium and large screens */
+.hide-md-lg {
+  display: none;
+}
+
+/* Two-column layout */
+.col {
+  float: center;
+  width: 79%;
+  margin: 25px;
+  padding: 0 0px;
+  margin-top: 6px;
+  text-align: center;
+}
+
 /* Add Animation */
 @-webkit-keyframes animatetop {
     from {top:-300px; opacity:0} 
@@ -180,15 +249,6 @@ body {
     from {top:-300px; opacity:0}
     to {top:0; opacity:1}
 }
-
-/* The Close Button */
-.close {
-    color: white;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
 .close:hover,
 .close:focus {
     color: #000;
@@ -197,7 +257,7 @@ body {
 }
 
 .modal-header {
-    padding: 2px 16px;
+    padding: 13px 16px;
     background-color: #90C3D4;
     color: white;
 }
@@ -211,4 +271,11 @@ body {
     padding: 2px 16px;
     background-color: #5cb85c;
     color: white;
+}
+
+footer{ height:45px; bottom:0; }
+footer {
+ position: absolute;
+ bottom: 0;
+ width: 100%;
 }
