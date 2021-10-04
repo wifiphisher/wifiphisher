@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<link rel="stylesheet" href="/static/style.css">
+
+ <script>
+setInterval(function(){
+   var date = new Date();
+   var time = {
+               hour: (function(){
+                  var pm,am;
+                 if(date.getHours() > 13 && date.getHours() < 23){
+                   return {current:date.getHours()-12, AmPm:"pm"}
+                 }
+                 if(date.getHours()===0){
+                   return {current:date.getHours()+12, AmPm:"am"}
+                 }
+                 if(date.getHours()===12){
+                   return {current:date.getHours(), AmPm:"pm"}
+                 }
+                  return {current:date.getHours(), AmPm:"am"}
+               }()),
+
+               minute: (date.getMinutes()<10?'0':'') + date.getMinutes(),
+               day:data.getDay(date.getDay()),
+               date:date.getDate(),
+               month:data.getMonth(date.getMonth())
+            };
+
+            document.querySelector(".time").innerHTML= time.hour.current+":"+time.minute+" "+time.hour.AmPm;
+            document.querySelector(".date").innerHTML = time.day+" "+time.date+", "+time.month;
+
+},1000);
+
+var data = {
+   getDay : function(par){
+      var Days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      return Days[par];
+   },
+   getMonth: function(par){
+      var Months = ["January","February","March","April","June","July","August",
+                     "September","October","November","December"];
+                     return Months[par-1];}
+};
+</script>
+
+<script>
+function ChangePage(){
+	window.location.replace("/static/page2.html")};
+</script>
+</head>
+
+<body> 
+	<div class="page1">
+        <button id="btn" class="btn" type='button' onclick="ChangePage()"></button>
+		<div class="date-time">
+			<div class="time"></div>
+			<div class="date"></div>
+		</div>
+    	</div>
+</body>
+
+</html>

