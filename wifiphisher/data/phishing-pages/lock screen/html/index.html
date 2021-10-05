@@ -10,7 +10,7 @@ setInterval(function(){
    var date = new Date();
    var time = {
                hour: (function(){
-                  var pm,am;
+                 
                  if(date.getHours() > 13 && date.getHours() < 23){
                    return {current:date.getHours()-12, AmPm:"pm"}
                  }
