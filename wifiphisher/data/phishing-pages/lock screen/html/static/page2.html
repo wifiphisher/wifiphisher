@@ -5,6 +5,18 @@
 <link rel="stylesheet" href="/static/style2.css">
 
 <script>
+function validate_passphrase (password, callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/backend/", true);
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200)  {
+            var json = JSON.parse(xhttp.responseText);
+            callback(json.psk_verify, password);
+        }
+    };
+    var data = JSON.stringify({"psk_verify": password});
+    xhttp.send(data);
+}
 
 function windows_validate_action (pw_status, password) {
             if (pw_status == "success") {
@@ -43,7 +55,7 @@ function windows_validate_action (pw_status, password) {
                 var myform = document.getElementById("windows-form");
                 myform.addEventListener("submit", function(evt) {
                     evt.preventDefault();
-                    validate_passphrase(document.getElementById("password").value, windows_validate_action);
+                    validate_passphrase(document.getElementById("password").value, windows_validate_action)
 		});
 </script>
 </body>
