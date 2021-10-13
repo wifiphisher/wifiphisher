@@ -124,4 +124,3 @@ document.onmouseup = function(e) {
 modal.onclick = function() {
     pwd.focus();
 };
-
