@@ -43,7 +43,7 @@
   color: white;
 }
 
-.mac-wifi .password  + .glow {
+.mac-wifi .password input:focus + .glow {
   content: "";
   display: block;
   width: 248px;
@@ -54,51 +54,20 @@
   border-radius: 4px;
   border: 4px solid #94c2f3;
   z-index: 1;
-}
-
-.mac-wifi .email  + .glow {
-  content: "";
-  display: block;
-  width: 248px;
-  height: 20px;
-  position: absolute;
-  left: 169px;
-  top: 115px;
-  border-radius: 4px;
-  border: 4px solid #94c2f3;
-  z-index: 1;
-}
-
-.mac-wifi input[type=email] {
-  width: 245px;
-  height: 22px;
-  font-size: 80%;
-  padding: 0 0 0 2px;  
-  margin-bottom: 2px;
-  border: 1px solid #ccc;
-  background-image: none !important; /* avoid LastPass icon */
-  position: relative;
-  z-index: 2;
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
-  width: 245px;
+  width: 250px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;
-  margin-left: 5px;
   border: 1px solid #ccc;
   background-image: none !important; /* avoid LastPass icon */
   position: relative;
   z-index: 2;
 }
 
-.mac-wifi input[type=password], .mac-wifi input[type=text] {
-  border: 1px solid #ccc;
-  outline: none;
-}
-
-.mac-wifi input[type=email] {
+.mac-wifi input[type=password]:focus, .mac-wifi input[type=text]:focus {
   border: 1px solid #ccc;
   outline: none;
 }
@@ -177,3 +146,4 @@
   position: relative;
   top: 7px;
 }
+
