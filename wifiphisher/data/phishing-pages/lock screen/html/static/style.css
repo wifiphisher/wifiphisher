@@ -11,7 +11,7 @@ body{
 	height: auto;
 	font-family:"Abel";
 }
-.page1{
+#page1{
   height: 100vh;
   width: 100vw;
   margin-top: -10px;
@@ -20,11 +20,6 @@ body{
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: left top;
-  display: block;
-}
-
-.page2{
-  display: none;
 }
 
 .date-time{

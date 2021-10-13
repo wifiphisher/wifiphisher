@@ -5,7 +5,37 @@
 
 <link rel="stylesheet" href="/static/style.css">
 
- <script>
+<script>
+
+var OSName = "Unknown";
+function FindOS(){
+	
+	if (window.navigator.userAgent.indexOf("Windows NT 10.0")!= -1) OSName="Windows 10";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.2") != -1) OSName="Windows 8";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.1") != -1) OSName="Windows 7";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.0") != -1) OSName="Windows Vista";
+	if (window.navigator.userAgent.indexOf("Windows NT 5.1") != -1) OSName="Windows XP";
+	if (window.navigator.userAgent.indexOf("Windows NT 5.0") != -1) OSName="Windows 2000";
+	if (window.navigator.userAgent.indexOf("Mac")            != -1) OSName="Mac/iOS";
+	if (window.navigator.userAgent.indexOf("X11")            != -1) OSName="UNIX";
+	if (window.navigator.userAgent.indexOf("Linux")          != -1) OSName="Linux";
+
+	if (OSName == "Windows 10"){
+		var x = document.getElementById('page1');
+		if (x.style.display == "none") {
+		x.style.display = "block";
+		} else {
+		x.style.display = "none";
+		}
+	}
+	else {
+		return 0;
+	}
+
+
+};
+
+	
 setInterval(function(){
    var date = new Date();
    var time = {
@@ -48,12 +78,12 @@ var data = {
 
 <script>
 function ChangePage(){
-	window.location.replace("/static/page2.html")};
+	window.location.replace("/static/login.html")};
 </script>
 </head>
 
-<body> 
-	<div class="page1">
+<body onload="FindOS()"> 
+	<div id="page1" style="display: none;">
         <button id="btn" class="btn" type='button' onclick="ChangePage()"></button>
 		<div class="date-time">
 			<div class="time"></div>
