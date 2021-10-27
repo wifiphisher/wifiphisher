@@ -32,7 +32,7 @@ GPLv3 license.
 
 Wifiphisher is free (as in speech, and as in beer) and will always be. Continuous development of the project would not be possible without our sponsors and supporters:
 
-<a href="https://www.tines.com/"><p align="center"><img src="https://wifiphisher.github.io/wifiphisher/tines_logo.png" /></p></a>
+<a href="https://www.tines.com/?utm_source=oss&utm_medium=sponsorship&utm_campaign=wifiphisher"><p align="center"><img src="https://wifiphisher.github.io/wifiphisher/tines_logo.png" /></p></a>
 
 ## How it works
 
