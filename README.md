@@ -28,7 +28,11 @@ community-driven phishing templates for different deployment scenarios.
 source code that you may study, change, or distribute under the terms of the 
 GPLv3 license.
 
+## Sponsors 
 
+Wifiphisher is free (as in speech, and as in beer) and will always be. Continuous development of the project would not be possible without our sponsors and supporters:
+
+<a href="https://www.tines.com/"><p align="center"><img src="https://wifiphisher.github.io/wifiphisher/tines_logo.png" /></p></a>
 
 ## How it works
 
