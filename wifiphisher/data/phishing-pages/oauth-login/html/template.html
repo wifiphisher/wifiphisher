@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+<!--This is an empty template with the address bar only (SSL Bar). It's for the people who want to add their own custom page using the popup-->
+    <title>JS popup template</title>
+    <meta name="description" content="JS popup tempalte.">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.28;
+  display:flex; 
+  flex-direction:column;
+  background-color: white;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select:none; 
+  user-select:none;
+  -o-user-select:none;
+  overflow: hidden;
+}
+.wrapper {
+	text-align: center;
+	top: 50%;
+	position: absolute;
+	left: 50%;
+}
+
+</style>
+</head>
+
+<body>
+  <script src="static/js/jsframe.js"></script>
+
+<div class="wrapper">
+<button type="button" onclick="start()">JS POPUP</button>
+
+      </div>
+
+<script>
+    function start() {
+        const jsFrame = new JSFrame();		
+	const HT =  '<div id="navwrapper">' +
+'<table border="1" style="width: 100%; border-collapse: collapse; background-color: #fdfdfd;">' +
+'<tbody>' +
+'<tr style="height: 10px;">' +
+'<td style="width: 100%; height: 10px;"><img src="ssl.png" alt="" width="16" height="16" /><span style="color: black; font-size:17px">https://www.facebook.com/login</span></td>' +
+'</tr>' +
+'</tbody>' +
+'</table>' +
+'</tbody>' +
+'</table>' +
+'</form>'	
+		const frames = [];
+
+        for (let i = 0; i < 1; i++) {
+            const frame = jsFrame.create({
+                name: `Win${i}`,
+                title: `Popup`,
+                left: 20 , top: 50, width: 920, height: 423,
+				minWidth: 800, minHeight: 400,
+                appearanceName: 'yosemite',
+				smoothResizeOnIframe:true,
+                style: {
+                    overflow: 'hidden'
+                },
+                html: HT
+            }).show();
+			
+
+                frame.showFrameComponent('minimizeButton');
+                frame.showFrameComponent('zoomButton');
+                frame.setMovable(true);
+                frame.setResizable(true);
+
+
+            frame.setControl({
+                styleDisplay:'inline',
+                maximizeButton: 'zoomButton',
+                demaximizeButton: 'dezoomButton',
+                minimizeButton: 'minimizeButton',
+                deminimizeButton: 'deminimizeButton',
+                hideButton: 'closeButton',
+                animation: true,
+                animationDuration: 150,
+
+            });
+
+
+            frame.on('zoomButton', 'click', (_frame, evt) => {
+
+               _frame.extra.__restore_info = {
+                    org_left: _frame.getLeft(),
+                    org_top: _frame.getTop(),
+                    org_width: _frame.getWidth(),
+                    org_height: _frame.getHeight()
+                };
+
+                frame.setPosition(0, 0);
+                frame.setSize(window.innerWidth - 2, window.innerHeight - 2, true);
+
+                frame.hideFrameComponent('zoomButton');
+                frame.showFrameComponent('dezoomButton');
+
+                frame.setMovable(true);
+                frame.setResizable(true);
+
+
+            });
+
+            frame.on('dezoomButton', 'click', (_frame, evt) => {
+
+                  _frame.setPosition(_frame.extra.__restore_info.org_left, _frame.extra.__restore_info.org_top);
+
+                const force = true;
+                _frame.setSize(_frame.extra.__restore_info.org_width, _frame.extra.__restore_info.org_height, force);
+                frame.hideFrameComponent('dezoomButton');
+                frame.showFrameComponent('zoomButton');
+
+                frame.setMovable(true);
+                frame.setResizable(true);
+
+
+            });
+
+
+
+            frame.on('pageButton', 'click', (frame, evt) => {
+   	     frame.control.doHide({
+                callback: (frame, info) => {               
+                    frame.closeFrame();
+                }
+            });  });
+
+            frame.control.on('hid', (frame, info) => {
+                frame.closeFrame();
+            });
+
+
+
+
+            frames.push(frame);
+        }
+        frames[0].requestFocus();
+    }
+
+</script>
+
+</body>
+</html>
