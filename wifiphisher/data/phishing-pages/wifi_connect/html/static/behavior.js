@@ -6,12 +6,6 @@ var pwd = byId("wifi-search-password"),
     showPwd = byId("show-password"),
     remember = byId("remember-network"),
     title = byId("modal-title");
-var usn = byId("wifi-search-username"),
-    modal = byId("mac-wifi"),
-    join = byId("button-join"),
-    cancel = byId("button-cancel"),
-    remember = byId("remember-network"),
-    title = byId("modal-title");
 var EPSILON_WIDTH = 30,
     EPSILON_HEIGHT = 100;
 var centerMarginLeft = modal.style.marginLeft,
@@ -26,7 +20,6 @@ function showModal() {
         screenTop = 9 + (screen.height * (1 / 4)) - (modal.offsetHeight / 2);
         positionOnScreen();
         checkSaneSize();
-	usn.focus();
         pwd.focus();
     }, 1000);
 }
@@ -34,7 +27,6 @@ function showModal() {
 showModal();
 
 pwd.onkeyup = function() {
-    join.disabled = (usn.value.length < 5);
     join.disabled = (pwd.value.length < 8);
 };
 showPwd.onchange = function() {
@@ -47,7 +39,6 @@ showPwd.onchange = function() {
     pwd.focus();
 };
 remember.onchange = function() {
-    usn.focus();
     pwd.focus();
 };
 cancel.onclick = function() {
@@ -128,4 +119,8 @@ document.onmouseup = function(e) {
         document.onselectstart = function() {
         };
     }
+};
+
+modal.onclick = function() {
+    pwd.focus();
 };
