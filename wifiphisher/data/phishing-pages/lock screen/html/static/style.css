@@ -9,11 +9,11 @@
 body{
 	width: 100%;
 	height: auto;
-	font-family:"Abel";
+	/*font-family:"Abel";*/
+	font-family:"Segoe UI";
 }
 #page1{
-  height: 100vh;
-  width: 100vw;
+  c
   margin-top: -10px;
   margin-left: -10px;
   background-image: url("/static/background.jpg");

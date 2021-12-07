@@ -12,15 +12,17 @@ img{
 
 .container-fluid {
     background-image: url("/static/background.jpg");
-    background-size: 102%;
     background-repeat: no-repeat;
-    width: 100%;
-    height: 1620px;
     background-position: left top;
     background-attachment: scroll;
     filter: blur(3px);
-    margin: -3px 0px 0px -3px;
     padding-right: 6px;
+    height: 100vh;
+    width: 100vw;
+    outline-width: 10px;
+    outline-style: solid;
+    margin-left: 3px;
+background-size:100%
 }
 
 .form-wrapper {
@@ -52,7 +54,7 @@ input{
 }
 
 .textfield{
-	display: block;
+    display: block;
     width: 210%;
     padding: .20rem 0.65rem;
     font-size: 1rem;
@@ -64,6 +66,7 @@ input{
     border: 1px solid #ced4da;
     position: absolute;
     right: -80px;
+    bottom: -30%;
 }
 
 .username{
@@ -91,12 +94,12 @@ input{
 .authenticate{
     	position: absolute;
 	right: -78px;
-	bottom: -37px;
+	bottom: -29%;
 	padding: 4px 0px 4px 0px;
 	width: 30%;
 	background-color: #8c9191;
 	margin: -2px -2px -2px -2px;
 	border: none;
 	color: white;
-	font-size: 25px;
+	font-size: 160%;
 }
