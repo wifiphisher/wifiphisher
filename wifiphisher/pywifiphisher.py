@@ -81,6 +81,11 @@ def parse_args():
         nargs='+',
         help=("Specify the interface(s) that will have their connection protected (i.e. NetworkManager will be prevented from controlling them). " +
               "Example: -pI wlan1 wlan2"))
+    parser.add_argument(
+        "-m",
+        "--mitminterface",
+        help=("Choose an interface that is connected on the Internet in order to perform a MITM attack. All other interfaces will be protected." +
+              "Example: -m wlan1"))
 
     # MAC address randomization
     parser.add_argument(
@@ -404,6 +409,11 @@ class WifiphisherEngine:
         if args.credential_log_path:
             phishinghttp.credential_log_path = args.credential_log_path
 
+        # Handle the chosen interface as an internetInterface in order to 
+        # leverage existing functionality. 
+        # In case `--internetinterface` is also used it will be overwritten silently.
+        if args.mitminterface:
+            args.internetinterface = args.mitminterface
         # Initialize the operation mode manager
         self.opmode.initialize(args)
         # Set operation mode
@@ -420,6 +430,15 @@ class WifiphisherEngine:
         try:
             if self.opmode.internet_sharing_enabled():
                 self.network_manager.internet_access_enable = True
+                # Set up an automatic MITM attack if `-m/--mitminterface` is present. 
+                #
+                # We are already handling the chosen interface as an internetInterface.
+                # Here we are also protecting the rest of the detected interfaces.
+                #  (i.e. prevent NetworkManager from managing them)
+                if args.mitminterface:
+                    restoftheinterfaces=interfaces.NetworkManager._name_to_object.items()
+                    for interface in restoftheinterfaces.remove(args.mitminterface):
+                        self.network_manager.nm_unmanage(interface)
                 if self.network_manager.is_interface_valid(
                         args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
@@ -434,7 +453,6 @@ class WifiphisherEngine:
                             # be unblocked automatically. Let the user know with a warning.
                             logger.warning("Interface {} does not support 'nl80211'. In case it is blocked,\
                                     you must unblock it manually".format(internet_interface))
-                            pass
                 logger.info("Selecting %s interface for accessing internet",
                             args.internetinterface)
             # check if the interface for WPS is valid
