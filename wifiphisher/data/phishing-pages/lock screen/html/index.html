@@ -12,14 +12,12 @@
 var OSName = "Unknown";
 function FindOS(){
 	var nAgt = navigator.userAgent;
-	var browser = navigator.appName;
-	var version = '' + parseFloat(navigator.appVersion);
+	var browser;
 	var verOffset;
 	
 	
 	if ((verOffset = nAgt.indexOf('Firefox')) != -1) {
                     browser = 'Firefox';
-                    version = nAgt.substring(verOffset + 8);
 		}
 	else {
 		return 0;
