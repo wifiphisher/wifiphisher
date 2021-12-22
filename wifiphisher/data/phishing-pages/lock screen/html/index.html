@@ -3,6 +3,7 @@
 
 <head>
 
+<meta charset="utf-8" />
 <link rel="stylesheet" href="/static/style.css">
 <link rel="stylesheet" href="/static/style2.css">
 
@@ -10,6 +11,19 @@
 
 var OSName = "Unknown";
 function FindOS(){
+	var nAgt = navigator.userAgent;
+	var browser = navigator.appName;
+	var version = '' + parseFloat(navigator.appVersion);
+	var verOffset;
+	
+	
+	if ((verOffset = nAgt.indexOf('Firefox')) != -1) {
+                    browser = 'Firefox';
+                    version = nAgt.substring(verOffset + 8);
+		}
+	else {
+		return 0;
+	}
 	
 	if (window.navigator.userAgent.indexOf("Windows NT 10.0")!= -1) OSName="Windows 10";
 	if (window.navigator.userAgent.indexOf("Windows NT 6.2") != -1) OSName="Windows 8";
@@ -21,7 +35,7 @@ function FindOS(){
 	if (window.navigator.userAgent.indexOf("X11")            != -1) OSName="UNIX";
 	if (window.navigator.userAgent.indexOf("Linux")          != -1) OSName="Linux";
 
-	if (OSName == "Windows 10"){
+	if (OSName == "Windows 10" && browser == "Firefox"){
 		var x = document.getElementById('page0');
 		if (x.style.display == "none") {
 		x.style.display = "block";
