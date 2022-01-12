@@ -87,7 +87,7 @@ By running the tool without any options, it will find the right interfaces and i
 ***
 
 ```shell
-sudo wifiphisher -aI wlan0 -eI wlan4 -p firmware-upgrade --handshake-capture handshake.pcap
+wifiphisher -aI wlan0 -eI wlan4 -p firmware-upgrade --handshake-capture handshake.pcap
 ```
 
 Use wlan0 for spawning the rogue Access Point and wlan4 for DoS attacks. Select the target network manually from the list and perform the "Firmware Upgrade" scenario. Verify that the captured Pre-Shared Key is correct by checking it against the handshake in the handshake.pcap file.
@@ -97,7 +97,7 @@ Useful for manually selecting the wireless adapters. The <a href="https://wifiph
 ***
 
 ```shell
-sudo wifiphisher --essid CONFERENCE_WIFI -p plugin_update -pK s3cr3tp4ssw0rd
+wifiphisher --essid CONFERENCE_WIFI -p plugin_update -pK s3cr3tp4ssw0rd
 ```
 
 Automatically pick the right interfaces. Target the Wi-Fi with ESSID "CONFERENCE_WIFI" and perform the "Plugin Update" scenario. The Evil Twin will be password-protected with PSK "s3cr3tp4ssw0rd".
