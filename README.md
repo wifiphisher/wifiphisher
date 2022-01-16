@@ -87,7 +87,7 @@ By running the tool without any options, it will find the right interfaces and i
 ***
 
 ```shell
-wifiphisher -aI wlan0 -jI wlan4 -p firmware-upgrade --handshake-capture handshake.pcap
+wifiphisher -aI wlan0 -eI wlan4 -p firmware-upgrade --handshake-capture handshake.pcap
 ```
 
 Use wlan0 for spawning the rogue Access Point and wlan4 for DoS attacks. Select the target network manually from the list and perform the "Firmware Upgrade" scenario. Verify that the captured Pre-Shared Key is correct by checking it against the handshake in the handshake.pcap file.
@@ -138,7 +138,7 @@ Following are all the options along with their descriptions (also available with
 |-iNM| --no-mac-randomization| Do not change any MAC address.|
 |-hC|--handshake-capture|Capture of the WPA/WPA2 handshakes for verifying passphrase. Requires cowpatty. Example: -hC capture.pcap|
 |-dE ESSID|--deauth-essid ESSID|Deauth all the BSSIDs in the WLAN with that ESSID.|
-|-dC CHANNELS| --deauth-channels CHANNELS|Channels to deauth. Example: --deauth-channels 1,3,7|
+|-dC CHANNELS| --deauth-channels CHANNELS|Channels to deauth. Example: --deauth-channels 1 3 7|
 ||--logging| Enable logging. Output will be saved to wifiphisher.log file.|
 |-lP LOGPATH| --logpath LOGPATH| Determine the full path of the logfile.|
 |-cP CREDENTIAL_LOG_PATH|--credential-log-path CREDENTIAL_LOG_PATH|Determine the full path of the file that will store any captured credentials|

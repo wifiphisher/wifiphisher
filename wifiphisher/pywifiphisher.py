@@ -117,7 +117,7 @@ def parse_args():
         nargs="+",
         type=int,
         help=("Channels to deauth. " +
-              "Example: --deauth-channels 1,3,7"))
+              "Example: --deauth-channels 1 3 7"))
     parser.add_argument(
         "-e",
         "--essid",
