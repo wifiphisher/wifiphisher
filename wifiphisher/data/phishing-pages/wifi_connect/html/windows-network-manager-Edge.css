@@ -47,7 +47,7 @@ button {
     border: 1px solid transparent;
     background-color: #3987c6;
     padding-top: 10px;
-    padding-bottom:25px;
+    padding-bottom:30px;
     padding-right: 40px;
     padding-left:40px;
     color: white;
@@ -75,7 +75,7 @@ button.authenticate{
     display: inline-block;
     margin-top: 10px;
     padding-top: 10px;
-    padding-bottom:25px;
+    padding-bottom: 30px;
     padding-right: 40px;
     padding-left:40px;
     margin-left: 100px;
@@ -88,7 +88,7 @@ button.cancel {
     display: inline-block;
     margin-top: 10px;
     padding-top: 10px;
-    padding-bottom:25px;
+    padding-bottom: 30px;
     padding-right: 40px;
     padding-left:40px;
     margin-left: 175px
@@ -202,11 +202,5 @@ div.wifi.icon div.dot4 {
 .networksettings {
 position: absolute;
 bottom: 5px
-}
-
-#networklabel {
-position: absolute;
-bottom: 100px;
-right: 145px;
 }
 

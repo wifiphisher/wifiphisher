@@ -17,7 +17,12 @@ html|body {
 	margin: 0;
 }
 
-
+#Br3 {
+    background-image: url("./navigator.png");
+    background-position: left top;
+    background-repeat: no-repeat;
+    font-size: 120%;
+}
 
 .illustrated #errorPageContainer {
     background-repeat: no-repeat;
@@ -110,12 +115,6 @@ ul > li, ol > li {
 	margin-top: 1.2em;
 }
 
-#navigatorimg {
-    position: relative;
-    bottom: 30%;
-    left: 25%;
-}
-
 #netErrorButtonContainer > .try-again {
     margin-top: 1.2em;
 }
@@ -139,16 +138,15 @@ html|button {
 }
 */
 .primary-try-again {
-	-moz-appearance: none;
-	min-height: 32px;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	font-weight: normal;
-	margin: 4px 8px;
-	font-size: 15px;
-	padding: 0 1.2em;
-	height: 15px;
-	width: 110px;
-	position: absolute;
-	bottom: 250px;
+    -moz-appearance: none;
+    min-height: 32px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-weight: normal;
+    font-size: 15px;
+    padding: 0 1.2em;
+    height: 15px;
+    width: 110px;
+    position: relative;
+    top: 100%;
 }

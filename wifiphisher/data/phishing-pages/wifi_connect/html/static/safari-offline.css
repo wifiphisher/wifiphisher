@@ -34,8 +34,7 @@ input {
 
 .error-title {
     font-size: 28px;
-    font-weight: 700;
-    line-height: 34px;
+    font-weight: 700;    line-height: 34px;
     margin: 0 auto;
 }
 
@@ -60,4 +59,14 @@ input {
     position: relative;
     width: 100%;
     word-wrap: break-word;
+}
+
+@media (prefers-dark-interface) {
+	body {
+		background: rgb(30, 30 ,30);
+	}
+	
+	.error-message, .suggestion-prompt{
+		color: rgb(110, 110, 110);
+	}
 }
