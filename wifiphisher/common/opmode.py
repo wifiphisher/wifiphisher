@@ -154,6 +154,13 @@ class OpMode(object):
                         '] --deauth-channels (-dC) requires channels in range 1-14.'
                     )
 
+        # if both args.mitminterface and args.internetinterface are provided, the
+        # former takes precedence and the latter gets overwritten.
+        if args.mitminterface and args.internetinterface:
+            print(('[' + constants.O + '!' + constants.W +
+                  '] using  both --mitminterface (-mI) and --internetinterface (-iI)'
+                  ' is redundant. Ignoring --internetinterface (-iI).'))
+
     def set_opmode(self, args, network_manager):
         """
         Sets the operation mode.

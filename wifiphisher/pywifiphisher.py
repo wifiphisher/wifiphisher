@@ -82,10 +82,10 @@ def parse_args():
         help=("Specify the interface(s) that will have their connection protected (i.e. NetworkManager will be prevented from controlling them). " +
               "Example: -pI wlan1 wlan2"))
     parser.add_argument(
-        "-m",
+        "-mI",
         "--mitminterface",
         help=("Choose an interface that is connected on the Internet in order to perform a MITM attack. All other interfaces will be protected." +
-              "Example: -m wlan1"))
+              "Example: -mI wlan1"))
 
     # MAC address randomization
     parser.add_argument(
@@ -430,15 +430,15 @@ class WifiphisherEngine:
         try:
             if self.opmode.internet_sharing_enabled():
                 self.network_manager.internet_access_enable = True
-                # Set up an automatic MITM attack if `-m/--mitminterface` is present. 
+                # Set up an automatic MITM attack if `-mI/--mitminterface` is present. 
                 #
                 # We are already handling the chosen interface as an internetInterface.
                 # Here we are also protecting the rest of the detected interfaces.
                 #  (i.e. prevent NetworkManager from managing them)
                 if args.mitminterface:
-                    restoftheinterfaces=interfaces.NetworkManager._name_to_object.items()
-                    for interface in restoftheinterfaces.remove(args.mitminterface):
-                        self.network_manager.nm_unmanage(interface)
+                    for interface in self.network_manager._name_to_object:
+                        if interface != args.mitminterface:
+                          self.network_manager.nm_unmanage(interface)
                 if self.network_manager.is_interface_valid(
                         args.internetinterface, "internet"):
                     internet_interface = args.internetinterface
