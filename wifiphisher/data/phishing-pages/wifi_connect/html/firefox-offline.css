@@ -2,6 +2,7 @@ body {
 	padding: 0 75px;
 	background-size: 64px 32px;
 	background-repeat: repeat-x;
+	background-color: #f9f9fa;
 	min-width: 13em;
 	display: flex;
 	flex-direction: column;
