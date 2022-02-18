@@ -56,7 +56,7 @@
   z-index: 1;
 }
 
-.mac-wifi .email  + .glow {
+.mac-wifi .text  + .glow {
   content: "";
   display: block;
   width: 248px;
@@ -94,6 +94,8 @@
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
   border: 1px solid #ccc;
   outline: none;
+  float: right;
+  margin-right: 7%;
 }
 
 .mac-wifi input[type=email] {
@@ -151,25 +153,36 @@
 }
 
 .mac-wifi strong {
-  user-select: none;
-  display: block;
-  margin: 11px 0 20px 0;
-  font-size: 90%;
-  line-height: 15px;
-  color: black;
+    display: block;
+    margin: 3% 0 6% 0;
+    font-size: 90%;
+    line-height: 105%;
+    color: black;
 }
 
 .mac-wifi .password {
   font-size: 110%;
-  margin: 40px 0 7px 0;
+  margin: 1.2% 0 0 0;
+  background-position: 150% 50% !important;
+}
+
+.mac-wifi .username {
+  font-size: 110%;
+  margin: 10% 0 0 0;
   background-position: 150% 50% !important;
 }
 
 .mac-wifi .password label {
   float: left;
   font-size: 80%;
-  margin: 2px 9px 0 0;
+  margin-left: 1.2%;
 }
+
+.mac-wifi .username label {
+  float: left;
+  font-size: 80%;
+}
+
 .mac-wifi button[disabled] {
   opacity: 0.4;
 }
@@ -183,4 +196,12 @@
 .mac-wifi .icon .wifi-icon {
   position: relative;
   top: 7px;
+}
+
+#button-join {
+  padding: 0px 13.5px;
+}
+
+#button-cancel {
+  padding: 0px 8px;
 }

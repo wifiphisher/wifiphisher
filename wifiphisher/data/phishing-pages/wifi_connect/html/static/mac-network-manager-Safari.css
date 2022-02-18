@@ -82,23 +82,19 @@
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
-  width: 240px;
+  width: 220px;
   height: 22px;
   font-size: 80%;
   padding: 0 0 0 2px;
-  margin-left: 5px;
-  font-size: 80%;
-  padding: 0 0 0 2px;
-  margin-left: 4px;
   border: 1px solid #ccc;
-  background-image: none !important; /* avoid LastPass icon */
-  position: relative;
-  z-index: 2;
+  background-image: none !important;
 }
 
 .mac-wifi input[type=password], .mac-wifi input[type=text] {
   border: 1px solid #ccc;
   outline: none;
+  float: right;
+  margin-right: 7%;
 }
 
 .mac-wifi input[type=email] {
@@ -156,24 +152,34 @@
 }
 
 .mac-wifi strong {
-  user-select: none;
   display: block;
-  margin: 11px 0 20px 0;
+  margin: 3% 0 6% 0;
   font-size: 90%;
-  line-height: 15px;
+  line-height: 105%;
   color: black;
 }
 
 .mac-wifi .password {
   font-size: 110%;
-  margin: 40px 0 7px 0;
+  margin: 1.2% 0 0 0;
   background-position: 150% 50% !important;
+}
+
+.mac-wifi .username {
+    font-size: 110%;
+    margin: 10% 0 0 0;
+    background-position: 150% 50% !important;
 }
 
 .mac-wifi .password label {
   float: left;
   font-size: 80%;
-  margin: 2px 9px 0 0;
+  margin-left: 1.2%;
+}
+
+.mac-wifi .username label {
+    float: left;
+    font-size: 80%;
 }
 
 .mac-wifi button[disabled] {
@@ -189,4 +195,12 @@
 .mac-wifi .icon .wifi-icon {
   position: relative;
   top: 7px;
+}
+
+#button-join {
+  padding: 0px 13.5px;
+}
+
+#button-cancel {
+  padding: 0px 8px;
 }

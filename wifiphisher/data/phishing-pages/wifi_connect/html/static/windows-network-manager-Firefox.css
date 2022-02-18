@@ -1,3 +1,6 @@
+body {
+	background-color:white;
+}
 .network-manager {
     border-left: 1px solid #777;
     border-top: 1px solid #777;
@@ -224,8 +227,13 @@ margin-left: 14px;
 }
 
 #networklabel {
-position: absolute;
-bottom: 110px;
-right: 155px;
+    position: relative;
+    top: 2px;
+    left: 20px;
+}
+
+.sharecheck {
+	position: relative;
+	left: 20px;
 }
 

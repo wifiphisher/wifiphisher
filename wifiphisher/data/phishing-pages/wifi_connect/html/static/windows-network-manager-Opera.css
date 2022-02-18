@@ -67,14 +67,14 @@ button.connect {
     right: 10px;
     margin-bottom: 15px;
 }
-button.authenticate{
+button.authenticate {
     width: 155px;
     display: inline-block;
     margin-top: 10px;
     padding: 5px 30px;
     margin-left: 100px;
     position: absolute;
-    right: 200px;
+    right: 195px;
 }
 
 button.cancel {
@@ -82,7 +82,7 @@ button.cancel {
     display: inline-block;
     margin-top: 10px;
     padding: 5px 30px;
-    margin-left: 175px
+    margin-left: 165px;
 }
 button:hover {
 }

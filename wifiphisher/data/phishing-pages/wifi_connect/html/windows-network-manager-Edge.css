@@ -80,7 +80,7 @@ button.authenticate{
     padding-left:40px;
     margin-left: 100px;
     position: absolute;
-    right: 200px;
+    right: 195px;
 }
 
 button.cancel {
@@ -91,7 +91,7 @@ button.cancel {
     padding-bottom: 30px;
     padding-right: 40px;
     padding-left:40px;
-    margin-left: 175px
+    margin-left: 165px;
 }
 button:hover {
 }

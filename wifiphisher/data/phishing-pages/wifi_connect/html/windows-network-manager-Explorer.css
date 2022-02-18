@@ -83,7 +83,7 @@ button.authenticate {
     margin-top: 10px;
     margin-left: 100px;
     position: absolute;
-    right: 195px;
+    right: 192px;
     border: 1px solid transparent;
     background-color: #3987c6;
     padding: 10px 40px;
@@ -98,7 +98,7 @@ button.cancel {
     width: 155px;
     display: inline-block;
     margin-top: 10px;
-    margin-left: 165px;
+    margin-right: 20px;
     border: 1px solid transparent;
     background-color: #3987c6;
     padding: 10px 40px;
