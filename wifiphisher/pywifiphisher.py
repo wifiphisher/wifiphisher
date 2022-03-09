@@ -410,10 +410,12 @@ class WifiphisherEngine:
             phishinghttp.credential_log_path = args.credential_log_path
 
         # Handle the chosen interface as an internetInterface in order to 
-        # leverage existing functionality. 
-        # In case `--internetinterface` is also used it will be overwritten silently.
+        # leverage existing functionality.
+        # In case `--internetinterface` is also used it will be overwritten with a warning.
+        # Manually set mitmInterface to a specific string to account for further checks.
         if args.mitminterface:
             args.internetinterface = args.mitminterface
+            args.mitminterface = "handledAsInternetInterface"
         # Initialize the operation mode manager
         self.opmode.initialize(args)
         # Set operation mode
@@ -430,14 +432,14 @@ class WifiphisherEngine:
         try:
             if self.opmode.internet_sharing_enabled():
                 self.network_manager.internet_access_enable = True
-                # Set up an automatic MITM attack if `-mI/--mitminterface` is present. 
+                # Set up an automatic MITM attack if `-mI/--mitminterface` was already present.
                 #
                 # We are already handling the chosen interface as an internetInterface.
                 # Here we are also protecting the rest of the detected interfaces.
                 #  (i.e. prevent NetworkManager from managing them)
-                if args.mitminterface:
+                if args.mitminterface == "handledAsInternetInterface":
                     for interface in self.network_manager._name_to_object:
-                        if interface != args.mitminterface:
+                        if interface != args.internetinterface:
                           self.network_manager.nm_unmanage(interface)
                 if self.network_manager.is_interface_valid(
                         args.internetinterface, "internet"):

@@ -156,9 +156,9 @@ class OpMode(object):
 
         # if both args.mitminterface and args.internetinterface are provided, the
         # former takes precedence and the latter gets overwritten.
-        if args.mitminterface and args.internetinterface:
+        if args.internetinterface and args.mitminterface == "handledAsInternetInterface":
             print(('[' + constants.O + '!' + constants.W +
-                  '] using  both --mitminterface (-mI) and --internetinterface (-iI)'
+                  '] Using  both --mitminterface (-mI) and --internetinterface (-iI)'
                   ' is redundant. Ignoring --internetinterface (-iI).'))
 
     def set_opmode(self, args, network_manager):
