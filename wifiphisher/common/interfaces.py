@@ -644,9 +644,12 @@ class NetworkManager(object):
 
         # unblock card if it is blocked
 
-        if pyw.isblocked(card):
-            pyw.unblock(card)
-
+        try: 
+            if pyw.isblocked(card):
+                pyw.unblock(card)
+        except pyric.error:
+                pass
+ 
     def set_interface_channel(self, interface_name, channel):
         """
         Set the channel for the interface
