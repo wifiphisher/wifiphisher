@@ -412,10 +412,21 @@ class WifiphisherEngine:
         # Handle the chosen interface as an internetInterface in order to 
         # leverage existing functionality.
         # In case `--internetinterface` is also used it will be overwritten with a warning.
-        # Manually set mitmInterface to a specific string to account for further checks.
+        #
+        # There are two cases for a provided args.mitminterface:
+        #   - In case args.internetinterface is also provided, swap their values so that we can
+        #     leverage args.internetinterface functionality but at the same time keep the fact that
+        #     it was provided as an argument, in order to be able to warn the user. 
+        #
+        #   - In case no args.internetinterface is provided, manually set args.mitminterface to a 
+        #     specific string to account for further checks.
         if args.mitminterface:
-            args.internetinterface = args.mitminterface
-            args.mitminterface = "handledAsInternetInterface"
+            if args.internetinterface:
+                args.internetinterface, args.mitminterface = args.mitminterface, args.internetinterface
+            else:
+                args.internetinterface = args.mitminterface
+                args.mitminterface = "handledAsInternetInterface"
+
         # Initialize the operation mode manager
         self.opmode.initialize(args)
         # Set operation mode
@@ -437,7 +448,9 @@ class WifiphisherEngine:
                 # We are already handling the chosen interface as an internetInterface.
                 # Here we are also protecting the rest of the detected interfaces.
                 #  (i.e. prevent NetworkManager from managing them)
-                if args.mitminterface == "handledAsInternetInterface":
+                # The value of args.mitminterface does not concern us, unless empty. We will be performing
+                # all operations using args.internetinterface instead.
+                if args.mitminterface:
                     for interface in self.network_manager._name_to_object:
                         if interface != args.internetinterface:
                           self.network_manager.nm_unmanage(interface)

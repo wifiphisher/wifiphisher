@@ -154,9 +154,12 @@ class OpMode(object):
                         '] --deauth-channels (-dC) requires channels in range 1-14.'
                     )
 
-        # if both args.mitminterface and args.internetinterface are provided, the
+        # If both args.mitminterface and args.internetinterface are provided, the
         # former takes precedence and the latter gets overwritten.
-        if args.internetinterface and args.mitminterface == "handledAsInternetInterface":
+        # We have ensured that if that is the case, then args.mitminterface will be
+        # overwritten with the value of args.internetinterface, whereas if no 
+        # args.internetinterface was provided, args.mitminterface will be set to a specific string.
+        if args.mitminterface and args.mitminterface != "handledAsInternetInterface":
             print(('[' + constants.O + '!' + constants.W +
                   '] Using  both --mitminterface (-mI) and --internetinterface (-iI)'
                   ' is redundant. Ignoring --internetinterface (-iI).'))
