@@ -131,21 +131,21 @@
 }
 
 .mac-wifi .checkmark1 {
-    font-size: 90%;
-    position: absolute;
-    top: 60%;
-    left: 41%;
+  font-size: 90%;
+  position: absolute;
+  top: 60%;
+  left: 41%;
 }
 
 .mac-wifi .checkmark2 {
-    font-size: 90%;
-    position: absolute;
-    top: 67%;
-    left: 41%;
+  font-size: 90%;
+  position: absolute;
+  top: 67%;
+  left: 41%;
 }
 
 .mac-wifi .checkmark1 .checkmark2 label {
-    padding: 0 0 0 3px;
+  padding: 0 0 0 3px;
 }
 
 .mac-wifi .description {
@@ -153,11 +153,11 @@
 }
 
 .mac-wifi strong {
-    display: block;
-    margin: 3% 0 6% 0;
-    font-size: 90%;
-    line-height: 105%;
-    color: black;
+  display: block;
+  margin: 3% 0 6% 0;
+  font-size: 90%;
+  line-height: 105%;
+  color: black;
 }
 
 .mac-wifi .password {
@@ -188,9 +188,9 @@
 }
 
 .mac-wifi .content .question {
-    position: absolute;
-    left: 10px;
-    bottom: 7px;
+  position: absolute;
+  left: 10px;
+  bottom: 7px;
 }
 
 .mac-wifi .icon .wifi-icon {

