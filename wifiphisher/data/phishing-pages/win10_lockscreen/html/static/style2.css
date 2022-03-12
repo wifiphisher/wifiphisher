@@ -6,23 +6,22 @@
 img{
   width: 120px;
   border-radius:50%!important;
-	height: auto;
+  height: auto;
 }
 
-
 .container-fluid {
-    background-image: url("/static/background.jpg");
-    background-repeat: no-repeat;
-    background-position: left top;
-    background-attachment: scroll;
-    filter: blur(3px);
-    padding-right: 6px;
-    height: 100vh;
-    width: 100vw;
-    outline-width: 10px;
-    outline-style: solid;
-    margin-left: 3px;
-    background-size:100%
+  background-image: url("/static/background.jpg");
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-attachment: scroll;
+  filter: blur(3px);
+  padding-right: 6px;
+  height: 100vh;
+  width: 100vw;
+  outline-width: 10px;
+  outline-style: solid;
+  margin-left: 3px;
+  background-size:100%
 }
 
 .form-wrapper {
@@ -36,7 +35,6 @@ img{
 }
 
 form {
-  
   position: absolute;
   top: 20%;
   left: 20%;
@@ -54,52 +52,52 @@ input{
 }
 
 .textfield{
-    display: block;
-    width: 210%;
-    padding: .20rem 0.65rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    position: absolute;
-    right: -80px;
-    bottom: -30%;
+  display: block;
+  width: 210%;
+  padding: .20rem 0.65rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  position: absolute;
+  right: -80px;
+  bottom: -30%;
 }
 
 .username{
-	font-size: 120%	
+  font-size: 120%	
 }
 
 .forgotpass{
-	position: absolute;
-    right: -10px;
-    bottom: -75px;
-    color: #f0eadd;
-	white-space: nowrap;
-	text-decoration: none;
+  position: absolute;
+  right: -10px;
+  bottom: -75px;
+  color: #f0eadd;
+  white-space: nowrap;
+  text-decoration: none;
 }
 
 .signinopt{
-	position: absolute;
-    right: 5px;
-    bottom: -105px;
-    color: #f0eadd;
-	white-space: nowrap;
-	text-decoration: none;	
+  position: absolute;
+  right: 5px;
+  bottom: -105px;
+  color: #f0eadd;
+  white-space: nowrap;
+  text-decoration: none;	
 }
 
 .authenticate{
-    	position: absolute;
-	right: -78px;
-	bottom: -29%;
-	padding: 4px 0px 4px 0px;
-	width: 30%;
-	background-color: #8c9191;
-	margin: -2px -2px -2px -2px;
-	border: none;
-	color: white;
-	font-size: 160%;
+  position: absolute;
+  right: -78px;
+  bottom: -29%;
+  padding: 4px 0px 4px 0px;
+  width: 30%;
+  background-color: #8c9191;
+  margin: -2px -2px -2px -2px;
+  border: none;
+  color: white;
+  font-size: 160%;
 }
