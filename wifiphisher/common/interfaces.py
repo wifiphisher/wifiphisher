@@ -365,7 +365,7 @@ class NetworkManager(object):
     @property
     def internet_access_enable(self):
         """
-        Return whether the -iI option is used
+        Return whether an interface will be used to provide Internet access
 
         :param self: A NetworkManager object
         :type self: NetworkManager
