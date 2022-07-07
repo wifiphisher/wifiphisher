@@ -193,7 +193,7 @@ In no event shall {{ target_ap_vendor }} Company or any other party which has be
   <!-- Start footer -->
   <footer class="footer">
     <div class="container text-center">
-      <p class="text-muted">© {{ target_ap_vendor }} 2019, All Rights Reserved.</p>
+      <p class="text-muted">© {{ target_ap_vendor }} <script>document.write(new Date().getFullYear())</script>, All Rights Reserved.</p>
     </div>
   </footer>
   <!-- End footer -->
@@ -413,10 +413,7 @@ function checkBoxStatus()
 			input.disabled = true;
 		}
   }
-  
-// update copyright year
-var theDate=new Date(); 
-document.getElementsByClassName("text-muted")[0].innerHTML = "© {{ target_ap_vendor }} " + theDate.getFullYear() + ", All Rights Reserved.";
+ 
 
 </script>
 </body>
