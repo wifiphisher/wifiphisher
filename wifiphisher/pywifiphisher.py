@@ -65,6 +65,11 @@ def parse_args():
         help=("Manually choose an interface that supports monitor mode for " +
               "deauthenticating the victims. " + "Example: -eI wlan1"))
     parser.add_argument(
+        "-nEI",
+        "--noextensionsinterface",
+        help=("Do not choose an interface that supports monitor mode. " + 
+             "Only use if you only use extensions that does not require an interface with monitor mode !"))
+    parser.add_argument(
         "-aI",
         "--apinterface",
         type=opmode.validate_ap_interface,
@@ -485,7 +490,7 @@ class WifiphisherEngine:
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
                         ap_iface = args.apinterface
-                else:
+                elif not args.noextensionsinterface:
                     mon_iface, ap_iface = self.network_manager.get_interface_automatically(
                     )
                 # display selected interfaces to the user
