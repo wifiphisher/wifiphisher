@@ -67,8 +67,9 @@ def parse_args():
     parser.add_argument(
         "-nEI",
         "--noextensionsinterface",
-        help=("Do not choose an interface that supports monitor mode. " + 
-             "Only use if you only use extensions that does not require an interface with monitor mode !"))
+        help=("Bypass required interface that supports monitor mode. " + 
+             "Only use if you only use extensions that does not require an interface with monitor mode !"),
+	action='store_true')
     parser.add_argument(
         "-aI",
         "--apinterface",
@@ -482,15 +483,18 @@ class WifiphisherEngine:
                     logger.info("Selecting %s interface for WPS association",
                                 args.wpspbc_assoc_interface)
             if self.opmode.extensions_enabled():
-                if args.extensionsinterface and args.apinterface:
-                    if self.network_manager.is_interface_valid(
-                            args.extensionsinterface, "monitor"):
-                        mon_iface = args.extensionsinterface
+                if (args.extensionsinterface or args.noextensionsinterface) or args.apinterface:
+                    if not args.noextensionsinterface:
+                        if self.network_manager.is_interface_valid(
+                                args.extensionsinterface, "monitor"):
+                            mon_iface = args.extensionsinterface
                         self.network_manager.unblock_interface(mon_iface)
+                    else:
+                        mon_iface=None
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
                         ap_iface = args.apinterface
-                elif not args.noextensionsinterface:
+                else:
                     mon_iface, ap_iface = self.network_manager.get_interface_automatically(
                     )
                 # display selected interfaces to the user
@@ -502,7 +506,7 @@ class WifiphisherEngine:
                     "attack\n[{0}+{1}] Selecting {0}{3}{1} interface for creating the "
                     "rogue Access Point").format(G, W, mon_iface, ap_iface))
 
-            if not self.opmode.extensions_enabled():
+            if  not self.opmode.extensions_enabled():
                 if args.apinterface:
                     if self.network_manager.is_interface_valid(
                             args.apinterface, "AP"):
@@ -526,7 +530,7 @@ class WifiphisherEngine:
                         ap_iface, new_mac))
                     print("[{0}+{1}] Changing {2} MAC addr (BSSID) to {3}".format(
                         G, W, ap_iface, new_mac))
-                    if mon_iface != ap_iface:
+                    if mon_iface and mon_iface != ap_iface:
                         new_mac = self.network_manager.set_interface_mac(mon_iface,
                                              args.mac_extensions_interface)
                         logger.info("Changing {} MAC address to {}".format(
@@ -539,9 +543,10 @@ class WifiphisherEngine:
             # make sure interfaces are not blocked
             logger.info("Unblocking interfaces")
             self.network_manager.unblock_interface(ap_iface)
-            self.network_manager.unblock_interface(mon_iface)
+            if mon_iface:
+                self.network_manager.unblock_interface(mon_iface)
             # set monitor mode only when --essid is not given
-            if self.opmode.extensions_enabled() or args.essid is None:
+            if (self.opmode.extensions_enabled() or args.essid is None) and mon_iface:
                 self.network_manager.set_interface_mode(mon_iface, "monitor")
         except (interfaces.InvalidInterfaceError,
                 interfaces.InterfaceCantBeFoundError,
@@ -712,9 +717,9 @@ class WifiphisherEngine:
                 'APs': APs_context,
                 'args': args
             }
-
-            self.network_manager.up_interface(mon_iface)
-            self.em.set_interface(mon_iface)
+            if mon_iface:
+                self.network_manager.up_interface(mon_iface)
+                self.em.set_interface(mon_iface)
             extensions = DEFAULT_EXTENSIONS
             if args.lure10_exploit:
                 extensions.append(LURE10_EXTENSION)

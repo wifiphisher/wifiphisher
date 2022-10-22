@@ -143,6 +143,8 @@ class ExtensionManager(object):
         :rtype: None
         .. note: The channel range is between 1 to 13
         """
+        if not self._interface:
+            return
 
         # set the current channel to the ap channel
         self._nm.set_interface_channel(self._interface,
@@ -182,6 +184,8 @@ class ExtensionManager(object):
         """
 
         self._interface = interface
+        if not self._interface:
+            return
         self._socket = linux.L2Socket(iface=self._interface)
 
     def set_extensions(self, extensions):
@@ -363,7 +367,8 @@ class ExtensionManager(object):
         :return: None
         :rtype: None
         """
-
+        if not self._interface:
+            return
         # continue to find clients until told otherwise
         dot11.sniff(
             iface=self._interface,
