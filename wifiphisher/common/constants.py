@@ -147,7 +147,7 @@ REGEX_PWD = "password|pwd|pass"
 REGEX_UNAME = "username|uname|name"
 
 # TUI
-MAIN_TUI_ATTRS = 'version essid channel ap_iface em phishinghttp args'
+MAIN_TUI_ATTRS = 'version essid channel ap_iface em phishinghttp args template pktSniffer'
 AP_SEL_ATTRS = 'interface mac_matcher network_manager args'
 
 # Fourway handshake extension

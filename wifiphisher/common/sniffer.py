@@ -942,7 +942,3 @@ class Sniffer (object):
             print_str = '[%s] %s' % (src_ip_port.split(':')[0], msg)
             with open(self.requests_file_path, "a+") as log:
                 log.write(print_str+'\n')
-
-def sniffTraffic(iface):
-    sn=Sniffer()
-    sniff(iface=iface, prn=sn.pkt_parser, store=0)

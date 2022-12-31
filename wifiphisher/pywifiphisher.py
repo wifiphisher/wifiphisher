@@ -337,6 +337,7 @@ class WifiphisherEngine:
         self.em = extensions.ExtensionManager(self.network_manager)
         self.opmode = opmode.OpMode()
         self.victim = victim.Victims()
+        self.sn = sniffer.Sniffer()
 
     def stop(self):
         if DEV:
@@ -751,15 +752,10 @@ class WifiphisherEngine:
             time.sleep(1.5)
         
         elif self.opmode.internet_sharing_enabled() and args.mitminterface:
-            # Start the packet sniffer in a background thread
+            # Start the packet sniffer asynchronously in the background
             print('[' + T + '*' + W + '] Starting sniffing traffic on interface ' + 
                 internet_interface)
-            pktSniffer = Thread(
-            target=sniffer.sniffTraffic,
-                args=[internet_interface])
-            pktSniffer.daemon = True
-            pktSniffer.start()
-
+            pktSniffer = sniffer.AsyncSniffer(iface=internet_interface, prn=self.sn.pkt_parser, store=0)
             time.sleep(1.5)
 
         # We no longer need mac_matcher
@@ -771,7 +767,7 @@ class WifiphisherEngine:
         # Main loop.
         try:
             main_info = tui.MainInfo(VERSION, essid, channel, ap_iface,
-                                     self.em, phishinghttp, args)
+                                     self.em, phishinghttp, args, template, pktSniffer)
             tui_main_object = tui.TuiMain()
             curses.wrapper(tui_main_object.gather_info, main_info)
             self.stop()
