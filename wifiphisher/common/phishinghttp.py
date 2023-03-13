@@ -31,7 +31,8 @@ credential_log_path = None
 
 class DowngradeToHTTP(tornado.web.RequestHandler):
     def get(self):
-        self.redirect("http://10.0.0.1:8080/")
+        port = self.application.settings.get('port')
+        self.redirect("http://10.0.0.1:{}/".format(port))
 
 
 class BackendHandler(tornado.web.RequestHandler):
@@ -202,7 +203,7 @@ def runHTTPServer(ip, port, ssl_port, t, em):
         ui_methods=uimethods)
     app.listen(port, address=ip)
 
-    ssl_app = tornado.web.Application([(r"/.*", DowngradeToHTTP)])
+    ssl_app = tornado.web.Application([(r"/.*", DowngradeToHTTP)], port=port)
 
     https_server = tornado.httpserver.HTTPServer(
         ssl_app,
