@@ -6,9 +6,10 @@
 <p align="center"><img src="https://wifiphisher.github.io/wifiphisher/wifiphisher.png" /></p>
 
 ## About
-<a href="https://wifiphisher.org">Wifiphisher</a> is a rogue Access Point framework for conducting red team engagements or Wi-Fi security testing. Using Wifiphisher, penetration testers can easily achieve a man-in-the-middle position against wireless clients by performing targeted Wi-Fi association attacks. Wifiphisher can be further used to mount victim-customized web phishing attacks against the connected clients in order to capture credentials (e.g. from third party login pages or WPA/WPA2 Pre-Shared Keys) or infect the victim stations with malwares.
+<a href="https://wifiphisher.org">Wifiphisher</a>  — это платформа точек доступа для проведения тестирования безопасности Wi-Fi. Используя Wifiphisher, в тесте на проникновение можно легко занять позицию в борьбе с беспроводными клиентами, выполняя целевые атаки по ассоциации Wi-Fi. Wifiphisher можно дополнительно использовать для организации веб-фишинговых атак против подключенных клиентов с целью перехвата учетных данных (например, со сторонних страниц входа или предварительных общих ключей WPA/WPA2) или заражения машины вредоносным ПО.(не советую, не рекомендую, не одобряю) 
 
-Wifiphisher is...
+
+Wifiphisher это..
 
 * ...powerful. Wifiphisher can run for hours inside a Raspberry Pi device
 executing all modern Wi-Fi association techniques (including "Evil Twin", "KARMA" and "Known Beacons").  
