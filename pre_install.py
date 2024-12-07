@@ -4,10 +4,22 @@ import os
 import sys
 import shutil
 import tempfile
-import distutils.sysconfig
-import distutils.ccompiler
-from distutils.errors import CompileError, LinkError
 from textwrap import dedent
+
+# Try to use setuptools instead of distutils
+try:
+    from setuptools import ccompiler
+    from setuptools.sysconfig import customize_compiler
+except ImportError:
+    try:
+        from distutils import ccompiler
+        from distutils.sysconfig import customize_compiler
+    except ImportError:
+        import sysconfig
+        from distutils import ccompiler
+        def customize_compiler(compiler):
+            sysconfig.get_config_vars()
+            compiler.set_include_dirs([sysconfig.get_path('include')])
 
 # Code for checking if libnl-dev and libnl-genl-dev exist
 LIBNL_CODE = dedent("""
@@ -53,8 +65,8 @@ def check_required_library(libname, libraries=None, include_dir=None):
     file_name = bin_file_name + '.c'
     with open(file_name, 'w') as filep:
         filep.write(LIBNAME_CODE_DICT[libname])
-    compiler = distutils.ccompiler.new_compiler()
-    distutils.sysconfig.customize_compiler(compiler)
+    compiler = ccompiler.new_compiler()
+    customize_compiler(compiler)
     try:
         compiler.link_executable(
             compiler.compile([file_name],
@@ -62,9 +74,7 @@ def check_required_library(libname, libraries=None, include_dir=None):
             bin_file_name,
             libraries=libraries,
         )
-    except CompileError:
-        build_success = False
-    except LinkError:
+    except Exception:  # Changed to catch any compilation/linking error
         build_success = False
     finally:
         shutil.rmtree(tmp_dir)
