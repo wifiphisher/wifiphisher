@@ -49,8 +49,13 @@ wifiphisher = "wifiphisher.pywifiphisher:run"
 include = [
     "wifiphisher/**/*.py",
     "wifiphisher/data/**/*",
+    "pre_install.py",
+    "build.py"
 ]
 exclude = [
     "**/__pycache__",
     "**/*.pyc",
-] 
+]
+
+[tool.hatch.build.hooks.custom]
+path = "build.py" 
