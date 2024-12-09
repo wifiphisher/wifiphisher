@@ -762,17 +762,34 @@ class NetworkManager(object):
 
 def is_add_vif_required(main_interface, internet_interface, wpspbc_assoc_interface):
     """
-    Return the card if only that card support both monitor and ap
+    Return the card if only that card support both monitor and ap simultaneously
     :param args: Arguemnt from pywifiphisher
     :type args: parse.args
     :return: tuple of card and is_frequency_hop_allowed
     :rtype: tuple
     """
 
+    def can_use_modes_simultaneously(card):
+        """Check if the specified card supports AP and monitor modes simultaneously
+        :param card: The network card to check
+        :type card: pyric.pyw.Card
+        """
+        try:
+            # Get valid interface combinations for this card
+            output = subprocess.check_output(['iw', 'phy', f'phy{card.phy}', 'info'], 
+                                          stderr=subprocess.PIPE).decode()
+            # Look for a combination rule that includes both AP and monitor
+            combinations = output.split('valid interface combinations:')[1].split('Device')[0].split('\n\t\t *')
+            for valid_combination in combinations:
+                if 'AP' in valid_combination and 'monitor' in valid_combination:
+                    return True
+            return False
+        except:
+            return False
+
     def get_perfect_card(phy_map_vifs, vif_score_tups):
         """
-        Get the perfect card that both supports ap and monitor when we
-        have only one phy interface can do that
+        Get the perfect card that both supports ap and monitor simultaneously
         :param phy_map_vifs: phy number maps to the virtual interfaces
         :param vif_score_tups: list of tuple containing card and score
         :type phy_map_vifs: dict
@@ -786,18 +803,23 @@ def is_add_vif_required(main_interface, internet_interface, wpspbc_assoc_interfa
             vif_score_tuple = vif_score_tups[0]
             card = vif_score_tuple[0]
             score = vif_score_tuple[1]
-            # if this card support both monitor and AP mode
-            if score == 2:
+            # check both score and simultaneous mode support
+            if score == 2 and can_use_modes_simultaneously(card):
                 return card, True
+            return None, True
         # case 2 : one phy maps to multiple virtual interfaces
         # we don't need to create one more virtual interface in this case
         elif len(phy_map_vifs) == 1 and len(list(phy_map_vifs.values())[0]) > 1:
-            return None, True
+            if can_use_modes_simultaneously(vif_score_tups[0][0]):
+                return vif_score_tups[0][0], True
+            else:
+                return None, True
         # case 3 : we have multiple phy interfaces but only
         # one card support both monitor and AP and the other
         # ones just support the managed mode only
         elif len(phy_map_vifs) > 1:
-            if vif_score_tups[0][1] == 2 and vif_score_tups[1][1] == 0:
+            if vif_score_tups[0][1] == 2 and vif_score_tups[1][1] == 0 and \
+               can_use_modes_simultaneously(vif_score_tups[0][0]):
                 return vif_score_tups[0][0], True
         return None, False
 
@@ -824,7 +846,11 @@ def is_add_vif_required(main_interface, internet_interface, wpspbc_assoc_interfa
 
         phy_to_vifs[phy_number].append((card, score))
     # each phy number map to a sublist containing (card, score)
-    vif_score_tuples = [sublist[0] for sublist in list(phy_to_vifs.values())]
+    vif_score_tuples = vif_score_tuples = [
+                            card_score 
+                            for phy_interface_tups in phy_to_vifs.values() 
+                            for card_score in phy_interface_tups
+                        ]
     # sort with score
     vif_score_tuples = sorted(vif_score_tuples, key=lambda tup: -tup[1])
     use_one_phy = False
@@ -832,7 +858,7 @@ def is_add_vif_required(main_interface, internet_interface, wpspbc_assoc_interfa
     if main_interface:
         card = pyw.getcard(main_interface)
         phy_number = card.phy
-        if phy_to_vifs[card.phy][0][1] == 2:
+        if phy_to_vifs[card.phy][0][1] == 2 and can_use_modes_simultaneously(card):
             perfect_card = card
             use_one_phy = True
         else:
