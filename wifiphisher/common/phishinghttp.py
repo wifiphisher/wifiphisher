@@ -101,7 +101,7 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
         file_path = template_directory + render_file
         self.render(file_path, **template.get_context())
 
-        log_file_path = "/tmp/wifiphisher-webserver.tmp"
+        log_file_path = "/tmp/wifiphisher-http-requests.txt"
         with open(log_file_path, "a+") as log_file:
             log_file.write("GET request from {0} for {1}\n".format(
                 self.request.remote_ip, self.request.full_url()))
@@ -141,7 +141,7 @@ class CaptivePortalHandler(tornado.web.RequestHandler):
             if content_type.startswith(constants.VALID_POST_CONTENT_TYPE):
                 post_data = tornado.escape.url_unescape(self.request.body)
                 # log the data
-                log_file_path = "/tmp/wifiphisher-webserver.tmp"
+                log_file_path = "/tmp/wifiphisher-http-requests.txt"
                 with open(log_file_path, "a+") as log_file:
                     log_file.write("POST request from {0} with {1}\n".format(
                         self.request.remote_ip, post_data))
