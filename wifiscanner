@@ -1,0 +1,102 @@
+index.php
+
+<?php
+session_start();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Wi-Fi Vulnerability Scanner</title>
+</head>
+<body>
+    <h1>Wi-Fi Vulnerability Scanner</h1>
+    <form action="scan.php" method="POST">
+        <label for="ip">Enter IP Address:</label>
+        <input type="text" id="ip" name="ip" required>
+        <label for="ports">Enter Ports (comma-separated):</label>
+        <input type="text" id="ports" name="ports" required>
+        <button type="submit">Scan</button>
+    </form>
+</body>
+</html>
+
+scan.php 
+
+<?php
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $ip = $_POST['ip'];
+    $ports = explode(',', $_POST['ports']);
+    $results = [];
+
+    foreach ($ports as $port) {
+        $port = trim($port);
+        $connection = @fsockopen($ip, $port, $errno, $errstr, 1);
+        if (is_resource($connection)) {
+            $results[$port] = 'Open';
+            fclose($connection);
+        } else {
+            $results[$port] = 'Closed';
+        }
+    }
+
+    $_SESSION['results'] = $results;
+    header('Location: results.php');
+    exit();
+}
+
+results.php
+
+<?php
+session_start();
+$results = isset($_SESSION['results']) ? $_SESSION['results'] : [];
+session_destroy();
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Scan Results</title>
+</head>
+<body>
+    <h1>Scan Results</h1>
+    <table>
+        <tr>
+            <th>Port</th>
+            <th>Status</th>
+        </tr>
+        <?php foreach ($results as $port => $status): ?>
+        <tr>
+            <td><?php echo htmlspecialchars($port); ?></td>
+            <td><?php echo htmlspecialchars($status); ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <a href="index.php">Back</a>
+</body>
+</html>
+
+
+css/styles.css
+ody {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+th {
+    background-color: #f2f2f2;
+}
+
