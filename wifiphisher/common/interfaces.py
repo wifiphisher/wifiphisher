@@ -401,7 +401,7 @@ class NetworkManager(object):
         try:
             proc = Popen(['nmcli', 'dev', 'set', interface, 'manage', 'no'], stderr=PIPE)
             err = proc.communicate()[1]
-        except:
+        except Exception:
             logger.error("Failed to make NetworkManager unmanage interface {0}: {1}".format(interface, err))
             raise InterfaceManagedByNetworkManagerError(interface)
         # Ensure that the interface is unmanaged
@@ -884,7 +884,7 @@ def is_managed_by_network_manager(interface_name):
     # NetworkManager service is not running so the devices must be unmanaged
     # (CalledProcessError)
     # Or nmcli is not installed...
-    except:
+    except Exception:
         pass
 
     return bool(is_managed)
