@@ -22,3 +22,4 @@ path_to_project_root = os.path.abspath(os.path.join(dir_of_executable, '..'))
 sys.path.insert(0, path_to_project_root)
 os.chdir(path_to_project_root)
 run()
+
