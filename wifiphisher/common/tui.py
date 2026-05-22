@@ -897,6 +897,35 @@ class TuiMain(object):
 
             start_row_num += 1
 
+    def print_http_requests_sniffer(self, screen, start_row_num, http_output):
+        """
+        Print the http request on the main terminal
+        :param self: A TuiMain object
+        :type self: TuiMain
+        :param start_row_num: start line to print the http request
+        type start_row_num: int
+        :param http_output: string of the http requests
+        :type http_output: str
+        """
+        start_col = 0
+        screen.addstr(start_row_num, start_col, '[')
+        start_col += 1
+        screen.addstr(start_row_num, start_col, '*', self.yellow_text)
+        start_col += 1
+        screen.addstr(start_row_num, start_col, '] ')
+        start_col += 2
+
+        # Display HTTP GET requests
+        screen.addstr(start_row_num, start_col, "",
+                        self.yellow_text)
+        start_col += len("GET")
+
+        # resource url
+        screen.addstr(start_row_num, start_col, http_output, self.yellow_text)
+
+        start_row_num += 1
+
+
     def display_info(self, screen, info):
         """
         Print the information of Victims on the terminal
@@ -959,10 +988,11 @@ class TuiMain(object):
                 row_counter += 1
             # Print the http request section
             screen.addstr(13, 0, "HTTP requests: ", self.blue_text)
-            if os.path.isfile('/tmp/wifiphisher-webserver.tmp'):
+            if os.path.isfile('/tmp/wifiphisher-http-requests.txt'):
                 http_output = check_output(
-                    ['tail', '-5', '/tmp/wifiphisher-webserver.tmp'])
+                    ['tail', '-5', '/tmp/wifiphisher-http-requests.txt'])
                 self.print_http_requests(screen, 14, http_output)
+                self.print_http_requests_sniffer(screen, 14, http_output)
         except curses.error:
             pass
 
