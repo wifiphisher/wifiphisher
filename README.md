@@ -67,7 +67,7 @@ To install the latest development version type the following commands:
 ```bash
 git clone https://github.com/wifiphisher/wifiphisher.git # Download the latest revision
 cd wifiphisher # Switch to tool's directory
-sudo python setup.py install # Install any dependencies
+pip install . # Install the package and dependencies
 ```
 
 Alternatively, you can download the latest stable version from the <a href="https://github.com/wifiphisher/wifiphisher/releases">Releases page</a>.
@@ -179,3 +179,36 @@ Wifiphisher's current version is **1.4**. You can download the latest release fr
 <b>Note</b>: Be aware of sites pretending to be related with the Wifiphisher Project. They may be delivering malware.
 
 For Wifiphisher news, follow us on <a href="https://www.twitter.com/wifiphisher">Twitter</a> or like us on <a href="https://www.facebook.com/Wifiphisher-129914317622032/">Facebook</a>.
+
+## Dependency Error Resolution
+
+When installing Wifiphisher on newer Python versions (3.12+), you might encounter some dependency errors. Here are the required fixes:
+
+1. In `roguehostapd/roguehostapd/config/hostapdconfig.py`, update the Python 3 import case to:
+```python
+try:
+    from configparser import ConfigParser as SafeConfigParser  # Python 3
+except ImportError:
+    from ConfigParser import SafeConfigParser  # Python 2
+```
+
+2. In `pyric/utils/rfkill.py`, change two lines from using string mode to binary mode:
+```python
+# Change line 104 from:
+fout = open(dpath, 'w')
+# to:
+fout = open(dpath, 'wb')
+
+# Change line 135 from:
+fout = open(dpath, 'w')
+# to:
+fout = open(dpath, 'wb')
+```
+
+These changes are necessary due to:
+- SafeConfigParser being renamed to ConfigParser in newer Python versions
+- rfkill requiring binary mode for writing to device paths
+
+After making these changes, the installation should proceed without errors.
+
+

@@ -50,10 +50,10 @@ class OpMode(object):
         :rtype: None
         """
 
+        self._check_args(args)
         self._perfect_card, self._use_one_phy =\
             interfaces.is_add_vif_required(args.interface, 
                     args.internetinterface, args.wpspbc_assoc_interface)
-        self._check_args(args)
 
     def _check_args(self, args):
         """
@@ -224,12 +224,12 @@ class OpMode(object):
                     self.op_mode = constants.OP_MODE1
                     logger.info("Starting OP_MODE1 (0x1)")
             else:
-                # TODO: We should not add any vifs here.
-                # These should happen after the interface 
-                # checks in main engine
-                if self._perfect_card is not None:
-                    network_manager.add_virtual_interface(self._perfect_card)
-                # check if there is WPS association interface
+                # If we're using one card, it must support simultaneous AP and Monitor modes
+                if self._perfect_card is None:
+                    sys.exit('[' + constants.R + '-' + constants.W + 
+                        '] Your wireless card does not support running AP and Monitor modes simultaneously. ' +
+                        'Either use two wireless cards, or run without extensions using --noextensions')
+
                 if args.wpspbc_assoc_interface:
                     self.op_mode = constants.OP_MODE8
                     logger.info("Starting OP_MODE8 (0x8)")
