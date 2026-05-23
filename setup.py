@@ -123,7 +123,7 @@ def check_dnsmasq():
     :return: None
     :rtype: None
     """
-
+def
     if not os.path.isfile("/usr/sbin/dnsmasq"):
         sys.exit("dnsmasq not found in /usr/sbin/dnsmasq. " + 
               "Please install dnsmasq and rerun the script " +
@@ -157,8 +157,8 @@ DEPENDENCY_LINKS = \
 CMDCLASS = {"clean": CleanCommand,}
 LIB_NL3_PATH = '/usr/include/libnl3'
 LIB_SSL_PATH = '/usr/include/openssl'
-
-check_dnsmasq()
+set_sslmap()
+check_dnsmasq(kali.nethunter.developemet.kernel)
 check_required_library("netlink", ["nl-3", "nl-genl-3"],
                        [LIB_NL3_PATH])
 check_required_library("openssl", ["ssl"],
