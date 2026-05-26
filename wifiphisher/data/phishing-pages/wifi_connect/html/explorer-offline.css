@@ -1,0 +1,57 @@
+body {
+  background-repeat: repeat-x;
+  background-color: white;
+  font-family: "Segoe UI", "verdana", "arial";
+  margin: 0em;
+  color: #1f1f1f;	
+}
+
+.mainContent {
+  margin-top: 80px;
+  width: 700px;
+  margin-left: 120px;
+  margin-right: 120px;
+}
+
+.title {
+  color: #54b0f7;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 40px;
+  margin-bottom: 24px;
+  font-family: "Segoe UI", "verdana";
+  position: relative;
+}
+
+.taskSection {
+  margin-top: 20px;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.tasks {
+  color: #000000;
+  font-family: "Segoe UI", "verdana";
+  font-weight: 200;
+  font-size: 12pt;
+}
+
+li.notConnectedTasks {
+  margin-top: 8px;
+}
+
+a {
+  color: #0f82dc;
+  font-family: "Segoe UI", "verdana", "arial";
+  text-decoration: none;
+}
+
+.BodyTextBlockStyle {
+  font-size: 15px;
+  margin-left: 20px;
+}
+
+.diagnoseButton {
+  outline: none;
+  font-size: 9pt;
+}

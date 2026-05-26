@@ -1,0 +1,153 @@
+body {
+  padding: 0 75px;
+  background-size: 64px 32px;
+  background-repeat: repeat-x;
+  background-color: #f9f9fa;
+  min-width: 13em;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 40px 48px;
+  align-items: center;
+  justify-content: center;
+}
+
+html|body {
+  font-size: 15px;
+  font-weight: lighter;
+  margin: 0;
+}
+
+#Br3 {
+  background-image: url("./navigator.png");
+  background-position: left top;
+  background-repeat: no-repeat;
+  font-size: 120%;
+}
+
+.illustrated #errorPageContainer {
+  background-repeat: no-repeat;
+  background-size: 38%;
+}
+
+.illustrated #errorPageContainer {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  background-position: left center;
+}
+
+.container {
+  min-width: var(--in-content-container-min-width);
+  max-width: var(--in-content-container-max-width);
+  display: flex;
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 30%;
+  margin-right: 400px;
+  padding-bottom: 200px;
+}
+
+.illustrated #text-container {
+  margin: auto;
+  padding-inline-start: 30%;
+}
+
+.illustrated .title {
+  background: none;
+  background-image: none;
+  padding-inline-start: 0;
+  margin-inline-start: 0;
+}
+
+.title {
+  background-image: none !important;
+  padding-inline-start: 0;
+  margin-inline-start: 0;
+  font-size: 2.2em;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.title-text {
+  padding-bottom: 0;
+  border-bottom: none;
+  padding-top: 0;
+  font-size: inherit;
+  font-weight: lighter;
+}
+
+html|h1 {
+font-size: 2.5em;
+font-weight: lighter;
+line-height: 1.2;
+color: var(--in-content-text-color);
+margin: 0;
+margin-bottom: 0px;
+margin-bottom: .5em;
+}
+
+ul.errorLongDesc {
+list-style: disc;
+font-size: 17px;
+font-weight: normal;
+font-family: "Times New Roman", Times, serif;
+}
+
+ul.errorLongDesc, ol.errorLongDesc {
+margin: 1em 0;
+padding: 0;
+margin-inline-start: 2em;
+list-style: disc;
+font-size: 17px;
+font-weight: normal;
+font-family: "Times New Roman", TImes, serif;
+
+}
+
+ul > li, ol > li {
+margin-bottom: .5em;
+}
+
+.button-container {
+display: flex;
+flex-flow: row wrap;
+justify-content: end;
+margin-top: 1.2em;
+}
+
+#netErrorButtonContainer > .try-again {
+margin-top: 1.2em;
+}
+
+.button-container > button:first-child {
+margin-inline-start: 0;
+}
+
+html|button[autofocus], html|button[type="submit"], button.primary {	
+color: var(--in-content-selected-text) !important;
+}
+
+button.netErrorButtonContainer {
+padding: 0 1.2em;
+}
+
+/*
+html|button {
+min-width: 6.3em;
+margin-inline: 4px;
+}
+*/
+.primary-try-again {
+-moz-appearance: none;
+min-height: 32px;
+border: 1px solid transparent;
+border-radius: 2px;
+font-weight: normal;
+font-size: 15px;
+padding: 0 1.2em;
+height: 15px;
+width: 110px;
+position: relative;
+top: 100%;
+}

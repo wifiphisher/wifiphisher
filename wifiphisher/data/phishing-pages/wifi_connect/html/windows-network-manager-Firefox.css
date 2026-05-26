@@ -1,0 +1,263 @@
+.network-manager {
+  border-left: 1px solid #777;
+  border-top: 1px solid #777;
+  width: 400px;
+  background-color: #333;
+  color: white;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 90%;
+  font-family: 'Open Sans', sans-serif;
+  background-repeat: no-repeat;
+  height: 180px;
+}
+
+span {
+  color: #ccc;
+  font-size: 90%;
+}
+
+ul.firest {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li.selected {
+  padding: 10px 10px 20px 10px;
+  clear: both;
+  cursor: pointer;
+}
+
+.firest li:hover {
+  background-color: #494f58;
+}
+
+strong.content {
+  display: block;
+  margin-bottom: 5px;
+}
+
+li.selected {
+  background-color: #0769b7;
+  margin-bottom: 50px;
+  height: 100px;
+}
+
+input[type=checkbox] {
+  display: none;
+}
+
+button.firest {
+  border: 1px solid transparent;
+  background-color: #3987c6;
+  padding-top: 10px;
+  padding-bottom:25px;
+  padding-right: 40px;
+  padding-left:40px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 90%;
+  cursor: pointer;
+}
+
+div.disconnected:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+button:hover {
+  border: 1px solid white;
+}
+
+button.connect {
+  clear: both;
+  position: absolute;
+  bottom: 45px;
+  right: 10px;
+  margin-bottom: 15px;
+  border: 1px solid transparent;
+  background-color: #3987c6;
+  padding: 10px 40px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 90%;
+  cursor: pointer;
+}
+
+button.authenticate{
+  width: 155px;
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 100px;
+  position: absolute;
+  right: 195px;
+  border: 1px solid transparent;
+  background-color: #3987c6;
+  padding: 10px 40px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 90%;
+  cursor: pointer;
+  bottom: 5px;
+}
+
+button.cancel {
+  width: 155px;
+  display: inline-block;
+  margin-top: 10px;
+  margin-left: 165px;
+  border: 1px solid transparent;
+  background-color: #3987c6;
+  padding: 10px 40px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 90%;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+button:hover {
+}
+
+.disconnected {
+  display: block;
+  height: 70px;
+}
+
+.connected {
+  display: none;
+  padding-top: 10px;
+  padding-right: 30px;
+  position : absolute;
+}
+
+div.check {
+  width: 14px;
+  height: 14px;
+  border: 1px solid black;
+  background-color: white;
+  position: relative;
+  top: 19px;
+  right: 20px;
+}
+
+input[type=checkbox] + label div.check:after {
+  font-family: 'Open Sans', sans-serif;
+  content: '✓'; 
+  color: black;
+  position: absolute;
+  left: 2px;
+  top: -3px;
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+input[type=text] {
+  border: 0px solid black;
+  display: block;
+  width: 100%;
+  height: 20px;
+  margin: 2px 0;
+}
+
+input[type=password] {
+  border: 0px solid black;
+  display: block;
+  width: 100%;
+  height: 20px;
+  margin: 2px 0;
+}
+
+label.content {
+  font-size: 90%;
+  display: block;
+}
+
+a.network-manager {
+  color: #3987c6;
+  text-decoration: none;
+  padding: 10px;
+  display: block;
+}
+
+div.content {
+  width: 330px;
+  margin-left: 43px;
+  font-size: 115%;
+}
+
+div.wifi.icon {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  float: left;
+}
+
+div.wifi.icon div.dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border: 3px solid white;
+  border-radius: 4px;
+}
+
+div.wifi.icon div.small {
+  border: 2px solid white;
+  border-radius: 50px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+div.wifi.icon div.dot2 {
+  width: 10px;
+  height: 10px;
+}
+
+div.wifi.icon div.dot3 {
+  width: 15px;
+  height: 15px;
+}
+
+div.wifi.icon div.dot4 {
+  width: 20px;
+  height: 20px;
+}
+
+.content {
+  margin: auto;
+    margin-left: auto;
+  max-width: 600px;
+  z-index: 2;
+  padding-top: 5px;
+  padding-bottom: 20px;
+}
+
+.networksettings {
+  position: absolute;
+  bottom: 12px;
+  color: #0769b7;
+  font-size: 125%;
+  text-decoration: none;
+  margin-left: 14px;
+}
+
+#networklabel {
+  position: relative;
+  top: 2px;
+  left: 20px;
+}
+
+.sharecheck {
+  position: relative;
+  left: 20px;
+}
+
