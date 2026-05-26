@@ -148,10 +148,10 @@ class OpMode(object):
 
         if args.deauth_channels:
             for channel in args.deauth_channels:
-                if channel > 14 or channel < 0:
+                if channel > 233 or channel < 0:
                     sys.exit(
                         '[' + constants.R + '!' + constants.W +
-                        '] --deauth-channels (-dC) requires channels in range 1-14.'
+                        '] --deauth-channels (-dC) requires channels in range 1-233.'
                     )
 
         # If both args.mitminterface and args.internetinterface are provided, the
