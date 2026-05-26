@@ -84,10 +84,11 @@ class OpMode(object):
 
         if ((args.extensionsinterface and not args.apinterface) or
                 (not args.extensionsinterface and args.apinterface)) and \
-                not (args.noextensions and args.apinterface):
+                not (args.noextensions and args.apinterface) and \
+                not args.noextensionsinterface:
             sys.exit('[' + constants.R + '-' + constants.W +
                      '] --apinterface (-aI) and --extensionsinterface (-eI)'
-                     '(or --noextensions (-nE)) are used in conjuction.')
+                     '(or --noextensions (-nE), or --noextensionsinterface (-nEI)) are used in conjuction.')
 
         if args.noextensions and args.extensionsinterface:
             sys.exit('[' + constants.R + '-' + constants.W +
