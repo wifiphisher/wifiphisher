@@ -16,10 +16,10 @@ import os
 import sys
 import shutil
 import tempfile
-import distutils.sysconfig
-import distutils.ccompiler
+from setuptools._distutils import sysconfig as _sysconfig
+from setuptools._distutils import ccompiler as _ccompiler
 
-from distutils.errors import CompileError, LinkError
+from setuptools._distutils.errors import CompileError, LinkError
 from setuptools import Command, find_packages, setup
 from textwrap import dedent
 
@@ -87,8 +87,8 @@ def check_required_library(libname, libraries=None, include_dir=None):
     file_name = bin_file_name + '.c'
     with open(file_name, 'w') as filep:
         filep.write(LIBNAME_CODE_DICT[libname])
-    compiler = distutils.ccompiler.new_compiler()
-    distutils.sysconfig.customize_compiler(compiler)
+    compiler = _ccompiler.new_compiler()
+    _sysconfig.customize_compiler(compiler)
     try:
         compiler.link_executable(
             compiler.compile([file_name],
